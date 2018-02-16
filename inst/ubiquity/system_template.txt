@@ -1,0 +1,216 @@
+# Author: name <email>
+#
+# System Units:
+#                
+#   mass          [=] ?
+#   volume        [=] ?
+#   concentration [=] ?
+#   time          [=] ?
+
+# #-------------#
+# | References  |
+# #-------------#
+#
+# Common conversions
+#
+# Half-life to rate:
+#
+#        ln(2)
+#  kel = -----
+#        thalf
+#
+# Convert ng/ml to nM
+#
+#    ng   1000 ml        nmoles
+#  X -- x ------- x --------------- = X/MW (KDA)
+#    ml    1L       MW (KDA)*1000 ng
+# 
+# Convert from nM to ng/ml:
+#
+# X nM  ===> X*MW(KDA) 
+# 
+# Converting dose in mpk to nmoles
+#
+#   mg            1e6 ng    1 nmole
+# X -- x BW(kg) x ------ x -----------------  =>  X*1e3*BW/MW
+#   kg            1 mg      MW (KDA) * 1000
+#
+#
+# Converting dose in mpk to nM    
+#
+#   mg            1e6 ng    1 nmole             1
+# X -- x BW(kg) x ------ x ----------------- x ---  =>  X*1e3*BW/MW/Vp
+#   kg            1 mg      MW (KDA) * 1000    V(L)
+#
+
+# Define Sets
+#
+# <SET:SETNAME>  E1; E2; E3
+
+# #-------------#
+# | Parameters  |
+# #-------------#
+#
+# System parameters
+#    name              value     lower      upper   units editable    grouping
+#                                bound      bound
+
+<P>  PNAME               1.0       eps        Inf   hr         yes     System
+
+
+# Name the default parameter set described by the <P> above
+#<PSET:default> Default parameter set description 
+# 
+# Covariates
+# ---------
+# For running simulations, we create covariates that are assocaited with the
+# default parameter set
+# #     name      times/values  values   units
+#   <CV:cvname>  ; times;      [ 0 10];    weeks
+#   <CV:cvname>  ; values;     [70 55];    kg     
+#
+# These can either be interpolated linearly or as step funcitons
+# #         name    
+#   <CVTYPE:cvname> linear
+#   <CVTYPE:cvname> step
+#
+
+# Interindividual Variability
+# ---------------------------
+# <IIV:ETANAME>    0.1            # Variance/diagonal element
+# <IIV:ETANAME:LN> PNAME          # Lognormal distirbution (LN) applied to parameter PNAME 
+# <IIVCOR:ETANAME1:ETANAME2> 0.01 # Covariance between ETANAME1 and ETANAME2
+
+#
+# Alernate Paramter Sets
+# ----------------------
+#
+#<PSET:psetname>       Pset Description
+#<PSET:psetname:name>  0.0
+#
+# By default the covariates will take on the value specified using <CV> above,
+# but they can be overwritten at the parameter set level
+#   <CVSET:psetname:cvname>  ; times;   [ 0 10]
+#   <CVSET:psetname:cvname>  ; values;  [60 55]
+
+# Static Secondary Parameters
+# ---------------------------
+# <As> param_name = right hand side
+
+# Dynamic Secondary Parameters
+# ----------------------------
+# <Ad> param_name = right hand side
+
+# #-------------------#
+# |Input Information |
+# #-------------------#
+#
+# Bolus Events
+# ------------
+# # times/events state   values        scale      units
+# <B:times>;             [  0  ];      ?;          ???
+# <B:events>;      ??;   [1.0  ];      ?;          ???    
+
+# Infusion Rate 
+# ------------
+# #  name     time/levels  values  scale    units
+# <R:name>;    times;     [0  1];     1;    ????
+# <R:name>;    levels;    [1  0];     1;    ????
+#
+
+# #-----------------------------#
+# | ODEs, and State Information |
+# #-----------------------------#
+
+# Initial Conditions
+# ------------------
+# define the non-zero initial conditions
+# <I> name = name0
+
+# ODEs
+# ----
+# <ODE:state> right hand side
+
+# Tissue Distribution
+# -------------------
+# state; compartment_volume; rate  <C> state; compartment_volume; rate
+
+# Rate Equation
+# -------------
+# state1 + state2 =rate=> state3 + state4
+
+# Equilibrium
+# -----------
+# state1 + state2 <=rate_forward:rate_reverse=> state3 + state4
+
+# Sources & Sinks
+# ---------------
+# production/source          elimination/sink
+# rate1; rate2      <S:name>  rate3; rate4 
+
+# #---------#
+# | Outputs |
+# #---------#
+# Outputs that begin with QC will not be displayed in the GUI
+#
+# <O> outputname  = right hand side
+
+# #------------#
+# | Estimation |
+# #------------#
+ 
+# Variance Parameters
+# --------------------
+#     name       value     lower  upper    units  editable  Label
+#                          bound  bound
+# <VP> name      -1        eps    inf       --    no        Variance
+
+# Default Dataset
+# ---------------
+# <DATA:FILE:CSV> data/mydata.csv
+# <DATA:HEADER:AUTOMATIC>
+# <DATA:HEADER:MANUAL>   col1; col2; col3;
+
+# #---------#
+# | Options #
+# #---------#
+
+# General Options:
+# specify different time scales
+# <TS:name>  scaling factor
+
+# Specify the index of state 'name' to be 'number' in the different targets
+# <INDEX:STATE:name> number
+# 
+# Specify the index of output 'name' to be 'number' in the different targets
+# <INDEX:OUTPUT:name> number
+
+# Only relevant in Matlab and R
+# -----------------------------
+# Output Times  
+# <OPT:output_times> SIMINT_SEQ[0][100][1]
+# default time scale
+# <OPT:TS>  name                            
+# <OPT:ylim>  [ymin ymax]
+# <OPT:ylim>  [ymin ymax]
+#
+# GUI Callback
+# <OPT:callback_gui> [SIMINT_simulation_options] = update_dosing(SIMINT_cfg, SIMINT_simulation_options, SIMINT_handles);
+
+# guides
+# <GUIDE>  type; name; value, marker, color
+
+# NONMEM options:
+# <NONMEM:INPUT:DROP:dataset_column_name>
+# <NONMEM:INPUT:RENAME:dataset_column_name> new_column_name
+# <NONMEM:AMTIFY> CONC; AMT; REL
+
+# Adapt Options
+# Variance Model      
+# --------------
+# <VE:OUTPUT> expression
+# <VE:OUTPUT>   Slope*SIMINT_POWER[PRED][2.0]
+
+
+
+
