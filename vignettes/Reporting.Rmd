@@ -1,0 +1,23 @@
+---
+title: 'Report Generation'
+author: "John Harrold <john.m.harrold@gmail.com>"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reporting}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(ubiquity)
+require(deSolve)
+require(ggplot2)
+require(foreach)
+require(doParallel)
+require(doRNG)
+```
+
+## Introduction
+

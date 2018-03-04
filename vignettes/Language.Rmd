@@ -1,0 +1,568 @@
+---
+title: "Modeling Language"
+author: "John Harrold <john.m.harrold@gmail.com>"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Language}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+At its core, ubiquity is a modeling language and a set of scripts meant to facilitate model development and deployment. The focus of this vignette is on the model description language. This is a palin text file, referred to as a **system file**. Each line contains a descriptor (e.g. ``<P>``) which defines an aspect of the model, and comments are made with the hash sign (``#``). What follows is an overview of the different components of the language that can be used to create a system file.
+
+
+## Parameters 
+### System Parameters ``<P>``
+
+Each parameter is specified with a name, value, lower bound, upper bound, units, whether it should be editable in the ShinyApp and the 'type' of parameter (grouping in the ShinyApp). The values of eps (machine precision, smallest value that is not zero) and inf (infinity) can be used. For example to specify a parameter koffR with a value of .1 that is positive and a parameter KDR with a value of .04 that is also positive:
+
+~~~
+#   name  value    lb     ub   units  editable type
+<P> koffR 0.1      eps    inf   1/hr  yes      Target
+<P> KDR   0.04     eps    inf   nM    yes      Target
+~~~
+
+### Parameter Sets
+
+Often a model will be developed to incorporate different situations or scenarios. For example, a model may be used to describe both healthy and diseased individuals. When these differences are simply parametric in nature, it can be cumbersome to code a model multiple times (once for each parameterization). This framework provides a mechanism for including multiple parameterizations withing the same input file. Consider the system below where we want to describe antibody disposition. For humans this is described by a two compartment model, but for mice a single compartment is needed.
+
+
+![Model parameterizations](system-paper-parameter_sets.png){width=60%}
+
+First we create a set of parameters describing the human scenario.
+These are the mean parameters taken from the literature [DM]:
+
+~~~
+<P> Weight   70.0    eps inf kg   yes   System # Organism weight
+<P> CL        0.0129 eps inf L/hr yes   System # Systemic Clearance
+<P> Q         0.0329 eps inf L/hr yes   System # Inter-compartmental clearance
+<P> Vp        3.1    eps inf L    yes   System # Vol. central compartment
+<P> Vt        2.8    eps inf L    yes   System # Vol. peripheral compartment
+~~~
+
+When a parameter is created using the ``<P>`` descriptor it is part of
+the default parameter set. This is the short name for a
+parameter set. A longer more verbose name can be given as well,
+and this is what will be seen in the ShinyApp. The human parameter set
+can be labeled using the ``PSET`` descriptor in the following way:
+
+~~~
+<PSET:default> mAb in Human
+~~~
+
+Where default is the parameter set name, and “mAb in Human” is the value shown to the user in the Shinyapp.
+
+Next, to add the parameterization for mice we simply create a new set in the following way:
+
+~~~
+<PSET:mouse> mAb in Mouse
+~~~
+
+This alone would create a new parameter set with a short name mouse, and is an exact copy of the default parameter set. To identify the parametric differences between the mouse and human we use ``PSET`` in the following way: 
+~~~
+<PSET:mouse:Weight > 0.020 # 20 gram mouse
+<PSET:mouse:CL >     7.71e-6
+<PSET:mouse:Q>       0.0
+<PSET:mouse:Vp >     1.6e-3
+<PSET:mouse:Vt >     1   # arbitrary
+~~~
+
+Consider the clearance parameter entry where we want the murine half-life of an antibody [VR]:
+
+~~~
+<PSET:mouse:CL> 7.71e-6
+~~~
+
+We use the set name (``mouse``) and the parameter name (``CL``) and then we overwrite the default with the specified value ``7.71e-6``.
+
+
+### Secondary parameters ``<As>`` and ``<Ad>``
+
+A static secondary parameter refers to  parameter does not change during a simulation.  These are specified using the ``<As>`` descriptor and can be written in terms of system parameters or previously defined static secondary parameters. This is similar to secondary parameters defined in the ``$PK`` block in NONMEM. For example, if you wanted to define the rate of elimination in terms of the system parameters for clearance ``CL`` and volume of distribution ``Vp`` the following would be used:
+
+~~~
+<As> kel = CL/Vp
+~~~
+ 
+A dynamic secondary parameters refers to a parameter can change during a simulation. This typically means it is defined, using the ``<Ad>`` descriptor, in terms of a state or another dynamic secondary parameter. These are similar to the parameters defined in the ``$DES`` block in NONMEM. For example if you wanted to use the concentration in the central compartment ``Cp`` but it was dependent on the amount in that compartment ``Ap`` and the volume of that compartment ``Vp`` the following would be used:
+
+~~~
+<Ad> Cp = Ap/Vp
+~~~
+
+
+### Variance Parameters ``<VP>``
+
+Variance parameters are specified using the same format as system parameters (``<P>``) :
+
+~~~
+#    name value lower_bound upper_bound units editable grouping
+<VP > CL  1.0   eps         inf         1/hr   yes     Variance
+~~~
+
+The difference being that the ``<VP>`` descriptor is used and that the
+grouping is set to ``Variance``.
+
+### Variability ``<IIV:?>?`` \& ``<IIVCOR:?>?``
+
+To define an IIV term named ``ETACL`` with a variance of ``0.15`` use the following descriptor
+
+~~~
+<IIV:ETACL> 0.15
+~~~
+
+The specification to the right can be used to associate this IIV term with the parameter ``CL`` and specify that it has a lognormal distribution (``LN``). Alternatively a normal (``N``) distribution can be used.
+
+~~~
+<IIV:ETACL:LN> CL
+~~~
+
+Next we specify the IIV term ``ETAV`` with a variance of ``0.1``. This IIV term also has a lognormal distribution and is applied to the parameter ``V``.
+
+~~~
+<IIV:ETAV> 0.10
+<IIV:ETAV:LN> V
+~~~
+
+Now we can define the covariance (off-diagional elements) between ``CL`` and ``V`` to be ``0.01`` by using:
+
+~~~
+<IIVCOR:?:?>
+<IIVCOR:ETAV:ETACL> 0.01
+~~~
+
+The order isn’t important and the IIV terms can be reversed
+
+### IIV and Parameter Sets ``<IIVSET:?>?`` \& ``<IIVCORSET:?>?``
+
+By default all parameter sets will have inter individual variability specified using the IIV ``<IIV>`` and ``<IIVCOR>`` descriptors. To associate a specific set of IIVs to a parameter set use the ``<IIVSET>`` and ``<IIVCORSET>`` desciriptors. These set descriptors operate differently than the parameter set descriptors (``<PSET>``) in that the entire variance covariacne matrix needs to be specified.
+
+If the parameterset ``MYPSET`` has been defined then the following could be used to define the IIV for the parameters ``Q`` and ``CL``:
+
+~~~
+<IIVSET:MYPSET:ETAQ>           0.05
+<IIVSET:MYPSET:ETAQ:LN>        Q
+
+<IIVSET:MYPSET:ETACL>          0.25
+<IIVSET:MYPSET:ETACL:LN>       CL
+
+<IIVCORSET:MYPSET:ETAQ:ETACL>  0.01
+~~~
+
+## Differential Equations
+
+The differential equations in the system can be defined by simply writing them out. Alternative they can 'built' by using the different descriptors provided below. Part of the flexibility of ubiquity lies in the ability to combine these different notations. The following five methods can be used:
+
+1. Differential equations        ``<ODE:?>``
+2. Reaction rates                ``=?=>``
+3. Equilibrium relationships     ``<=kforward:kreverse=>``
+4. Sources and sinks             ``<S:?>``
+5. Movement between compartments ``<C>``
+
+### Writing ODEs ``<ODE:?>``
+
+Portions of differential equations can be specified here where ? is the
+state.
+To define ``dA/dT`` as ``koffR*C - konR*A*B``  we would write:
+
+~~~
+<ODE:A> koffR*C - konR*A*B 
+~~~
+
+It might be more convenient to specify an ODE across several lines (to make things more readable, for example). Just use multiple statements and they will be appended together. This would give the same result as the example above:
+
+~~~
+<ODE:A>    koffR*C
+<ODE:A>  - konR*A*B 
+~~~
+
+### Rate Equations ``=?=>``
+
+~~~
+A + B =konR=>   C       
+C     =koffR=>  A + B
+~~~
+
+###Equilibrium Relationships ``<=kforward:kreverse=>``
+These are specified by using <=kon:koff=>
+The following example:
+
+~~~
+A + B  <=konR:koffR=>  C       
+~~~
+
+Will be expanded to the following:
+
+~~~
+dA =  koffR*C - konR*A*B
+dB =  koffR*C - konR*A*B
+dC = -koffR*C + konR*A*B
+~~~
+
+The ``kon`` and ``koff`` values will either have to be specified as
+system or secondary parameters.
+
+
+### Sources and Sinks  ``<S:?>``
+This is where synthesis and degradation terms are specified
+If ``A`` is produced at a rate of ``ksynA`` (mass quantities) and degraded at a
+rate of ``kdegA``. And if the state A is in concentration units then the
+sources are specified on the left hand side of ``<S:?>`` and the sinks
+(elimination) are specified on the left hand side of ``<S:?>``. Multiple
+sources and sinks can be separated by semicolons. In this example with a
+compartment volume ``V``
+
+~~~
+ksynA/V <S:A> kdeg*A
+~~~
+
+This would further expand the differential equation for A above into:
+
+~~~
+dA = koffR*C - konR*A*B + ksynA/V - kdeg*A
+~~~
+
+### Movement Between Compartments ``<C>``
+
+When mass moves between two physical spaces with different volumes we need to specify, for each compartment, the species, volume and rate of transport. For movement of A between the central compartment ``A`` with a volume ``V`` to the tissue space ``At`` with a volume ``Vt`` at rates ``kps`` and ``ksp`` respectively this is specified in the following manner:
+
+~~~
+A; V; kps <C> At; Vt; ksp
+~~~
+
+On each side of the ``<C>`` we have the compartment information separated by semicolons. The order is important. It should be:
+
+~~~
+Species; Volume; Rate <C> Species; Volume; Rate
+~~~
+
+This would change the ODE for ``A`` and create an ODE for ``A`` in the following way:
+
+~~~
+dA  = koffR*C - konR*A*B + ksynA/V - kdeg*A -kps*A + ksp*At*Vt/V
+dAt = +kps*A*V/Vt - ksp*At
+~~~
+
+### Initial Conditions ``<I>``
+
+
+By default all initial conditions are zero. You can specify a non-zero initial condition using the ``<I>`` string to set a 'state' to a 'value'
+
+~~~
+<I> state = value
+~~~
+
+Value can be any combination of numbers, parameters ``<P>`` or static secondary parameters ``<As``.  Consider a turnover system where the value of ``ksyn`` and kdeg are specified  as parameters:
+
+~~~
+<P> ksyn  0.1      eps    inf   1/hr  yes      Target
+<P> kdeg  0.04     eps    inf   nM    yes      Target
+~~~
+
+We can calculate the initial value for a target as:
+
+~~~
+<As> T0 = ksyn/kdeg
+~~~
+
+Then we can specify the initial value of the target as:
+
+~~~
+<I> T = T0
+~~~
+
+## Model Inputs
+
+Inputs into the model include typical interventions such as bolus dosing or
+continuous infusions. However inputs here refers to mathematical inputs.
+Typically covariates may be attributes of the system (such as gender, or a
+specific genotype), but from a mathematical perspective they are grouped with
+the more traditional inputs. When defining inputs it is necessary to provide
+typical/placeholder values. These provide default values for both the ShinyApp
+interface as well as the scripting level (Matlab and R) where they can be
+overwritten by the user. 
+
+
+###Bolus Dosing ``<B:times>``, ``<B:events>``
+
+The ``<B:?>`` descriptor is used to define bolus dosing.  Dosing information
+is broken down into a list of ``times`` when bolus injections occur and a list
+of ``events`` containing the amount the specified  compartment will receive.
+
+Each of these has a ``scale`` that is used to convert the bolus dosing information from proscribed units (mg daily) into the units in which the system is coded (nM and hours). So if dosing is done on days 0, 1, 2... but the simulation time is hours, then the scale for the dosing times is 24.
+
+The events contain the magnitude of the bolus at a given time. If you have multiple states receiving a bolus, the times must include all times in which a bolus may be applied to the system. If a state does not receive a bolus on a particular time, it’s magnitude at that time is 0.
+
+
+To illustrate this consider the following dosing schedule:
+
+![Dosing into two different compartments](dosing_bolus.png){width=50%}
+
+
+In this example we want to dose two different drugs into two different states.  Drug 1 (<span style="color:purple">**D1**</span>) will be dosed into ``Cp1`` and drug 2 (<span style="color:orange">**D2**</span>) into ``Cp2``. Dosing will be in mg/kg but concentrations are in mg/ml. The dosing time is in days, but the simulation time units are hours. We will be dosing <span style="color:purple">**D1**</span> at <span style="color:purple">**8**</span> \& <span style="color:purple">**2**</span> mp on days <span style="color:purple">**0**</span> & <span style="color:purple">**6**</span>. <span style="color:orange">**D2**</span> will be dosed at <span style="color:orange">**5**</span> mp on day <span style="color:orange">**9**</span>.  
+
+~~~
+#  type       state     values     scale  units   
+<B:times>;            [0 6 9];       24;  days   
+<B:events>;    Cp1;   [8 2 0];    70/V1;  mp    
+<B:events>;    Cp2;   [0 0 5];    70/V2;  mp    
+~~~
+
+Assume ``V1`` and ``V2`` are the compartmental volumes for <span style="color:purple">**D1**</span> and <span style="color:orange">**D2**</span>  in ml, and the subject body weight is 70 kg.
+
+### Continuous Infusions ``<R:?>``
+Rates of infusion are defined using the ``<R:?>`` descriptor. Like bolus values, infusion rates have two components. There is a component that specifies switching times. And each switching time has a corresponding rate of infusion. This infusion rate will be held constant until the next time. Also like the bolus specification there is a **scale** associated with both infusion ``times`` and the ``levels`` that converts the proscriptive units into the units of the simulation. Consider the following example: 
+
+~~~
+# name      time/levels values    scale  units
+<R:myrate>; times;      [0 30];   1/60;    min
+<R:myrate>; levels;     [1 0];    60;   mg/min
+~~~
+
+These two entries create the infusion rate called ``myrate``. This can be used in any of your system specifications (e.g., ``<ODE:Cp> myrate/Vp``). The first row specifies the times when the rate is changed (``0`` and ``30`` minutes). If the system is coded in terms of hours, then the scale of ``1/60`` must be used. The levels indicate a rate of ``1`` mg/min that is switched off at ``30`` minutes. This has to be converted to mg/hr using the scale of ``60``.
+
+### Covariates  ``<CV:?>``, ``<CVSET:?:?>``
+
+###Simple Covariates 
+For simulation purposes covariates (normally found in a data set) need to be defined. Excoriates can be be either constant or change with time. The times values *must be the same scale as the system*. The following defines the value for the co variate ``RACE``:
+
+~~~
+<CV:RACE>; times;  [0];     weeks
+<CV:RACE>; values; [1];     ethnicity
+~~~
+
+Excoriates can also change with time. In this case consider the  subject weight (``WGT``). It begins at ``70`` and measurements are made at several time points.  
+
+~~~
+<CV:WGT>; times;  [ 0 10 20 30 60];     weeks
+<CV:WGT>; values; [70 65 60 58 56];     kg     
+~~~
+
+Next we can alter how the simulations will interpret these values. By setting the type of co variate. By default the weight will be linearly interpolated (``type = linear``), however we can hold the weight constant until the next measurement is encountered (last value carried forward) by declaring the type as ``step``
+
+~~~
+<CVTYPE:WGT> step
+~~~
+
+Now if the model was parameter for male and female subjects we can define two parameter sets (as described above) to account for this:
+
+~~~
+<PSET:default>  Male   
+<PSET:female>   Female          
+~~~
+
+And the values for the co variate can be changed for the set 'female':
+
+~~~
+<CVSET:female:WGT>; times;   [ 0 10 30 50]
+<CVSET:female:WGT>; values;  [60 55 52 50]
+~~~
+
+### Complicated Covariates
+
+Detailed time course profiles can be created as well. For example, to create a co variate profile that is zero from time 0-1 and at time 1 it jumps to 8 and decreases at a rate of 1 per unit time until time 5 where it stays at the value 4 until time 12 when it drops to zero. It might have a profile like the following:                                                         
+
+![Time-varying covariate input profile](covariates.png){width=50%}
+
+~~~
+# name        time/values  values                         units
+<CV:mycov>  ; times;       [0 .999 1 5 12];  hours
+<CV:mycov>  ; values;      [0 0    8 4 4 ];  --   
+<CVTYPE:mycov> linear
+~~~
+
+## Operators 
+
+Most of the standard operators behave as expected (``+``, ``-``, ``*``, & ``/``) because most languages use these consistently. There are however certain operators and functions that differ between languages. For example, consider the power function ($a^b$). In FORTRAN this would be ``a**b``, in Matlab it is ``a^b``, and in C it is ``pow(a,b)``. Given the objectives here (write once and create multiple formats), this can be quite challenging. The solution used here is to convert language specific functions and operators into generic functions. So the power operator would be:
+
+~~~
+SIMINT_POWER[a][b]
+~~~
+
+This would then be converted to the appropriate output format depending on the output target.
+
+Operator/Function      | Example   |  Format
+-----------------------|-----------|-----------------------
+power                  | $a^b$     | ``SIMINT_POWER[a][b]``
+exponential            | $e^a$     | ``SIMINT_EXP[a]``
+log base 10            | $\log(a)$ | ``SIMINT_LOG10[a]``
+log base e             | $\ln(a)$  | ``SIMINT_LOGN[a]``
+less than              | $a < b$   | ``SIMINT_LT[a][b]``
+less than or equal     | $a \le b$ | ``SIMINT_LE[a][b]``
+greater than           | $a > b$   | ``SIMINT_GT[a][b]``
+greater than or equal  | $a \ge b$ | ``SIMINT_GE[a][b]``
+equal                  | $a = b$   | ``SIMINT_EQ[a][b]``
+and                    | $a \& b$  | ``SIMINT_AND[a][b]``
+
+
+## Timescales
+
+Each system has default units in which it is constructed, and should be indicated in the comments of the model. It can be useful (for generating figures for example) to show simulations in different time scales. Now this can be achieved by multiplying the time outputs by the correct scaling factor. However this requires the end user to (1) remember the original timescale and (2) correctly scale that value.
+
+Now while this is not particularly challenging from a mathematical perspective, it introduces a chance for error. It is possible, instead, to specify time scale information using the ``<TS:?>`` descriptor. If the system is coded in hours, the following will define timescales for the default (hours), days, weeks and months:
+
+~~~
+<TS:hours> 1.0
+<TS:days> 1.0/24.0
+<TS:weeks> 1.0/24.0/7.0
+<TS:months> 1.0/24.0/7.0/4.0
+~~~
+
+These are used both in the **ShinyApp** and at the command line in **Matlab** and **R**
+
+## Mathematical Sets
+
+Consider the following systems:
+
+**PBPK:** Most of the organs in these systems are mathematically identical, with only variations in the parameters. However coding each of these organs or modifying an existing system (say to incorporate the presences of a target in each organ) can become tedious.
+
+**Anti-drug antibody generation:** If we consider ADAs generated in response to therapeutic proteins, the response will consist of a distribution of ADAs in terms of their concentration and a separate distribution in terms of their affinity. Modeling this maturation process and the interactions between the ADAs, the therapeutic protein, and drug targets becomes unmanageable quickly.
+
+The question is: How can we make difficult problems easy and intractable problems possible? The solution implemented here allows the system to be defined in terms of **mathematical sets** 
+
+
+### Set Notation ``<SET:?>?``
+
+Consider the interactions occurring in an assay designed to detect drug (``D``) present in serum. In this assay a biotinylated target (``TB``) is used to pull down the drug and a labeled target (``TL``) is the signaling molecules used. The assay will provide a signal when a complex containing both ``TB`` and ``TL`` are present (``TB:D:TL`` or ``TL:D:TB``). Samples can contain target as well (``TS``) which can interfere with the assay. To model this assay, the following interactions should be considered:
+
+![Mathematical sets](system-paper-mathematical_sets.png){width=80%}
+
+Several options are available to construct this system. The ODEs could simply be typed out for every possible combination. It’s also possible to use the equilibrium ``<=kon:koff=>`` for all the interactions as well. However, there is another option that will handle the enumeration more easily. First we define the two mathematical sets ``TSi`` and ``TSk``:
+
+~~~
+<SET:TSi> TL; TB; TS
+<SET:TSk> TL; TB; TS
+~~~
+
+With these defined we can then use the
+curly brace notation (``{ }``) with any of the
+descriptors used to construct a system.
+For example, the initial conditions for each of the target states are
+defined as parameters (``T0_TL``, ``T0_TS``, ``T0_TB``) in the model. These have
+to be identified as initial conditions using the ``<I>`` notation, and can be
+done with a single statement:
+This line:
+
+~~~
+<I> {TSi} = T0_{TSi} 
+~~~
+
+Expands to:
+
+~~~
+<I> TL = T0_TL
+<I> TB = T0_TB
+<I> TS = T0_TS
+~~~
+
+
+Similar to the initial condition, the equlibrium between the monomeric drug and the different targets can be defined using a single statement:
+
+
+~~~
+D + {TSi} <=kon:koff=> D_{TSi}
+~~~
+
+That uses only one of the sets (``TSi``), and will be expanded for each element in that set. To account for the formation of complexes that contain a drug molecule and two different target molecules, the following statement is used:
+
+~~~
+D_{TSi} + {TSk} <=kon:koff=> {TSk}_D_{TSi}
+~~~
+
+This statement contains two different sets (``TSi`` and ``TSk``). When multiple sets are encountered, every possible combination is evaluated
+
+## Piecewise-Continuous Parameters ``<IF:?:?>``
+
+To specify a conditional assignment use the statement:
+
+~~~
+<IF:name:COND> boolean; value
+~~~
+
+Here ``name`` is the name of the secondary parameter be defined and ``COND`` indicates
+that we have a Boolean condition that needs to be satisfied. The condition
+(``Boolean``) can be and, or, greater than, etc. relationships. 
+The parameter
+will be assigned to have the value when this Boolean relationship is true. These
+conditions can be a funciton of different elements of the system depending on
+whether or not name refers to a static or dynamic secondary parameter:
+
+* ``<As>`` function of system parameters, previously defined static secondary parmaeters and covariates that do not change for a given subject.
+* ``<Ad> `` function of system parameters, static secondary parmaeters, states, previously defined dynamic secondary parameters and covariates.
+
+It is important to include a default ``ELS`` condition:
+
+~~~
+<IF:name:ELSE> value
+~~~
+
+### PWC Example
+
+To see an example use the following command:
+
+``system_new(system_file="pwc", file_name="system-pwc.txt")``
+
+In this example we specify fast (``kelf``) and slow (``kels``) rates of elimination. We want to have the fast rate be active when the drug concentration is above ``Cth`` and the time is below ``Tf``. The system parameters would look like:
+
+~~~
+<P> kelf   1.0  eps inf   1/time   yes System
+<P> kels   0.01 eps inf   1/time   yes System
+<P> Cth   10    eps inf   conc     yes System
+<P> Tf    10    eps inf   time     yes System
+~~~
+
+Now we need to define the rate of elimination such that the constraints above are followed. First we define ``kel`` as a dynamic secondary parameter with a value of 0.0. Then we define the different conditions and relevant values:
+
+~~~
+<Ad > kel = 0.0
+<IF: kel:COND > SIMINT_AND [SIMINT_LT[SIMINT_TIME][Tf]][ SIMINT_GT[Cp ][ Cth ]]; kelf
+<IF: kel:ELSE > kels
+~~~
+
+## Controlling Indices 
+
+By default, the build script will construct odes, parameter sets, etc. automatically. This means that the order of states are going to be arbitrary. Sometimes it is necessary to specify the order of your states or outputs. For example when using NONMEM the order in the control stream must correlate with the values in the dataset. To specify that a state ``Cp`` should be compartment ``3``, the following should be used:
+
+~~~
+<INDEX:STATE:Cp>  3
+~~~
+
+The general notation for an output or state ``name`` assigned to a ``number`` is:
+
+~~~
+<INDEX:STATE:name>  number
+<INDEX:OUTPUT:name> number
+~~~
+
+## Model outputs
+
+Outputs are defined here in terms of states, parameters, secondary parameters, and input rates listed above. The format used is:
+
+~~~
+<O> name = expression
+~~~
+
+For example:
+
+~~~
+<O> A_obs = A
+<O> Coverage = A/(KD + A)
+~~~
+
+Outputs that begin with ``QC`` will not be displayed in the ShinyApp. This is intended to make them available at the scripting level for quality control (QC) purposes.
+
+## References
+
+* [DM] Dirks & Meibohm Clin. PK 2010 Oct 1;49(10):633-59
+* [VR] Vieira & Rajewsky Eur J Immunol. 1988 Feb;18(2):313-6
+
