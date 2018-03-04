@@ -90,7 +90,7 @@ MAIN:
     if(exists($ARGV[2])){
       $cfg->{files}->{templates} = $ARGV[2]; }
 
-    # Third argument: template folder:
+    # Fourth argument: distribution type:
     if(exists($ARGV[3])){
       $cfg->{files}->{distribution} = $ARGV[3]; }
 
@@ -428,10 +428,10 @@ my $cfg;
   $cfg->{files}->{potterswheel3}                     = 'target_pw_3';
 
   # rproject
-  $cfg->{files}->{rproject}->{components}           = 'auto_rcomponents.r';
-  $cfg->{files}->{rproject}->{simulation_driver}    = 'auto_simulation_driver.r';
+  $cfg->{files}->{rproject}->{components}           = 'auto_rcomponents.R';
+  $cfg->{files}->{rproject}->{simulation_driver}    = 'auto_simulation_driver.R';
   $cfg->{files}->{rproject}->{compiled}             = 'r_ode_model.c';
-  $cfg->{files}->{rproject}->{analysis_estimation}  = 'auto_analysis_estimation.r';
+  $cfg->{files}->{rproject}->{analysis_estimation}  = 'auto_analysis_estimation.R';
 
   # berkeley_madonna output
   $cfg->{files}->{berkeley_madonna}                  = 'target_berkeley_madonna';
@@ -718,7 +718,7 @@ sub dump_rproject
   my $indent     = '   ';
   my $mc;
   #my $template_components = &fetch_rproject_components_template();
-  my $template_components = &fetch_template_file($cfg, 'r_components.r');
+  my $template_components = &fetch_template_file($cfg, 'r_components.R');
   $mc->{COMMENTS}                     = '';
   $mc->{FETCH_SYS_PARAMS}             = '';
   $mc->{FETCH_SYS_SSP}                = '';
@@ -747,10 +747,13 @@ sub dump_rproject
   $mc->{STATES}                       = '';
   $mc->{SYSTEM_PARAM}                 = '';
   $mc->{TIME_SCALES}                  = '';
+  $mc->{SYSTEM_FILE}                  = $cfg->{files}->{system};
+  $mc->{DISTRIBUTION}                 = $cfg->{files}->{distribution};
+  $mc->{TEMP_DIRECTORY}               = $cfg->{files}->{temp_directory};
 
   my $md;
   #my $template_driver     = &fetch_rproject_simulation_driver_template();
-  my $template_driver     = &fetch_template_file($cfg, 'r_simulation_driver.r');
+  my $template_driver     = &fetch_template_file($cfg, 'r_simulation_driver.R');
   $md->{PSETS}                 = '';
   $md->{BOLUS}                 = '';
   $md->{INFUSION_RATES}        = '';
@@ -759,9 +762,25 @@ sub dump_rproject
   $md->{SYSTEM_FILE}           = $cfg->{files}->{system};
 
 
+  my $ma;
+  my $template_analysis        = &fetch_template_file($cfg, 'r_analysis_estimation.R ');
+  $ma->{PSETS}                 = '';
+  $ma->{BOLUS}                 = '';
+  $ma->{INFUSION_RATES}        = '';
+  $ma->{COVARIATES}            = '';
+  $ma->{OUTPUT_TIMES}          = '';
+  $ma->{SYSTEM_FILE}           = $cfg->{files}->{system};
 
+  if($cfg->{files}->{distribution} eq "stand alone"){
+    $md->{DIST_HEADER}           = 'source(file.path("library", "r_general", "ubiquity.R"))'."\n";
+    $ma->{DIST_HEADER}           = 'source(file.path("library", "r_general", "ubiquity.R"))'."\n";
 
-  
+  } else {
+    $md->{DIST_HEADER}           = '# Uncomment the following to use with "stand alone" distribution'."\n";
+    $ma->{DIST_HEADER}           = '# Uncomment the following to use with "stand alone" distribution'."\n";
+    $md->{DIST_HEADER}          .= '# source(file.path("library", "r_general", "ubiquity.R"))'."\n";
+    $ma->{DIST_HEADER}          .= '# source(file.path("library", "r_general", "ubiquity.R"))'."\n";
+  }
 
   my $mo;
   #my $template_compiled   = &fetch_rproject_compiled_template();
@@ -781,14 +800,6 @@ sub dump_rproject
   $mo->{FORCE_PARAM}           = '';
   $mo->{FORCEDECLARE}          = '';
 
-  my $ma;
-  my $template_analysis        = &fetch_template_file($cfg, 'r_analysis_estimation.r ');
-  $ma->{PSETS}                 = '';
-  $ma->{BOLUS}                 = '';
-  $ma->{INFUSION_RATES}        = '';
-  $ma->{COVARIATES}            = '';
-  $ma->{OUTPUT_TIMES}          = '';
-  $ma->{SYSTEM_FILE}           = $cfg->{files}->{system};
 
 #
 # defining aspects of forcing functions in C
@@ -811,9 +822,7 @@ $mo->{FORCEDECLARE}   = "\nstatic double forc[".(2*scalar(@{$cfg->{covariates_in
 #
 # First we create the parameters field with the parameter 'matrix' first
 #
-$mc->{FETCH_SYS_PARAMS} = '#Creating the cfg variable
-cfg = list();
-# defining the matrix of parameter information
+$mc->{FETCH_SYS_PARAMS} = '# defining the matrix of parameter information
 cfg$parameters$matrix = data.frame('."\n";
 
 $mc->{FETCH_SYS_PARAMS} .= $indent."name".&fetch_padding("name", $cfg->{parameters_length})." = c(";

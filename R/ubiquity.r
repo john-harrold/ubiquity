@@ -1,54 +1,66 @@
-#'@name ubiquity
-
-
-# build_system
-#
-# Builds the system.txt file and attempts to compile and load the C library
-#
+#'@export
+#'@title Building The System
+#'@description  Builds the specified system file creating the targets for R and other languages as well as the templates for performing simulations and estimations. 
+#'
+#'@param system_file name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt')
+#'@param distribution indicates weather you are using a 'package' or a 'stand alone' 
+#' distribution of ubiquity. If set to 'automatic' the build script will first 
+#' look to see if the ubiquity R package is installed. If it is installed it
+#' will use the package. Otherwise, it will assume a 'sand alone' package.
+#'
+#'@examples
+#' # build_system(system_file='system.txt')
 build_system <- function(debug          =  FALSE, 
                          clean          =  TRUE, 
                          system_name    = "mysystem",
                          distribution   = "automatic",
                          system_file    = "system.txt") {
 
+require(deSolve)
+require(ggplot2)
+require(gdata)
+require(foreach)
+require(doParallel)
+require(doRNG)
 
-# If the distribution is set to automatic we first try to find the ubiquity
-# package. If that's not available then we default to "stand alone"
+# If the distribution is set to automatic we see if the package is loaded
+# If not we see if the stand alone library file is present, lastly we try to
+# load the package
 if(distribution == "automatic"){
- if("ubiquity" %in% rownames(installed.packages())){
-   distribution = "package" }
- else{
-   distribution = "stand alone" }
+  if("ubiquity" %in% (.packages())){
+    distribution = "package"
+  } else if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
+    source(file.path('library', 'r_general', 'ubiquity.R'))
+    distribution = "stand alone"
+  } else { 
+    require(ubiquity) 
+    distribution = "package"
+  }
 } else if(distribution == "package"){
-   # If it's set to package we make sure the package is installed and
-   # if ti's not we default to stand alone
-   if(!("ubiquity" %in% rownames(installed.packages()))){
-     cat(sprintf("#> Warning: package selected but not found\n"))
-     distribution = "stand alone" }
+  # If it's set to package we make sure the package is installed and
+  # if ti's not we default to stand alone
+  if(!("ubiquity" %in% rownames(installed.packages()))){
+    cat(sprintf("#> Warning: package selected but not found\n"))
+    distribution = "stand alone" }
 }
 
 
 # For stand alone distributions we just use the default template and transient
 # directory
 if(distribution == "stand alone"){
-  templates       = file.path("library", "templates")
-  temp_directory  = "transient"
+  templates       = file.path( getwd(), "library", "templates")
+  temp_directory  = file.path(getwd(), "transient")
   build_script_pl = "build_system.pl"
 }
 
 # For the package we pull the package install location to point to files
 # needed to build the system
 if(distribution == "package"){
-# find.package('pkgname', lib.loc = NULL, quiet = FALSE, verbose = getOption("verbose"))
-# templates       = file.path("library", "templates")
-# temp_directory  = "transient"
-# build_script_pl = "build_system.pl"
-
+  package_dir     = system.file("", package="ubiquity")
+  temp_directory  = file.path(getwd(), "transient")
+  templates       = file.path(package_dir, 'ubiquity', "templates")
+  build_script_pl = file.path(package_dir, 'exec', 'build_system.pl')
 }
-
-
-# This is required here to make sure it's loaded before the callable library
-require(deSolve)
 
 # Basic commands:
 # system("cp transient/r_ode_model.c  .")
@@ -60,10 +72,10 @@ require(deSolve)
 # turning off warnings so we don't get a lot of
 # stuff from the system commands below
 options(warn=-1)
-cat(sprintf("#> Building the system: %s \n", system_file))
-cat(sprintf("#> Distribution type:   %s \n", distribution))
+cat(sprintf("#> Building the system:    %s \n", system_file))
+cat(sprintf("#> Ubiquity distribution:  %s \n", distribution))
 
-build_command = sprintf("perl build_system.pl '%s' '%s' '%s' '%s'", system_file, temp_directory, templates, distribution)
+build_command = sprintf("perl '%s' '%s' '%s' '%s' '%s'", build_script_pl, system_file, temp_directory, templates, distribution)
 output = system(build_command, intern=TRUE)
 
 # CFILE is used to indicate if we have compiled and loaded the CFILE successfully 
@@ -86,7 +98,6 @@ if(length(output) > 0){
 # if it's loaded we remove it from memory:
 if(('r_ode_model' %in% names(getLoadedDLLs()))){
   dyn.unload(getLoadedDLLs()$r_ode_model[["path"]])}
-  #dyn.unload(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))  }
 
 # making the output directory to store generated information
 if(!file.exists('output')){
@@ -95,19 +106,23 @@ if(!file.exists('output')){
 }
 
 #next we remove any files to make sure we start from scratch
-if(file.exists(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))){
-  file.remove( paste("r_ode_model", .Platform$dynlib.ext, sep = "")) }
-if(file.exists("r_ode_model.c")){
-   file.remove("r_ode_model.c") }
-if(file.exists("r_ode_model.o")){
-   file.remove("r_ode_model.o") }
+if(file.exists(file.path(temp_directory, paste("r_ode_model", .Platform$dynlib.ext, sep = "")))){
+   file.remove(file.path(temp_directory, paste("r_ode_model", .Platform$dynlib.ext, sep = ""))) }
+if(file.exists(file.path(temp_directory, "r_ode_model.o"))){
+   file.remove(file.path(temp_directory, "r_ode_model.o")) }
+
 
 # Now we compile the C file
 cat("#> Compiling C version of system \n")
-output  = file.copy(sprintf('transient%sr_ode_model.c',.Platform$file.sep), '.')
-if(output == TRUE){
+if(file.exists(file.path(temp_directory, 'r_ode_model.c'))){
+  # storing the working directory and 
+  # changing the working directory to the
+  # temp directory to avoid weird issues
+  # with spaces in file names and paths
+  mywd = getwd()
+  setwd(temp_directory)
   # Compling the C file
-  output =  system("R CMD SHLIB r_ode_model.c", intern=TRUE, ignore.stderr=!debug)
+  output =  system('R CMD SHLIB r_ode_model.c', intern=TRUE, ignore.stderr=!debug)
   if(debug == TRUE){
     cat(output)}
   if("status" %in% names(attributes(output))){
@@ -118,27 +133,271 @@ if(output == TRUE){
     cat("#> Loading the shared C library\n")
     dyn.load(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))
   }
+  # Returning to the working directory
+  setwd(mywd)
+
+
+  cat('#> System built, to fetch a new template use the following commands:\n')
+  cat('#>   system_fetch_template(cfg, template = "Simulation")\n')
+  cat('#>   system_fetch_template(cfg, template = "Estimation")\n')
 }else{
-  cat("#> Failed: file transient/r_ode_model.c not found \n")
+  cat(sprintf("#> Failed: file %s%sr_ode_model.c not found \n",temp_directory, .Platform$file.sep))
   CFILE = FALSE
 }
 
 if(CFILE == FALSE){
   cat("#> C model not available compile manually using the\n") 
   cat("#> following command to debug:           \n") 
-  cat("#> system('R CMD SHLIB r_ode_model.c') \n")
+  cat(sprintf("#> system('R CMD SHLIB %s%sr_ode_model.c') \n", temp_directory, .Platform$file.sep))
   
   }
 
 
-#source('transient/auto_rcomponents.r');
-rm('output', CFILE)
+# Returning the ubiquity model object:
+if(file.exists(file.path(temp_directory, "auto_rcomponents.r"))){
+  source("transient/auto_rcomponents.r")
+  cfg = system_fetch_cfg()
+} else {
+  cfg = list()
+}
+
 # turning warnings back on
 options(warn=0)
-}
+return(cfg)}
+
+# -------------------------------------------------------------------------
+
+#'@export
+#'@title Create New \code{system.txt} File 
+#'
+#'@description  Copy a blank template (\code{system_file="template"}) file to the working directory or an example by specifying the following:
+#'
+#' \itemize{
+#'   \item \code{"template"} - Empty system file template
+#'   \item \code{"mab_pk"} - General compartmental model of mAb PK from Davda 2014 http://doi.org/10.4161/mabs.29095
+#'   \item \code{"pbpk"} - PBPK model of mAb disposition in mice from Shah 2012 
+#' }
+#'
+#'@param file_name name of the new file to create   
+#'@param system_file name of the system file to copy
+#'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
+#'
+#'@return \code{TRUE} if the new file was created and \code{FALSE} otherwise
+#'
+#'@examples
+#' # To create an empty template:
+#' system_new("system.txt", TRUE)
+system_new  <- function(file_name="system.txt", system_file="template", overwrite=FALSE){
+
+ allowed = c("template", "mab_pk", "pbpk", "pwc", "tmdd", "adapt")
+
+ isgood = FALSE
+
+ # first we look to see if the package is installed, if it's not
+ # we look for the system_template.txt file 
+ if("ubiquity" %in% rownames(installed.packages())){
+   # package_dir     = find.package('ubiquity', lib.loc = NULL, quiet = FALSE, verbose = getOption("verbose"))
+   if(system_file == "template"){
+     file_path       = system.file("ubiquity", "templates", "system_template.txt", package="ubiquity")
+   } else {
+     file_path       = system.file("ubiquity", "examples", sprintf('system-%s.txt',system_file), package="ubiquity")
+   }
+ } 
+ else {
+   if(system_file == "template"){
+     file_path       = file.path('library', 'templates',  'system_template.txt')
+   } else {
+     file_path       = file.path('examples', sprintf('system-%s.txt',system_file))
+   }
+ }
+
+ write_file = TRUE
+ # if ovewrite is false we check to see if the destination file exists. If it
+ # does exist, we ste write_file to false
+ if(!overwrite){
+   if(file.exists(file_name)){
+     cat(sprintf("#> Error the file %s exists set overwrite=TRUE to overwrite\n", file_name))
+     write_file = FALSE}
+ }
+
+  # if the source file exists and write_file is true then
+  # we try to copy the file
+  if(file.exists(file_path) & write_file){
+    isgood = file.copy(file_path, file_name, overwrite=TRUE)
+  }
+isgood}
+# -------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+
+#'@export
+#'@title Create New Template After Building System File
+#'
+#'@description Building a system file will produce templates for R and other languages.
+#' This will provide users with the means to make local copies of these
+#' templates.
+#'
+#'@param cfg ubiquity system object    
+#'@param template template type  
+#'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
+#'
+#'@return \code{TRUE} if the new file(s) were created and \code{FALSE} otherwise
+#'
+#'@details The template argument can have the following values
+#'
+#' \itemize{
+#'  \item{"Simulation"} produces \code{analysis_simulate.R}: R-Script named  with placeholders used to run simulations
+#'  \item{"Estimation"} produces \code{analysis_estimate.R}: R-Script named  with placeholders used to perform naive-pooled parameter estimation
+#'  \item{"ShinyApp"} produces  \code{ubiquity_app.R}, \code{server.R} and \code{ui.R}: files needed to run the model through a Shiny App either locally or on a Shiny Server
+#'  \item{"Shiny Rmd Report"} produces \code{system_report.Rmd} and \code{test_system_report.R}: R-Markdown file used to generate report tabs for the Shiny App and a script to test it
+#'  \item{"mrgsolve"} produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
+#'  \item{"Berkeley Madonna"} produces \code{system_berkeley_madonna.txt}: text file with the model and the currently selected parameter set in Berkeley Madonna format
+#'  \item{"Adapt"} produces \code{system_adapt.for} and \code{system_adapt.prm}: Fortran and parameter files for the currently selected parameter set in Adapt fothe currently selected parameter set in Adapt format.
+#'}
+#'
+#'@examples
+#' # system_fetch_template(cfg, template="Simulation")
+system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
+
+ # These are the allowed templates:
+ allowed = c("Simulation", "Estimation", 
+             "ShinyApp",   "Shiny Rmd Report",
+             "mrgsolve",   "Berkley Madonna", 
+             "Adapt")
+
+
+ # default value for the return variable
+ isgood = TRUE 
+
+ if(template %in% allowed){
+   # first we look to see if the package is installed, if it's not
+   # we look for the system_template.txt file 
+   if("ubiquity" %in% rownames(installed.packages())){
+     template_dir    = file.path(find.package('ubiquity', lib.loc = NULL, quiet = FALSE, verbose = getOption("verbose")), "ubiquity", "templates")
+   } 
+   else {
+     template_dir    = file.path('library', 'templates')
+   }
+   temp_directory = cfg$options$misc$temp_directory
+
+   # pulling the current parameter set
+   current_set = cfg$parameters$current_set
+  
+   # building up the lists of sources and destinations
+   sources      = c()
+   destinations = c()
+   write_file   = c()
+
+   if(template == "Simulation"){
+     sources      = c(file.path(temp_directory, "auto_simulation_driver.R"))
+     destinations = c("analysis_simulation.R")
+     write_file   = c(TRUE)
+   }
+   if(template == "Estimation"){
+     sources      = c(file.path(temp_directory, "auto_analysis_estimation.R"))
+     destinations = c("analysis_estimate.R")
+     write_file   = c(TRUE)
+   }
+   if(template == "ShinyApp"){
+     sources      = c(file.path(template_dir, "ubiquity_app.R"), 
+                      file.path(template_dir, "ubiquity_server.R"),
+                      file.path(template_dir, "ubiquity_ui.R"))
+     destinations = c("ubiquity_app.R", "server.R", "ui.R")
+     write_file   = c(TRUE, TRUE, TRUE)
+   }
+   if(template == "Shiny Rmd Report"){
+     sources      = c(file.path(template_dir, "r_system_report.Rmd"),
+                      file.path(template_dir, "r_test_rmd.R"))
+     destinations = c("system_report.Rmd", "test_system_report.R")
+     write_file   = c(TRUE, TRUE)
+   }
+   if(template == "mrgsolve"){
+     sources      = c(file.path(temp_directory, sprintf("target_mrgsolve-%s.cpp",current_set)))
+     destinations = c("system_mrgsolve.cpp")
+     write_file   = c(TRUE)
+   }
+   if(template == "Berkley Madonna"){
+     sources      = c(file.path(temp_directory, sprintf("target_berkeley_madonna-%s.txt",current_set)))
+     destinations = c("system_berkeley_madonna.txt")
+     write_file   = c(TRUE)
+   }
+   if(template == "Adapt 5"){
+     sources      = c(file.path(temp_directory, sprintf("target_adapt_5.for")),
+                      file.path(temp_directory, sprintf("target_adpat_5-%s.prm",current_set)))
+     destinations = c("system_adapt.for", "system_adapt.prm")
+     write_file   = c(TRUE, TRUE)
+   }
+  
+   # if overwrite ifs FALSE we check each of the destination files to see if
+   # they exist. Then we set write_file to FALSE if they do exist, and throw
+   # up an error.
+   if(!overwrite){
+     for(fidx in 1:length(destinations)){
+       if(file.exists(destinations[fidx])){
+         write_file[fidx] = FALSE 
+       }
+     }
+   }
+
+   # next we write the files that are TRUE
+   for(fidx in 1:length(destinations)){
+     if(write_file[fidx]){
+       file.copy(sources[fidx], destinations[fidx], overwrite=TRUE)
+       vp(cfg, sprintf("Creating file: %s", destinations[fidx] ))
+     } else {
+       isgood = FALSE
+       vp(cfg, sprintf("File: %s, exists, and was not copied.", destinations[fidx] ))
+       vp(cfg, sprintf("Set overwrite=TRUE to force this file to be copied."))
+     }
+   }
+ } else {
+   isgood = FALSE
+   vp(cfg, sprintf("Template type: %s not recognized", template))
+   vp(cfg, sprintf(" must be one of: %s", paste(allowed, collapse=', ')))
+ }
+
+  if(!isgood){
+    vp(cfg, "system_new_template()")
+    vp(cfg, "One or more templates failed to copy. See messages above for details")
+  
+  }
+return(isgood)}
+# -------------------------------------------------------------------------
 
 # system_fetch_parameters = system_load_data(cfg, dsname, data_file, data_sheet)
 #
+#'@export
+#'@title Loading Datasets 
+#'@description Loads datasets at the scripting level from the following
+#'formats (based on the file extension)
+#'\itemize{
+#' \item csv - comma delimited 
+#' \item tab - tab delimited
+#' \item xls - excel spread sheet
+#'}
+#'
+#' Multiple datasets can be loaded as long as they are given different
+#' names. Datasets should be in a NONMEM-ish format with the
+#' first row containing the column header names.
+#'
+#'@param cfg ubiquity system object    
+#'@param dsname short name of the dataset to be used to link this dataset to different operations
+#'@param data_file file name of the dataset
+#'@param data_sheet argument identifying the name of the sheet in an excel file
+#'
+#'@return Ubiquity system object with the dataset loaded
+#'
+#'@examples
+#' # cfg = system_load_data(cfg, 
+#' #                        dsname     = "DSNAME", 
+#' #                        data_file  = "data.xls", 
+#' #                        data_sheet = "sheetname")
+#' # cfg = system_load_data(cfg, 
+#' #                        dsname     = "DSNAME", 
+#' #                        data_file  = "data.csv")
+#' # cfg = system_load_data(cfg, 
+#' #                        dsname     = "DSNAME", 
+#' #                        data_file  = "data.tab")
 system_load_data <- function(cfg, dsname, data_file, data_sheet){
 
 
@@ -161,6 +420,24 @@ system_load_data <- function(cfg, dsname, data_file, data_sheet){
 }
 
 
+#'@export
+#'@title Selecting Parameter Sets
+#'@description The system file can contain multiple parameterizations using
+#' the \code{<PSET:?:?>?} notation. This function provides the means for
+#' switching between these parameterizations, and (optionally) specifying a
+#' subset of parameters estimated when performing parameter estimation. 
+#'
+#'@param cfg ubiquity system object    
+#'@param set_name string containing the name of the parameter set
+#'@param parameter_names list of parameter names to be estimated 
+#'
+#'@return Ubiquity system object with the specified parameter set active
+#'
+#'@examples
+#' # Examples
+#' # cfg = system_select_set(cfg, ’default’)
+#' # pnames = c('CL', 'Vp')
+#' # cfg = system_select_set(cfg, ’myset', pnames)
 system_select_set = function(cfg, set_name='default', parameter_names=NULL){
 #
 # takes the system information variable cfg and makes the values in the string
@@ -295,16 +572,18 @@ return(cfg)
 # parameters = system_fetch_parameters(cfg)
 #
 #'@export
-#'@name name
-#'@title title
-#' Fetch the parameters of the currently selected parameter set
+#'@title Get System Parameters
 #'
-#'@param cfg - system configuration 
+#'@description
+#' Fetch the parameters of the currently selected parameter set. To switch
+#' between parameter sets use \code{\link{system_select_set}}
+#'
+#'@param cfg ubiquity system object    
 #'
 #'@return List of parameters for the selected parameter set or the default parameter set if the selected set does not exist
 #'
 #'@examples
-#' parameters = system_fetch_parameters(cfg)
+#' # parameters = system_fetch_parameters(cfg)
 system_fetch_parameters <- function(cfg){
   return(cfg$parameters$values)}
 
@@ -314,6 +593,19 @@ system_fetch_parameters <- function(cfg){
 #
 #
 #
+#'@export
+#'@title Get Variability Terms
+#'@description Extract elements of the current variance covariance matrix
+#' specified in the system file with \code{<IIV:?:?> ?}, \code{<IIVCOR:?:?>?}, \code{<IIVSET:?:?> ?}, \code{<IIVCORSET:?:?>?}
+#'
+#'@param cfg ubiquity system object    
+#'@param IIV1 row name of the variance/covariance matrix
+#'@param IIV2 column name of the variance/covariance matrix element
+#'
+#'@return Value from the variance/covariance matrix   
+#'@examples
+#' #  val = system_fetch_iiv(cfg, IIV1="ETACL", IIV2="ETAVc")'
+#'@seealso \code{\link{system_set_iiv}}
 system_fetch_iiv <- function(cfg, IIV1, IIV2){
   
   VALUE =  -1
@@ -338,9 +630,24 @@ system_fetch_iiv <- function(cfg, IIV1, IIV2){
   }
 return(VALUE)}
 
-# cfg = system_zero_inputs(cfg, bolus=TRUE, rates=TRUE)
-#
-#
+#'@export
+#'@title Zero All Model Inputs
+#'@description Multiple default inputs can be specified in the system file. At
+#' the scripting level this function can be used to eliminate all of them then
+#' apply ony the subsequently specified inputs. 
+#'
+#'@param cfg ubiquity system object    
+#'@param bolus boolean value indicating weather bolus inputs should be set to zero
+#'@param rates boolean value indicating weather infusion rate inputs should be set to zero
+#'
+#'@return Ubiquity system object with the specified inputs set to zero
+#'
+#'@examples
+#' # Clear all inputs:
+#' # cfg = system_zero_inputs()
+#' # Clear only infusion rates
+#' # cfg = system_zero_inputs(cfg, bolus=TRUE, rates=FALSE)
+#'@seealso \code{\link{system_set_rate}}, \code{\link{system_set_bolus}}
 system_zero_inputs <- function(cfg, bolus=TRUE, rates=TRUE){
   # zeroing out the bolus values
   if(bolus == TRUE){
@@ -366,6 +673,24 @@ return(cfg)}
 # cfg = system_set_covariate(cfg, covariate, times, values)
 #
 #
+#'@export
+#'@title Set Covariate Values
+#'@description Covariates specified in the system file using  \code{<CV:?>}
+#' and \code{<CVSET:?:?>} will have their default values for a given parameter
+#' set. This function is a means to overwrite those values.
+#'
+#'@param cfg ubiquity system object    
+#'@param covariate name of the covariate
+#'@param times list of times (system time units)
+#'@param values corresponding list of values 
+#'
+#'@return Ubiquity system object with the covariate set
+#'
+#'@examples
+#' cfg = system_set_covariate(cfg, 
+#'                            covariate = "COV",
+#'                            times     = c(1, 3, 25),
+#'                            values    = c(1, 2,  1))
 system_set_covariate <- function(cfg, covariate, times, values){
   isgood = TRUE
   if(!(length(times) == length(values)) ) {
@@ -390,6 +715,24 @@ return(cfg)}
 #
 #
 #
+#'@export
+#'@title Set Infusion Rate Inputs
+#'@description Defines infusion rates specified in the system file using  \code{<R:?>}
+#'
+#'@param cfg ubiquity system object    
+#'@param rate name of infusion rate    
+#'@param times list of time values   
+#'@param levels corresponding list of infusion values   
+#'
+#'@return Ubiquity system object with the infusion rate set
+#'
+#'@examples
+#' # cfg = system_set_rate(cfg,
+#' #            rate   = "RNAME",
+#' #            times  = c(0, 1), 
+#' #            levels = c(10, 0))
+#' # Examples
+#'@seealso \code{\link{system_zero_inputs}}
 system_set_rate <- function(cfg, rate, times, levels){
   isgood = TRUE
   if(!(length(times) == length(levels)) ) {
@@ -411,6 +754,215 @@ return(cfg)}
 # cfg = system_set_option(cfg, group, option, value)
 #
 #
+#'@export
+#'@title Setting Analysis Options
+#'@description Different options associated performing analyses (e.g running
+#' simulations, performing parameter esitmations, logging, etc.) can be set
+#' with this function
+#'
+#'@param cfg ubiquity system object    
+#'@param group options are grouped together by the underlying activity being performed: "solver", "stochastic", "simulation", "estimation", "logging", or "titration"
+#'@param option for each group there are a set of options 
+#'@param value corresponding value for the option 
+#'
+#'@return Ubiquity system object with the option set
+#'
+#'@details 
+#'
+#' \bold{\code{group=solver}}
+#'
+#' Depending on the solver, different options can be set. The documentation
+#' for  \code{\link[deSolve]{deSolve}} lists the different solvers. For a full list of options, see the
+#' documentation for the specific solver (e.g. \code{?lsoda}). Some common options
+#' to consider are:
+#' \itemize{
+#' \item \code{"atol"} - Relative error tolerance
+#' \item \code{"rtol"} - Absolute error tolerance
+#' \item \code{"hmin"} - Minimum integration step size
+#' \item \code{"hmax"} - Maximum integration step size
+#' }
+#' To select the \code{vode} solver and set the maximum step size to 0.01, the
+#' following would be used:
+#' \preformatted{
+#'cfg=system_set_option(cfg,
+#'                      group  = "simulation",
+#'                      option = "solver", 
+#'                      value  = "vode")
+#'
+#'cfg=system_set_option(cfg,
+#'                      group  = "solver",
+#'                      option = "hmax", 
+#'                      value  = 0.01)
+#' }
+#'
+#'
+#' \bold{\code{group="simulation"}}
+#'\itemize{
+#' \item \code{"include_important_output_times"} - Automatically add bolus, infusion rate switching times, etc: \code{"yes"}(default), \code{"no"}.
+#' \item \code{"integrate_with"} - Specify if the ODE solver should use the Rscript (\code{"r-file"}) or compiled C (\code{"c-file"}), if the build process can compile and load the C version it will be the default otherwise it will switch over to the R script.
+#' \item \code{"output_times"} - Vector of times to evaulate the simulation (default \code{seq(0,100,1)}).
+#' \item \code{"solver"} - Selects the ODE solver: \code{"lsoda"} (default), \code{"lsode"}, \code{"vode"}, etc.; see the documentation for \code{\link[deSolve]{deSolve}} for an exhaustive list.
+#' }
+#'
+#' \bold{\code{group="stochastic"}}
+#'
+#' When running stochastic simulations (inter-individual variability applied to system
+#' parameters) it can be useful to specify the following:
+#' \itemize{
+#'  \item\code{"ci"} - Confidence interval (default \code{95})
+#'  \item\code{"nsub"} - Number of subjects (default \code{100})
+#'  \item\code{"seed"} - Seed for the random numebr generator (default \code{8675309})
+#'  \item\code{"ponly"} - Only generate the subject parameters but do not run the simulations (default \code{FALSE})
+#'  \item\code{"outputs"} - A list of the predicted outputs to include (default all outputs defined by \code{<O>})
+#'  \item\code{"states"} - A list of the predicted states to include(default all states)
+#'  \item\code{"sub_file"} - Name of data set loaded with (\code{\link{system_load_data}}) containing subject level parameters and coviariates
+#'  \item\code{"sub_sample"} - Controls how subjects are sampled from the dataset
+#'  }
+#'
+#' If you wanted to generate \code{1000} subjects but only wanted the parameters, you would
+#' use the following:
+#' \preformatted{
+#'cfg = system_set_option(cfg,
+#'                        group  = "stochastic", 
+#'                        option = "nsub ",
+#'                        value  = 1000)
+#'
+#'cfg = system_set_option(cfg,
+#'                        group  = "stochastic", 
+#'                        option = "ponly",
+#'                        value  = TRUE )
+#' }
+#'
+#'
+#' If you wanted to exclude states and only include the output \code{Cp_nM}, you would do
+#' the following:
+#' \preformatted{
+#'cfg = system_set_option (cfg, 
+#'                         group  = "stochastic",
+#'                         option = "states",
+#'                         value  = list())
+#'
+#'cfg = system_set_option (cfg, 
+#'                         group  = "stochastic",
+#'                         option = "outputs",
+#'                         value  = c("Cp_nM")) 
+#' }
+#'
+#' To pull subject information from a data file instead of generating the subject
+#' parameters from IIV information the \code{sub_file} option can be used. The value here
+#' \code{SUBFILE_NAME} is the name given to a dataset loaded with
+#' (\code{\link{system_load_dataset}}):
+#'
+#' \preformatted{
+#'cfg=system_set_option(cfg, 
+#'                      group  = "stochastic",
+#'                      option = "sub_file",
+#'                      value  = "SUBFILE_NAME")
+#' }
+#'  
+#' Sampling from the dataset can be controlled using the \code{sub_file_sample} option:
+#'  
+#' \preformatted{
+#'cfg=system_set_option(cfg, 
+#'                      group  = "stochastic",
+#'                      option = "sub_file_sample",
+#'                      value  = "with replacement")
+#' }
+#'  
+#' Sampling can be done sequentially (\code{"sequential"}), with replacement
+#' (\code{"with replacement"}), or without replacement (\code{"without replacement"})
+#'
+#' \bold{\code{group="estimation"}}
+#'
+#' The default estimation in R is performed using either the \code{optim} or \code{optimx} libraries.
+#' This is selected by setting the \code{optimizer} option:
+#'  
+#' \preformatted{
+#'cfg = system_set_option(cfg, 
+#'                        group  = "estimation",
+#'                        option = "optimizer",
+#'                        value  = "optim")
+#' }
+#'  
+#' The optimization routine then specified using the \code{method}. By default this \code{option} is
+#' set to \code{Nelder-Mead}.
+#'  
+#' \preformatted{
+#'cfg = system_set_option(cfg, 
+#'                        group  = "estimation",
+#'                        option = "method",
+#'                        value  = "Nelder-Mead")
+#' }
+#'  
+#' And different attributes are then selected using the control.
+#'  
+#' \preformatted{
+#'cfg = system_set_option(cfg, 
+#'                        group  = "estimation",
+#'                        option = "control",
+#'                        value  = list(trace  = TRUE,
+#'                                      maxit  = 500,
+#'                                      REPORT = 10))
+#' }
+#' 
+#' For the different methods and control options, see the documentation for the \code{optim}
+#' and \code{optimx} libraries.
+#'
+#' To perform a global optimization you can install either the particle swarm (\code{\link[pso]{pso}})
+#' genetic algorithm (\code{\link[GA]{GA}}) libraries.
+#' To use the particle swarm set the \code{optimizer} and \code{method}:
+#'  
+#' \preformatted{
+#'library("pso")
+#'cfg = system_set_option(cfg, 
+#'                        group  = "estimation",
+#'                        option = "optimizer",
+#'                        value  = "pso")
+#'
+#'cfg = system_set_option(cfg, 
+#'                        group  = "estimation",
+#'                        option = "method",
+#'                        value  = "psoptim")
+#' }
+#' 
+#' The control option is a list described \code{\link[psoptim]{psoptim}} documentation.
+#'
+#' To use the genetic algorithm set the optimizer and method:
+#' 
+#' \preformatted{
+#'library("GA")
+#'cfg = system_set_option(cfg, 
+#'                        group  = "estimation",
+#'                        option = "optimizer",
+#'                        value  = "ga")
+#'
+#'cfg = system_set_option(cfg, 
+#'                        group  = "estimation",
+#'                        option = "method",
+#'                        value  = "ga")
+#' }
+#' 
+#' The control option is a list and the list elements are the named options in the GA
+#' documentation. Use the following as an example:
+#' 
+#' \preformatted{
+#'cfg = system_set_option(cfg, 
+#'                        group  = "estimation",
+#'                        option = "control",
+#'                        value  = list(maxiter  = 10000,
+#'                                     optimArgs = list(
+#'                                       method  = "Nelder-Mead",
+#'                                       maxiter = 1000)))
+#' }
+#' 
+#' To alter initial guesses see: \code{\link{system_set_guess}}
+#'
+#' \bold{\code{group="titration"}}
+#'
+#' \code{"titrate"} - By default titration is disable (set to \code{FALSE}). If you are
+#' going to use titration, enable it here by setting this option to \code{TRUE}.
+#' This will force #' \code{\link{simulate_subjects}} to use 
+#' \code{\link{run_simulation_titrate}} internally when running simulations.
 system_set_option <- function(cfg, group, option, value){
  
   groups = c('solver', 'stochastic', 'simulation', 'estimation', 'logging', 'titration')
@@ -513,6 +1065,33 @@ system_set_option <- function(cfg, group, option, value){
   
 return(cfg)}
 
+#'@export
+#'@title Titration Rules
+#'@description Defines a new titration rule and the times when that rule is evaluated
+#'
+#'@param cfg ubiquity system object    
+#'@param name name for the titration rule
+#'@param times list of times when the rule will be evaluated 
+#'@param timesscale time scale associated with the titraiton times (as defined by \code{<TS:?>})
+#'
+#'@return Ubiquity system object with the titration rule created
+#'
+#'@details
+#' \preformatted{
+#'cfg = system_new_tt_rule(cfg,
+#'                         name      = "rname",
+#'                         times     = c(0, 2, 4),
+#'                         timescale = "weeks")'
+#' }
+#' A titration rule identifies a set of times (\code{times}) and an associated time
+#' scale (\code{timescale}) in which titration events can potentially occur. Any
+#' times scale, as defined in the system file with \code{<TS:?>}, can be used in
+#' place of "weeks" above. The \code{name}, \code{"rname"} above, is used to link the
+#' titration rule to different conditions discussed below. The name should be
+#' a string beginning with a letter, and it can contain any combination of
+#' numbers, letters, and underscores. With the rule created we can then add conditions to that rule.'
+#'
+#'@seealso \code{\link{system_set_tt_cond}}, \code{\link{run_simulation_titrate}}
 system_new_tt_rule <- function(cfg, name, times, timescale){
 
   isgood = TRUE
@@ -548,6 +1127,228 @@ return(cfg)
 }
 
 
+#'@export
+#'@title Define Titration Triggers and Actions
+#'@description Once a rule has been defined using
+#' \code{\link{system_new_tt_rule}}, it can then be used by specifying checks at
+#' each of the titration time points that, when true, will perform some actions. 
+#'
+#'@param cfg ubiquity system object    
+#'@param name string containing the name for the titration rule to which this condition applies
+#'@param cond string that evaluates a boolean value that is \code{TRUE} when the action should be triggered
+#'@param action stringing that evaluates to what should be done when the condition is met (e.g. changing the dose, state change, etc) 
+#'@param value code to be stored in the titration history to track when this condition has been triggered
+#'
+#'@return Ubiquity system object with the titration condition defined
+#'
+#'
+#'@details
+#'
+#' The general syntax for setting a new condition is:
+#'
+#' \preformatted{
+#'cfg = system_new_tt_cond(cfg,
+#'                         name   = "rname",
+#'                         cond   = "BOOLEAN EXPRESSION",
+#'                         action = "EXPRESSION",
+#'                         value  = "VALUE")
+#'}
+#'
+#' The \code{name}
+#' input will associate this condition with a previously defined rule. For each
+#' time defined when the rule was created, the condition (\code{cond}) will be
+#' evaluated. If that condition evaluates as \code{TRUE} then the \code{action} will be
+#' evaluated. Lastly, when a condition action is evaluated, the \code{value} is stored
+#' in the titration history.
+#'
+#' Multiple conditions can be associated with a rule. The internal titration
+#' history will track each one where a condition has been evaluated as true, but
+#' the simulation output will only show the \bold{last} condition to be evaluated as
+#' true.
+#'
+#' The \code{cond} field is a string that, when evaluated, will produce a boolean value
+#' (\code{TRUE} or \code{FALSE}). If you simply want to force an action at each of the times
+#' for a given rule you can use: \code{cond = "TRUE"}. Alternatively you can provide
+#' mathematical expressions or even complicated user defined functions.
+#'
+#' The \code{action} field is evaluated when \code{cond} is true. To modify how a simulation
+#' is going to be performed, you will want to modify the \code{SIMINT_cfgtt}
+#' variable using the different system commands. Certain common tasks have
+#' prototype functions created to make it easier for the user:
+#' \itemize{
+#' \item \code{SI_TT_BOLUS} - Set bolus dosing
+#' \item \code{SI_TT_RATE} - Set infusion inputs
+#' \item \code{SI_TT_STATE} - Reset system states
+#' }
+#'
+#' \bold{Note:} Protype functions are strings but sometimes it is necessary to
+#' specify strings within this string. For the main string use double quotes (")
+#' and for the internal strings use single quotes (')
+#'
+#' \bold{\code{SI_TT_BOLUS}}
+#'
+#' The simplest way to apply a bolus when the condition is true is to use the following:
+#'
+#' \preformatted{
+#'action = "SI_TT_BOLUS[state=’At’, 
+#'                      values=c(10, 10, 10), 
+#'                      times=c(0, 1, 2)]"
+#' }
+#'
+#' The \code{values} and \code{times} are vectors of numbers of equal length. The dosing and
+#' time units are those specified in the \code{system.txt} file for the \code{<B:?>} delimiter. The
+#' times are relative to the titration time. So \code{0} above means at the titration time.
+#'
+#' It’s possible to specify an interval and a number of times to repeat the last dose
+#' using the following:
+#'
+#' \preformatted{
+#'action = "SI_TT_BOLUS[state    = ’At’, 
+#'                      values   = c(5, 5, 10), 
+#'                      times    = c(0, 2, 4), 
+#'                      repdose  = ’last’, 
+#'                      number   = 7, 
+#'                      interval = 4]"
+#' }
+#'
+#' This will give a dose of \code{5} at the titration point and \code{2} time units later. The dose of \code{10}
+#' at time \code{4} will be repeated \code{7} times every \code{4} time units. So a total of 8 (\code{7 + 1}) doses
+#' at \code{10} will be administered. Remember the time units were those defined in \code{<B:?>}.
+#' The input \code{repdose} can be either \code{’last’} or \code{’none’}.
+#'
+#' \bold{Note:} The main string is in double quotes \code{" "} but the strings in the protype
+#' argument (e.g. \code{’last’}) are in single quotes \code{’ ’}.
+#'
+#' \bold{\code{SI_TT_RATE}} 
+#'
+#' If you created an infusion named \code{Dinf} using \code{<R:?>} and the infusion units
+#' are min (times) and mg/min (rates). To have a 60 minute infusion of 20
+#' mg/min then we would do the following:
+#'
+#' \preformatted{
+#'action = "SI_TT_RATE[rate=’Dinf’, times=c(0, 60), levels=c(20.0, 0)]"
+#' }
+#'
+#' If we wanted to do this every day for 9 more days (a total of 10 days) we can repeat
+#' the sequence:
+#'
+#' \preformatted{
+#'action = "SI_TT_RATE[rate     = ’Dinf’, 
+#'                     times    = c(0, 60), 
+#'                     levels   = c(20, 0), 
+#'                     repdose  = ’sequence’, 
+#'                     number   = 9, 
+#'                     interval = 24*60]"
+#' }
+#'
+#' The input \code{repdose} can be either \code{’sequence’} or \code{’none’}.
+#'
+#' \bold{Note:} The time units and dosing rate are those specified using \code{<R:?>}.
+#'
+#' \bold{\code{SI_TT_STATE}} 
+#'
+#' To provide fine control over states at titration points the state reset
+#' prototype is provided. For example, if you are modeling an assay where
+#' there is a wash step and you want to drop a concentration to zero. If you
+#' have a state named \code{Cc} defined in your \code{system.txt} and you want to set
+#' it to \code{0.0} in a condition the following action would work.
+#'
+#' \preformatted{
+#'action = "SI_TT_STATE[Cc][0.0]"
+#' }
+#'
+#' The value here is a number but you can use any mathematical
+#' combination of variables available in the titration environment. Also you
+#' can create your own user function and place the function call within the
+#' brackets above.
+#'
+#' \bold{Titration Environment}
+#' The \code{cond}, \code{action}, and \code{value} statements can use any variables available in
+#' the titration environment. If you want to perform complicated actions, you can
+#' simply create a user defined functions and pass it the variables from the
+#' titration environment that you need. These include named variables from the
+#' model as well as internal variables used to control the titration.
+#'
+#' \bold{States and Parameters}
+#'
+#' The state values (at the current titration time), system parameters (\code{<P>}),
+#' static secondary parameters (\code{<As>}) and the initial value of covariates are
+#' available as the names specified in the \code{system.txt} file. Since system resets
+#' (\code{SI_TT_STATE}) are processed first, any changes made to states are the values
+#' that are active for other actions.
+#'
+#' \bold{Internal Simulation Variables}
+#'
+#' Internal variables are used to control titration activities. These variables can also be used in the conditions and actions.
+#' \itemize{
+#'   \item \code{SIMINT_p} - list of system parameters
+#'   \item \code{SIMINT_cfg} - system configuration sent into the titration routine
+#'   \item \code{SIMINT_cfgtt}-systemconfigurationatthecurrenttitrationeventtime
+#'   \item \code{SIMINT_ttimes} - vector of titration times (in simulation units)
+#'   \item \code{SIMINT_tt_ts} - list of time scales for the current titration
+#'   \item \code{SIMINT_history} - data frame tracking the history of conditions that evaluated true with the following structure:
+#'   \item \itemize{
+#'         \item \code{tname} - name of titration rule
+#'         \item \code{value} - value indicating condition that was satisfied
+#'         \item \code{simtime} - simulation time when that rule/value were triggered
+#'         \item \code{timescale} -  time at the rule timescale when that rule/value were triggered
+#' }
+#' }
+#'
+#' \bold{Individual Simulations}
+#'
+#' To run an individual titration simulation use the follwoing:
+#'
+#' \preformatted{
+#'som = run_simulation_titrate(parameters, cfg)
+#' }
+#'
+#'  This provides the same output as \code{\link{run_simulation_ubiquity}} with
+#'  two extra fields. The first, \code{som$titration}, contains three columns for each
+#'  titration rule. The columns will have a length equal and corresponding to the
+#'  simulation times. If the rule name is rname, then the column headers will have
+#'  the following names and meanings:
+#' \itemize{
+#'   \item \code{tt.rname.value} - Value of the rule for the active condition or -1 if not triggered
+#'   \item \code{tt.rname.simtime} - Simulation time where the last condition became active
+#'   \item \code{tt.rname.timescale} - Simulation time in the time scale the rule was specified in
+#' }
+#'
+#'  The second field is \code{som$titration_history} which contains a summary list of all of the titration events that were triggered.
+#' \itemize{
+#'    \item \code{tname} - Titration rule name
+#'    \item \code{value} - Value of the rule for the active condition or -1 if not triggered   
+#'    \item \code{simtime} - Simulation time where the last condition became active
+#'    \item \code{timescale} - Simulation time in the time scale the rule was specified in
+#' }
+#' 
+#' To convert this structured list into a data frame the \code{\link{som_to_df}} command can be used:
+#' 
+#' \preformatted{
+#'sdf = som_to_df(cfg, som)
+#' }
+#'
+#' To run stochastic titration simulations, the same function is used:
+#'
+#' \preformatted{
+#'som = simulate_subjects(parameters, cfg)
+#' }
+#'
+#' This will add a data a list element called \code{som$titration} with three
+#' fields for each titration rule:
+#'
+#' \itemize{
+#'   \item \code{tt.rname.value} - Value of the rule for the active condition or -1 if not triggered
+#'   \item \code{tt.rname.simtime} - Simulation time where the last condition became active
+#'   \item \code{tt.rname.timescale} - Simulation time in the time scale the rule was specified in
+#' } 
+#'
+#' Each of these fields is a matrix with an entry for each simulation time
+#' (column) and each subject (row). This data structure can also be converted to
+#' a data frame using \code{som_to_df}.
+#' 
+#'
+#'@seealso \code{\link{system_new_tt_rule}}, \code{\link{run_simulation_titrate}},  \code{\link{som_to_df}}, \code{\link{simulate_subjects}} 
 system_set_tt_cond <- function(cfg, name, cond, action, value='-1'){
 
   isgood = TRUE
@@ -598,6 +1399,17 @@ system_set_tt_cond <- function(cfg, name, cond, action, value='-1'){
 return(cfg)
 }
 
+#'@export
+#'@title Parse String for Prototype Functions
+#'@description A string can contain any number of protytype functions, and this function will find them and replace them with the actual R code.
+#'
+#'@param cfg ubiquity system object    
+#'@param str string
+#'
+#'@return String with the prototype functions replaced
+#'
+#'@examples
+#' # Examples
 parse_patterns  <- function(cfg, str){
 
   patterns = list()
@@ -688,11 +1500,21 @@ parse_patterns  <- function(cfg, str){
  return(newstr)
 }
 
-#
-# parses strings to find abstract functions SIFUNC[ and extract the arguments
-# from that function and replace it with actual functions and any additional
-# arguments needed
-#
+#'@title Parse Prototype Functions for Arguments
+#'@keywords internal
+#'@description 
+#' Parses strings to find abstract functions (of the format
+#' SIFUNC[ARG1][ARG2][ARG3] and extract the arguments from that function and
+#' replace it with actual functions and any additional arguments needed
+#'
+#'@param str string containing the prototype function call
+#'@param pattern string indicating the start of the function eg. \code{"SI_TT_BOLUS["}
+#'@param replace string to replace \code{pattern} with
+#'@param narg number of arguments to prototype function
+#'@param op string used to indicating open parenthesis 
+#'@param cp string used to indicating close parenthesis 
+#'
+#'@return string containing the actual function call/code built from the prototype function
 find_bracketed_arguments <- function(str, pattern, replace = '', narg, op = '[', cp=']'){
 
   # getting the length of the string
@@ -812,18 +1634,22 @@ find_bracketed_arguments <- function(str, pattern, replace = '', narg, op = '[',
 return(finfo)
 }
 
+#'@export
+#'@title Actual function called by \code{SI_TT_BOLUS}
+#'@description The prototype function \code{SI_TT_BOLUS} provides an interface to this function. Based on the input from \code{SI_TT_BOLUS}
+#' bolus inputs will be updated for the current titration time. 
+#' 
+#'@param cfg       ubiquity system object    
+#'@param state     dosing state/compartment (Defined in \code{<B:events>})
+#'@param values    vector of dosing amounts (in dosing units defined by \code{<B:events>})
+#'@param times     vector of dosing times relative to the current titration time (in # time units defiend by \code{<B:times>})
+#'@param repdose   \code{"none"}, \code{"last"}, \code{"all"}
+#'@param interval  interval to repeat in the units defined in \code{<B:times>}
+#'@param number    number of times to repeat 
+#'
+#'@return ubiquity system object with the bolus dosing updated.
 system_set_tt_bolus <- function(cfg, state, values, times, tt_ts,  tsinfo, repdose="none", interval=1, number=0){
 
-# calculating the bolus time in bolus doing units 
-# As specified by <B:times> ..
-# 
-# state    - Dosing state/compartment (Defind in <B:events>)
-# values   - list of dosing amounts (in dosing unites defined by <B:events>)
-# times    - list of dosing times relative to the current titration time (in # time units defiend by <B:times>)
-# repdose  - "none", "last", "all"
-# interval - interval to repeat in the units defined in <B:times>
-# number   - number of times to repeat 
-#
 
 offset = tt_ts$time/tsinfo$bolus
 
@@ -836,7 +1662,6 @@ else if(repdose == "last"){
   bolus_values = c(values, rep(x=values[length(values)], times=number))
   }
 
-
 cfg = system_set_bolus(cfg    = cfg,
                        state  = state,
                        times  = bolus_times,
@@ -844,6 +1669,22 @@ cfg = system_set_bolus(cfg    = cfg,
 return(cfg)
 }
 
+#'@export
+#'@title Actual function called by \code{SI_TT_RATE}
+#'@description The prototype function \code{SI_TT_RATE} provides an interface to this function. Based on the input from \code{SI_TT_RATE}
+#' infusion rate inputs will be updated for the current titration time. 
+#' 
+#'@param cfg       ubiquity system object    
+#'@param rate      name of the infusion rate to update(Defined in \code{<R:?>})
+#'@param times     vector of switching times relative to the current titration time (in time units defined by \code{<R:?>})
+#'@param levels    vector of infusion rates (in dosing units defined by \code{<R:?>})
+#'@param tt_ts     list of timescale values for the current titration time
+#'@param tsinfo    list with timescale information for inputs (bolus, rates, etc)
+#'@param repdose   \code{"none"} or \code{"sequence"}
+#'@param interval  interval to repeat in the units defined in \code{<R:?>}
+#'@param number    number of times to repeat 
+#'
+#'@return ubiquity system object with the infusion rates updated.
 system_set_tt_rate <- function(cfg, rate, times, levels, tt_ts, tsinfo, repdose="none", interval=1, number=0){
 
 
@@ -885,7 +1726,24 @@ return(cfg)
 
 # cfg = system_set_bolus(cfg, state, times, values)
 #
-#
+#'@export
+#'@title Set Bolus Inputs
+#'@description Defines infusion rates specified in the system file using  \code{<B:times>} and   \code{<B:events>} 
+#'
+#'@param cfg ubiquity system object    
+#'@param state name of the state to apply the bolus
+#'@param times list of injection times 
+#'@param values corresponding list injection values     
+#'
+#'@return Ubiquity system object with the bolus information set
+#'
+#'@examples
+#' # cfg = system_set_bolus(cfg,
+#' #            state  = "SNAME",
+#' #            times  = c(0, 1), 
+#' #            values = c(10, 0))
+#' # Examples
+#'@seealso \code{\link{system_zero_inputs}}
 system_set_bolus <- function(cfg, state, times, values){
   
   errormsg = '';
@@ -991,6 +1849,23 @@ return(cfg)}
 # cfg = system_set_iiv(cfg, IIV1, IIV2, VALUE)
 #
 #
+#'@export
+#'@title Set variability terms
+#'@description Set elements of the current variance covariance matrix
+#' specified in the system file with \code{<IIV:?:?> ?}, \code{<IIVCOR:?:?>?}, \code{<IIVSET:?:?> ?}, \code{<IIVCORSET:?:?>?}
+#'
+#'@param cfg ubiquity system object    
+#'@param IIV1 row name of the variance/covariance matrix
+#'@param IIV2 column name of the variance/covariance matrix element
+#'@param VALUE value to assign to the variance/covariance matrix element
+#'
+#'@return Ubiquity system object with IIV information set
+#'@examples
+#' # cfg = system_set_iiv(cfg,
+#' #                      IIV1 = "ETACL",
+#' #                      IIV2 = "ETAVc",
+#' #                      VALUE=0.03)
+#'@seealso \code{\link{system_fetch_iiv}}
 system_set_iiv <- function(cfg, IIV1, IIV2, VALUE){
   if("iiv" %in% names(cfg)){
     IIV1_idx = match(c(IIV1), names(cfg$iiv$iivs))
@@ -1012,9 +1887,19 @@ system_set_iiv <- function(cfg, IIV1, IIV2, VALUE){
   }
 return(cfg)}
 
-# The following are implementations of the tic and toc commands from matlab.
-# The original source is here:
-# http://stackoverflow.com/questions/1716012/stopwatch-function-in-r
+#'@export
+#'@title Implementation of Matlab \code{tic()} command
+#'@description Used in conjunction with \code{toc()} to find the elapsed time
+#' when code is executed. Adapted from:
+#' http://stackoverflow.com/questions/1716012/stopwatch-function-in-r
+#'
+#'@param type can be either \code{"elapsed"} \code{"user.self"} or \code{"sys.self"} 
+#'
+#'@examples
+#' tic()
+#' Sys.sleep(3)
+#' toc()
+#'@seealso \code{\link{toc}}
 tic <- function(gcFirst = TRUE, type=c("elapsed", "user.self", "sys.self"))
 {
   type <- match.arg(type)
@@ -1025,6 +1910,19 @@ tic <- function(gcFirst = TRUE, type=c("elapsed", "user.self", "sys.self"))
   invisible(tic)
 }
 
+#'@export
+#'@title Implementation of Matlab \code{toc()} command
+#'@description Used in conjunction with \code{tic()} to find the elapsed time
+#' when code is executed. Adapted from:
+#' http://stackoverflow.com/questions/1716012/stopwatch-function-in-r
+#'
+#'@param type can be either \code{"elapsed"} \code{"user.self"} or \code{"sys.self"} 
+#'
+#'@examples
+#' tic()
+#' Sys.sleep(3)
+#' toc()
+#'@seealso \code{\link{tic}}
 toc <- function()
 {
   type <- get(".type", envir=baseenv())
@@ -1036,10 +1934,30 @@ toc <- function()
   return(toc-tic)
 } 
 
+#-----------------------------------------------------------
 # system_view(cfg,field="all") 
-# field can be parameters, bolus, rate, covariate, iiv, datasets
-#
-#
+#'@export
+#'@title View Options and Information about the system
+#'
+#'@param cfg   ubiquity system object    
+#'@param field string indicating the aspect of the system to display
+#'
+#'@return string with system information 
+#'
+#' The \code{field} 
+#' \itemize{
+#'    \item \code{"all"} will show all information about the system
+#'    \item \code{"parameters"} summary of parameter information
+#'    \item \code{"bolus"} currently set bolus dosing
+#'    \item \code{"rate"} infusion rate dosing 
+#'    \item \code{"covariate"} covariates
+#'    \item \code{"iiv"} variance/covariance information
+#'    \item \code{"datasets"} loaded datasets
+#'    \item \code{"simulation"} simulation options
+#'    \item \code{"estimation"} estimation options
+#' }
+#'@examples
+#' # cat(system_view(cfg), field="parameters")
 system_view <- function(cfg,field="all") {
   
   msg = ''
@@ -1337,7 +2255,18 @@ system_view <- function(cfg,field="all") {
   }
   
 return(msg)}
+# /system_view
+#-----------------------------------------------------------
 
+#'@title General Method to Convert a Variable into a String for Automated Reporting Purposes
+#'@keywords internal
+#'
+#'@param var R variable
+#'
+#'@return Variable in string form
+#'
+#'@examples
+#'var2string_gen(c(1,2,3))
 var2string_gen <- function(var)  {
 if(is.vector(var)){
   mystr = sprintf('min = %s; max = %s; length = %d ', 
@@ -1354,6 +2283,19 @@ return(mystr)
 }
 
 
+#'@export
+#'@title Converts Numeric Variables into Padded Strings
+#'
+#'@param var numeric variable
+#'@param maxlength if this value is greater than zero spaces will be added to the beginning of the string until the total length is equal to maxlength
+#'@param nsig_e number of significant figures for scientific notation
+#'@param nsig_f number of significant figures for numbers (2.123)
+#'
+#'@return Number as a string padded
+#'
+#'@examples
+#'var2string(pi, nsig_f=20)
+#'var2string(.0001121, nsig_e=2, maxlength=10)
 var2string <- function(var,maxlength=0, nsig_e = 3, nsig_f = 4) {
 #  str = var2string(var, 12) 
 #  converts the numerical value 'var' to a padded string 12 characters wide
@@ -1373,6 +2315,15 @@ str = pad_string(str, maxlength)
 return(str)}
 
 
+#'@export
+#'@title Pad String with Spaces
+#'@description Adds spaces to the beginning or end of strings until it reaches the maxlength. Used for aligning text.
+#'
+#'@param str string
+#'@param maxlength length to pad to
+#'@param location either \code{"beginning"} to pad the left or \code{"end"} to pad the right
+#'
+#'@return Padded string
 pad_string <-function(str, maxlength=1, location='beginning'){
 #  str = padstring(str, maxlength)
 #
@@ -1395,6 +2346,17 @@ return(str)}
 
 
 
+#'@export
+#'@title Run Population Simulations 
+#'
+#'@param parameters list containing the typical value of parameters
+#'@param cfg       ubiquity system object    
+#'
+#'@return Mapped simulation output with individual predictions, individual
+#' parameters, and summary statistics of the parameters. The Vignettes below
+#' details on the format of the output.
+#'
+#'@seealso Vignette on simulation (\code{vignette("Simulation", package = "ubiquity")}) titration (\code{vignette("Titration", package = "ubiquity")}) as well as \code{\link{som_to_df}}
 simulate_subjects = function (parameters, cfg, progress_message = "Simulating Subjects:"){
 #function [predictions] = simulate_subjects(parameters, cfg)
 #
@@ -1405,7 +2367,7 @@ simulate_subjects = function (parameters, cfg, progress_message = "Simulating Su
 # cfg = system_fetch_cfg()
 # cfg = system_select_set(cfg, 'default')
 #
-# parameters - vector of typical parameter values. This can be obtained from
+# parameters - list of typical parameter values. This can be obtained from
 # the cfg variable:
 #
 # parameters = system_fetch_parameters(cfg)
@@ -1948,11 +2910,27 @@ return(p)
 }
 
 
+#'@export
+#'@title Calculate Timecourse Statistics for a Matrix of Responses
+#'@keywords internal
+#'@description 
+#'  Given a matrix (d) of time courses (each row is an individual and each column is
+#'  a time point) and a confidence interval (ci) this will calculate the mean,
+#'  median, confidence intervals and a vector of values for creating patches.
+#'
+#'@param d matrix of responses (each row an individual and each column a time point)
+#'@param ci confidence interval in percent (eg, 95)
+#'
+#'@return List with the following elements:
+#'
+#' \itemize{
+#'   \item \code{stats$ub_ci}  vector of confidence interval upper bound 
+#'   \item \code{stats$lb_ci}  vector of confidence interval lower bound 
+#'   \item \code{stats$mean}   vector of mean values
+#'   \item \code{stats$median} vector of median values
+#'   }
 timecourse_stats = function (d, ci){
 #
-# Given a matrix (d) of time courses (each row is an individual and each column is
-# a time point) and a confidence interval (ci) this will calculate the mean,
-# median, confidence intervals and a vector of values for creating patches.
 # 
 
 tc = list();
@@ -1977,6 +2955,22 @@ return(tc)
 }
 
 
+#'@title Extracts Covariates for a Subject from a Subject Data File
+#'@keywords internal
+#'@description 
+#' This function is used when stochastic simulations are being performed using
+#' a data file for the subject level information. If the data file contains
+#' covariate information, this function will update the system for each subjects
+#' covariates. 
+#'
+#'@param tmpcfg ubiquity system object    
+#'@param cov_found list of covariates found in dataset
+#'@param sub_dataset name of dataset with subject parameters
+#'@param sub_ID_col name of column in dataset with subject IDs 
+#'@param sub_TIME_col name of column in dataset with simulation time
+#'@param file_ID subject ID to extract covariates for
+#'
+#'@return ubiquity system object with the covariates set to those for the current subject
 apply_sub_file_COV = function (tmpcfg, cov_found, sub_dataset, sub_ID_col, sub_TIME_col, file_ID){
 # This function is used when stochastic simulations are being performed using
 # a data file for the subject level information. If the data file contains
@@ -1996,32 +2990,18 @@ for(cov_name in cov_found){
 return(tmpcfg)
 }
 
+#'@export
+#'@title Generate Subject
+#'@description 
+#' Generates subject with variability specified using the \code{<IIV:?>} descriptor
+#' in the system file
+#'
+#'@param parameters vector of nominal parameter values
+#'@param cfg ubiquity system object    
+#'
+#'@return List with a field named \code{parameters} containing a sample representing a subject
 generate_subject = function (parameters, cfg){
 # function [subject] = generate_subject(parameters, cfg)
-#
-# Generates subject with variability specified using the <IIV:?> descriptor
-# in the system.txt file
-#
-# Inputs:
-#
-# cfg - system configuration variable generated in the following manner:
-#
-# cfg = system_fetch_cfg()
-# cfg = system_select_set(cfg, 'default')
-#
-# parameters - vector of typical parameter values. This can be obtained from
-# the cfg variable:
-#
-# parameters = cfg$parameters$values
-#
-# This can be modified before subject generation
-#
-# Output:
-#
-# The data structure 'subject' will be generated with the following fields:
-#
-# subject$parameters  - parameters for a sample from a subject 
-#
 
 library("MASS") 
 
@@ -2070,6 +3050,20 @@ return(subject)
 
 }
 
+#'@export
+#'@title Generates a Parameter Based on \code{<IIV:?>} in the System File
+#'@keywords internal
+#'
+#'@param SIMINT_parameters parameters vector containing the typical values
+#'@param SIMINT_cfg ubiquity system object    
+#'@param SIMINT_PARAMETERS_TV  Typical value of the parameter in question
+#'@param SIMINT_PARAMETERS_IIV_VALUE sample from mvr distribution
+#'@param SIMINT_equation equation relating IIV and typical value to the parameter value with variability
+#'
+#'@return parameter value with the variability applied
+#'
+#'@examples
+#' # Examples
 generate_parameter = function (SIMINT_parameters, SIMINT_cfg, SIMINT_PARAMETER_TV, SIMINT_IIV_VALUE, SIMINT_equation){
   # Defining the system parameters locally
   for(SIMINT_pname in names(SIMINT_cfg$options$mi$parameters)){
@@ -2081,6 +3075,11 @@ generate_parameter = function (SIMINT_parameters, SIMINT_cfg, SIMINT_PARAMETER_T
 }
 
 
+#'@export
+#'@title Initialize System Log File
+#'@param cfg ubiquity system object    
+#'
+#'@return ubiquity system object with logging enabled
 system_log_init = function (cfg){
 # initializes the log file then enables logging
 
@@ -2091,6 +3090,12 @@ system_log_init = function (cfg){
 return(cfg)
 }
 
+#'@title Append a Line to the Analysis Log
+#'@keywords internal
+#'
+#'@param cfg ubiquity system object    
+#'@param entry string containing the log entry
+#'
 system_log_entry = function(cfg, entry){
 #
 # # Initialize the log file:
@@ -2116,15 +3121,19 @@ if(cfg$options$logging$enabled ==  "yes"){
 
   # Now we dump it to the log file:
   write(entry, file=cfg$options$logging$file, append=TRUE)
-# fileConn<-file(cfg$options$logging$file)
-# writeLines(c(entry), fileConn)
-# close(fileConn)
   }
 }
 
 
-# The multiplot function taken from:
-# http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
+#'@export
+#'@title Collect Multiple Plots
+#'@description:
+#' Adapted from here:
+#' http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
+#'
+#'@param ... list of plot objects  
+#'@param cols number of columns
+#'@return multiplot object 
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   library(grid)
   
@@ -2161,6 +3170,12 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   }
 }
 
+#'@export
+#'@title Print and Log Messages
+#'@description  Used to print messages to the screen and the log file.
+#'
+#'@param cfg ubiquity system object    
+#'@param str string to print
 vp = function(cfg, str){
 # function []=vp(cfg, str)
 # vp -- verbose print
@@ -2184,6 +3199,11 @@ if('yes' == cfg$options$verbose){
   }}}
 }
 
+#'@export
+#'@title Wrapper for system_log_entry Used in Shiny Apps
+#'
+#'@param cfg ubiquity system object    
+#'@param str string to print/log
 GUI_log_entry <-function(cfg, text){
    system_log_entry(cfg, sprintf("RGUI %s", text))
 }
@@ -2215,6 +3235,34 @@ GUI_log_entry <-function(cfg, text){
 # This should display the first five rows of obs
 # with the appropriate header on top
 
+#'@export
+#'@title Select Records from NONMEM-ish Data Set
+#'@keywords internal
+#'
+#'@param cfg ubiquity system object    
+#'@param values dataset with column headers
+#'@param filter list with element names as headers for \code{values} with values from the same header OR'd and values across headers AND'd
+#'
+#'@return subset of dataset 
+#'
+#'@details
+#' If the dataset has the headings \code{ID}, \code{DOSE} and \code{SEX}  and
+#' \code{filter} has the following format:
+#'
+#' \preformatted{
+#'filter = list()
+#'filter$ID   = c(1:4)
+#'filter$DOSE = c(5,10)
+#'filter$SEX  = c(1)
+#'}
+#'
+#'It would be translated into the boolean filter:
+#'
+#'\preformatted{
+#'((ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)
+#'}
+#'@examples
+#' # Examples
 nm_select_records    <- function(cfg, values, filter){
 
   cols = names(filter) 
@@ -2238,10 +3286,19 @@ nm_select_records    <- function(cfg, values, filter){
 
 
 #
-# converts a time specified in a defined timescale (say weeks) to the
-# timescale of the simulation (say hours if the rates are in 1/hr units)
 #
   
+#'@export
+#'@title Convert Time in Timescale to Simulation Time
+#'@description 
+#' converts a time specified in a defined timescale (say weeks) to the
+#' timescale of the simulation (say hours if the rates are in 1/hr units)
+#'
+#'@param cfg ubiquity system object    
+#'@param tstime numeric time of the timescale
+#'@param ts string containing the timescale 
+#'
+#'@return \code{tstime} in the system timescale units 
 system_ts_to_simtime <-function(cfg, tstime, ts){
    simtime = c()
    if(ts %in% names(cfg$options$time_scales)){
@@ -2249,13 +3306,16 @@ system_ts_to_simtime <-function(cfg, tstime, ts){
    }
    else{
     vp(cfg, sprintf('Unable to find timescale %s', ts)) }
-
     return(simtime)
 }
 
-#
-# Removes all previously defined chorts
-#
+#'@export
+#'@title Clear all Cohorts
+#'@description Clear previously defined cohorts
+#'
+#'@param cfg ubiquity system object    
+#'
+#'@return ubiquity system object with no cohorts defined
 system_clear_cohorts  <- function(cfg){
   cfg$cohorts = c()
 return(cfg)}
@@ -2263,6 +3323,102 @@ return(cfg)}
 #
 # Defines a cohort
 #
+#'@export
+#'@title Define a cohort to include in a parameter estimation 
+#'
+#'@param cfg ubiquity system object    
+#'@param cohort list with cohort information 
+#'
+#'@return ubiquity system object with cohort defined 
+#'
+#'@details 
+#' Each cohort has a name (eg \code{d5mpk}), and the dataset containing the
+#' information for this cohort is identified (the name defined in \code{\link{system_load_data}})
+#'
+#' \preformatted{
+#'cohort  = c()
+#'cohort$name    = ’d5mpk’
+#'cohort$dataset = ’pmdata’
+#' }
+#'
+#' Next it is necessary to define a filter (\code{cf} field) that can be
+#' applied to the dataset to only return values relevant to this cohort. For
+#' example, if we only want records where the column \code{DOSE} is 5 (for the 5
+#' mpk cohort). We can 
+#'
+#' \preformatted{
+#'cohort$cf$DOSE = c(5)
+#' }
+#'
+#' If the dataset has the headings \code{ID}, \code{DOSE} and \code{SEX}  and
+#' cohort filter had the following format:
+#'
+#'\preformatted{
+#'cohort$cf$ID   = c(1:4)
+#'cohort$cf$DOSE = c(5,10)
+#'cohort$cf$SEX  = c(1)
+#'}
+#'
+#'It would be translated into the boolean filter:
+#' 
+#'\preformatted{
+#'((ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)
+#'}
+#'
+#'
+#' Next we define the dosing for this cohort. It is only necessary to define
+#' those inputs that are non-zero. So if the data here were generated from
+#' animals given a single 5 mpk IV at time 0. If in the model this was defined
+#' using \code{<B:times>} and \code{<B:events>} dosing into the central
+#' compartment \code{Cp}, you would pass this information to the cohort in the
+#' following manner:
+#'
+#' \preformatted{
+#'cohort$inputs$bolus$Cp$AMT   = c(5)
+#'cohort$inputs$bolus$Cp$TIME  = c(0)
+#' }
+#'  
+#' Inputs can also include any infusion rates (\code{infusion_rates}) or
+#' covariates (\code{covariates}). Covariates will have the default value
+#' specified in the system file unless overwritten here. The units here are
+#' the same as those in the system file
+#'  
+#' Next we need to map the outputs in the model to the observation data in the
+#' dataset. Under \code{cohort.outputs} there is a field for each output. Here the field \code{ONAME}
+#' can be replaced with something more useful (like \code{PK}). The times and
+#' observations in the dataset are found in the \code{’TIMECOL’} column and the \code{’OBSCOL’} column
+#' (optional missing data option specified by -1). These are mapped to the model outputs (which
+#' MUST have the same units) ’TS’ and ’MODOUTPUT'. The variance model
+#' \code{'VARMOD'} is a string containing the variance model written in terms
+#' of the model prediction (\code{PRED}), variance parameters (defined with
+#' \code{<VP>} in the system file), and numbers. To do a least squares
+#  estimation use \code{'1'}, to weight against the prediction squared use
+#  \code{'PRED^2'}, to incorporate the variance parameter \code{SLOPE} use
+#  something like \code{'SLOPE*PRED^2'}.
+#'  
+#' \preformatted{
+#'cohort$outputs$ONAME$obs$time        = ’TIMECOL’      
+#'cohort$outputs$ONAME$obs$value       = ’OBSCOL’       
+#'cohort$outputs$ONAME$obs$missing     = -1         
+#'cohort$outputs$ONAME$model$time      = ’TS'       
+#'cohort$outputs$ONAME$model$value     = ’MODOUTPUT’  
+#'cohort$outputs$ONAME$model$variance  = ’VARMOD'     
+#' }
+#' 
+#' \bold{Note: Output names should be consistent between cohorts so they will be grouped together when plotting results.}
+#' 
+#' 
+#' Optionally we can add information about the markers to use when plotting
+#' the output for this cohort:
+#' \preformatted{
+#'cohort$outputs$ONAME$options$marker_color   = 'black'
+#'cohort$outputs$ONAME$options$marker_shape   = 16
+#'cohort$outputs$ONAME$options$marker_line    = 1 
+#' }
+#'
+#' Lastly we define the cohort:
+#'
+#' \code{cfg = system_define_cohort(cfg, cohort)}
 system_define_cohort <- function(cfg, cohort){
   
  if('options' %in% names(cohort)){
@@ -2752,42 +3908,58 @@ else{
 }
 
 
+#'@export
+#'@title General Observation Details Function
+#'@description Used to calculate observation details based on 
+#' cohorts created with \code{system_define_cohort}
+#'
+#'@param pest vector of parameters to be estimated
+#'@param cfg ubiquity system object    
+#'@param estimation \code{TRUE} when called during an estimation and \code{FALSE} when called to test objective function or generate observation information for plotting
+#'
+#'@return  If estimation is TRUE then the output is a matrix  of observation details of the format:
+#' 
+#' \preformatted{
+#'od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT]
+#' }
+#' 
+#'   The values are the observed (\code{OBS}) data, predicted
+#'   values (\code{PRED}) and variance (\code{VAR}) at the given \code{TIME}. The columns \code{OUTPUT} and
+#'   \code{COHORT} can be used for sorting. These should be unique numbers.
+#' 
+#'  When estimation is \code{FALSE} we output \code{od$pred} is a data frame with the
+#'  following headings:
+#' 
+#' \preformatted{
+#'od$pred  = [TIME, OBS, PRED, VAR, SMOOTH, OUTPUT, COHORT]
+#' }
+#' 
+#'   The \code{TIME}, \code{OBS}, \code{PRED} and \code{VAR} are the same as those listed above. The \code{SMOOTH}
+#'   variable is \code{FALSE} for rows that correspond to records in the dataset and
+#'   \code{TRUE} when the \code{PRED} represents the smooth predictions. The \code{OUTPUT} and \code{COHORT}
+#'   columns here are text values used when defining the cohorts.
+#'  
+#'  
+#'  Also the \code{od$all} list item is created with all of the simulation information
+#'  stored for each cohort:
+#'  
+#' \preformatted{
+#'od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]
+#' }
+#'\itemize{
+#'   \item \code{tstime}             - timescale of the system
+#'   \item \code{ts.ts1, ... ts.tsn} - timescales defined in the system
+#'   \item \code{pred}               - smooth prediction
+#'   \item \code{name}               - state or output name corresponding to the prediction
+#'   \item \code{cohort}             - name of the cohort for these predictions
+#' }
+#'@seealso \code{\link{system_define_cohort}}
 system_od_general <- function(pest, cfg, estimation=TRUE){
 
 od     = c()
 odall  = c()
 odpred = c() 
 
-# If estimation is TRUE then we output a matrix 
-# of observation details of the format:
-#
-#  od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT]
-#
-#  The values are the observed (OBS) data, predicted
-#  values (PRED) and variance (VAR) at the given time. The columns OUTPUT and
-#  COHORT can be used for sorting. These should be unique numbers.
-#
-# When estimation is FALSE we output od$pred is a data frame with the
-# following headings:
-#
-#  od$pred  = [TIME, OBS, PRED, VAR, SMOOTH, OUTPUT, COHORT]
-#
-#  The TIME, OBS, PRED and VAR are the same as those listed above. The SMOOTH
-#  variable is FALSE for rows that correspond to records in the dataset and
-#  TRUE when the PRED represents the smooth predictions. The OUTPUT and COHORT
-#  columns here are text values used when defining the cohorts.
-# 
-# 
-# Also the od$all list item is created with all of the simulation information
-# stored for each cohort:
-# 
-#  od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]
-#  
-#  tstime             = timescale of the system
-#  ts.ts1, ... ts.tsn = timescales defined in the system
-#  pred               = smooth prediction
-#  name               = state or output name corresponding to the prediction
-#  cohort             = name of the cohort for these predicitons
 
 
 chidx = 1
@@ -2980,29 +4152,45 @@ return(od)
 
 }
 
+#'@export
+#'@title Create Full Parameter Vector from Estimation Subset
+#'@param pest subset of parameters being estimated
+#'@param cfg ubiquity system object    
+#'
+#'@return Full parameter vector
+#' 
+#'@details    
+#'  This function is used to build a full parameter set from a subset, and is
+#'  normally used during parameter estimation in the observation details
+#'  function when the entire parameter vector is needed to simulate the system.
+#' 
+#'  The function select_set pulls out a parameter set and can optionally select
+#'  only a subset for estimation:
+#' 
+#' \preformatted{
+#'pnames = c('Vp', 'CL')
+#'cfg = system_select_set(cfg, "default", pnames)
+#' }
+#' 
+#'  The default values of this subset can be accessed in the following way:
+#' 
+#' \preformatted{
+#'pest = system_fetch_guess(cfg)
+#' }
+#' 
+#'  The estimation routines will work with this reduced parameter set, but to
+#'  run simulations the full set is needed. The full values can be retrieved 
+#'  using the following: 
+#' 
+#' \preformatted{
+#'parameters = fetch_full_parameters(pest, cfg) 
+#' }
+#' 
+#'@seealso \code{\link{system_fetch_guess}}, \code{\link{system_select_set}}
 fetch_full_parameters <- function(pest, cfg){
 #
 #  function [parameters_full] = fetch_full_parameters(parameters_subset, cfg) 
 #
-# This function is used to build a full parameter set from a subset, and is
-# normally used during parameter estimation in the observation details
-# function when the entire parameter vector is needed to simulate the system.
-#
-# The function select_set pulls out a parameter set and can optionally select
-# only a subset for estimation:
-#
-#    pnames = c('Vp', 'CL')
-#    cfg = system_select_set(cfg, "default", pnames)
-#
-# The default values of this subset can be accessed in the following way:
-#
-#    parameters_subset = cfg$estimation$parameters$guess 
-#
-# The estimation routines will work with this reduced parameter set, but to
-# run simulations the full set is needed. The full values can be retrieved 
-# using the following: 
-#
-# parameters_full = fetch_full_parameters(parameters_subset, cfg) 
 #
 
 
@@ -3018,20 +4206,26 @@ return(parameters_full)
 
 
 
+#'@export
+#'@title Set Value for Parameter
+#'
+#'@param cfg ubiquity system object    
+#'@param parameters vector of parameters
+#'@param pname parameter name
+#'@param value value         
+#'
+#'@return parameters vector with \code{pname} set to \code{value} 
+#'@details     
+#'
+#'  To set the parameter Vc to a value of 3, the following would be used:
+#'
+#' \preformatted{
+#'parameters = system_fetch_parameters(cfg) 
+#'parameters = system_set_parameter(cfg, parameters, pname = 'Vc', value = 3) 
+#' }
+#'
+#'
 system_set_parameter <- function(cfg, parameters, pname, value){
-# [parameters] = system_set_parameter(cfg, parameters, pname, value)
-#
-#  parameters = full parameter vector  obtained using the following:
-#
-#  pname = name of the parameter to set
-#  value = value of the parameter
-#
-#
-#  To set the parameter Vc to a value of 3, the following would be used:
-#
-#  parameters = system_fetch_parameters(cfg) 
-#  parameters = system_set_parameter(cfg, parameters, pname = 'Vc', value = 3) 
-
 
 if( pname %in% names(cfg$parameters$values)){
   parameters[[pname]] = value
@@ -3043,6 +4237,12 @@ if( pname %in% names(cfg$parameters$values)){
 return(parameters)
 }
 
+#'@title Calculates the Variance in od_general      
+#'@keywords internal
+#'@param SIMINT_parameters system parameters
+#'@param SIMINT_varstr string containing variance calculation 
+#'@param SIMINT_odchunk chunk of observation details containing predictions, observations and the time
+#'@param SIMINT_cfg ubiquity system object    
 calculate_variance <- function(SIMINT_parameters, SIMINT_varstr, SIMINT_odchunk, SIMINT_cfg){
 
   SIMINT_var = c()
@@ -3066,6 +4266,25 @@ calculate_variance <- function(SIMINT_parameters, SIMINT_varstr, SIMINT_odchunk,
 }
 
 
+#'@export
+#'@title Simulate Individual Response
+#'
+#'@param SIMINT_parameters vector of parameters
+#'@param SIMINT_cfg ubiquity system object    
+#'@param SIMINT_dropfirst when \code{TRUE} it will drop the first sample point (prevents bolus doses from starting at 0)
+#'
+#'@return The simulation output is mapped (\code{som}) is a list.
+#' time-course is stored in the \code{simout} element. The first column (\code{time})
+#' contains the simulation time in the units of the simulation, days in this
+#' case. Next there is a colunn for each state and a
+#' column for each output. Each system parameter is also
+#' passed through the simulation into the output. Models with covariates
+#' will contain the  initial value (prefix: \code{SIMINT_CVIC_}) as well as the values at each time point. For the
+#' Next secondary parameters
+#' are also provided as well as a column for each timescale specified in
+#' the system file with a "\code{ts.}" prefix.
+#'
+#'@seealso Simulation vignette (\code{vignette("Simulation", package = "ubiquity")})
 run_simulation_ubiquity = function(SIMINT_parameters,SIMINT_cfg, SIMINT_dropfirst=TRUE){
 # This runs a simulation for a model created in the system.txt format
 #  
@@ -3312,6 +4531,16 @@ SIMINT_simout_mapped$simout = as.data.frame(SIMINT_simout)
 
 return(SIMINT_simout_mapped) } 
 
+#'@export
+#'@title Converts the Wide/Verbose Output Simulation Functions into Data Frames
+#'
+#'@param cfg ubiquity system object    
+#'@param som simulation output from \code{run_simulation_ubiquity}, \code{simulate_subjects},  \code{run_simulation_titrate}
+#'
+#'@return r1
+#'
+#'@seealso
+#' \code{\link{run_simulation_titrate}} internally when running simulations.
 som_to_df  <- function(cfg, som){
 # Takes the simulation output mapped from run_simulation_ubiquity  or
 # simulate_subjects and converts it into a data frame of the formats:
@@ -3457,6 +4686,10 @@ df = c()
 return(df)
 }
 
+#'@title \code{pso} Wrapper for calculate_objective
+#'@keywords internal
+#'@param pvect      system parameters
+#'@param cfg ubiquity system object    
 calculate_objective_pso <- function(pvect, cfg){
 # calculate_objective takes the parameters as a list, so we take the vector
 # provided by psoptim when it calls the objective function and repackage it as
@@ -3474,6 +4707,10 @@ calculate_objective_pso <- function(pvect, cfg){
   return(obj)
 }
 
+#'@title \code{GA} Wrapper for calculate_objective
+#'@keywords internal
+#'@param pvect      system parameters
+#'@param cfg ubiquity system object    
 calculate_objective_ga  <- function(pvect, cfg){
 # calculate_objective takes the parameters as a list, so we take the vector
 # provided by psoptim when it calls the objective function and repackage it as
@@ -3494,6 +4731,18 @@ calculate_objective_ga  <- function(pvect, cfg){
 }
 
 
+#'@export 
+#'@title Calculates the Value of an Objective Function for a Given Set of System Parameters
+#'@keywords internal
+#'
+#'@param parameters system parameters
+#'@param cfg ubiquity system object    
+#'@param estimation boolean variable to indicate if the objective function is being called during parameter estimation
+#'
+#'@return If estimation is \code{TRUE} it will return the objective function
+#'value, if it is \code{FALSE} it will return a list with an element
+#'\code{value} containing the objective function value and an element named
+#'\code{isgood} that is \cite{TRUE} if the objective function was successful.
 calculate_objective <- function(parameters, cfg, estimation=TRUE){
 
 
@@ -3609,6 +4858,16 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
 
 }
 
+#'@title Bound Parameters
+#'@keywords internal
+#'@description 
+#' Takes a vector of parameters and returns the same vector where parameters beyond there bounds are replaced with the bounds
+#'
+#'@param pv parameter vector
+#'@param cfg ubiquity system object    
+#'
+#'@return bounded parameters vector
+#'
 bound_parameters  <- function(pv, cfg){
 objmult = 0.0
   for(pname in names(pv)){
@@ -3639,15 +4898,28 @@ objmult = 0.0
 }
 
 
+#-----------------------------------------------------------
 # system_estimate_parameters - controls the estimation process
-# flowctl - controls the flow of the estimation process with the
-#           following options:
-#           'plot previous estimate'
-#           'previous estimate as guess'
-#           'estimate'
-#           'plot guess'
-# analysis_name - name used for archinving results
-# archive_results - boolean variable to indicate if results should be saved
+#'@export
+#'@title Control Estimation Process  
+#'@description Manages the flow of parameter estimation using data specified with \code{system_define_cohort}.
+#'
+#'@param cfg ubiquity system object    
+#'@param flowctl string to control what the flow of the function 
+#'@param analysis_name string containing the name of the analysis 
+#'@param archive_results boolean variable to control whether results will be archived
+#'
+#'@return parameter estimates
+#'
+#'@details
+#'
+#'  The \code{flowctl} argument can have the following values
+#'  \itemize{
+#'   \item \code{"plot guess"}  return the initial guess
+#'   \item \code{"estimate"} perform estimation
+#'   \item \code{"previous estimate as guess"} load previous estimate for \code{analysis_name} and use that as the initial guess
+#'   \item \code{"plot previous estimate"} return the previous estimate for \code{analysis_name}
+#'  }
 system_estimate_parameters <- function(cfg, 
                                        flowctl         = "plot guess",
                                        analysis_name   = "my_analysis", 
@@ -3687,8 +4959,19 @@ system_estimate_parameters <- function(cfg,
   }
 
 return(pest)}
+# /system_estimate_parameters
+#-----------------------------------------------------------
 
-
+#-----------------------------------------------------------
+# estimate_parameters
+#'@title Performs parameter estimation 
+#'@keywords internal
+#'@param cfg ubiquity system object    
+#'
+#'@return list with elements: \code{estimate} - vector of parameter estimates,
+#' \code{raw} - raw output from the underlying optimization routine, 
+#' \code{obj} - objective function value,  \code{statistics_est} - solution
+#' statistics 
 estimate_parameters <- function(cfg){
 
 pest = c()
@@ -3907,22 +5190,84 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
 
   return(pest)
 }
+# /estimate_parameters
+#-----------------------------------------------------------
 
 #-----------------------------------------------------------
+#system_simulate_estimation_results
+#'@export
+#'@title Simulate Results at Estimates
+#'@description Simulates the system at the parameter estimates \code{pest}
+#'
+#'@param cfg ubiquity system object    
+#'@param pest vector of parameters
+#'
+#'@return observations in a list, see \code{\link{system_define_cohort}} when \code{estimation=FALSE}
+#'
+#'@seealso \code{\link{system_define_cohort}} \code{\link{system_plot_cohorts}}
 system_simulate_estimation_results <- function(pest, cfg){
  eval(parse(text=sprintf('observations = %s(pest, cfg, estimation=FALSE)', cfg$estimation$options$observation_function)))
- #return(system_od_general(pest=pest, cfg=cfg, estimation=FALSE))
  return(observations)
 }
+#/system_simulate_estimation_results
+#-----------------------------------------------------------
 
 #-----------------------------------------------------------
+#system_fetch_guess
+#'@export
+#'@title Fetch a List with the Current Parameter Guesses
+#'
+#'@param cfg ubiquity system object    
+#'
+#'@return list of current parameter gauesses
+#'
+#'@examples
+#' # Examples
 system_fetch_guess <- function(cfg){
   return(cfg$estimation$parameters$guess)
 }
+# /system_fetch_guess
+#-----------------------------------------------------------
 
-
+#-----------------------------------------------------------
+# system_plot_cohorts
+#'@export
+#'@title Plot Estimation Cohorts and Model Predictions
+#'
+#'@param erp output from \code{system_simulate_estimation_results}
+#'@param cfg ubiquity system object    
+#'@param plot_opts list controling how predictions and data are overlaid. 
+#'
+#'@details
+#'
+#' The general format for a plot option for a given output (\code{OUTPUT}) is:
+#'
+#' \code{plot_opts$outputs$OUTPUTt$option = value}
+#'
+#' The following options are:
+#' \itemize{
+#'  \item \code{yscale} and  \code{xscale} \code{= "linear" or "log"}
+#'  \item \code{ylabel} and  \code{xlabel} \code{= "text"}
+#'  \item \code{xlim}   and  \code{ylim}   \code{= c(min, max)}
+#'  }
+#'
+#' It is also possible to control the \code{height} and \code{width} of the time course \code{tc} and observed vs predicted \code{op} file by specifying the following in the default units of \code{ggsave}.
+#' \itemize{
+#'  \item \code{plot_opts$tc$width  = 10}  
+#'  \item \code{plot_opts$tc$height = 5.5} 
+#'  \item \code{plot_opts$op$width  = 10}  
+#'  \item \code{plot_opts$op$height = 8.0} 
+#'  }
+#'@return List of plot outputs containing two elements \code{timecourse} and
+#' \code{obs_pred}, for the time course of and observed vs predicted,
+#' respectively. Both of these fields contain three elements for a given
+#' output. For example, say there is an output named \code{PK} the both the
+#' \code{timecourse} and \code{obs_pred} elements will have a field named
+#' \code{PK} containing a ggplot object
+#' and two fileds \code{PK_png} and \code{PK_pdf} containing the paths the the
+#' files containing that figure in the respecitve fortmats.
+#'@seealso The estimation vignette (\code{vignette("Estimation", package = "ubiquity")}) 
 system_plot_cohorts <- function(erp, plot_opts=c(), cfg, prefix='analysis'){
-
 
 # list of graphics objects to return
 grobs = list()
@@ -4041,12 +5386,10 @@ for(output in levels(erp$pred$OUTPUT)){
   # Y scale
   if(output_scale == "log"){
     if(!is.null(plot_opts$outputs[[output]]$ylim)){
-     #  p = p + scale_y_log10(limits=plot_opts$outputs[[output]]$ylim)
         p =  gg_log10_yaxis(fo       = p,
                             ylim_min = min(plot_opts$outputs[[output]]$ylim),
                             ylim_max = max(plot_opts$outputs[[output]]$ylim))
     } else {
-     #  p = scale_y_log10()
        p = gg_log10_yaxis(p)
 
     }
@@ -4157,7 +5500,56 @@ for(output in levels(erp$pred$OUTPUT)){
 return(grobs)
 
 }
+#/system_plot_cohorts
+#-----------------------------------------------------------
 
+#-----------------------------------------------------------
+#system_set_guess
+#'@export
+#'@title Alter Initial Guess and Parameter Bounds
+#'@description
+#'
+#' Default values for parameters are taken from the \code{system.txt} file
+#' either when the parameter was defined (\code{<P>}) or when it was reassigned
+#' for a parameter set (\code{<PSET:?:?>?}). These can be altered at the
+#' scripting level using this function.
+#'
+#'@param cfg ubiquity system object    
+#'@param pname name of parameter to set
+#'@param value value to assign
+#'@param lb optionally change the lower bound
+#'@param ub optionally change the upper bound
+#'
+#'@return cfg - ubiquity system object    
+#'
+#' @details 
+#'
+#' When performing a parameter estimation, the initial guess will be the value
+#' specified in the \code{system.txt} file for the currently selected parameter set. The
+#' following command can be used after the parameter set has been selected to
+#' specify the value (\code{VALUE}) of the parameter \code{PNAME} and optionally the lower (\code{lb})
+#' and upper (\code{ub}) bounds:
+#' 
+#' \preformatted{
+#'cfg =
+#'system_set_guess(cfg, pname="PNAME", value=VALUE, lb=NULL, ub=NULL)
+#'}
+#'
+#' To set the initial guess for the parameter Vc to a value of 3, the following
+#' would be used:
+#' 
+#' \preformatted{
+#'cfg = system_set_guess(cfg, "Vc", value=3)
+#' }
+#'
+#' To specify the guess and overwrite the upper bound on Vc and set it to 5
+#'
+#' \preformatted{
+#'cfg = system_set_guess(cfg, "Vc", value=3, ub=5)
+#' }
+#'
+#'@examples
+#' # Examples
 system_set_guess <- function(cfg, pname, value, lb=NULL, ub=NULL){
 #  cfg = system_set_guess(cfg,  pname, value, lb, ub)
 #
@@ -4206,9 +5598,28 @@ if(isgood == FALSE){
 return(cfg)
 
 }
+#/system_set_guess
+#-----------------------------------------------------------
 
 
 
+#-----------------------------------------------------------
+#generate_report  
+#'@title Generate Text Report with Estimation Results
+#'@keywords internal
+#'
+#'@param cfg ubiquity system object    
+#'@param parameters list of parameter estimates
+#'@param ss output from solution_statistics 
+#'
+#'@return List with the following elements: 
+#'
+#'\itemize{
+#'   \item \code{report_file} name of report file          
+#'   \item \code{report_file_contents} contents of report file
+#'   \item \code{parameters_all_file} name of CSV file with all parameters 
+#'   \item \code{parameters_est_file} name of CSV file with only the estimates 
+#'}
 generate_report  <- function( parameters, ss, cfg){
 
 
@@ -4368,7 +5779,40 @@ files$parameters_est_file = parameters_est_file
 return(files)
 
 }
+#/generate_report  
+#-----------------------------------------------------------
 
+#-----------------------------------------------------------
+#archive_estimation
+#'@title Archive Estimation Results 
+#'@keywords internal
+#'@description 
+#'
+#'  Archives the estimation results by moving the output files to the same file
+#'  names with \code{'name'} prepended to them. This prevents them from being
+#'  overwritten in a different analysis script the following files are
+#'  archived:
+#'  \itemize{
+#'   \item \code{output/parameters_all.csv}
+#'   \item \code{output/parameters_est.csv}
+#'   \item \code{output/report.txt}
+#'  }
+#'  Example:
+#'
+#'   archive_estimation('mysoln', cfg)
+#'
+#' Would rename the files above 
+#'  \itemize{
+#'   \item \code{output/mysoln-parameters_all.csv}
+#'   \item \code{output/mysoln-parameters_est.csv}
+#'   \item \code{output/mysoln-report.txt}
+#'  }
+#'
+#'@param name analysis name 
+#'@param cfg ubiquity system object    
+#'
+#'@examples
+#' # Examples
 archive_estimation <- function(name, cfg){
 #
 #  archive_estimation(name, cfg)
@@ -4410,8 +5854,20 @@ for(fidx in 1:length(f.source)){
    vp(cfg, sprintf('%s --> %s', f.source[fidx], f.destination[fidx]))
 }
 }
+#/archive_estimation
+#-----------------------------------------------------------
 
 
+#-----------------------------------------------------------
+#compare_estimate
+#'@title Extracts Covariates for a Subject from a Subject Data File
+#'@keywords internal
+#'
+#'@param cfg ubiquity system object    
+#'@param parameters list of parameter estimates
+#'@param pname name of parameter to compare
+#'
+#'@return L - near the lower bound, U - near the upper bound
 compare_estimate <- function(cfg, parameters, pname){
 #
 # ceecking to see if the estimated parameter pname with the value in the
@@ -4443,9 +5899,49 @@ compare_estimate <- function(cfg, parameters, pname){
   
 return(notes)
 }
+#/compare_estimate
+#-----------------------------------------------------------
 
 
 
+#'@title Calculate Solution Statistics
+#'@keywords internal
+#'@description Attempts to determine the variance/covariance matrix,
+#' confidence intervals and CV percent for a list of parameter estiamtes
+#' \code{parameters}. This method was taken from the ADAPT 5 User's Guide
+#' chapter 3.
+#' 
+#'@param cfg ubiquity system object    
+#'@param parameters list of parameter estimates
+#'
+#'@return list containing information about the provided estimates
+#'
+#'@details 
+#'
+#' The returned list has the following format:
+#' \itemize{
+#'   \item \code{objective} - objective function value
+#'   \item \code{num_observations} - number of observations
+#'   \item \code{degrees_of_freedom} - degrees of freedom 
+#'   \item \code{aic} - Akaike information criterion 
+#'   \item \code{bic} - Bayesian (Schwarz) information criterion 
+#'   \item \code{covariance} - variance covariance matrix
+#'   \item \code{wls} - defined for weighted least squares objective with the following elements:
+#'   \itemize{
+#'     \item \code{jacobian}  - Jacobian matrix
+#'     \item \code{weights}  - diagonal matrix of weights
+#'     \item \code{error_variance}  - diagonal matrix of variances
+#'   }
+#'   \item \code{ml} - defined for maximum likelihood objective with the following elements:
+#'   \itemize{
+#'     \item \code{M} - Jacobian matrix with block for variance parameters
+#'   }
+#'   \item \code{coefficient_of_variation$pname} - CV percent for parameter \code{pname}
+#'   \item \code{confidence_interval$lower_bound$pname} - Lower bound of the confidence interval for \code{pname}
+#'   \item \code{confidence_interval$upper_bound$pname} - Upper bound of the confidence interval for \code{pname}
+#' }
+#'
+#'@seealso Vignette on estimation (\code{vignette("Estimation", package = "ubiquity")}) 
 solution_statistics <- function(parameters, cfg){
 
   RelTol = 1e-5;
@@ -4657,6 +6153,13 @@ solution_statistics <- function(parameters, cfg){
   return(s)
 }
 
+#'@export
+#'@title Verify system steady-state
+#'
+#'@description Takes the output  \code{\link{run_simulation_ubiquity}} and verifies that the system is running at steady-state by analyzing the timecourse of all of the states in the system
+#'
+#'@param cfg ubiquity system object    
+#'@param som output of \code{\link{run_simulation_ubiquity}} 
 check_steady_state  <- function(cfg, som){ 
 
   offset_found = FALSE
@@ -4687,6 +6190,17 @@ check_steady_state  <- function(cfg, som){
 }
 
 
+#'@export
+#'@title Make ggplot Figure Pretty
+#'
+#'@param purpose either \code{"present"}, \code{"print"} or \code{"shiny"}
+#'@param fo ggplot figure object
+#'@param y_tick_minor boolean value to control grid lines
+#'@param y_tick_major boolean value to control grid lines
+#'@param x_tick_minor boolean value to control grid lines
+#'@param x_tick_major boolean value to control grid lines
+#'
+#'@return ggplot object 
 prepare_figure = function(purpose, fo,
                           y_tick_minor = FALSE,
                           y_tick_major = FALSE,
@@ -4774,10 +6288,22 @@ return(fo)
 
 
 #---------------------------------------------------------------------------
-# This function is used to format axis and ticks. 
-#   It can be used to put a "pretty" log10 axis x and y axis on a ggplot
-#   figure
-#
+# gg_axis
+#'@export
+#'@title Make ggplot x or y Axis Log 10 Scale
+#'
+#'@param fo ggplot figure object
+#'@param yaxis_scale  \code{TRUE} indicates that the y axis should be log10 scaled
+#'@param xaxis_scale  \code{TRUE} indicates that the x axis should be log10 scaled
+#'@param ylim_min     set to a number to define the lower bound of the y axis
+#'@param ylim_max     set to a number to define the upper bound of the y axis
+#'@param xlim_min     set to a number to define the lower bound of the x axis
+#'@param xlim_max     set to a number to define the upper bound of the x axis
+#'@param x_tick_label \code{TRUE} to show x tick labels, \code{FALSE} to hide the x tick labels
+#'@param y_tick_label \code{TRUE} to show y tick labels, \code{FALSE} to hide the y tick labels
+#'
+#'@return ggplot object with formatted axis 
+#'@seealso \code{\link{gg_log10_xaxis}} and \code{\link{gg_log10_yaxis}}
 gg_axis  = function(fo, 
                      yaxis_scale  = TRUE,
                      xaxis_scale  = TRUE,
@@ -4967,11 +6493,23 @@ gg_axis  = function(fo,
 
 
 fo}
+#/gg_axis
 #---------------------------------------------------------------------------
 
 
 #---------------------------------------------------------------------------
-# Shortcut to gg_axis to make the y axis log10
+# gg_log10_yaxis
+#'@export
+#'@title Make ggplot y Axis Log 10 Scale
+#'
+#'@param fo ggplot figure object
+#'@param ylim_min     set to a number to define the lower bound of the y axis
+#'@param ylim_max     set to a number to define the upper bound of the y axis
+#'@param x_tick_label \code{TRUE} to show x tick labels, \code{FALSE} to hide the x tick labels
+#'@param y_tick_label \code{TRUE} to show y tick labels, \code{FALSE} to hide the y tick labels
+#'
+#'@return ggplot object with formatted axis 
+#'@seealso \code{\link{gg_axis}} and \code{\link{gg_log10_yaxis}}
 gg_log10_yaxis = function(fo, 
                           ylim_min     = NULL, 
                           ylim_max     = NULL, 
@@ -4994,7 +6532,18 @@ fo}
 #---------------------------------------------------------------------------
 
 #---------------------------------------------------------------------------
-# Shortcut to gg_axis to make the x axis log10
+# gg_log10_xaxis
+#'@export
+#'@title Make ggplot x Axis Log 10 Scale
+#'
+#'@param fo ggplot figure object
+#'@param xlim_min     set to a number to define the lower bound of the x axis
+#'@param xlim_max     set to a number to define the upper bound of the x axis
+#'@param x_tick_label \code{TRUE} to show x tick labels, \code{FALSE} to hide the x tick labels
+#'@param y_tick_label \code{TRUE} to show y tick labels, \code{FALSE} to hide the y tick labels
+#'
+#'@return ggplot object with formatted axis 
+#'@seealso \code{\link{gg_axis}} and \code{\link{gg_log10_xaxis}}
 gg_log10_xaxis = function(fo, 
                           xlim_min     = NULL, 
                           xlim_max     = NULL, 
@@ -5016,6 +6565,14 @@ fo}
 #---------------------------------------------------------------------------
 
 
+#---------------------------------------------------------------------------
+#ubiquity_name_check
+#'@title Check Names of Cohorts, Analyses, Reports, etc.
+#'@keywords internal
+#'
+#'@param test_name string containing the name to be tested
+#'
+#'@return List with boolean element \code{isgood} that is \code{TRUE} when the name tests correct, \code{FALSE} when it fails. The element \code{msgs} contains a verbose message on why it fails.
 ubiquity_name_check = function(test_name){
 #
 # Error checking function to make sure the test_name 
@@ -5055,13 +6612,40 @@ ubiquity_name_check = function(test_name){
  return(chkres) 
 
 }
+#/ubiquity_name_check
+#---------------------------------------------------------------------------
 
-# Recreating the matlab linspace and log space funcitons
+#'@export
+#'@title Implementation of the \code{linspace} function from Matlab
+#'
+#'
+#'@param a initial number
+#'@param b final number  
+#'@param n number of elements 
+#'
+#'@return vector of numbers from \code{a} to \code{b} with
+#'\code{n} linearly spaced apart
+#'
+#'@examples
+#' linspace(0,100, 20)
 linspace = function(a, b, n=100){
    step = (b-a)/(n-1)
    return(seq(a,b,step))
 }
 
+#'@export
+#'@title Implementation of the \code{logspace} function from Matlab
+#'
+#'
+#'@param a initial number
+#'@param b final number  
+#'@param n number of elements 
+#'
+#'@return vector of numbers from \code{a} to \code{b} with
+#'\code{n} logarythmically (base 10) spaced apart
+#'
+#'@examples
+#' logspace(-2, 3,20)
 logspace = function(a, b, n=100){
    step = (b-a)/(n-1)
    linseq = seq(a,b,step)
@@ -5070,55 +6654,77 @@ logspace = function(a, b, n=100){
 
 # -------------------------------------------------------------------------
 # system_define_cohorts_nm  -  Defining cohorts from a NONMEM dataset
-# 
-#  DS - name of databsed defined using system_load_dataset
-# 
-# Column names:
-#  col_ID   - unique subject identifier 
-#  col_DV   - observations
-#  col_TIME - system time
-#  col_AMT  - infusion/dose amounts
-#              - these need to be in the same units specified in the system.txt file
-#  col_RATE - rate of infusion or . for bolus
-#  col_EVID - evid (0 - observation, 1 dose)
-# 
-# 
-# Include all records in the dataset
-#  filter = NULL
-# 
-# Include only records matching the following filter
-#  filter = list()
-#  filter$COLNAME = c()
-# 
-# Mapping information: 
-# 
-# Inputs:
-#  INPUTMAP = list()
-#  INPUTMAP$bolus$SPECIES$CMT_NUM            =  1
-#  INPUTMAP$infusion_rates$RATE$CMT_NUM      =  1
-#  INPUTMAP$covariates$CVNAME$col_COV        = 'CNAME'
-#
-# Outputs
-#  OBSMAP = list()
-#  OBSMAP$ONAME=list(variance     = 'PRED^2',
-#                    CMT          =  1,
-#                    output       = '<O>',
-#                    missing      =  NULL )
-#
-#  system_define_cohorts_nm(cfg, 
-#                           DS        = 'DSNAME',
-#                           col_ID    = 'ID',
-#                           col_CMT   = 'CMT',
-#                           col_DV    = 'DV',
-#                           col_TIME  = 'TIME',
-#                           col_AMT   = 'AMT',
-#                           col_RATE  = 'RATE',
-#                           col_EVID  = 'EVID',
-#                           col_GROUP =  NULL,  
-#                           filter    =  NULL,
-#                           INPUTS    =  INPUTMAP,
-#                           OBS       =  OBSMAP,
-#                           group     =  FALSE)
+#'@export
+#'@title Define Cohorts Automatically from NONMEM Input File
+#'@param cfg ubiquity system object    
+#'@param DS Name of the dataset loaded using \code{system_load_dataset}
+#'@param col_ID Column of unique subject identifier
+#'@param col_CMT Compartment column
+#'@param col_DV Column with observations or \code{’.’} for input
+#'@param col_TIME Column with system time of each record
+#'@param col_AMT Infusion/dose amounts (these need to be in the same units specified in the system.txt file)
+#'@param col_RATE Rate of infusion or \code{’.’} for bolus
+#'@param col_EVID EVID (0 - observation, 1 dose)
+#'@param col_GROUP Column name to use for defining similar cohorts when generating figures.
+#'@param filter List used to filter the dataset or \code{NULL} if the whole dataset is to be used (see filter rules or  \code{\link{nm_select_records}} or a description of how to use this option)
+#'@param INPUTS List mapping input information in the dataset to names used in the system.txt file
+#'@param OBS List mapping obseravation information in the dataset to nams used in the system.txt file
+#'
+#'
+#'@return ubiquity system object with cohorts defined.
+#'
+#'@details
+#'
+#'\bold{NOTE: to use this function it is necessary that a timescale be define for the system time scale. For example, if the system time scale was days, something like the following is needed:}
+#'
+#'\preformatted{
+#'<TS:days> 1
+#'}
+#' 
+#' Include all records in the dataset
+#'\preformatted{
+#'filter = NULL
+#'}
+#' 
+#' Include only records matching the following filter
+#'\preformatted{
+#'filter = list()
+#'filter$COLNAME = c()
+#'}
+#' 
+#' Mapping information: 
+#' 
+#' The inputs mapping information (\code{INPUTMAP}) is alist with a field for each type of input:
+#' input:
+#'\itemize{
+#' \item \code{bolus} List with a name for each bolus state in the dataset (\code{<B:?>}): each bolus name should have a \code{CMT_NUM} field indicating the compartment number for that state
+#' \item \code{infusion_rates} List with a name for each rate in the dataset (\code{<R:?>}): each rate name should have a \code{CMT_NUM} field indicating the compartment number for that state
+#' \item \code{covariates} List with for each covariate in the dataset (\code{<CV:?>}): each covariate name should have a \code{col_COV} indicating the column in the database that contains that covariate
+#'}
+#'From a coding perspective it looks like this:
+#'\preformatted{
+#'INPUTMAP = list()
+#'INPUTMAP$bolus$SPECIES$CMT_NUM            =  1
+#'INPUTMAP$infusion_rates$RATE$CMT_NUM      =  1
+#'INPUTMAP$covariates$CVNAME$col_COV        = 'CNAME'
+#'}
+#'
+#'The observation mapping information (\code{OBSMAP}) is a list with elements for each output as
+#'described in for system_define_cohort. Each output is a list with the following names:
+#'\itemize{
+#'  \item variance Variance model for this output
+#'  \item CMT Compartment number mapping observations for this output
+#'  \item output Name of the output (\code{<O>}) corresponding with the observations
+#'  \item missing Value indicating a missing observation or \code{NULL}
+#'}
+#'From a coding perspective it looks like this:
+#'\preformatted{
+#'OBSMAP = list()
+#'OBSMAP$ONAME=list(variance     = 'PRED^2',
+#'                  CMT          =  1,
+#'                  output       = '<O>',
+#'                  missing      =  NULL )
+#'}
 system_define_cohorts_nm = function(cfg, 
                                     DS        = 'DSNAME',
                                     col_ID    = 'ID',
@@ -5438,6 +7044,12 @@ cfg}
 # -------------------------------------------------------------------------
 
 
+#'@export
+#'@title Fetch System Timescale
+#'
+#'@param cfg ubiquity system object    
+#'
+#'@return Name of the system timescale or \code{NULL} if it was not found
 system_fetch_TSsys = function(cfg){
 # Pulling the timescales 
 time_scales = names(cfg$options$time_scales)
@@ -5454,6 +7066,16 @@ TSsys}
 # -------------------------------------------------------------------------
 # system_nm_check_ds - Takes mapping information from a NONMEM dataset and
 # checks it with specifications in the system.txt file
+#'@export
+#'@title title
+#' Description 
+#'
+#'@param p1
+#'
+#'@return r1
+#'
+#'@examples
+#' # Examples
 system_nm_check_ds = function(cfg, 
                               DS        = 'DSNAME',
                               col_ID    = 'ID',
@@ -5686,9 +7308,15 @@ result}
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
 # system_report_view_layout
-# rpt = system_report_view_layout(cfg, 
-#                                 rptname       = "default",
-#                                 output_file   = "layout.pptx")
+#'@export
+#'@title Generate Annotated Layout for pptx Template
+#'
+#'@param cfg ubiquity system object    
+#'@param rptname report name initialized with \code{system_report_init}
+#'@param output_file name of file to place the annotated layout information, set to \code{NULL} to suppress file generation
+#'
+#'@return officer pptx object with the layout of the template annotated,
+#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 system_report_view_layout = function(cfg,
                                      rptname     = "default",
                                      output_file = "layout.pptx"){
@@ -5749,6 +7377,15 @@ return(ppt)}
 # system_report_fetch
 # rpt = system_report_fetch(cfg, 
 #     rptname       =  "default")
+#'@export
+#'@title Retrieve the officer pptx Object for a Report 
+#'
+#'@description Reports are stored in the ubiquity system object and this provides a method for retrieving them by name.
+#'
+#'@param cfg ubiquity system object    
+#'@param rptname report name
+#'
+#'@return officer pptx object with the of the report named \code{rptname}
 system_report_fetch = function (cfg,
                                rptname     = "default"){
 
@@ -5770,6 +7407,16 @@ return(rpt)}
 # cfg = system_report_set(cfg, 
 #     rptname =  "default",
 #     rpt     = NULL)
+#'@export
+#'@title Overwrite officer Object for a Given Report
+#'@description Replace the report named \code{rptname} with the contents in \code{rpt}
+#'
+#'@param cfg ubiquity system object    
+#'@param rptname report name initialized with \code{system_report_init}
+#'@param rpt officer object 
+#'
+#'@return ubiquity system object with \code{rpt} as content for \code{rptname}
+#'@seealso \code{\link{system_report_init}}
 system_report_set = function (cfg,
                               rptname     = "default",
                               rpt         = NULL){
@@ -5800,6 +7447,14 @@ return(cfg)}
 # system_report_save(cfg, 
 #     rptname       =  "default",
 #     output_file   = "myreport.pptx")
+#'@export
+#'@title Save Report to File
+#'@description Save the contents of \code{rptname} to the file \code{output_file}
+#'
+#'@param cfg ubiquity system object    
+#'@param rptname report name initialized with \code{system_report_init}
+#'@param output_file name of file to place the report
+#'@seealso \code{\link{system_report_init}}
 system_report_save = function (cfg,
                                rptname     = "default",
                                output_file = "myreport.pptx"){
@@ -5815,15 +7470,31 @@ system_report_save = function (cfg,
 # /system_report_save 
 # -------------------------------------------------------------------------
 # system_report_init 
-# cfg = system_report_init(cfg, 
-#     template = file.path("library", "templates", "report.pptx"),
-#     rptname  = "default",
-#     meta     = NULL)
+#'@export
+#'@title Initialize a New officer Report
+#'
+#'
+#'@param cfg ubiquity system object    
+#'@param template path to template file (\code{NULL} will load the default ubiquity template)
+#'@param rptname report name 
+#'@param meta list containing metadata identifying relevant indices for slide layouts
+#'
+#'@param cfg ubiquity system object with the named report initialized
+#'
+#'@seealso Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 system_report_init = function (cfg,
-                               template = file.path("library", "templates", "report.pptx") ,
+                               template = NULL,
                                rptname  = "default",
                                meta     = NULL){
 isgood = TRUE
+
+if(is.null(template)){
+ if( cfg$options$misc$distribution == "package"){
+   template = system.file("extdata", "ubiquity", "templates", "report.pptx", package="ubiquity")
+  } else{
+   template = file.path("library", "templates", "report.pptx") 
+  }
+}
 
 vp(cfg, "--------------------------------")
   if(require('officer')){
@@ -5881,13 +7552,28 @@ return(cfg)
 #        content        = "Text")
 # Content dimensions:
 # ggsave(filename=imgfile, plot=p, height=5.15, width=9, units="in")
+#'@export
+#'@title Add Slide With Main Body of Content
+#'
+#'@param cfg ubiquity system object    
+#'@param rptname report name initialized with \code{system_report_init}
+#'@param title     string with slide title
+#'@param sub_title string with slide sub title
+#'@param content_type type of content for main body of slide
+#'@param content content of main body of slide
+#'
+#'@return ubiquity system object with slide added to report
+#'
+#'@details 
+#'  For information on the format of content, see \code{\link{system_report_ph_content}}.
+#'
+#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 system_report_slide_content = function (cfg,
                                title                  = "Title",      
                                sub_title              = NULL, 
                                rptname                = "default",
                                content_type           = 'text', 
-                               content                = 'Text'
-                               ){
+                               content                = 'Text'){
 
   # We only process this if reporting is enabled
   if(cfg$reporting$enabled){
@@ -5961,6 +7647,28 @@ return(cfg)}
 #        right_content_header      =  NULL,
 #        right_content_header_type = 'text')
 # 
+#'@export
+#'@title Generate Slide with Two Column Layout
+#'@param cfg ubiquity system object    
+#'@param title                     string with slide title
+#'@param sub_title                 string with slide sub title
+#'@param rptname                   report name initialized with \code{system_report_init}
+#'@param content_type              type of content for body text elements 'list' or 'text'
+#'@param left_content              content of left column
+#'@param left_content_type         inherits the main 'content_type' above unless you wish to specify an image or table
+#'@param left_content_header       content of left column header
+#'@param left_content_header_type  'text' unless you wish to specify an image or table
+#'@param right_content             content of right column
+#'@param right_content_type        inherits the main 'content_type' above unless you wish to specify an image or table
+#'@param right_content_header      content of right column header
+#'@param right_content_header_type 'text' unless you wish to specify an image or table
+#'
+#'@return ubiquity system object with slide added to report
+#'
+#'@details 
+#'  For information on the format of content, see \code{\link{system_report_ph_content}}.
+#'
+#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 system_report_slide_two_col = function (cfg,
                                title                       = "Title",      
                                sub_title                   = NULL, 
@@ -5975,8 +7683,6 @@ system_report_slide_two_col = function (cfg,
                                right_content_header        =  NULL,
                                right_content_header_type   = 'text'){
 
-  # Making sure reporting is enabled
-    # checking to make sure the user has initialized the report
   # Making sure reporting is enabled
   if(cfg$reporting$enabled){
     # checking to make sure the user has initialized the report
@@ -6120,6 +7826,16 @@ return(cfg)}
 #        title      = "Title",      
 #        sub_title  = NULL, 
 #        rptname    = "default")
+#'@export
+#'@title Generate Slide with Section Break
+#'@param cfg ubiquity system object    
+#'@param title                     string with slide title
+#'@param sub_title                 string with slide sub title
+#'@param rptname                   report name initialized with \code{system_report_init}
+#'
+#'@return ubiquity system object with slide added to report
+#'
+#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 system_report_slide_section = function (cfg,
                                title                  = "Title",      
                                sub_title              = NULL, 
@@ -6187,6 +7903,16 @@ return(cfg)}
 #         title     = "Title",      
 #         sub_title = NULL, 
 #         rptname   = "default")
+#'@export
+#'@title Generate Title Slide
+#'@param cfg ubiquity system object    
+#'@param title                     string with slide title
+#'@param sub_title                 string with slide sub title
+#'@param rptname                   report name initialized with \code{system_report_init}
+#'
+#'@return ubiquity system object with slide added to report
+#'
+#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 system_report_slide_title   = function (cfg,
                                title                  = "Title",      
                                sub_title              = NULL, 
@@ -6291,7 +8017,42 @@ return(cfg)}
 #  # -------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------
-system_report_ph_content = function (cfg, rpt, content_type, content, type, index){
+# system_report_ph_content
+#'@export
+#'@title Populate Placeholder In Officer Report
+#'@param cfg ubiquity system object    
+#'@param rpt officer pptx object
+#'@param content_type string indicating the content type 
+#'@param content content
+#'@param type    placeholder type (\code{"body"})
+#'@param index   placeholder index (integer)
+#'
+#'
+#'@return officer pptx object with the content added
+#'
+#'@details
+#'
+#' For each content type listed below the following content is expected:
+#'
+#' \itemize{
+#'  \item \code{"text"} text string of information
+#'  \item \code{"list"} vector of paired values (indent level and text), eg.  c(1, "Main Bullet", 2 "Sub Bullet")
+#'  \item \code{"imagefile"} string containing path to image file
+#'  \item \code{"ggplot"} ggplot object, eg. p = ggplot() + ....
+#'  \item \code{"table"} data frame with with names used as column headers
+#'  \item \code{"flextable"} list containing flextable content and other options with the following elements (defaults in parenthesis):
+#'   \itemize{
+#'      \item \code{table} Data frame containing the tabular data
+#'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list the same names as the data frame frame names containing the tabular data and values with the header text to show in the table
+#'      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
+#'      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
+#'      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
+#'      \item \code{table_theme} (\code{"theme_vanilla"}) Table theme
+#'    }
+#'  }
+#'
+#'@seealso \code{\link{system_report_view_layout}}
+system_report_ph_content = function(cfg, rpt, content_type, content, type, index){
 
     if(content_type == "text"){
       rpt = ph_with_text(x=rpt, type=type, index=index, str=content)
@@ -6410,4 +8171,17 @@ system_report_ph_content = function (cfg, rpt, content_type, content, type, inde
 
 
 return(rpt)}
+# /system_report_ph_content
 # -------------------------------------------------------------------------
+
+
+#'@export 
+#'@title Simulate With Titration or Rule-Based Inputs
+#'@param SIMINT_p list of system parameters
+#'@param SIMINT_cfg ubiquity system object    
+#'
+#'@return som
+#'@seealso \code{\link{system_new_tt_rule}}, \code{\link{system_set_tt_cond}} and the titration vignette (\code{vignette("Titration", package = "ubiquity")})
+run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
+  return(auto_run_simulation_titrate(SIMINT_p, SIMINT_cfg))
+}

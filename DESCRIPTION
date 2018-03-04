@@ -1,11 +1,37 @@
 Package: ubiquity
 Type: Package
-Title: What the Package Does (Title Case)
+Title: PKPD Model Developemnt and Deployment Tools
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
+Authors@R: c(person("John", "Harrold", role = c("aut", "cre"),
+                     email = "john.m.harrold@gmail.com"))
+Author: John Harrold [aut, cre]
+Maintainer: John Harrold <john.m.harrold@gamil.com>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+License: BSD 3-Clause License
 Encoding: UTF-8
 LazyData: true
+Imports:
+   deSolve,
+   doParallel,
+   doRNG,
+   foreach,
+   gdata,
+   ggplot2,
+   officer,
+   optimx,
+   rmarkdown,     
+   rhandsontable,
+   rstudioapi,
+   shiny
+Suggests:
+   flextable,
+   GGally,
+   ggplot2,
+   gridExtra,
+   gridGraphics,
+   knitr,
+   rmarkdown, 
+   testthat
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1
