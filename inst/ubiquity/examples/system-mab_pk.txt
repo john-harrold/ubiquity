@@ -1,0 +1,111 @@
+# Implementation of the two compartment model from Davda 2014
+#
+#   Davda, J. P., Dodds, M. G., Gibbs, M. A., Wisdom, W., & Gibbs, J. (2014). A
+#   model-based meta-analysis of monoclonal antibody pharmacokinetics to guide
+#   optimal first-in-human study design. mAbs, 6(4), 1094-1102.
+#   http://doi.org/10.4161/mabs.29095
+#
+# System Units:
+#   mass          [=] nmoles
+#   volume        [=] L
+#   concentration [=] nM
+#   time          [=] day
+#
+
+# #-------------#
+# | Parameters  |
+# #-------------#
+# System parameters
+#name          value          lower  upper    units  editable grouping
+#                             bound  bound
+<P> F1         0.744          eps    inf      ---    yes      System
+<P> ka         0.282          eps    inf      1/day  yes      System
+<P> CL         0.200          eps    inf      L/day  yes      System
+<P> Vc         3.61           eps    inf      L      yes      System
+<P> Vp         2.75           eps    inf      L      yes      System
+<P> Q          0.747          eps    inf      L/day  yes      System
+<P> MW         140            eps    inf      kD     yes      System
+<PSET:default>  mAb in Humans
+
+# Interindividual Variability
+# Taken from Table 3
+<IIV:ETAka>    0.416
+<IIV:ETAka:LN> ka            
+
+<IIV:ETACL>    0.09875        
+<IIV:ETACL:LN> CL            
+
+<IIV:ETAVc>    0.116          
+<IIV:ETAVc:LN> Vc            
+
+<IIV:ETAVp>    0.0789         
+<IIV:ETAVp:LN> Vp            
+
+<IIV:ETAQ>     0.699          
+<IIV:ETAQ:LN>  Q            
+
+<IIVCOR:ETACL:ETAVc>   0.0786  
+<IIVCOR:ETACL:ETAVp>   0.0619 
+<IIVCOR:ETAVp:ETAVc>   0.0377 
+
+# Covariates
+<CV:DOSE>    ; times;      [ 0 ];    day  
+<CV:DOSE>    ; values;     [400];    mg
+<CVTYPE:DOSE> step
+
+<CV:WT>      ; times;      [ 0 ];    day  
+<CV:WT>      ; values;     [ 60];    kg
+<CVTYPE:WT>   step
+
+# static secondary parameters
+<As> kel = CL/Vc
+<As> kcp = Q/Vc
+<As> kpc = Q/Vp
+
+# #-------------------#
+# |Input Information |
+# #-------------------#
+#
+#        1e6 ng    1 nmole             1
+# X mg x ------ x ----------------- x ---  =>  X*1e3/MW/Vc
+#        1 mg      MW (KDA) * 1000    V(L)
+#
+# Bolus Events
+# times/events state   values             scale   units
+<B:times>;           [  0.0 7 14 ];          1;   day
+<B:events>;   At;    [400.0 0 0  ];     1e3/MW;   mg     
+<B:events>;   Cc;    [  0.0 0 0  ];  1e3/MW/Vc;   mg     
+
+<R:Dinf>;    times;     [0  30];     1/60/24;           min 
+<R:Dinf>;    levels;    [0   0];       60*24*1e3/MW;    mg/min
+
+# ODEs
+<ODE:At> -ka*At
+<ODE:Cc>  ka*At*F1/Vc  -kel*Cc - kcp*Cc  + kpc*Cp*Vp/Vc + Dinf/Vc 
+<ODE:Cp>                                 + kcp*Cc*Vc/Vp - kpc*Cp       
+                                              
+# #---------#
+# | Outputs |
+# #---------#
+# Outputs that begin with QC will not be displayed in the GUI
+
+# Convert nM to ng/ml  
+#
+#  X nM  ===> X*MW(KDA) 
+#
+# Convert nM to ug/ml/mg(dose)
+#
+#  X nM  ===> X*MW(KDA)/1000/dose
+#
+<O> C_ng_ml = Cc*MW
+<O> C_DOSE  = Cc*MW/DOSE/1000
+
+
+# #---------#
+# | Options #
+# #---------#
+# General Options:
+# specify different time scales
+<TS:days>  1
+<TS:weeks> 1/7
+<TS:months> 1/7/4

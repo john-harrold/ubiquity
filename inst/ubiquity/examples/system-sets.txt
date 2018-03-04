@@ -1,0 +1,41 @@
+#
+# notes: MSD assay to measure drug concentrations (D) using biotinylated
+#        target (TB) as a capture and florescently labeled target (TL) to provide the
+#        signal. The model is constructed to understand the impact of target in the
+#        sample (TS) on signals.
+#
+
+#
+# Sets
+#
+# The target set is duplicated in order 
+# to create trimers with two types of
+# target present
+<SET:TSi>  TL; TB; TS
+<SET:TSk>  TL; TB; TS
+#name     value lower upper units edit Grouping 
+<P> koff   0.1  eps   inf   1/hr  yes  Interaction
+<P> KD     0.1  eps   inf   nM    yes  Interaction
+                                       
+<P> D0     0.1  eps   inf   nM    yes  Drug
+<P> T0_TL  0.1  eps   inf   nM    yes  Target
+<P> T0_TB  1.0  eps   inf   nM    yes  Target
+<P> T0_TS  1.0  eps   inf   nM    yes  Target
+
+# Here we calculate the kon as a secondary parameter
+# for each koff and corresponding KD
+<As> kon  = koff/KD
+
+# This defines the initial conditions for 
+# each drug and target. These values are 
+# pulled from the parameters above
+<I> D     = D0
+<I> {TSi} = T0_{TSi}
+# drug/receptor equilibrium
+# Drug binding to single target:
+D       + {TSi}   <=kon:koff=>       D_{TSi}
+# Drug/target dimer binding to another target:
+D_{TSi} + {TSk}   <=kon:koff=> {TSk}_D_{TSi}
+
+# Molar amount contributing to assay signal
+<O> Signal = TL_D_TB + TB_D_TL

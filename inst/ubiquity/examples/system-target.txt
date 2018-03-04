@@ -1,0 +1,91 @@
+#
+# Units:
+#                
+#   mass          [=] nmoles
+#   volume        [=] L 
+#   concentration [=] nM
+#   time          [=] hours
+#                
+#                
+#   Target Turnover
+#   ---------------
+#                
+#   If the target has a half-life specified in hours we 
+#   calculate the internalization rate in the following way:
+#                
+#          log(2)
+#   kint = -------- 
+#          thalf_hr
+#                
+#   Target Tissue Disposition
+#   -------------------------
+#                
+#   SS evaluation of the target in the peripherial tissue
+#                
+#   dTt     kpt*Tp*Vp           
+#   ---  =  ---------- - ktp*Tt
+#   dt          Vt
+#                
+#   At steady state, the relationship between ktp and kpt is:
+#                
+#           kpt*Tp_IC*Vp       
+#   ktp =   -------------      
+#               Tt_IC*Vt          
+#                
+#-------------#
+# Parameters  #
+#-------------#
+#
+#   name       value  lower  upper    units       editable grouping
+#                     bound  bound
+
+<P> Vt         2.8      eps    inf      L         yes      System
+<P> Vp         3.1      eps    inf      L         yes      System
+
+<P> thalf_hr   0.5      eps    inf      hr        yes      Target 
+<P> Tp_IC     10.0      eps    inf      nM        yes      Target 
+<P> Tt_IC      5.0      eps    inf      nM        yes      Target 
+<P> kpt_nom    0.1      eps    inf      1/hr      yes      Target 
+
+<P> TISSUE     1.0      eps    inf      nM        yes      Control
+
+
+<PSET:default>        Peripherial Tissue Enabled
+<PSET:t_off>          Peripherial Tissue Disabled
+<PSET:t_off:TISSUE>   0
+<PSET:t_off:Tt_IC>    0
+
+#----------------------#
+# Secondary Parameters #
+#----------------------#
+<As> kint = SIMINT_LOGN[2.0]/thalf_hr
+<As> ksyn = Tp_IC*kint*Vp
+
+<As> ktp_nom = kpt_nom*Tp_IC*Vp/(Tt_IC*Vt)
+
+# these are used in the rate definitions
+# below (eff == effective)
+<As> ktp = ktp_nom*TISSUE
+<As> kpt = kpt_nom*TISSUE
+
+
+# times/events  state   values        scale      units
+  <B:times>;              [  1  ];        1 ;       hours 
+  <B:events>;      Tp ;   [  5  ];      1/Vp;       nmoles 
+
+#--------------------#
+# Initial Conditions #
+#--------------------#
+
+<I> Tp = Tp_IC
+<I> Tt = Tt_IC
+
+# Target Turnover
+ ksyn/Vp <S:Tp>   kint*Tp
+
+# Tissue Disposition
+Tt; Vt; ktp <C> Tp; Vp; kpt
+
+
+<O> Tissue = Tt
+

@@ -1,0 +1,135 @@
+---
+#title: "System Report"
+#author: "Author"
+#date: "1/7/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r, warning=FALSE, message=TRUE , echo=FALSE, error=TRUE}
+# Settign up the local variables
+cfg = params$cfg
+som = params$som
+
+# Next we update the information in cfg to match that in the gui. Bascially if
+# there is an overwrite specified in the cfg$gui$sysel_simulate data structure 
+# we apply those here using the eval:
+cfg = system_select_set(cfg, cfg$gui$sysel_simulate$pset)
+cfg_option_names =  c('parameters', 
+                      'options', 
+                      'bolus', 
+                      'covariates', 
+                      'infusion_rates',
+                      'iiv')
+
+for(option_name in cfg_option_names){
+  if(cfg$gui$sysel_simulate[[option_name]] != ""){
+    eval(parse(text=cfg$gui$sysel_simulate[[option_name]])) }
+}
+
+# Pulling out the parameter set that was selected
+pset_short = cfg$parameters$current_set
+pset_long = cfg$parameters$sets[[pset_short]]$name
+
+# Creating boolean variables to indicate the type
+# of simulation that has been performed
+som_individual = !(cfg$gui$check_variability)
+som_population =   cfg$gui$check_variability
+
+if(som_individual){
+   # Put your individual code here
+}
+
+
+if(som_population){
+   # Put your population code here
+}
+
+```
+### Implementing reporting
+
+**Disable the "Model Report" tab**
+
+Edit the file model_gui.r, search for the following line and comment it out:
+
+
+`cfg$gui$modelreport_files$R1$title = "Tab Title"`
+`cfg$gui$modelreport_files$R1$file  = "my_report.Rmd"`
+
+
+**Setting up a Customized Report**
+
+To create a customized report copy the template file:
+
+`r print(sprintf("library%stemplates%sr_system_report.Rmd", .Platform$file.sep, .Platform$file.sep))`
+
+Into the main directory and name it ` my_report.Rmd`. Then edit the
+model_gui.r file and point it to the new report file:
+
+`cfg$gui$modelreport_files$R1$title = "Tab Title"`
+`cfg$gui$modelreport_files$R1$file  = "my_report.Rmd"`
+
+Next you can customize that file using the information below.
+
+**Customizing the report**
+
+To customize this report, you have access the following variables:
+
+ * cfg - System configuration variable
+ * som - Mapped simulation output
+ * parameters - current system parameters
+ 
+To understand the structure of som and access the components of cfg see the documentation at: 
+
+[presentation.ubiquity.grok.tv](http://presentation.ubiquity.grok.tv)
+
+Go to the R-Workflow part and look at the output of run_simulation_ubiquity
+for individual simulations and simulate_subjects for the population
+simulations.
+
+`r if(!som_individual){"\\begin{comment}"}`
+Simulation Type: **Individual**
+
+This text is shown when a individual simulation has been performed. To make
+sure that R-code is only executed for individual simulation output it is
+necessary to wrap that code in a conditional statement:
+
+`r if(!som_individual){"\\end{comment}"}`
+
+
+
+`r if(!som_population){"\\begin{comment}"}`
+Simulation Type: **Population**
+
+This text is shown when a population simulation has been performed. To make
+sure that R-code is only executed for population simulation output it is
+necessary to wrap that code in a conditional statement:
+
+`r if(!som_population){"\\end{comment}"}`
+
+```{r fig.width=7, fig.height=4}
+
+# uncomment the text below and replace OUTPUT with the model output
+# and replace TS with the actual timescale
+#p = ggplot() 
+#p = p + geom_line(data=som$simout, aes(x=TS, y=OUTPUT  , color='OUTPUT'), linetype='solid', size=0.9)
+#p = p + xlab('Time (TIME UNITS)')                     
+#p = p + ylab('Output')                         
+#p = prepare_figure('present', p)              
+#p = p + scale_colour_manual(values=c("OUTPUT"="darkblue"))   
+#p = p + theme(legend.title = element_blank()) 
+#p = p + theme(legend.position = 'bottom')
+#p
+```
+
+```{r results = "asis"}
+
+kable(t(parameters), col.names=c(''), caption="System Parameters")
+
+```
+
+
