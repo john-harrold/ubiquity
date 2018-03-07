@@ -410,11 +410,8 @@ download_simulation = function(input, output, session){
              if(mg$success){
                # copying the report for to be included in export
                file.copy(mg$htmlfile, sprintf('%s_%s.html', fname_report_r_full, report_name))
-               eval(parse(text=sprintf('fname_report_f_full_%s = "%s_$s.html"', report_name, fname_report_r_full, report_name)))
-               eval(parse(text=sprintf('fname_report_f_base_%s = "%s_$s.html"', report_name, fname_report_r_base, report_name)))
-               # JMH delete
-               #save_simulation[[sprintf('fname_report_r_full_%s', report_name)]]  =  sprintf('%s_%s.html',fname_report_r_full, report_name)
-               #save_simulation[[sprintf('fname_report_r_base_%s', report_name)]]  =  sprintf('%s_%s.html',fname_report_r_base, report_name)
+               eval(parse(text=sprintf('fname_report_r_full_%s = "%s_%s.html"', report_name, fname_report_r_full, report_name)))
+               eval(parse(text=sprintf('fname_report_r_base_%s = "%s_%s.html"', report_name, fname_report_r_base, report_name)))
              }
            }
          }

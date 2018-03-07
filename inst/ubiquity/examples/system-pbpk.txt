@@ -546,7 +546,7 @@
 # output times 
 <OPT:output_times>  SIMINT_SEQ[0][300][.1]
 # default time scale
-# <OPT:TS>  name                            
+<OPT:TS>  days
 # <OPT:ylim>  [ymin ymax]
 <OPT:yscale> log
 #

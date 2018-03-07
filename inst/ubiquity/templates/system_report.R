@@ -1,6 +1,12 @@
 #clearing the workspace
 rm(list=ls())
 
+source("library/r_general/ubiquity.r");
+if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
+  source(file.path('library', 'r_general', 'ubiquity.R'))
+} else { 
+  library(ubiquity) }
+
 # Use this script to debug the system_report.Rmd file
 # You need to run the model in an undeployed fashion. This 
 # will generate the cfg and som variables that can then be

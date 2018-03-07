@@ -122,7 +122,7 @@ if(file.exists(file.path(temp_directory, 'r_ode_model.c'))){
   mywd = getwd()
   setwd(temp_directory)
   # Compling the C file
-  output =  system('R CMD SHLIB r_ode_model.c', intern=TRUE, ignore.stderr=!debug)
+  output =  system('R CMD SHLIB r_ode_model.c', intern=TRUE) #, ignore.stderr=!debug)
   if(debug == TRUE){
     cat(output)}
   if("status" %in% names(attributes(output))){
@@ -273,7 +273,7 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
    # first we look to see if the package is installed, if it's not
    # we look for the system_template.txt file 
    if("ubiquity" %in% rownames(installed.packages())){
-     template_dir    = file.path(find.package('ubiquity', lib.loc = NULL, quiet = FALSE, verbose = getOption("verbose")), "ubiquity", "templates")
+     template_dir = system.file("ubiquity", "templates", package="ubiquity")
    } 
    else {
      template_dir    = file.path('library', 'templates')
@@ -290,7 +290,7 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
 
    if(template == "Simulation"){
      sources      = c(file.path(temp_directory, "auto_simulation_driver.R"))
-     destinations = c("analysis_simulation.R")
+     destinations = c("analysis_simulate.R")
      write_file   = c(TRUE)
    }
    if(template == "Estimation"){
@@ -7490,7 +7490,7 @@ isgood = TRUE
 
 if(is.null(template)){
  if( cfg$options$misc$distribution == "package"){
-   template = system.file("extdata", "ubiquity", "templates", "report.pptx", package="ubiquity")
+   template = system.file("ubiquity", "templates", "report.pptx", package="ubiquity")
   } else{
    template = file.path("library", "templates", "report.pptx") 
   }

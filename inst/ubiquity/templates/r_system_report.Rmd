@@ -5,12 +5,12 @@
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, results=FALSE}
 library(knitr)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-```{r, warning=FALSE, message=TRUE , echo=FALSE, error=TRUE}
+```{r, warning=FALSE, message=TRUE , echo=FALSE, error=TRUE, results=FALSE}
 # Settign up the local variables
 cfg = params$cfg
 som = params$som
