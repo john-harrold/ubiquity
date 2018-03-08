@@ -58,8 +58,8 @@ if(distribution == "stand alone"){
 if(distribution == "package"){
   package_dir     = system.file("", package="ubiquity")
   temp_directory  = file.path(getwd(), "transient")
-  templates       = file.path(package_dir, 'ubiquity', "templates")
-  build_script_pl = file.path(package_dir, 'exec', 'build_system.pl')
+  templates       = file.path(package_dir, "ubinc", "templates")
+  build_script_pl = file.path(package_dir, "ubinc", "perl",  "build_system.pl")
 }
 
 # Basic commands:
@@ -166,7 +166,115 @@ options(warn=0)
 return(cfg)}
 
 # -------------------------------------------------------------------------
+#'@export 
+#'@title Fetch Sections of Ubiquity Workshop
+#'@details Valid sections are "Simulation", "Estimation", "Titration" and "Reporting"
+#'@param section Name of the section of workshop to retrieve 
+#'
+#'@return list
+workshop_fetch <- function(section="Simulation", overwrite=FALSE){
+  res = list()
+  allowed = c("Simulation", "Estimation", "Titration", "Reporting")
 
+  isgood = TRUE
+  # This function only works if we're using the package
+  if("ubiquity" %in% rownames(installed.packages())){
+    if(section %in% allowed){
+    
+      src_dir = system.file("ubinc", "scripts", package="ubiquity")
+      csv_dir = system.file("ubinc", "csv",     package="ubiquity")
+
+      sources      = c()
+      destinations = c()
+      write_file   = c()
+
+      if(section=="Simulation"){
+         sources      = c(file.path(src_dir, "analysis_single.r"            ),
+                          file.path(src_dir, "analysis_multiple.r"          ),
+                          file.path(src_dir, "analysis_multiple_file.r"     ),
+                          file.path(csv_dir, "mab_pk_subjects.csv"          ))
+         destinations = c("analysis_single.r",
+                          "analysis_multiple.r",
+                          "analysis_multiple_file.r",
+                          "mab_pk_subjects.csv")
+         write_file   = c(TRUE, TRUE, TRUE, TRUE)
+      } else if(section=="Estimation") {
+         sources      = c(file.path(src_dir, "analysis_parent.r"                    ),
+                          file.path(src_dir, "analysis_parent_metabolite.r"         ),
+                          file.path(src_dir, "analysis_parent_metabolite_global.r"  ),
+                          file.path(src_dir, "analysis_parent_metabolite_nm_data.r" ),
+                          file.path(csv_dir, "pm_data.csv"                          ),
+                          file.path(csv_dir, "nm_data.csv"                          ))
+         destinations = c("analysis_parent.r",                   
+                          "analysis_parent_metabolite.r",        
+                          "analysis_parent_metabolite_global.r",  
+                          "analysis_parent_metabolite_nm_data.r", 
+                          "pm_data.csv",                          
+                          "nm_data.csv"                                             )
+         write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
+      } else if(section=="Reporting") {
+         sources      = c(file.path(src_dir, "make_report.R"                        ))
+         destinations = c("make_report.R")
+         write_file   = c(TRUE)
+      } else if(section=="Estimation") {
+         sources      = c(file.path(src_dir, "analysis_repeat_dosing.r"                     ),
+                          file.path(src_dir, "analysis_repeat_infusion.r"                   ),
+                          file.path(src_dir, "analysis_state_reset.r"                       ),
+                          file.path(src_dir, "analysis_visit_dosing_titration.r"            ),
+                          file.path(src_dir, "analysis_visit_dosing_titration_stochastic.r" ),
+                          file.path(src_dir, "analysis_visit_infusion_dosing.r"             ))
+         destinations = c("analysis_repeat_dosing.r",                    
+                          "analysis_repeat_infusion.r",                  
+                          "analysis_state_reset.r",                       
+                          "analysis_visit_dosing_titration.r",            
+                          "analysis_visit_dosing_titration_stochastic.r", 
+                          "analysis_visit_infusion_dosing.r",                               )
+         write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
+      } 
+
+      # if overwrite ifs FALSE we check each of the destination files to see if
+      # they exist. Then we set write_file to FALSE if they do exist, and throw
+      # up an error.
+      if(!overwrite){
+        for(fidx in 1:length(destinations)){
+          if(file.exists(destinations[fidx])){
+            write_file[fidx] = FALSE 
+          }
+        }
+      }
+
+      # storing the details in res
+      res$sources      = sources
+      res$destinations = destinations
+      res$write_file   = write_file
+
+      # next we write the files that are TRUE
+      for(fidx in 1:length(destinations)){
+        if(write_file[fidx]){
+          file.copy(sources[fidx], destinations[fidx], overwrite=TRUE)
+          cat( sprintf("#> Creating file: %s \n", destinations[fidx] ))
+        } else {
+          isgood = FALSE
+          cat(sprintf("#> File: %s, exists, and was not copied.\n", destinations[fidx] ))
+          cat(sprintf("#> Set overwrite=TRUE to force this file to be copied.\n"))
+        }
+      }
+    } else {
+      isgood = FALSE
+      cat(sprintf("#> section >%s< is not valid must be one of: %s \n", section, paste(allowed, collapse=", ")))
+    }
+
+  } else {
+    isgood = FALSE
+    cat("#> workshop_fetch()\n")
+    cat("#> This function only works with the ubiquity package distribution \n")
+  }
+
+
+  res$isgood = isgood
+
+return(res)}
+# -------------------------------------------------------------------------
 #'@export
 #'@title Create New \code{system.txt} File 
 #'
@@ -196,11 +304,10 @@ system_new  <- function(file_name="system.txt", system_file="template", overwrit
  # first we look to see if the package is installed, if it's not
  # we look for the system_template.txt file 
  if("ubiquity" %in% rownames(installed.packages())){
-   # package_dir     = find.package('ubiquity', lib.loc = NULL, quiet = FALSE, verbose = getOption("verbose"))
    if(system_file == "template"){
-     file_path       = system.file("ubiquity", "templates", "system_template.txt", package="ubiquity")
+     file_path       = system.file("ubinc",    "templates", "system_template.txt", package="ubiquity")
    } else {
-     file_path       = system.file("ubiquity", "examples", sprintf('system-%s.txt',system_file), package="ubiquity")
+     file_path       = system.file("ubinc",    "systems", sprintf('system-%s.txt',system_file), package="ubiquity")
    }
  } 
  else {
@@ -259,6 +366,7 @@ isgood}
 #' # system_fetch_template(cfg, template="Simulation")
 system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
 
+ res = list()
  # These are the allowed templates:
  allowed = c("Simulation", "Estimation", 
              "ShinyApp",   "Shiny Rmd Report",
@@ -273,7 +381,7 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
    # first we look to see if the package is installed, if it's not
    # we look for the system_template.txt file 
    if("ubiquity" %in% rownames(installed.packages())){
-     template_dir = system.file("ubiquity", "templates", package="ubiquity")
+     template_dir = system.file("ubinc", "templates", package="ubiquity")
    } 
    else {
      template_dir    = file.path('library', 'templates')
@@ -327,7 +435,6 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
      destinations = c("system_adapt.for", "system_adapt.prm")
      write_file   = c(TRUE, TRUE)
    }
-  
    # if overwrite ifs FALSE we check each of the destination files to see if
    # they exist. Then we set write_file to FALSE if they do exist, and throw
    # up an error.
@@ -338,6 +445,12 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
        }
      }
    }
+
+   # storing the details in res
+   res$sources      = sources
+   res$destinations = destinations
+   res$write_file   = write_file
+  
 
    # next we write the files that are TRUE
    for(fidx in 1:length(destinations)){
@@ -360,16 +473,18 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
     vp(cfg, "system_new_template()")
     vp(cfg, "One or more templates failed to copy. See messages above for details")
   
+   res$isgood = isgood
   }
-return(isgood)}
+return(res)}
 # -------------------------------------------------------------------------
 
 # system_fetch_parameters = system_load_data(cfg, dsname, data_file, data_sheet)
 #
 #'@export
 #'@title Loading Datasets 
-#'@description Loads datasets at the scripting level from the following
-#'formats (based on the file extension)
+#'@description Loads datasets at the scripting level from  a variable if
+#' \code{data_file} is a data.frame or from the the following
+#' formats (based on the file extension)
 #'\itemize{
 #' \item csv - comma delimited 
 #' \item tab - tab delimited
@@ -382,7 +497,7 @@ return(isgood)}
 #'
 #'@param cfg ubiquity system object    
 #'@param dsname short name of the dataset to be used to link this dataset to different operations
-#'@param data_file file name of the dataset
+#'@param data_file data frame containing the data or the file name of the dataset
 #'@param data_sheet argument identifying the name of the sheet in an excel file
 #'
 #'@return Ubiquity system object with the dataset loaded
@@ -401,20 +516,26 @@ return(isgood)}
 system_load_data <- function(cfg, dsname, data_file, data_sheet){
 
 
-  # Reading the data based on the file extension
-  if(regexpr(".xls$", as.character(data_file), ignore.case=TRUE) > 0){
-    cfg$data[[dsname]]$values = as.data.frame(read.xls(data_file, sheet=data_sheet))
-    cfg$data[[dsname]]$data_file$sheet  = data_sheet
+  if(is.data.frame(data_file)){
+    cfg$data[[dsname]]$values = data_file
+    cfg$data[[dsname]]$data_file$name  = "From Data Frame"
   }
+  else{
+    # Reading the data based on the file extension
+    if(regexpr(".xls$", as.character(data_file), ignore.case=TRUE) > 0){
+      cfg$data[[dsname]]$values = as.data.frame(read.xls(data_file, sheet=data_sheet))
+      cfg$data[[dsname]]$data_file$sheet  = data_sheet
+    }
 
-  if(regexpr(".csv$", as.character(data_file), ignore.case=TRUE) > 0){
-    cfg$data[[dsname]]$values = read.csv(data_file, header=TRUE)
-  }
+    if(regexpr(".csv$", as.character(data_file), ignore.case=TRUE) > 0){
+      cfg$data[[dsname]]$values = read.csv(data_file, header=TRUE)
+    }
 
-  if(regexpr(".tab$", as.character(data_file), ignore.case=TRUE) > 0){
-    cfg$data[[dsname]]$values = read.delim(data_file, header=TRUE)
+    if(regexpr(".tab$", as.character(data_file), ignore.case=TRUE) > 0){
+      cfg$data[[dsname]]$values = read.delim(data_file, header=TRUE)
+    }
+    cfg$data[[dsname]]$data_file$name  = data_file
   }
-  cfg$data[[dsname]]$data_file$name  = data_file
 
   return(cfg)
 }
@@ -7490,14 +7611,11 @@ isgood = TRUE
 
 if(is.null(template)){
  if( cfg$options$misc$distribution == "package"){
-   template = system.file("ubiquity", "templates", "report.pptx", package="ubiquity")
+   template = system.file("ubinc", "templates", "report.pptx", package="ubiquity")
   } else{
    template = file.path("library", "templates", "report.pptx") 
   }
 }
-
-cat("here")
-browser()
 
 vp(cfg, "--------------------------------")
   if(require('officer')){
@@ -8189,3 +8307,5 @@ return(rpt)}
 run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
   return(auto_run_simulation_titrate(SIMINT_p, SIMINT_cfg))
 }
+
+

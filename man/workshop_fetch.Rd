@@ -12,3 +12,6 @@ workshop_fetch(section = "Simulation", overwrite = FALSE)
 \value{
 list
 }
+\details{
+Valid sections are "Simulation", "Estimation", "Titration" and "Reporting"
+}

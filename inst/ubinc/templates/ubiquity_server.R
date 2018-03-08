@@ -213,7 +213,7 @@ download_simulation = function(input, output, session){
         if(cfg$options$misc$distribution == "stand alone"){
           fname_ub_r     = file.path(cfg$gui$wd, "library", "r_general", "ubiquity.R")
         } else {
-          fname_ub_r     = file.path(system.file("", package="ubiquity"), "ubiquity", "ubiquity_fcns.R")
+          fname_ub_r     = system.file("scripts", "ubiquity_fcns.R", package="ubiquity")
         }
 
         # system specific functions

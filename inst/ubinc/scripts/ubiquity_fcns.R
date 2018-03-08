@@ -168,13 +168,13 @@ return(cfg)}
 # -------------------------------------------------------------------------
 #'@export 
 #'@title Fetch Sections of Ubiquity Workshop
-#'@details Valid sections are "Simulation", "Estimation", "Titration" and "Report"
+#'@details Valid sections are "Simulation", "Estimation", "Titration" and "Reporting"
 #'@param section Name of the section of workshop to retrieve 
 #'
 #'@return list
 workshop_fetch <- function(section="Simulation", overwrite=FALSE){
   res = list()
-  allowed = c("Simulation", "Estimation")
+  allowed = c("Simulation", "Estimation", "Titration", "Reporting")
 
   isgood = TRUE
   # This function only works if we're using the package
@@ -212,6 +212,24 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
                           "pm_data.csv",                          
                           "nm_data.csv"                                             )
          write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
+      } else if(section=="Reporting") {
+         sources      = c(file.path(src_dir, "make_report.R"                        ))
+         destinations = c("make_report.R")
+         write_file   = c(TRUE)
+      } else if(section=="Estimation") {
+         sources      = c(file.path(src_dir, "analysis_repeat_dosing.r"                     ),
+                          file.path(src_dir, "analysis_repeat_infusion.r"                   ),
+                          file.path(src_dir, "analysis_state_reset.r"                       ),
+                          file.path(src_dir, "analysis_visit_dosing_titration.r"            ),
+                          file.path(src_dir, "analysis_visit_dosing_titration_stochastic.r" ),
+                          file.path(src_dir, "analysis_visit_infusion_dosing.r"             ))
+         destinations = c("analysis_repeat_dosing.r",                    
+                          "analysis_repeat_infusion.r",                  
+                          "analysis_state_reset.r",                       
+                          "analysis_visit_dosing_titration.r",            
+                          "analysis_visit_dosing_titration_stochastic.r", 
+                          "analysis_visit_infusion_dosing.r",                               )
+         write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
       } 
 
       # if overwrite ifs FALSE we check each of the destination files to see if
@@ -224,6 +242,12 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
           }
         }
       }
+
+      # storing the details in res
+      res$sources      = sources
+      res$destinations = destinations
+      res$write_file   = write_file
+
       # next we write the files that are TRUE
       for(fidx in 1:length(destinations)){
         if(write_file[fidx]){
@@ -249,7 +273,7 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
 
   res$isgood = isgood
 
-res}
+return(res)}
 # -------------------------------------------------------------------------
 #'@export
 #'@title Create New \code{system.txt} File 
@@ -342,6 +366,7 @@ isgood}
 #' # system_fetch_template(cfg, template="Simulation")
 system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
 
+ res = list()
  # These are the allowed templates:
  allowed = c("Simulation", "Estimation", 
              "ShinyApp",   "Shiny Rmd Report",
@@ -410,7 +435,6 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
      destinations = c("system_adapt.for", "system_adapt.prm")
      write_file   = c(TRUE, TRUE)
    }
-  
    # if overwrite ifs FALSE we check each of the destination files to see if
    # they exist. Then we set write_file to FALSE if they do exist, and throw
    # up an error.
@@ -421,6 +445,12 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
        }
      }
    }
+
+   # storing the details in res
+   res$sources      = sources
+   res$destinations = destinations
+   res$write_file   = write_file
+  
 
    # next we write the files that are TRUE
    for(fidx in 1:length(destinations)){
@@ -443,8 +473,9 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
     vp(cfg, "system_new_template()")
     vp(cfg, "One or more templates failed to copy. See messages above for details")
   
+   res$isgood = isgood
   }
-return(isgood)}
+return(res)}
 # -------------------------------------------------------------------------
 
 # system_fetch_parameters = system_load_data(cfg, dsname, data_file, data_sheet)
