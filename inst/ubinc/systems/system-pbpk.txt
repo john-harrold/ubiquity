@@ -1,0 +1,559 @@
+#
+# Implementing the following model:
+#
+#   Shah, D. K., & Betts, A. M. (2012). Towards a platform PBPK model to
+#   characterize the plasma and tissue disposition of monoclonal antibodies in
+#   preclinical species and human. Journal of pharmacokinetics and
+#   biopharmaceutics, 39(1), 67-86. 
+#
+# Units:
+#                
+#   mass          [=] moles
+#   volume        [=] L
+#   concentration [=] moles/L
+#   time          [=] hours
+#
+# Implementation notes:
+#
+#   Mouse BCQ_OTHER table 1 reports 8.91 ml/hr (0.00891 L/hr) fortran 
+#   code has 0.01026
+#
+#   Mouse PLQ_OTHER Table 1 reports 10.9 ml/hr (0.0109 L/hr) fortran 
+#   code has 0.01254
+#
+#--------------------------------------------------------------------------------
+# Notes from publication:
+#
+# Lymph flow rates:
+#   Lymph flow for all the tissues across the species was set 500 times lower
+#   than the plasma flow of the given tissue
+#
+# Vascular reflection coefficient (sigma_V)
+#   The vascular reflection coefficient (rVi ) for lung, heart, muscle, skin,
+#   adipose, large intestine and others compartments was set to a value of
+#   0.95; the value for kidney, thymus, small intestine and pancreas was set to
+#   0.9; the value for spleen, liver and bone was set to 0.85 and the value for
+#   brain was set to 0.99 a priori.  #
+#
+# Lymphatic reflection coeffiecient and FR
+#   Consistent with previously published literature the values of lymphatic
+#   reflection coefficient (rIS) i and fraction of FcRn bound antibody that
+#   recycles to the vascular space (FR) were set to 0.2 and 0.715 
+#
+# FCRN on/off rates:
+#   The association (KFcRn) and dissociation rate constants (KFcRn) on off
+#   between IgG and FcRn for each species were obtained from literature [23,
+#   29-33]. Values for the association rate constant were 8.06E ? 07, 8.00E ?
+#   08, 7.92E ? 08 and 5.59E ? 08 1/M/h for mouse, rat, rhesus monkey and human.
+#   And, values for the dissociation rate constant were 6.55, 144, 46.8 and 23.9
+#   1/h for mouse, rat, rhesus monkey and human.
+#
+# C_LNLF
+#   The estimated value of the four system parameters i.e. FcRn concentration
+#   (FcRn), rate of pino- cytosis per unit endosomal space (CLup), Kdeg and
+#   the proportionality constant (C_LNLF)  between the rate at which antibody
+#   transfers from the lymph node compart- ment to the blood compartment and
+#   the plasma flow of the given species, were found to be 4.98E-05M (CV% =
+#   11.1), 3.66E-02 l/h/l (%CV = 3.48), 42.9 1/h (%CV = 15.7) and 9.1 (CV% > 50).
+#
+#   Adapt code:
+#   Code:
+#
+#            Lymph Clearance     LN_LF_M     L_LYMPH        
+#   C_LNLF = ----------------  = --------- = ---------     
+#            Plasma Flow Rate    LU_PLQ_M    PLQ_LUNG
+#                                
+#   L_LYMPH = PLQ_LUNG*C_LNLF
+#
+#   Qusestions:
+#     o Is C_LNLF really 9.1? Should it be greater than the plasma flow rate?
+#     o Shouldn't PLQ_LUNG = sum of the PLQ's of the organs?
+#
+#
+#   CL_UP isn't used in the code for the mouse. This value is actually scaled
+#   by EV_TO_M and the secondary parameter: CL_UP_M is used and is defined as:
+#
+#   CL_UP_M = CL_UP*EV_TO_M 
+#
+#   CL_UP_M = 3.66e-02*1.3088e-4 = 4.7902e-06
+#
+#
+#--------------------------------------------------------------------------------
+
+
+
+#
+# Define Sets
+#
+
+# All of the 'solid' tissues
+<SET:ORG>  HEART;  LUNG;  MUSCLE;  SKIN; ADIPOSE; BONE; BRAIN; KIDNEY; LIVER; SM_INT; LG_INT; PANCREAS; THYMUS; SPLEEN; OTHER    
+# organs that are upstream/feed into liver
+<SET:US_LIVER>  PANCREAS; SM_INT; LG_INT; SPLEEN
+# organs that are upstream/feed into plasma and blood cells
+#  -> basically all the organs minus what feeds into the liver
+<SET:US_FLUID>  HEART;  MUSCLE;  SKIN; ADIPOSE; BONE; BRAIN; KIDNEY; LIVER; THYMUS; OTHER    
+
+#-------------#
+# Parameters  #
+#-------------#
+#
+# System parameter
+# Plasma Volume 
+#name              value                  lower  upper    units  editable grouping
+#                                         bound  bound
+<P> BW                0.028                  eps    inf    kg       yes      General # body weight
+<P> FR                0.715                  eps    inf    ---      yes      General 
+<P> FCRN_0            4.98e-5                eps    inf    M        yes      General 
+<P> CL_UP             4.7902e-06             eps    inf    1/hr/L   yes      General 
+<P> K_deg             42.9                   eps    inf    1/hr     yes      General 
+<P> K_off_FCRN        6.55                   eps    inf    1/h      yes      General 
+<P> K_on_FCRN         8.06e7                 eps    inf    1/M/h    yes      General 
+<P> SIGMA_I           0.2                    eps    inf    ---      yes      General 
+                                           
+<P> V_TOT_LYMPH       0.000113               eps    inf    L        yes      General  # lymphnode compartmental volume
+<P> V_TOT_PLASMA      0.00094435             eps    inf    L        yes      General  # plasma volume
+<P> V_TOT_BLOOD_CELLS 0.00077265             eps    inf    L        yes      General  # blood cell compartmental volume
+<P> C_LNLF            9.1                    eps    inf    ---      yes      General 
+
+
+
+# Plasma Volume 
+<P> V_V_HEART       0.000005852              eps    inf      L      no       HEART   
+<P> V_V_LUNG        0.00002945509193         eps    inf      L      no       LUNG    
+<P> V_V_MUSCLE      0.000249018              eps    inf      L      no       MUSCLE  
+<P> V_V_SKIN        0.0001877106             eps    inf      L      no       SKIN    
+<P> V_V_ADIPOSE     0.000021802              eps    inf      L      no       ADIPOSE 
+<P> V_V_BONE        0.000062128              eps    inf      L      no       BONE    
+<P> V_V_BRAIN       0.00001067               eps    inf      L      no       BRAIN   
+<P> V_V_KIDNEY      0.000028875              eps    inf      L      no       KIDNEY  
+<P> V_V_LIVER       0.00016410625            eps    inf      L      no       LIVER   
+<P> V_V_SM_INT      0.0000116116             eps    inf      L      no       SM_INT  
+<P> V_V_LG_INT      0.000005000325           eps    inf      L      no       LG_INT  
+<P> V_V_PANCREAS    0.000005335              eps    inf      L      no       PANCREAS
+<P> V_V_THYMUS      0.000000495              eps    inf      L      no       THYMUS  
+<P> V_V_SPLEEN      0.000015367              eps    inf      L      no       SPLEEN  
+<P> V_V_OTHER       0.000019535609097        eps    inf      L      no       OTHER   
+
+                                                        
+# Blood Cell Volume                                     
+<P> V_BC_HEART        0.000004788            eps    inf      L      no       HEART   
+<P> V_BC_LUNG         0.00002409962067       eps    inf      L      no       LUNG    
+<P> V_BC_MUSCLE       0.000203742            eps    inf      L      no       MUSCLE  
+<P> V_BC_SKIN         0.0001535814           eps    inf      L      no       SKIN    
+<P> V_BC_ADIPOSE      0.000017838            eps    inf      L      no       ADIPOSE 
+<P> V_BC_BONE         0.000050832            eps    inf      L      no       BONE    
+<P> V_BC_BRAIN        0.00000873             eps    inf      L      no       BRAIN   
+<P> V_BC_KIDNEY       0.000023625            eps    inf      L      no       KIDNEY  
+<P> V_BC_LIVER        0.00013426875          eps    inf      L      no       LIVER   
+<P> V_BC_SM_INT       0.0000095004           eps    inf      L      no       SM_INT  
+<P> V_BC_LG_INT       0.000004091175         eps    inf      L      no       LG_INT  
+<P> V_BC_PANCREAS     0.000004365            eps    inf      L      no       PANCREAS
+<P> V_BC_THYMUS       0.000000405            eps    inf      L      no       THYMUS  
+<P> V_BC_SPLEEN       0.000012573            eps    inf      L      no       SPLEEN  
+<P> V_BC_OTHER        0.0000159837           eps    inf      L      no       OTHER   
+                                                               
+# Interstitial Volume                                          
+<P> V_I_HEART         0.000021736            eps    inf      L      no       HEART   
+<P> V_I_LUNG          0.0000384285724        eps    inf      L      no       LUNG    
+<P> V_I_MUSCLE        0.00147147             eps    inf      L      no       MUSCLE  
+<P> V_I_SKIN          0.00165627             eps    inf      L      no       SKIN    
+<P> V_I_ADIPOSE       0.00033694             eps    inf      L      no       ADIPOSE 
+<P> V_I_BONE          0.000525264            eps    inf      L      no       BONE    
+<P> V_I_BRAIN         0.0000873              eps    inf      L      no       BRAIN   
+<P> V_I_KIDNEY        0.00007875             eps    inf      L      no       KIDNEY  
+<P> V_I_LIVER         0.000384595163         eps    inf      L      no       LIVER   
+<P> V_I_SM_INT        0.000126672            eps    inf      L      no       SM_INT  
+<P> V_I_LG_INT        0.000054549            eps    inf      L      no       LG_INT  
+<P> V_I_PANCREAS      0.000016878            eps    inf      L      no       PANCREAS
+<P> V_I_THYMUS        0.00000153             eps    inf      L      no       THYMUS  
+<P> V_I_SPLEEN        0.0000254              eps    inf      L      no       SPLEEN  
+<P> V_I_OTHER         0.0000797245183        eps    inf      L      no       OTHER   
+                                                               
+# Endosomal Volume                                             
+<P> V_E_HEART         0.00000076             eps    inf      L      no       HEART   
+<P> V_E_LUNG          0.0000010220365        eps    inf      L      no       LUNG    
+<P> V_E_MUSCLE        0.000056595            eps    inf      L      no       MUSCLE  
+<P> V_E_SKIN          0.000025095            eps    inf      L      no       SKIN    
+<P> V_E_ADIPOSE       0.00000991             eps    inf      L      no       ADIPOSE 
+<P> V_E_BONE          0.00001412             eps    inf      L      no       BONE    
+<P> V_E_BRAIN         0.000002425            eps    inf      L      no       BRAIN   
+<P> V_E_KIDNEY        0.000002625            eps    inf      L      no       KIDNEY  
+<P> V_E_LIVER         0.000009625            eps    inf      L      no       LIVER   
+<P> V_E_SM_INT        0.00000364             eps    inf      L      no       SM_INT  
+<P> V_E_LG_INT        0.0000015675           eps    inf      L      no       LG_INT  
+<P> V_E_PANCREAS      0.000000485            eps    inf      L      no       PANCREAS
+<P> V_E_THYMUS        0.000000045            eps    inf      L      no       THYMUS  
+<P> V_E_SPLEEN        0.000000635            eps    inf      L      no       SPLEEN  
+<P> V_E_OTHER         0.000002326591         eps    inf      L      no       OTHER   
+                                                            
+# Cellular Volume                                              
+<P> V_C_HEART         0.000118864            eps    inf      L      no       HEART   
+<P> V_C_LUNG          0.000111402            eps    inf      L      no       LUNG    
+<P> V_C_MUSCLE        0.009338175            eps    inf      L      no       MUSCLE  
+<P> V_C_SKIN          0.002996343            eps    inf      L      no       SKIN    
+<P> V_C_ADIPOSE       0.00159551             eps    inf      L      no       ADIPOSE 
+<P> V_C_BONE          0.002171656            eps    inf      L      no       BONE    
+<P> V_C_BRAIN         0.000375875            eps    inf      L      no       BRAIN   
+<P> V_C_KIDNEY        0.000391125            eps    inf      L      no       KIDNEY  
+<P> V_C_LIVER         0.001232405            eps    inf      L      no       LIVER   
+<P> V_C_SM_INT        0.000576576            eps    inf      L      no       SM_INT  
+<P> V_C_LG_INT        0.000248292            eps    inf      L      no       LG_INT  
+<P> V_C_PANCREAS      0.000069937            eps    inf      L      no       PANCREAS
+<P> V_C_THYMUS        0.000006525            eps    inf      L      no       THYMUS  
+<P> V_C_SPLEEN        0.000073025            eps    inf      L      no       SPLEEN  
+<P> V_C_OTHER         0.000347748            eps    inf      L      no       OTHER   
+                                             
+# Plasma Flower Rate                         
+<P> PLQ_HEART         0.036498               eps    inf      L/h    no       HEART   
+<P> PLQ_LUNG          0.373131               eps    inf      L/h    no       LUNG    
+<P> PLQ_MUSCLE        0.08613                eps    inf      L/h    no       MUSCLE  
+<P> PLQ_SKIN          0.027819               eps    inf      L/h    no       SKIN    
+<P> PLQ_ADIPOSE       0.013431               eps    inf      L/h    no       ADIPOSE 
+<P> PLQ_BONE          0.01518                eps    inf      L/h    no       BONE    
+<P> PLQ_BRAIN         0.011781               eps    inf      L/h    no       BRAIN   
+<P> PLQ_KIDNEY        0.068508               eps    inf      L/h    no       KIDNEY  
+<P> PLQ_LIVER         0.010263               eps    inf      L/h    no       LIVER   
+<P> PLQ_SM_INT        0.05808                eps    inf      L/h    no       SM_INT  
+<P> PLQ_LG_INT        0.017292               eps    inf      L/h    no       LG_INT  
+<P> PLQ_PANCREAS      0.006237               eps    inf      L/h    no       PANCREAS
+<P> PLQ_THYMUS        0.001188               eps    inf      L/h    no       THYMUS  
+<P> PLQ_SPLEEN        0.008184               eps    inf      L/h    no       SPLEEN  
+<P> PLQ_OTHER         0.01254                eps    inf      L/h    no       OTHER   
+                                                                  
+# Blood Cell Flow Rate                                            
+<P> BCQ_HEART         0.029862                 eps    inf      L/h    no       HEART   
+<P> BCQ_LUNG          0.305289                 eps    inf      L/h    no       LUNG    
+<P> BCQ_MUSCLE        0.07047                  eps    inf      L/h    no       MUSCLE  
+<P> BCQ_SKIN          0.022761                 eps    inf      L/h    no       SKIN    
+<P> BCQ_ADIPOSE       0.010989                 eps    inf      L/h    no       ADIPOSE 
+<P> BCQ_BONE          0.01242                  eps    inf      L/h    no       BONE    
+<P> BCQ_BRAIN         0.009639                 eps    inf      L/h    no       BRAIN   
+<P> BCQ_KIDNEY        0.056052                 eps    inf      L/h    no       KIDNEY  
+<P> BCQ_LIVER         0.008397                 eps    inf      L/h    no       LIVER   
+<P> BCQ_SM_INT        0.04752                  eps    inf      L/h    no       SM_INT  
+<P> BCQ_LG_INT        0.014148                 eps    inf      L/h    no       LG_INT  
+<P> BCQ_PANCREAS      0.005103                 eps    inf      L/h    no       PANCREAS
+<P> BCQ_THYMUS        0.000972                 eps    inf      L/h    no       THYMUS  
+<P> BCQ_SPLEEN        0.006696                 eps    inf      L/h    no       SPLEEN  
+<P> BCQ_OTHER         0.01026                  eps    inf      L/h    no       OTHER   
+                                             
+# vascular reflection coefficient            
+<P> SIGMA_V_HEART     0.95                   eps    inf      ---    no       HEART   
+<P> SIGMA_V_LUNG      0.95                   eps    inf      ---    no       LUNG    
+<P> SIGMA_V_MUSCLE    0.95                   eps    inf      ---    no       MUSCLE  
+<P> SIGMA_V_SKIN      0.95                   eps    inf      ---    no       SKIN    
+<P> SIGMA_V_ADIPOSE   0.95                   eps    inf      ---    no       ADIPOSE 
+<P> SIGMA_V_BONE      0.85                   eps    inf      ---    no       BONE    
+<P> SIGMA_V_BRAIN     0.99                   eps    inf      ---    no       BRAIN   
+<P> SIGMA_V_KIDNEY    0.90                   eps    inf      ---    no       KIDNEY  
+<P> SIGMA_V_LIVER     0.85                   eps    inf      ---    no       LIVER   
+<P> SIGMA_V_SM_INT    0.90                   eps    inf      ---    no       SM_INT  
+<P> SIGMA_V_LG_INT    0.95                   eps    inf      ---    no       LG_INT  
+<P> SIGMA_V_PANCREAS  0.90                   eps    inf      ---    no       PANCREAS
+<P> SIGMA_V_THYMUS    0.90                   eps    inf      ---    no       THYMUS  
+<P> SIGMA_V_SPLEEN    0.85                   eps    inf      ---    no       SPLEEN  
+<P> SIGMA_V_OTHER     0.95                   eps    inf      ---    no       OTHER   
+
+
+# Labeling the default parameter set:
+<PSET:default>  Mouse (Parameters from Fortran Code)
+
+
+# static secondary parameters
+# Setting the uptake clearance for each organ
+<As> CL_UP_{ORG} = CL_UP
+# Setting the interstitial reflectino
+# coefficient for each organ:
+<As> SIGMA_I_{ORG} = SIGMA_I
+
+# Calculating the lymph flow rate
+<As> L_HEART     = 0.002*PLQ_HEART   
+<As> L_MUSCLE    = 0.002*PLQ_MUSCLE  
+<As> L_SKIN      = 0.002*PLQ_SKIN    
+<As> L_ADIPOSE   = 0.002*PLQ_ADIPOSE 
+<As> L_BONE      = 0.002*PLQ_BONE    
+<As> L_BRAIN     = 0.002*PLQ_BRAIN   
+<As> L_KIDNEY    = 0.002*PLQ_KIDNEY  
+<As> L_SM_INT    = 0.002*PLQ_SM_INT  
+<As> L_LG_INT    = 0.002*PLQ_LG_INT  
+<As> L_PANCREAS  = 0.002*PLQ_PANCREAS
+<As> L_THYMUS    = 0.002*PLQ_THYMUS  
+<As> L_SPLEEN    = 0.002*PLQ_SPLEEN  
+<As> L_OTHER     = 0.002*PLQ_OTHER   
+<As> PLQ_LIVER_UPSTREAM = SIMINT_SET_SUM[US_LIVER][PLQ_{US_LIVER}-L_{US_LIVER}]
+<As> L_LIVER     = 0.002*(PLQ_LIVER + PLQ_LIVER_UPSTREAM)
+<As> L_LUNG      = 0.002*PLQ_LUNG    
+
+# Clearance from lymph compartment
+<As> L_LYMPH = PLQ_LUNG*C_LNLF
+
+# dynamic secondary parameters
+
+
+# --------------------------------#
+# defining the mass  feeding into #
+# vascular space of each organ    #
+# --------------------------------#
+<Ad> M_VI_HEART     = C_V_LUNG*PLQ_HEART   
+<Ad> M_VI_MUSCLE    = C_V_LUNG*PLQ_MUSCLE  
+<Ad> M_VI_SKIN      = C_V_LUNG*PLQ_SKIN    
+<Ad> M_VI_ADIPOSE   = C_V_LUNG*PLQ_ADIPOSE 
+<Ad> M_VI_BONE      = C_V_LUNG*PLQ_BONE    
+<Ad> M_VI_BRAIN     = C_V_LUNG*PLQ_BRAIN   
+<Ad> M_VI_KIDNEY    = C_V_LUNG*PLQ_KIDNEY  
+<Ad> M_VI_SM_INT    = C_V_LUNG*PLQ_SM_INT  
+<Ad> M_VI_LG_INT    = C_V_LUNG*PLQ_LG_INT  
+<Ad> M_VI_PANCREAS  = C_V_LUNG*PLQ_PANCREAS
+<Ad> M_VI_THYMUS    = C_V_LUNG*PLQ_THYMUS  
+<Ad> M_VI_SPLEEN    = C_V_LUNG*PLQ_SPLEEN  
+<Ad> M_VI_OTHER     = C_V_LUNG*PLQ_OTHER   
+         
+<Ad> M_VI_LIVER     = C_V_LUNG*PLQ_LIVER + SIMINT_SET_SUM[US_LIVER][(PLQ_{US_LIVER}-L_{US_LIVER})*C_V_{US_LIVER}]
+
+<Ad> M_VI_LUNG      = (PLQ_LUNG  + L_LUNG)*C_PLASMA 
+
+#-----------------------------------------------------------------------#
+# A note about abstraction                                              #
+#                                                                       #
+#  Each tissue has been defined in terms of inputs and outputs.         #
+#                                                                       #
+#  Inputs:                                                              #
+#  The inputs here are mass input.                                      #
+#    Blood cells:  The overall rate of mass transport is defined        #
+#                                                                       #
+#    Plasma:       It's the mass of drug in plasma leaving the          #
+#                  organs/fluids upstream that dump into any            #
+#                  given organ.                                         #
+#                                                                       #
+#  Outputs:                                                             #
+#  The outputs are parameterized in terms of volumetric flow rates.     #
+#    Blood cells:  This is sum of the volumetric blood cell flows       #
+#                  upstream of the given organ. E.g. for the kidney,    #
+#                  it's the volume flowing from the lung, for the       #
+#                  liver it's the lung plus all the other flows         #
+#                  from the GI tract.                                   #
+#                                                                       #
+#    Plasma:       Volumetric flows entering the organ minus the        #
+#                  lymph flows for those organs.                        #
+#                                                                       #
+#  This enables generic odes to be written describing                   #
+#  these organs in terms of their secondary parameters.                 #
+#-----------------------------------------------------------------------#
+
+# --------------------------------#
+# defining the blood cell rate of #
+# mass transport for each organ   #
+# --------------------------------#
+
+
+<Ad> MT_BC_HEART     = BCQ_HEART   *(C_BC_LUNG - C_BC_HEART   )
+<Ad> MT_BC_MUSCLE    = BCQ_MUSCLE  *(C_BC_LUNG - C_BC_MUSCLE  )
+<Ad> MT_BC_SKIN      = BCQ_SKIN    *(C_BC_LUNG - C_BC_SKIN    )
+<Ad> MT_BC_ADIPOSE   = BCQ_ADIPOSE *(C_BC_LUNG - C_BC_ADIPOSE )
+<Ad> MT_BC_BONE      = BCQ_BONE    *(C_BC_LUNG - C_BC_BONE    )
+<Ad> MT_BC_BRAIN     = BCQ_BRAIN   *(C_BC_LUNG - C_BC_BRAIN   )
+<Ad> MT_BC_KIDNEY    = BCQ_KIDNEY  *(C_BC_LUNG - C_BC_KIDNEY  )
+<Ad> MT_BC_SM_INT    = BCQ_SM_INT  *(C_BC_LUNG - C_BC_SM_INT  )
+<Ad> MT_BC_LG_INT    = BCQ_LG_INT  *(C_BC_LUNG - C_BC_LG_INT  )
+<Ad> MT_BC_PANCREAS  = BCQ_PANCREAS*(C_BC_LUNG - C_BC_PANCREAS)
+<Ad> MT_BC_THYMUS    = BCQ_THYMUS  *(C_BC_LUNG - C_BC_THYMUS  )
+<Ad> MT_BC_SPLEEN    = BCQ_SPLEEN  *(C_BC_LUNG - C_BC_SPLEEN  )
+<Ad> MT_BC_OTHER     = BCQ_OTHER   *(C_BC_LUNG - C_BC_OTHER   )
+<Ad> MT_BC_LIVER     = BCQ_LIVER   *(C_BC_LUNG - C_BC_LIVER)  + SIMINT_SET_SUM[US_LIVER][BCQ_{US_LIVER}*(C_BC_{US_LIVER} - C_BC_LIVER)]
+<Ad> MT_BC_LUNG      = BCQ_LUNG    *(C_BLOOD_CELLS - C_BC_LUNG)
+
+# --------------------------------#
+# defining the volumetric flow    #
+# rate leaving each organ         #
+# --------------------------------#
+<Ad> Q_VOUT_HEART       = (PLQ_HEART     - L_HEART    )
+<Ad> Q_VOUT_MUSCLE      = (PLQ_MUSCLE    - L_MUSCLE   )
+<Ad> Q_VOUT_SKIN        = (PLQ_SKIN      - L_SKIN     )
+<Ad> Q_VOUT_ADIPOSE     = (PLQ_ADIPOSE   - L_ADIPOSE  )
+<Ad> Q_VOUT_BONE        = (PLQ_BONE      - L_BONE     )
+<Ad> Q_VOUT_BRAIN       = (PLQ_BRAIN     - L_BRAIN    )
+<Ad> Q_VOUT_KIDNEY      = (PLQ_KIDNEY    - L_KIDNEY   )
+<Ad> Q_VOUT_SM_INT      = (PLQ_SM_INT    - L_SM_INT   )
+<Ad> Q_VOUT_LG_INT      = (PLQ_LG_INT    - L_LG_INT   )
+<Ad> Q_VOUT_PANCREAS    = (PLQ_PANCREAS  - L_PANCREAS )
+<Ad> Q_VOUT_THYMUS      = (PLQ_THYMUS    - L_THYMUS   )
+<Ad> Q_VOUT_SPLEEN      = (PLQ_SPLEEN    - L_SPLEEN   )
+<Ad> Q_VOUT_OTHER       = (PLQ_OTHER     - L_OTHER    )
+<Ad> Q_VOUT_LIVER       = (PLQ_LIVER     - L_LIVER    )  + PLQ_LIVER_UPSTREAM 
+<Ad> Q_VOUT_LUNG        = (PLQ_LUNG)
+
+<Ad> Q_BCOUT_HEART      = (BCQ_HEART     )
+<Ad> Q_BCOUT_MUSCLE     = (BCQ_MUSCLE    )
+<Ad> Q_BCOUT_SKIN       = (BCQ_SKIN      )
+<Ad> Q_BCOUT_ADIPOSE    = (BCQ_ADIPOSE   )
+<Ad> Q_BCOUT_BONE       = (BCQ_BONE      )
+<Ad> Q_BCOUT_BRAIN      = (BCQ_BRAIN     )
+<Ad> Q_BCOUT_KIDNEY     = (BCQ_KIDNEY    )
+<Ad> Q_BCOUT_SM_INT     = (BCQ_SM_INT    )
+<Ad> Q_BCOUT_LG_INT     = (BCQ_LG_INT    )
+<Ad> Q_BCOUT_PANCREAS   = (BCQ_PANCREAS  )
+<Ad> Q_BCOUT_THYMUS     = (BCQ_THYMUS    )
+<Ad> Q_BCOUT_SPLEEN     = (BCQ_SPLEEN    )
+<Ad> Q_BCOUT_OTHER      = (BCQ_OTHER     )
+<Ad> Q_BCOUT_LIVER      = (BCQ_LIVER     )  + SIMINT_SET_SUM[US_LIVER][BCQ_{US_LIVER}]
+<Ad> Q_BCOUT_LUNG       = (BCQ_LUNG)
+
+
+
+#--------------------#
+# Dosing information #
+#--------------------#
+#
+# Bolus Events
+#
+# dose in mg/kg
+#           mg    1g        1 moles          
+# scale : X -- x ------ x ----------- x BW kg= 6.67e-9*BW*X moles
+#           kg   1000 mg  150,000 g          
+#                                            
+# times/events  state         values        scale                       units
+<B:times>;                    [  0  ];      24.0;                         day 
+<B:events>;       C_PLASMA;   [  8  ];      BW*6.67e-9/V_TOT_PLASMA;    mg/kg
+
+# Infusion Rate 
+# #  name     time/levels  values  scale    units
+# <R:name>;    times;     [0  1];     1;    ????
+# <R:name>;    levels;    [1  0];     1;    ????
+
+
+#------------------#
+# Rate Information #
+#------------------#
+
+# Initial conditions
+# define the non-zero initial conditions
+<I> FCRN_{ORG} = FCRN_0
+
+# tissue distribution
+# state; compartment_volume; rate  <C> state; compartment_volume; rate
+
+# ODEs
+#-------------------------#
+# Start                   #
+# General ODEs for organs #
+#-------------------------#
+#  Plasma (Vascular Space)
+#                Vascular     Vascular Mass            Loss to                                 Pinocytosis             Pinocytosis 
+#                Mass In      Leaving                  Interstitium                            Uptake                  Return
+<ODE:C_V_{ORG}> (M_VI_{ORG} - Q_VOUT_{ORG}*C_V_{ORG} - (1.0-SIGMA_V_{ORG})*L_{ORG}*C_V_{ORG} - CL_UP_{ORG}*C_V_{ORG} + CL_UP_{ORG}*FR*C_E_B_{ORG})/V_V_{ORG}
+#  Blood Cells (Vascular Space)
+<ODE:C_BC_{ORG}> MT_BC_{ORG}/V_BC_{ORG}
+
+
+#
+# Endosomaal space                                                                                                                    
+#
+#                   Endosomal Uptake                                FcRn Binding                         FcRn                     Degradation 
+# Free Drug                                                         Association                          Disassociation 
+<ODE:C_E_UB_{ORG}>  (C_V_{ORG} + C_I_{ORG})*CL_UP_{ORG}/V_E_{ORG} - K_on_FCRN*C_E_UB_{ORG}*FCRN_{ORG}  + K_off_FCRN*C_E_B_{ORG} - K_deg*C_E_UB_{ORG}
+# Free FCRN
+<ODE:FCRN_{ORG}>                C_E_B_{ORG}*CL_UP_{ORG}/V_E_{ORG} - K_on_FCRN*C_E_UB_{ORG}*FCRN_{ORG}  + K_off_FCRN*C_E_B_{ORG} 
+# FCRN Bound
+<ODE:C_E_B_{ORG}>             - C_E_B_{ORG}*CL_UP_{ORG}/V_E_{ORG} + K_on_FCRN*C_E_UB_{ORG}*FCRN_{ORG}  - K_off_FCRN*C_E_B_{ORG} 
+
+#
+# Interstitial Space                                                                                                                  
+#
+<ODE:C_I_{ORG}>   (1.0-SIGMA_V_{ORG})*L_{ORG}*C_V_{ORG}/V_I_{ORG}  
+<ODE:C_I_{ORG}> - (1.0-SIGMA_I_{ORG})*L_{ORG}*C_I_{ORG}/V_I_{ORG}
+<ODE:C_I_{ORG}> - CL_UP_{ORG}*C_I_{ORG}/V_I_{ORG}
+<ODE:C_I_{ORG}> + CL_UP_{ORG}*(1.0-FR)*C_E_B_{ORG}/V_I_{ORG}
+
+# Note:
+#    Add interactions with targets here
+#    This can be done for specific organs 
+#    where the target is present, the 
+#    organ/target specific parameters need
+#    to be added above.
+
+#-------------------------#
+# Stop                    #
+# General ODEs for organs #
+#-------------------------#
+
+#-------------------------#
+# Start                   #
+# ODEs for the fluids     #
+#-------------------------#
+# plasma
+#                organ component feeding into plasma
+<ODE:C_PLASMA>   SIMINT_SET_SUM[US_FLUID][Q_VOUT_{US_FLUID}*C_V_{US_FLUID}/V_TOT_PLASMA]
+#                lymph dumping into plasma
+<ODE:C_PLASMA> + L_LYMPH*C_LYMPH/V_TOT_PLASMA
+#                leaving to the lung
+<ODE:C_PLASMA> - (PLQ_LUNG+L_LUNG)*C_PLASMA/V_TOT_PLASMA
+ 
+# blood cells
+#                     organ component feeding into blood cells
+<ODE:C_BLOOD_CELLS>   SIMINT_SET_SUM[US_FLUID][Q_BCOUT_{US_FLUID}*C_BC_{US_FLUID}/V_TOT_BLOOD_CELLS]
+#                     leaving to the lung
+<ODE:C_BLOOD_CELLS> - BCQ_LUNG*C_BLOOD_CELLS/V_TOT_BLOOD_CELLS
+
+#
+# lymph nodes
+#               all of the organs dump into the lymph
+<ODE:C_LYMPH>   SIMINT_SET_SUM[ORG][(1.0-SIGMA_I_{ORG})*L_{ORG}*C_I_{ORG}/V_TOT_LYMPH]
+#               the lymp dumps back into the plasma
+<ODE:C_LYMPH> - L_LYMPH*C_LYMPH/V_TOT_LYMPH
+#-------------------------#
+# Stop                    #
+# ODEs for the fluids     #
+#-------------------------#
+
+
+#----------#
+# Outputs  #
+#----------#
+#
+# Observed plasma concentration
+<O> C_TOT_nM_PLASMA = C_PLASMA*1.0e9
+
+# organ concentrations
+<O> C_TOT_nM_{ORG} = 1.0e9*(C_V_{ORG}*V_V_{ORG}  + C_BC_{ORG}*V_BC_{ORG} + (C_E_UB_{ORG}+C_E_B_{ORG})*V_E_{ORG} + C_I_{ORG}*V_I_{ORG})/(V_V_{ORG} + V_BC_{ORG} + V_E_{ORG} + V_I_{ORG} + V_C_{ORG})
+
+
+<O> QC_L_{ORG}   = L_{ORG}
+<O> QC_PLQ_{ORG} = PLQ_{ORG}
+
+
+#------------#
+# Estimation #
+#------------#
+ 
+# Variance parameters
+#     name       value     lower  upper    units  editable  Label
+#                          bound  bound
+# <VP> name      -1        eps    inf       --    no        Variance
+ 
+# Variance Model      
+# <VE:OUTPUT> expression
+
+#---------#
+# Options #
+#---------#
+
+# specify different time scales
+<TS:hours> 1.0
+<TS:days>  1.0/24.0
+<TS:weeks> 1.0/24.0/7.0
+
+# output times 
+<OPT:output_times>  SIMINT_SEQ[0][300][.1]
+# default time scale
+<OPT:TS>  days
+# <OPT:ylim>  [ymin ymax]
+<OPT:yscale> log
+#
+# GUI Callback
+# <OPT:callback_gui> [SIMINT_simulation_options] = update_dosing(SIMINT_cfg, SIMINT_simulation_options, SIMINT_handles);
+
+# guides
+# <GUIDE>  type; name; value, marker, color
+
+

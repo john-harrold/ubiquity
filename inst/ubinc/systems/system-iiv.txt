@@ -1,0 +1,197 @@
+#
+# Units:
+#                
+#   mass          [=] nmoles
+#   volume        [=] L 
+#   concentration [=] nM
+#   time          [=] hours
+#                
+#   Target Turnover
+#   ---------------
+#                
+#   If the target has a half-life specified in hours we 
+#   calculate the internalization rate in the following way:
+#                
+#          log(2)
+#   kint = -------- 
+#          thalf_hr
+#                
+#   Drug Properties
+#   ---------------
+#   Population values for a mAb taken from Dirks and Meibohm (2010)
+#                
+
+
+#-------------#
+# Parameters  #
+#-------------#
+#
+#   name         value  lower  upper    units       editable grouping
+#                       bound  bound
+<P> CL           0.0129   eps    inf      L/hr      yes      System
+<P> Q            0.79     eps    inf      L/hr      yes      System
+<P> Vt           2.8      eps    inf      L         yes      System
+<P> Vp           3.1      eps    inf      L         yes      System
+<P> thalf_hr     0.5      eps    inf      hr        yes      Target 
+<P> Tp_IC        1.0      eps    inf      nM        yes      Target 
+<P> Tp_MW       30        eps    inf      KDA       yes      Drug  
+<P> kon          0.1      eps    inf      1/nM-hr   yes      Drug  
+<P> KD           0.1      eps    inf      nM        yes      Drug  
+<P> D_MW       150        eps    inf      KDA       yes      Drug  
+
+<PSET:default> TMDD: Membrane bound target
+<PSET:slowint> Same as default with slow turnover
+<PSET:slowint:thalf_hr> 10
+
+<As> ktp  = Q/Vt
+<As> kpt  = Q/Vp
+<As> kel  = CL/Vp
+
+<As> koff = kon*KD
+<As> kint = SIMINT_LOGN[2.0]/thalf_hr
+<As> ksyn = Tp_IC*kint*Vp
+
+#dynamic secondary parameters
+<Ad>  CLtot = CL/Q*Cp
+<Ad>  Some  = CL/Q*Cp
+
+
+ <IIV:ETACL>       0.2
+ <IIV:ETACL:LN>    CL
+ 
+ 
+ <IIV:ETAQ>        0.15
+ <IIV:ETAQ:LN>     Q
+
+
+ 
+# <IIVSET:slowint:ETAQ>        0.05
+# <IIVSET:slowint:ETAQ:LN>     Q
+#
+# <IIVSET:slowint:ETACL>        0.25
+# <IIVSET:slowint:ETACL:LN>     CL
+#
+# <IIVSET:slowint:ETATH>       0.05
+# <IIVSET:slowint:ETATH:LN>    thalf_hr
+#
+# <IIVCORSET:slowint:ETATH:ETACL>    .01
+
+#--------------------#
+# Dosing information #
+#--------------------#
+#
+#  Dosing times in   weeks ==> days
+#  dosing magnitude in mpk ==> nM
+#
+#  Basis: 70 kg human
+#         mAb with MW of 150 KDA
+#
+#    mg          1e6 ng     1nmoles         1          467  nmoles
+#  X -- x 70kg x ------- x ------------ x ------ = X * ------------
+#    kg          1 mg       150,000 ng    Vp (L)        Vp(L)
+#
+#
+#
+# Bolus Events
+# times/events  state   values        scale      units
+  <B:times>;              [  0  ];     24*7 ;       weeks
+  <B:events>;      Cp ;   [ 30  ];    467/Vp;       mpk    
+
+#------------------#
+# Rate Information #
+#------------------#
+
+# Initial conditions
+# define the non-zero initial conditions
+<I> Tp   = Tp_IC
+
+
+#---------------------------------------------------------------------------#
+# You can representent the system in many ways. Two methods are shown here. #
+# The first is a set of ODEs and the second is by specifying the underlying #
+# processes.                                                                #
+#                                                                           #
+# Select one or the other by commenting out the undesired method.           #
+#                                                                           #
+#---------------------------------------------------------------------------#
+
+#---------------------------------------------------------------------------#
+# Represetning the system simply as ODEs
+# <ODE:Ct>  Cp*kpt*Vp/Vt - Ct*ktp
+# <ODE:Cp> -Cp*kpt       + Ct*ktp*Vt/Vp -  kel*Cp   + koff*CpTp - kon*Cp*Tp
+# <ODE:Tp>               + ksyn/Vp      - kint*Tp   + koff*CpTp - kon*Cp*Tp
+# <ODE:CpTp>                            - kint*CpTp - koff*CpTp + kon*Cp*Tp
+#---------------------------------------------------------------------------#
+
+
+#---------------------------------------------------------------------------#
+# Represetning the system simply as processes
+# tissue distribution
+Ct; Vt; ktp <C> Cp; Vp; kpt
+
+# equilibrium
+Cp + Tp <=kon:koff=> CpTp
+
+# Turnover
+ ksyn/Vp <S:Tp>   kint*Tp
+         <S:Cp>    kel*Cp
+         <S:CpTp> kint*CpTp
+#---------------------------------------------------------------------------#
+
+#----------#
+# Outputs  #
+#----------#
+# Outputs that begin with QC will not be displayed in the GUI
+#
+# Convert ng/ml to nM
+#
+#    ng   1000 ml        nmoles
+#  X -- x ------- x --------------- = X/MW (KDA)
+#    ml    1L       MW (KDA)*1000 ng
+# 
+# Convert from nM to ng/ml:
+#
+# X nM  ===> X*MW(KDA) ng/ml
+#
+<O> Cp_Total = Cp + CpTp
+<O> Coverage = 1- Tp/Tp_IC
+
+# free drug in ng/ml
+<O> QC_Cp_free_ng_ml = Cp*D_MW
+
+
+#------------#
+# Estimation #
+#------------#
+ 
+# Variance parameters
+#     name       value     lower  upper    units  editable  Label
+#                          bound  bound
+#<VP> SLOPE     0.2       eps    inf       --    no        Variance
+ 
+# Variance Model      
+# <VE:OUTPUT> expression
+
+#---------#
+# Options #
+#---------#
+
+# specify different time scales
+<TS:hours> 1.0
+<TS:days>  1.0/24.0
+<TS:weeks> 1.0/24.0/7.0
+
+# output times 
+<OPT:output_times> SIMINT_SEQ[0][2*7*24][1]
+# default time scale
+<OPT:TS>  weeks 
+# <OPT:ylim>  [ymin ymax]
+# <OPT:ylim>  [ymin ymax]
+#
+# GUI Callback
+# <OPT:callback_gui> [SIMINT_simulation_options] = update_dosing(SIMINT_cfg, SIMINT_simulation_options, SIMINT_handles);
+
+# guides
+<GUIDE>  horizontal; cmin; 1200; '--'; 'm'
+
+

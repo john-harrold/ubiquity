@@ -1,0 +1,35 @@
+#-------------#
+# Parameters  #
+#-------------#
+#
+# System parameter
+#name      value  lower  upper    units  editable grouping
+#                 bound  bound
+<P> kelf   1.0    eps    inf      1/time  yes      System
+<P> kels   0.01   eps    inf      1/time  yes      System
+<P> Cth    10     eps    inf      conc    yes      System
+<P> Tf     10     eps    inf      time    yes      System
+
+
+
+
+#dynamic secondary parameters
+<Ad> kel  = 0.0
+<IF:kel:COND> SIMINT_AND[SIMINT_LT[SIMINT_TIME][Tf]][SIMINT_GT[Cp][Cth ]]; kelf
+<IF:kel:ELSE> kels
+
+#--------------------#
+# Dosing information #
+#--------------------#
+#
+# Bolus Events
+# times/events  state   values        scale      units
+<B:times>;              [  0  ];      1;          time
+<B:events>;       Cp;   [100  ];      1;          conc   
+
+# ODEs
+<ODE:Cp> -kel*Cp
+
+# Outputs that begin with QC will not be displayed in the GUI
+#
+<O> Serum       = Cp
