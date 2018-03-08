@@ -15,6 +15,7 @@ Imports:
    deSolve,
    doParallel,
    doRNG,
+   flextable,
    foreach,
    gdata,
    ggplot2,
@@ -25,7 +26,6 @@ Imports:
    rstudioapi,
    shiny
 Suggests:
-   flextable,
    GGally,
    ggplot2,
    gridExtra,
@@ -33,5 +33,5 @@ Suggests:
    knitr,
    rmarkdown, 
    testthat
-VignetteBuilder: knitr, webshot
+VignetteBuilder: knitr
 RoxygenNote: 6.0.1

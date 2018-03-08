@@ -7496,6 +7496,9 @@ if(is.null(template)){
   }
 }
 
+cat("here")
+browser()
+
 vp(cfg, "--------------------------------")
   if(require('officer')){
     cfg$reporting$enabled = TRUE
@@ -8119,6 +8122,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       }
 
       # Creating the table
+      require(flextable)
       ft = regulartable(content$table,  cwidth = cwidth, cheight=cheight)
       
       # Adding headers
