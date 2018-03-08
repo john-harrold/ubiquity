@@ -17,7 +17,121 @@ require(ggplot2)
 require(foreach)
 require(doParallel)
 require(doRNG)
+require(ubiquity)
+require(officer)
+require(flextable)
 ```
 
 ## Introduction
 
+Reporting is implemented using the ``officer`` package. Officer provides a lot of control over the generation of both Word and PowerPoint documents. If you feel comfortable programming in R, you can simply use that package directly.  Currently Ubiquity has support for generating PowerPoint output. Trying to keep track of different slide layouts and their indices can be cumbersome.  The following functions have been created to allow slides to be created easily: 
+
+* ``system_report_init`` - Initialize a new report from a template
+* ``system_report_slide_title`` - Add  a title slide
+* ``system_report_slide_section`` - Add a slide separating sections in a presentation
+* ``system_report_slide_content`` - Add a slide with a title, subtitle and a single area of content taking up the entire slide
+* ``system_report_slide_two_col`` - Add a slide with a title, subtitle, and two columns of content with or without titles
+* ``system_report_view_layout`` - Generate a powepoint file from a template labeling the different elements each slide layout
+* ``system_report_fetch`` - Fetch the officer object for a report
+* ``system_report_set`` - Set the officer object for a report
+* ``system_report_save`` - Save a report to a file
+
+
+Examples are provided for each of these in the following script:
+
+``r_examples/reporting/make_report.R``
+
+## Creating a Report
+
+The first step is to initialize a report:
+
+```{r results="hide", message=FALSE, warning=FALSE}
+system_new(file_name="system.txt", system_file="mab_pk", overwrite = TRUE)
+cfg = build_system(system_file = "system.txt")
+cfg = system_report_init(cfg)
+```
+
+## Content Type
+
+With the report created we can begin adding slides. There are several diffent slide formats with different placeholders for content and each placehodler can contian a type of content (text, list, image file, etc). The following list provides a the available content types followed by the format of the content:
+
+* ``"text"`` text string of information
+* ``"list"`` vector of paired values (indent level and text), eg.  c(1, "Main Bullet", 2 "Sub Bullet")
+* ``"imagefile"`` string containing path to image file
+* ``"ggplot"`` ggplot object, eg. ``p = ggplot() + ...``
+* ``"table"`` data frame with with names used as column headers
+* ``"flextable"`` list containing flextable content and other options with the following elements (defaults in parenthesis):
+     * ``table`` Data frame containing the tabular data
+     * ``header_top``, ``header_middle``, ``header_bottom`` (``NULL``) a list the same names as the data frame frame names containing the tabular data and values with the header text to show in the table
+     * ``merge_header`` (``TRUE``) Set to true to combine column headers with the same information
+     * ``table_body_alignment``, table_header_alignment ("center") Controls alignment
+     * ``table_autofit`` (``TRUE``) Automatically fit content, or specify the cell width and height with ``cwidth`` (``0.75``) and ``cheight`` (``0.25``)
+     * ``table_theme`` (``"theme_vanilla"``) Table theme
+
+
+## Adding Slides
+
+First you may want to add a title slide to the presentation:
+
+```{r results="hide", message=FALSE, warning=FALSE}
+cfg = system_report_slide_title(cfg, 
+           title     = "Generating Inline Reports",
+           sub_title = "A Working Example")
+```
+
+Next you may want to add an overview of your analysis. The ``content`` slide provides one placeholder that you can fill with any of the above content types.
+
+```{r results="hide", message=FALSE, warning=FALSE}
+cfg = system_report_slide_content(cfg, 
+           title     = "Single text area",   
+           content   = "This vignette provides examples of how to add different types of slide content" )
+```
+
+The default content type is text, but you may want to add a list. Lists are formatted as vectors with paired elements. The first element contains the indention level and the second element contains the actual text:
+
+```{r results="hide", message=FALSE, warning=FALSE}
+lcont = c(1, "Top level item", 
+          2, "This is a sub bullet",
+          2, "This is another sub bullet")
+cfg = system_report_slide_content(cfg, 
+           title        = "Lists are pretty straight forward",      
+           content_type = "list",
+           content      = lcont)
+```
+
+If you are running simulations and want to dump ``ggplot`` figures to a file, that is pretty easy as well. Here we will simulate a single dose:
+
+```{r results="hide", message=FALSE, warning=FALSE}
+parameters = system_fetch_parameters(cfg)
+cfg = system_zero_inputs(cfg)
+cfg = system_set_bolus(cfg, state = "At",
+                           times  = c(  0.0),
+                           values = c(400.0))
+
+cfg=system_set_option(cfg, group  = "simulation",
+                           option = "output_times",
+                           value  = seq(0,60,.1))
+
+som = run_simulation_ubiquity(parameters, cfg)
+
+myfig = ggplot() + 
+        geom_line(data=som$simout, aes(x=ts.days,   y=C_ng_ml), color="red")  +
+        xlab("Time (days)")+
+        ylab("C (ng/ml) (units)")
+myfig = gg_log10_yaxis(myfig, ylim_min=1e3, ylim_max=1e5)
+myfig = prepare_figure("present", myfig)
+
+cfg = system_report_slide_content(cfg, 
+           title        = "ggplot objects can be inserted directly", 
+           content_type = "ggplot",
+           content      = myfig)
+
+```
+## Saving Slides 
+
+Finally, after you have added all of your sldies, you may want to put them in a file:
+```{r results="hide", message=FALSE, warning=FALSE}
+system_report_save(cfg, output_file = "report_vignette.pptx")
+```
+
+## Using Custom Template

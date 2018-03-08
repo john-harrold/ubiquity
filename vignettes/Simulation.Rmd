@@ -39,7 +39,7 @@ system_fetch_template  <- function(cfg, template="Simulation")
 
 This will create the file ``analysis_simulate.R`` in the working directory. This template should have common options and dosing information commented out. You simply need to uncomment them and run the simulation. 
 
-## Simulating an individual response
+## Simulating an Individual Response
 
 The system parameters for the default parameter set can be pulled out of this object:
 
@@ -125,7 +125,6 @@ p = ggplot(som$tcsummary, aes(x=ts.days, y=o.C_ng_ml.mean)) +
            geom_line(aes(x=ts.days, y=o.C_ng_ml.lb_ci), linetype="dashed", size=0.2, color="blue")  +
            xlab("Time (days)")+
            ylab("C (ng/ml) (units)")+
-           #scale_y_log10(limits=c(100, 200000)) +
            guides(fill=FALSE) 
 
 
@@ -141,7 +140,8 @@ Subject information can be pulled from a data file. First we need to load the da
 ```{r echo=TRUE, warning=FALSE }
 cfg = system_load_data(cfg, 
                        dsname    = "SUBS", 
-                       data_file = system.file("extdata", "mab_pk_subjects.csv", package = "ubiquity"))
+                       data_file = system.file("ubinc", "csv", "mab_pk_subjects.csv", 
+                                               package = "ubiquity"))
 ```
 The format of the data set is shown below. There needs to be an column for the subject ID (``SIMINT_ID``) and the simulation time (``SIMINT_TIME``). Next the subject level parameters can be specified where the column headers correspond to the parameter names. If a parameter is not specified, the default value will be taken from the ```parameters``` input. In this case ``MW`` was not specified in the data set, so it will be taken from ``parameters``. 
 
@@ -162,7 +162,7 @@ cfg=system_set_option(cfg, group  = "stochastic",
 ```
 
 Then we just use ``simulate_subjects`` to run the simulation as before:
-```{r results=FALSE}
+```{r results=FALSE, warning=FALSE}
 som  = simulate_subjects(parameters, cfg)
 ```
 

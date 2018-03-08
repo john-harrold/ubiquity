@@ -11,7 +11,7 @@ system_load_data(cfg, dsname, data_file, data_sheet)
 
 \item{dsname}{short name of the dataset to be used to link this dataset to different operations}
 
-\item{data_file}{file name of the dataset}
+\item{data_file}{data frame containing the data or the file name of the dataset}
 
 \item{data_sheet}{argument identifying the name of the sheet in an excel file}
 }
@@ -19,7 +19,8 @@ system_load_data(cfg, dsname, data_file, data_sheet)
 Ubiquity system object with the dataset loaded
 }
 \description{
-Loads datasets at the scripting level from the following
+Loads datasets at the scripting level from  a variable if
+\code{data_file} is a data.frame or from the the following
 formats (based on the file extension)
 \itemize{
 \item csv - comma delimited 
