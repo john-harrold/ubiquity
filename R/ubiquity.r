@@ -10,11 +10,11 @@
 #'
 #'@examples
 #' # build_system(system_file='system.txt')
-build_system <- function(debug          =  FALSE, 
-                         clean          =  TRUE, 
-                         system_name    = "mysystem",
+build_system <- function(system_file    = "system.txt",
                          distribution   = "automatic",
-                         system_file    = "system.txt") {
+                         system_name    = "mysystem",
+                         debug          =  FALSE, 
+                         clean          =  TRUE) {
 
 require(deSolve)
 require(ggplot2)
@@ -62,6 +62,7 @@ if(distribution == "package"){
   build_script_pl = file.path(package_dir, "ubinc", "perl",  "build_system.pl")
 }
 
+
 # Basic commands:
 # system("cp transient/r_ode_model.c  .")
 # system("R CMD SHLIB r_ode_model.c")
@@ -71,96 +72,101 @@ if(distribution == "package"){
   
 # turning off warnings so we don't get a lot of
 # stuff from the system commands below
-options(warn=-1)
-cat(sprintf("#> Building the system:    %s \n", system_file))
-cat(sprintf("#> Ubiquity distribution:  %s \n", distribution))
 
-build_command = sprintf("perl '%s' '%s' '%s' '%s' '%s'", build_script_pl, system_file, temp_directory, templates, distribution)
-output = system(build_command, intern=TRUE)
+cfg = list()
 
-# CFILE is used to indicate if we have compiled and loaded the CFILE successfully 
-# We defalut to TRUE and then set it to false below if there are any problems encountered.
-CFILE = TRUE
-
-if(length(output) > 0){
-  cat("#> Build reported errors and\n")
-  cat("#> may have failed, see below:\n")
-  for(line in output){
-    cat(paste(line, "\n"))
-  }
-  rm('line')
-} else{
-  cat("#> Done \n")}
-
-#
-# Cleaning up any older versions of the C file
-#
-# if it's loaded we remove it from memory:
-if(('r_ode_model' %in% names(getLoadedDLLs()))){
-  dyn.unload(getLoadedDLLs()$r_ode_model[["path"]])}
-
-# making the output directory to store generated information
-if(!file.exists('output')){
-  cat("#> Creating output directory \n")
-  dir.create('output')
-}
-
-#next we remove any files to make sure we start from scratch
-if(file.exists(file.path(temp_directory, paste("r_ode_model", .Platform$dynlib.ext, sep = "")))){
-   file.remove(file.path(temp_directory, paste("r_ode_model", .Platform$dynlib.ext, sep = ""))) }
-if(file.exists(file.path(temp_directory, "r_ode_model.o"))){
-   file.remove(file.path(temp_directory, "r_ode_model.o")) }
-
-
-# Now we compile the C file
-cat("#> Compiling C version of system \n")
-if(file.exists(file.path(temp_directory, 'r_ode_model.c'))){
-  # storing the working directory and 
-  # changing the working directory to the
-  # temp directory to avoid weird issues
-  # with spaces in file names and paths
-  mywd = getwd()
-  setwd(temp_directory)
-  # Compling the C file
-  output =  system('R CMD SHLIB r_ode_model.c', intern=TRUE) #, ignore.stderr=!debug)
-  if(debug == TRUE){
-    cat(output)}
-  if("status" %in% names(attributes(output))){
-    cat("#> Failed: Unable to compile C file\n")
-    CFILE = FALSE
-  }else{
-    # Loading the shared library
-    cat("#> Loading the shared C library\n")
-    dyn.load(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))
-  }
-  # Returning to the working directory
-  setwd(mywd)
-
-
-  cat('#> System built, to fetch a new template use the following commands:\n')
-  cat('#>   system_fetch_template(cfg, template = "Simulation")\n')
-  cat('#>   system_fetch_template(cfg, template = "Estimation")\n')
-}else{
-  cat(sprintf("#> Failed: file %s%sr_ode_model.c not found \n",temp_directory, .Platform$file.sep))
-  CFILE = FALSE
-}
-
-if(CFILE == FALSE){
-  cat("#> C model not available compile manually using the\n") 
-  cat("#> following command to debug:           \n") 
-  cat(sprintf("#> system('R CMD SHLIB %s%sr_ode_model.c') \n", temp_directory, .Platform$file.sep))
+if(file.exists(system_file)){
+  options(warn=-1)
+  cat(sprintf("#> Building the system:    %s \n", system_file))
+  cat(sprintf("#> Ubiquity distribution:  %s \n", distribution))
   
+  build_command = sprintf('perl "%s" "%s" "%s" "%s" "%s"', build_script_pl, system_file, temp_directory, templates, distribution)
+  output = system(build_command, intern=TRUE)
+  
+  # CFILE is used to indicate if we have compiled and loaded the CFILE successfully 
+  # We defalut to TRUE and then set it to false below if there are any problems encountered.
+  CFILE = TRUE
+  
+  if(length(output) > 0){
+    cat("#> Build reported errors and\n")
+    cat("#> may have failed, see below:\n")
+    for(line in output){
+      cat(paste(line, "\n"))
+    }
+    rm('line')
+  } else{
+    cat("#> Done \n")}
+  
+  #
+  # Cleaning up any older versions of the C file
+  #
+  # if it's loaded we remove it from memory:
+  if(('r_ode_model' %in% names(getLoadedDLLs()))){
+    dyn.unload(getLoadedDLLs()$r_ode_model[["path"]])}
+  
+  # making the output directory to store generated information
+  if(!file.exists('output')){
+    cat("#> Creating output directory \n")
+    dir.create('output')
   }
-
-
-# Returning the ubiquity model object:
-if(file.exists(file.path(temp_directory, "auto_rcomponents.r"))){
-  source("transient/auto_rcomponents.r")
-  cfg = system_fetch_cfg()
-} else {
-  cfg = list()
-}
-
+  
+  #next we remove any files to make sure we start from scratch
+  if(file.exists(file.path(temp_directory, paste("r_ode_model", .Platform$dynlib.ext, sep = "")))){
+     file.remove(file.path(temp_directory, paste("r_ode_model", .Platform$dynlib.ext, sep = ""))) }
+  if(file.exists(file.path(temp_directory, "r_ode_model.o"))){
+     file.remove(file.path(temp_directory, "r_ode_model.o")) }
+  
+  
+  # Now we compile the C file
+  cat("#> Compiling C version of system \n")
+  if(file.exists(file.path(temp_directory, 'r_ode_model.c'))){
+    # storing the working directory and 
+    # changing the working directory to the
+    # temp directory to avoid weird issues
+    # with spaces in file names and paths
+    mywd = getwd()
+    setwd(temp_directory)
+    # Compling the C file
+    output =  system('R CMD SHLIB r_ode_model.c', intern=TRUE) #, ignore.stderr=!debug)
+    if(debug == TRUE){
+      cat(output)}
+    if("status" %in% names(attributes(output))){
+      cat("#> Failed: Unable to compile C file\n")
+      CFILE = FALSE
+    }else{
+      # Loading the shared library
+      cat("#> Loading the shared C library\n")
+      dyn.load(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))
+    }
+    # Returning to the working directory
+    setwd(mywd)
+  
+  
+    cat('#> System built, to fetch a new template use the following commands:\n')
+    cat('#>   system_fetch_template(cfg, template = "Simulation")\n')
+    cat('#>   system_fetch_template(cfg, template = "Estimation")\n')
+  }else{
+    cat(sprintf("#> Failed: file %s%sr_ode_model.c not found \n",temp_directory, .Platform$file.sep))
+    CFILE = FALSE
+  }
+  
+  if(CFILE == FALSE){
+    cat("#> C model not available compile manually using the\n") 
+    cat("#> following command to debug:           \n") 
+    cat(sprintf("#> system('R CMD SHLIB %s%sr_ode_model.c') \n", temp_directory, .Platform$file.sep))
+    
+    }
+  
+  
+  # Returning the ubiquity model object:
+  if(file.exists(file.path(temp_directory, "auto_rcomponents.r"))){
+    source("transient/auto_rcomponents.r")
+    cfg = system_fetch_cfg()
+  } 
+  
+  } else {
+    cat(sprintf('#> Unable to file system file >%s<\n',system_file))
+  }
 # turning warnings back on
 options(warn=0)
 return(cfg)}
@@ -7818,7 +7824,7 @@ system_report_slide_two_col = function (cfg,
       #  define the indices
       #
       if(content_type %in% c('text')){
-        if(is.null(left_content_header) & is.null(left_content_header)){
+        if(is.null(left_content_header) & is.null(right_content_header)){
           # Text without headers
           tmprpt = add_slide(x      = tmprpt, 
                              layout = meta$two_col$layout$text,
@@ -7842,7 +7848,7 @@ system_report_slide_two_col = function (cfg,
           sub_title_index    = meta$two_col$indices$text_head_sub_title
         }
       }else if(content_type %in% c('list')){
-        if(is.null(left_content_header) & is.null(left_content_header)){
+        if(is.null(left_content_header) & is.null(right_content_header)){
           # List without headers
           tmprpt = add_slide(x      = tmprpt, 
                              layout = meta$two_col$layout$list,
@@ -7882,7 +7888,6 @@ system_report_slide_two_col = function (cfg,
       if(!is.null(sub_title_index) & !is.null(sub_title)){
         tmprpt = ph_with_text(x=tmprpt, type='body', index=sub_title_index, str=sub_title) } 
 
-      # browser()
 
       #
       # Creating the headers
