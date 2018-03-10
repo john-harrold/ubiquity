@@ -24,13 +24,13 @@ Imports:
    rmarkdown,     
    rhandsontable,
    rstudioapi,
+   knitr,
    shiny
 Suggests:
    GGally,
    ggplot2,
    gridExtra,
    gridGraphics,
-   knitr,
    rmarkdown, 
    testthat
 VignetteBuilder: knitr
