@@ -72,11 +72,11 @@ if(distribution == "package"){
   
 # turning off warnings so we don't get a lot of
 # stuff from the system commands below
+options(warn=-1)
 
 cfg = list()
 
 if(file.exists(system_file)){
-  options(warn=-1)
   cat(sprintf("#> Building the system:    %s \n", system_file))
   cat(sprintf("#> Ubiquity distribution:  %s \n", distribution))
   
@@ -4043,6 +4043,7 @@ else{
 #'@param pest vector of parameters to be estimated
 #'@param cfg ubiquity system object    
 #'@param estimation \code{TRUE} when called during an estimation and \code{FALSE} when called to test objective function or generate observation information for plotting
+#'@param details set \code{TRUE} to display information about cohorts as they are simulated (useful for debugging when passed through \code{\link{system_simulate_estimation_results}})
 #'
 #'@return  If estimation is TRUE then the output is a matrix  of observation details of the format:
 #' 
@@ -4080,8 +4081,8 @@ else{
 #'   \item \code{name}               - state or output name corresponding to the prediction
 #'   \item \code{cohort}             - name of the cohort for these predictions
 #' }
-#'@seealso \code{\link{system_define_cohort}}
-system_od_general <- function(pest, cfg, estimation=TRUE){
+#'@seealso \code{\link{system_define_cohort}} and \code{\link{system_simulate_estimation_results}}
+system_od_general <- function(pest, cfg, estimation=TRUE, details=FALSE){
 
 od     = c()
 odall  = c()
@@ -4092,6 +4093,7 @@ odpred = c()
 chidx = 1
 for(cohort_name in names(cfg$cohorts)){
 
+  if(details){vp(cfg, sprintf("Cohort %s", cohort_name))}
   # Making a local cohort-specific copy of cfg
   chcfg = cfg 
 
@@ -4157,7 +4159,7 @@ for(cohort_name in names(cfg$cohorts)){
   # Covariates
   if("covariates" %in% names(cohort$inputs)){
     for(cname in names(cohort$inputs$covariates)){
-        chcfg=system_set_covaraite( cfg       = chcfg,
+        chcfg=system_set_covariate( cfg       = chcfg,
                                     covariate = cname, 
                                     times     = cohort$inputs$covariates[[cname]]$TIME,
                                     values    = cohort$inputs$covariates[[cname]]$AMT)
@@ -4514,7 +4516,7 @@ for(SIMINT_rate_name in names(SIMINT_cfg$options$inputs$infusion_rates)){
 
 
 # processing covariates    
-# JMH add force times for the covaraites
+# JMH add force times for the covariates
 for(SIMINT_cv_name in names(SIMINT_cfg$options$inputs$covariates)){
   # Looping through each infusion rate 
   # plucking out the rate name
@@ -5328,12 +5330,13 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
 #'
 #'@param cfg ubiquity system object    
 #'@param pest vector of parameters
+#'@param details set \code{TRUE} to display information about cohorts as they are simulated (useful for debugging)
 #'
 #'@return observations in a list, see \code{\link{system_define_cohort}} when \code{estimation=FALSE}
 #'
 #'@seealso \code{\link{system_define_cohort}} \code{\link{system_plot_cohorts}}
-system_simulate_estimation_results <- function(pest, cfg){
- eval(parse(text=sprintf('observations = %s(pest, cfg, estimation=FALSE)', cfg$estimation$options$observation_function)))
+system_simulate_estimation_results <- function(pest, cfg, details=FALSE){
+ eval(parse(text=sprintf('observations = %s(pest, cfg, estimation=FALSE, details=details)', cfg$estimation$options$observation_function)))
  return(observations)
 }
 #/system_simulate_estimation_results
@@ -6887,8 +6890,6 @@ cr = system_nm_check_ds(cfg       =  cfg,
                         OBS       =  OBS)
   # default to true and flip this below if we encounter any problems
   isgood = TRUE
-
-
   
   if(cr$isgood){
   
@@ -6999,7 +7000,6 @@ cr = system_nm_check_ds(cfg       =  cfg,
 
       # Infusions
       if("infusion_rates" %in% names(INPUTS)){
-
         for(name in names(INPUTS$infusion_rates)){
           # Pulling the compartment number for the current infusion rate
           RATE_CMT = INPUTS$infusion_rates[[name]]$CMT_NUM
@@ -7052,12 +7052,12 @@ cr = system_nm_check_ds(cfg       =  cfg,
                }
             
             }
+
+            # Adding the rate for he current subject to the subinputs rate 
+            subinputs$infusion_rates[[name]] = RATE_VECT
           } else {
             vp(cfg, sprintf("Warning: Subject >%s< rate >%s< no inputs found in dataset", toString(sid), name ))
           }
-          
-        # Adding the rate for he current subject to the subinputs rate 
-        subinputs$infusion_rates[[name]] = RATE_VECT
         }
       }
       
@@ -7087,8 +7087,6 @@ cr = system_nm_check_ds(cfg       =  cfg,
         }
       }
 
-
-
       # After parsing the information we add the subject 
       # if it passes all of the tests above
       if(subisgood){
@@ -7102,58 +7100,64 @@ cr = system_nm_check_ds(cfg       =  cfg,
       }
     }
 
-    vp(cfg, 'Subjects parsed, adding cohorts')
-    for(sidstr in names(ALLSUBS)){
-      cohort = c()
-      cohort$name                                 = sidstr
+    #
+    # If we have subjects we'll add them:
+    #
+    if(length(ALLSUBS) > 0){
+      vp(cfg, 'Subjects parsed, adding cohorts')
+      for(sidstr in names(ALLSUBS)){
+        cohort = c()
+        cohort$name                                 = sidstr
 
-      # defining the dataset
-      cohort$dataset = DS
+        # defining the dataset
+        cohort$dataset = DS
 
-      # Filtering the dataset
-      cohort$cf = list()
-      if(!is.null(filter)){
-        for(cname in names(filter)){
-          cohort$cf[[cname]] = filter[[cname]]
-        }
-      }
-      # only observations
-      cohort$cf[[col_EVID]] = c(0)
-      # current subject
-      cohort$cf[[col_ID]]   = ALLSUBS[[sidstr]]$sid
-      # defining the inputs
-      cohort$inputs = ALLSUBS[[sidstr]]$subinputs
-
-      # looping through the outputs and adding the relevant 
-      # fields 
-      for(output in names(OBS)){
-        # Filtering to the compartment for that individual
-        cohort$outputs[[output]]$of[[col_CMT]]       = OBS[[output]]$CMT
-        cohort$outputs[[output]]$obs$missing         = OBS[[output]]$missing  
-        cohort$outputs[[output]]$obs$time            = col_TIME
-        cohort$outputs[[output]]$obs$value           = col_DV
-        cohort$outputs[[output]]$model$variance      = OBS[[output]]$variance
-        cohort$outputs[[output]]$model$time          = cr$TSsys
-        cohort$outputs[[output]]$model$value         = OBS[[output]]$output
-        
-        if(!is.null(col_GROUP)){
-          SUB_GRP = unique(ALLSUBS[[sidstr]]$sar[[col_GROUP]])
-          if(length(SUB_GRP) == 1){
-            SUB_GRP_STR = sprintf('GRP_%s', toString(SUB_GRP))
-            cohort$outputs[[output]]$options$marker_color   = colmap[[SUB_GRP_STR]]$color
-            cohort$outputs[[output]]$options$marker_shape   = colmap[[SUB_GRP_STR]]$shape
-          } else {
-            vp(cfg, sprintf('Warning: Grouping column >%s< for subject >%s< has more', col_GROUP, sidstr))
-            vp(cfg, sprintf('         than one value. Groping was not applied for this subject'))
+        # Filtering the dataset
+        cohort$cf = list()
+        if(!is.null(filter)){
+          for(cname in names(filter)){
+            cohort$cf[[cname]] = filter[[cname]]
           }
-           
         }
+        # only observations
+        cohort$cf[[col_EVID]] = c(0)
+        # current subject
+        cohort$cf[[col_ID]]   = ALLSUBS[[sidstr]]$sid
+        # defining the inputs
+        cohort$inputs = ALLSUBS[[sidstr]]$subinputs
+
+        # looping through the outputs and adding the relevant 
+        # fields 
+        for(output in names(OBS)){
+          # Filtering to the compartment for that individual
+          cohort$outputs[[output]]$of[[col_CMT]]       = OBS[[output]]$CMT
+          cohort$outputs[[output]]$obs$missing         = OBS[[output]]$missing  
+          cohort$outputs[[output]]$obs$time            = col_TIME
+          cohort$outputs[[output]]$obs$value           = col_DV
+          cohort$outputs[[output]]$model$variance      = OBS[[output]]$variance
+          cohort$outputs[[output]]$model$time          = cr$TSsys
+          cohort$outputs[[output]]$model$value         = OBS[[output]]$output
+          
+          if(!is.null(col_GROUP)){
+            SUB_GRP = unique(ALLSUBS[[sidstr]]$sar[[col_GROUP]])
+            if(length(SUB_GRP) == 1){
+              SUB_GRP_STR = sprintf('GRP_%s', toString(SUB_GRP))
+              cohort$outputs[[output]]$options$marker_color   = colmap[[SUB_GRP_STR]]$color
+              cohort$outputs[[output]]$options$marker_shape   = colmap[[SUB_GRP_STR]]$shape
+            } else {
+              vp(cfg, sprintf('Warning: Grouping column >%s< for subject >%s< has more', col_GROUP, sidstr))
+              vp(cfg, sprintf('         than one value. Groping was not applied for this subject'))
+            }
+             
+          }
+        }
+       # Adding the cohort
+       cfg = system_define_cohort(cfg, cohort)
       }
-
-
-     # Adding the cohort
-     cfg = system_define_cohort(cfg, cohort)
-    
+    } else {
+      vp(cfg, sprintf('Error:   No valid subjects were found in the dataset'))
+      vp(cfg, sprintf('         No cohorts were defined'))
+      isgood = FALSE
     }
 
   } else {
@@ -7403,6 +7407,7 @@ if(is.null(OBS)){
 result = list()
 result$isgood    = isgood
 result$mywarning = mywarning
+
 
 
 # Everythign checks out so far, so we start to add the cohorts
@@ -8314,3 +8319,11 @@ run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
 }
 
 
+.onLoad <- function(libname, pkgname) {
+    vig_list = tools::vignetteEngine(package = 'knitr')
+    vweave <- vig_list[['knitr::knitr']][c('weave')][[1]]
+    vtangle <- vig_list[['knitr::knitr']][c('tangle')][[1]]
+    tools::vignetteEngine(pkgname, weave = vweave, tangle = vtangle,
+                          pattern = "[.]Rmd$", package = pkgname)
+    register_vignette_engines(pkgname)
+}
