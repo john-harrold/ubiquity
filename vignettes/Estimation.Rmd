@@ -97,6 +97,7 @@ cfg = system_load_data(cfg, dsname     = "pm_data",
 dataset = read.csv(system.file("ubinc", "csv", "pm_data.csv", package = "ubiquity"))
 ```
 ```{r echo=FALSE, fig.align="center"}
+require(rhandsontable)
 rhandsontable(dataset, width=400, height=200)
 ```
 
