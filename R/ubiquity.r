@@ -179,7 +179,7 @@ return(cfg)}
 #'@return list
 workshop_fetch <- function(section="Simulation", overwrite=FALSE){
   res = list()
-  allowed = c("Simulation", "Estimation", "Titration", "Reporting")
+  allowed = c("Simulation", "Estimation", "Titration", "Reporting", "Testing")
 
   isgood = TRUE
   # This function only works if we're using the package
@@ -243,7 +243,11 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
                           "analysis_visit_infusion_dosing.r",                           
                           "system.txt")
          write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
-      } 
+      } else if(section=="Testing") {
+         sources      = c(file.path(src_dir, "workshop_test.R"))
+         destinations = c("workshop_test.R")
+         write_file   = c(TRUE)
+      }
 
       # if overwrite ifs FALSE we check each of the destination files to see if
       # they exist. Then we set write_file to FALSE if they do exist, and throw
@@ -485,9 +489,8 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
   if(!isgood){
     vp(cfg, "system_new_template()")
     vp(cfg, "One or more templates failed to copy. See messages above for details")
-  
-   res$isgood = isgood
   }
+  res$isgood = isgood
 return(res)}
 # -------------------------------------------------------------------------
 

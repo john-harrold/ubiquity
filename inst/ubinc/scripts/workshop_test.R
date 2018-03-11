@@ -20,12 +20,12 @@ ws$Estimation$scripts = c("analysis_parent.r",
 
 ws$Reporting$scripts  = c("make_report.R")
 
-ws$Titration$scripts  = c('analysis_repeat_dosing.r',
-                          'analysis_repeat_infusion.r',
-                          'analysis_state_reset.r',
-                          'analysis_visit_dosing_titration.r',
-                          'analysis_visit_dosing_titration_stochastic.r',
-                          'analysis_visit_infusion_dosing.r')
+ws$Titration$scripts  = c("analysis_repeat_dosing.r",
+                          "analysis_repeat_infusion.r",
+                          "analysis_state_reset.r",
+                          "analysis_visit_dosing_titration.r",
+                          "analysis_visit_dosing_titration_stochastic.r",
+                          "analysis_visit_infusion_dosing.r")
 
 
 totest = names(ws)

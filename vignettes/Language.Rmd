@@ -69,6 +69,7 @@ Next, to add the parameterization for mice we simply create a new set in the fol
 ~~~
 
 This alone would create a new parameter set with a short name mouse, and is an exact copy of the default parameter set. To identify the parametric differences between the mouse and human we use ``PSET`` in the following way: 
+
 ~~~
 <PSET:mouse:Weight > 0.020 # 20 gram mouse
 <PSET:mouse:CL >     7.71e-6
