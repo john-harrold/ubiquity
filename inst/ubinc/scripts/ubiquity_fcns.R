@@ -159,7 +159,7 @@ if(file.exists(system_file)){
   
   # Returning the ubiquity model object:
   if(file.exists(file.path(temp_directory, "auto_rcomponents.R"))){
-    source("transient/auto_rcomponents.r")
+    source(file.path(temp_directory, "auto_rcomponents.R"))
     cfg = system_fetch_cfg()
   } 
   
@@ -2831,8 +2831,8 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
         if(cfg$options$simulation_options$integrate_with == "c-file"){
           dyn.load(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))
         }
-        source("library/r_general/ubiquity.r");
-        source("transient/auto_rcomponents.r");
+        source("library/r_general/ubiquity.R");
+        source("transient/auto_rcomponents.R");
       
         # Pulling out subject level parameters
         parameters_subject = p$subjects$parameters[sub_idx,]
