@@ -233,14 +233,16 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
                           file.path(src_dir, "analysis_state_reset.r"                       ),
                           file.path(src_dir, "analysis_visit_dosing_titration.r"            ),
                           file.path(src_dir, "analysis_visit_dosing_titration_stochastic.r" ),
-                          file.path(src_dir, "analysis_visit_infusion_dosing.r"             ))
+                          file.path(src_dir, "analysis_visit_infusion_dosing.r"             ),
+                          file.path(sys_dir, "system-mab_pk.txt"                            ))
          destinations = c("analysis_repeat_dosing.r",                    
                           "analysis_repeat_infusion.r",                  
                           "analysis_state_reset.r",                       
                           "analysis_visit_dosing_titration.r",            
                           "analysis_visit_dosing_titration_stochastic.r", 
-                          "analysis_visit_infusion_dosing.r",                               )
-         write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
+                          "analysis_visit_infusion_dosing.r",                           
+                          "system.txt")
+         write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
       } 
 
       # if overwrite ifs FALSE we check each of the destination files to see if
