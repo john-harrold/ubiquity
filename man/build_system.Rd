@@ -4,16 +4,16 @@
 \alias{build_system}
 \title{Building The System}
 \usage{
-build_system(debug = FALSE, clean = TRUE, system_name = "mysystem",
-  distribution = "automatic", system_file = "system.txt")
+build_system(system_file = "system.txt", distribution = "automatic",
+  system_name = "mysystem", debug = FALSE, clean = TRUE)
 }
 \arguments{
+\item{system_file}{name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt')}
+
 \item{distribution}{indicates weather you are using a 'package' or a 'stand alone' 
 distribution of ubiquity. If set to 'automatic' the build script will first 
 look to see if the ubiquity R package is installed. If it is installed it
 will use the package. Otherwise, it will assume a 'sand alone' package.}
-
-\item{system_file}{name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt')}
 }
 \description{
 Builds the specified system file creating the targets for R and other languages as well as the templates for performing simulations and estimations.

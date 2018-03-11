@@ -37,5 +37,4 @@
 
 
 <OPT:output_times> SIMINT_SEQ[0][100][1]
-<DATA:FILE:CSV> data.csv
 <DATA:HEADER:AUTOMATIC>

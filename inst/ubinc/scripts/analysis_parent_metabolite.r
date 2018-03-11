@@ -1,20 +1,21 @@
 #clearing the workspace
 rm(list=ls())
-options(error=traceback)
-options(show.error.locations = TRUE)
-# Uncomment to set the script directory as the working directory
-# setwd(dirname(sys.frame(tail(grep('source',sys.calls()),n=1))$ofile))
 graphics.off()
-source("library/r_general/ubiquity.r");
+options(show.error.locations = TRUE)
 
+# If we are in a stand alone ubiquity distribution we run 
+# from there otherwise we try to load the package
+if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
+  source(file.path('library', 'r_general', 'ubiquity.R'))
+} else { 
+  library(ubiquity) }
+
+analysis_name = 'parent_metabolite';
 # flowctl = 'previous estimate as guess';
 # flowctl = 'plot guess';
 # flowctl = 'plot previous estimate';
   flowctl = 'estimate';
 archive_results = TRUE
-
-analysis_name = 'parent_metabolite';
-
 
 # For documentation explaining how to modify the commands below
 # See the "R Workflow" section at the link below:

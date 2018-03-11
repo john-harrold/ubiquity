@@ -4,12 +4,14 @@
 \alias{system_simulate_estimation_results}
 \title{Simulate Results at Estimates}
 \usage{
-system_simulate_estimation_results(pest, cfg)
+system_simulate_estimation_results(pest, cfg, details = FALSE)
 }
 \arguments{
 \item{pest}{vector of parameters}
 
 \item{cfg}{ubiquity system object}
+
+\item{details}{set \code{TRUE} to display information about cohorts as they are simulated (useful for debugging)}
 }
 \value{
 observations in a list, see \code{\link{system_define_cohort}} when \code{estimation=FALSE}

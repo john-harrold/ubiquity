@@ -189,6 +189,7 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
     
       src_dir = system.file("ubinc", "scripts", package="ubiquity")
       csv_dir = system.file("ubinc", "csv",     package="ubiquity")
+      sys_dir = system.file("ubinc", "systems", package="ubiquity")
 
       sources      = c()
       destinations = c()
@@ -198,31 +199,36 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
          sources      = c(file.path(src_dir, "analysis_single.r"            ),
                           file.path(src_dir, "analysis_multiple.r"          ),
                           file.path(src_dir, "analysis_multiple_file.r"     ),
-                          file.path(csv_dir, "mab_pk_subjects.csv"          ))
+                          file.path(sys_dir, "system-mab_pk.txt"            ),
+                          file.path(csv_dir, "mab_pk_subjects.csv"))
          destinations = c("analysis_single.r",
                           "analysis_multiple.r",
                           "analysis_multiple_file.r",
+                          "system.txt",
                           "mab_pk_subjects.csv")
-         write_file   = c(TRUE, TRUE, TRUE, TRUE)
+         write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE)
       } else if(section=="Estimation") {
          sources      = c(file.path(src_dir, "analysis_parent.r"                    ),
                           file.path(src_dir, "analysis_parent_metabolite.r"         ),
                           file.path(src_dir, "analysis_parent_metabolite_global.r"  ),
                           file.path(src_dir, "analysis_parent_metabolite_nm_data.r" ),
+                          file.path(sys_dir, "system-adapt.txt"                     ),
                           file.path(csv_dir, "pm_data.csv"                          ),
                           file.path(csv_dir, "nm_data.csv"                          ))
          destinations = c("analysis_parent.r",                   
                           "analysis_parent_metabolite.r",        
                           "analysis_parent_metabolite_global.r",  
                           "analysis_parent_metabolite_nm_data.r", 
+                          "system.txt",
                           "pm_data.csv",                          
                           "nm_data.csv"                                             )
-         write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
+         write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
       } else if(section=="Reporting") {
-         sources      = c(file.path(src_dir, "make_report.R"                        ))
-         destinations = c("make_report.R")
-         write_file   = c(TRUE)
-      } else if(section=="Estimation") {
+         sources      = c(file.path(src_dir, "make_report.R"), 
+                          file.path(sys_dir, "system-mab_pk.txt"))
+         destinations = c("make_report.R", "system.txt")
+         write_file   = c(TRUE, TRUE)
+      } else if(section=="Titration") {
          sources      = c(file.path(src_dir, "analysis_repeat_dosing.r"                     ),
                           file.path(src_dir, "analysis_repeat_infusion.r"                   ),
                           file.path(src_dir, "analysis_state_reset.r"                       ),
@@ -8318,12 +8324,11 @@ run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
   return(auto_run_simulation_titrate(SIMINT_p, SIMINT_cfg))
 }
 
-
-.onLoad <- function(libname, pkgname) {
-    vig_list = tools::vignetteEngine(package = 'knitr')
-    vweave <- vig_list[['knitr::knitr']][c('weave')][[1]]
-    vtangle <- vig_list[['knitr::knitr']][c('tangle')][[1]]
-    tools::vignetteEngine(pkgname, weave = vweave, tangle = vtangle,
-                          pattern = "[.]Rmd$", package = pkgname)
-    register_vignette_engines(pkgname)
-}
+# .onLoad <- function(libname, pkgname) {
+#     vig_list = tools::vignetteEngine(package = 'knitr')
+#     vweave <- vig_list[['knitr::knitr']][c('weave')][[1]]
+#     vtangle <- vig_list[['knitr::knitr']][c('tangle')][[1]]
+#     tools::vignetteEngine(pkgname, weave = vweave, tangle = vtangle,
+#                           pattern = "[.]Rmd$", package = pkgname)
+#     register_vignette_engines(pkgname)
+# }

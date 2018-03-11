@@ -10,14 +10,12 @@ if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
 } else { 
   library(ubiquity) }
   
+analysis_name = 'parent_metabolite';
 # flowctl = 'previous estimate as guess';
 # flowctl = 'plot guess';
 # flowctl = 'plot previous estimate';
   flowctl = 'estimate';
 archive_results = TRUE
-
-analysis_name = 'parent_metabolite';
-
 
 # For documentation explaining how to modify the commands below
 # See the "R Workflow" section at the link below:

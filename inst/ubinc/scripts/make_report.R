@@ -21,95 +21,12 @@ cfg = build_system(system_file="system.txt")
 
 # Loading the system information
 cfg = system_fetch_cfg()
-# set name                  | Description
-# -------------------------------------------------------
-# default                   | TMDD: Membrane bound target
-
-cfg = system_select_set(cfg, "default")
-
-# fetching the parameter values
-parameters = system_fetch_parameters(cfg)
-
-# The previous statement sets 'parameters' to the values 
-# in the currently selected parameter set. To overwrite 
-# a specific parameter uncomment the following statement 
-# and replace PNAME with the name of the parameter 
-# and VALUE with the desired value:
-#
-# parameters$PNAME = VALUE;
-
-
-
-# The following applies to both individual and stochastic simulations:
-# Define the solver to use
-cfg=system_set_option(cfg,group = "simulation", option = "solver", value = "lsoda")
-#
-# To overwrite solver options use the following:
-# cfg=system_set_option(cfg,group  = "solver",
-#                           option = "atol",   
-#                           value  = 1e-10)
-# cfg=system_set_option(cfg,group  = "solver",
-#                           option = "rtol",   
-#                           value  = 1e-10)
-
-# Specify the output times 
-cfg=system_set_option(cfg, group  = "simulation", 
-                           option = "output_times", 
-                           seq(0,100,1))
-# By default, important times will be included in the simulation output
-# e.g., bolus times, sampling before and after rate switches, etc.
-# uncomment to only evalutate at the output times specified above
-# cfg=system_set_option(cfg, group  = "simulation", 
-#                            option = "include_important_output_times", 
-#                            value  = "no")
-# Uncomment to specify ode file to use
-# cfg=system_set_option(cfg, group  = "simulation", 
-#                            option = "integrate_with",
-#                            value  = "r-file")
-
-# To overwrite the default dosing uncomment the following
-# Setting all dosing to zero
-# cfg = system_zero_inputs(cfg) 
-# cfg = system_set_bolus(cfg, state   ="Cp", 
-#                             times   = c(  0  ),  #  weeks
-#                             values  = c( 30  ))  #  mpk
-
-
-
-
-# -------------------------------------------------------------------------
-# Individual Simulation:
-som = run_simulation_ubiquity(parameters, cfg)
-# # replace TS     with a timescale (i.e. days) and 
-# #         OUTPUT with a named output  (i.e. Cp)
-#plot(som$simout$TS,        som$simout$OUTPUT)
-# p = ggplot() + 
-#         geom_line(data=som$simout, aes(x=ts.TS,   y=OUTPUT), color="red") 
-# p = gg_log10_yaxis(p)
-# print(p)
-# png(file.path('output', 'simulation.png'), width=20,  height=14, units="cm", res=300)
-# print(p)
-# dev.off()
-# ggsave(plot=p, units='cm', width=20, height=14, filename=file.path('output', 'simulation.png'))
-# -------------------------------------------------------------------------
-
-
-
-
-
-                               
-
-
-                               
-                               
-                               
-
 
 #
-# Starting a report called test
+# Starting a report
 #
-cfg = system_report_init(cfg, 
-                         template = file.path("library", "templates", "report.pptx"))
+cfg = system_report_init(cfg)
+
 #
 #  use system_report_view_layout to get the 
 #
