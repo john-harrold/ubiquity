@@ -158,6 +158,7 @@ if(file.exists(system_file)){
     }
   
   
+  browser()
   # Returning the ubiquity model object:
   if(file.exists(file.path(temp_directory, "auto_rcomponents.r"))){
     source("transient/auto_rcomponents.r")
