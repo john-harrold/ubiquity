@@ -15,7 +15,7 @@ meta$title$type$sub_title                   = 'subTitle'
 meta$title$indices$title                    = NULL
 meta$title$indices$sub_title                = NULL
 
-# this is the information the title slide
+# this is the information the section slide
 meta$section$layout$general                 = "Section Header"
 meta$section$master$general                 = "Office Theme"             
 meta$section$type$title                     = 'ctrTitle'
@@ -62,7 +62,7 @@ meta$two_col$indices$text_head_right        = 2
 meta$two_col$layout$text_head               = "Two Content Header Text"
 meta$two_col$master$text_head               = "Office Theme"             
 
-# Headers with text
+# Headers with list 
 meta$two_col$indices$list_head_sub_title    = 6
 meta$two_col$indices$list_head_left_title   = 2 
 meta$two_col$indices$list_head_left         = 3 

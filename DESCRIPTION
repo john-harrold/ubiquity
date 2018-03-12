@@ -32,6 +32,7 @@ Suggests:
    gridExtra,
    gridGraphics,
    rmarkdown, 
+   webshot,
    testthat
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1
