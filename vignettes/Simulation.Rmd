@@ -56,7 +56,7 @@ cfg = system_set_option(cfg, group  = "simulation",
                              seq(0,7*4*3,1))
 ```
 
-The system file is written to allow both IV (``Cp``) and SC (``At``). So we zero out any dosing in the system file and specify four SC doses given two weeks apart:
+The system file is written to allow both IV (``Cp``) and SC (``At``) dosing. So we zero out any default dosing specified in the system file and specify four SC doses given two weeks apart:
 ```{r results="hide"}
 cfg = system_zero_inputs(cfg)
 cfg = system_set_bolus(cfg, state  = "At", 

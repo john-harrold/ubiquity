@@ -28,10 +28,8 @@ Imports:
    shiny
 Suggests:
    GGally,
-   ggplot2,
    gridExtra,
    gridGraphics,
-   rmarkdown, 
    webshot,
    testthat
 VignetteBuilder: knitr

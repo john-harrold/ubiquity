@@ -59,14 +59,17 @@ With the report created we can begin adding slides. There are several diffent sl
 * ``"list"`` vector of paired values (indent level and text), eg.  c(1, "Main Bullet", 2 "Sub Bullet")
 * ``"imagefile"`` string containing path to image file
 * ``"ggplot"`` ggplot object, eg. ``p = ggplot() + ...``
-* ``"table"`` data frame with with names used as column headers
+* ``"table"`` list containing the table content and other options with the following elements (defaults in parenthesis):
+     - ``table`` Data frame containing the tabular data
+     - ``header`` Boolean variable to control displaying the header (``TRUE``)
+     - ``first_row`` Boolean variable to indicate that the first row contains header information (``TRUE``)
 * ``"flextable"`` list containing flextable content and other options with the following elements (defaults in parenthesis):
-     * ``table`` Data frame containing the tabular data
-     * ``header_top``, ``header_middle``, ``header_bottom`` (``NULL``) a list the same names as the data frame frame names containing the tabular data and values with the header text to show in the table
-     * ``merge_header`` (``TRUE``) Set to true to combine column headers with the same information
-     * ``table_body_alignment``, table_header_alignment ("center") Controls alignment
-     * ``table_autofit`` (``TRUE``) Automatically fit content, or specify the cell width and height with ``cwidth`` (``0.75``) and ``cheight`` (``0.25``)
-     * ``table_theme`` (``"theme_vanilla"``) Table theme
+     - ``table`` Data frame containing the tabular data
+     - ``header_top``, ``header_middle``, ``header_bottom`` (``NULL``) a list the same names as the data frame frame names containing the tabular data and values with the header text to show in the table
+     - ``merge_header`` (``TRUE``) Set to true to combine column headers with the same information
+     - ``table_body_alignment``, table_header_alignment ("center") Controls alignment
+     - ``table_autofit`` (``TRUE``) Automatically fit content, or specify the cell width and height with ``cwidth`` (``0.75``) and ``cheight`` (``0.25``)
+     - ``table_theme`` (``"theme_vanilla"``) Table theme
 
 
 ## Adding Slides
@@ -113,14 +116,22 @@ cfg=system_set_option(cfg, group  = "simulation",
                            value  = seq(0,60,.1))
 
 som = run_simulation_ubiquity(parameters, cfg)
+```
 
+Then we can plot the response in ``ggplot``:
+
+```{r results="hide", message=FALSE, warning=FALSE}
 myfig = ggplot() + 
         geom_line(data=som$simout, aes(x=ts.days,   y=C_ng_ml), color="red")  +
         xlab("Time (days)")+
         ylab("C (ng/ml) (units)")
 myfig = gg_log10_yaxis(myfig, ylim_min=1e3, ylim_max=1e5)
 myfig = prepare_figure("present", myfig)
+```
 
+Then that figure can be added to a slide:
+
+```{r results="hide", message=FALSE, warning=FALSE}
 cfg = system_report_slide_content(cfg, 
            title        = "ggplot objects can be inserted directly", 
            content_type = "ggplot",
@@ -129,16 +140,65 @@ cfg = system_report_slide_content(cfg,
 
 You can also pull image content from files as well using the ``imagefile`` content type. 
 
-
 ```{r results="hide", message=FALSE, warning=FALSE}
 cfg = system_report_slide_content(cfg, 
            title        = "Images can be inserted from files", 
            sub_title    = "But the image should have the same aspect ratio as the placeholder", 
            content_type = "imagefile",
-           content      = system.file("vignettes", "report_image.png", package="ubiquity"))
+           content      = system.file("ubinc", "images", "report_image.png", package="ubiquity"))
 ```
 
-The benefit of using ``ggplot`` is that it will automatically size to the placeholder you put the image in. To use an image file the image file needs to have the same aspect ratio as the placeholder you want to put it in. 
+The benefit of using ``ggplot`` is that it will automatically size the image to the dimensions of the placeholder. To use an image file the image file needs to have the same aspect ratio as the placeholder you want to put it in. 
+
+
+Tabular data can be include too. The simplest method is to use the ``table`` content type and supply a list with an element named ``table`` containing a data frame with the tabular information you want to display:
+
+```{r results="hide", message=FALSE, warning=FALSE}
+tcont = list()
+tcont$table = parameters
+cfg = system_report_slide_content(cfg, 
+           title        = "Simple Tables", 
+           content_type = "table",    
+           content      = tcont)
+```
+
+This may not be the most attractive way to display tabular information, and for smaller tables it may be a bit poorly formatted. As an alternative the ``flextable`` package can be used by specifying that content type:
+
+```{r results="hide", message=FALSE, warning=FALSE}
+tcont = list()
+tcont$table = parameters
+cfg = system_report_slide_content(cfg, 
+           title        = "Flextables", 
+           content_type = "flextable",    
+           content      = tcont)
+```
+
+To provide a little more formatting, two column masters are provides. The ``content_type`` argument indicates the type of text that can be included. It  should be either ``"list"`` or ``"text"``. If the left or right content is to contain a table or figure it can be overwritten. 
+
+```{r results="hide", message=FALSE, warning=FALSE}
+cfg = system_report_slide_two_col(cfg,
+       title                  = "Two columns of lists",      
+       sub_title              = NULL, 
+       content_type           = "list", 
+       left_content           = lcont,
+       right_content_type     = "flextable",
+       right_content          = tcont)
+```
+
+You can specify column headers if you like as well these can be ``text``, ``imagefile``, ``ggplot``, ``table`` or ``flextable``.
+
+```{r results="hide", message=FALSE, warning=FALSE}
+cfg = system_report_slide_two_col(cfg,
+       title                  = "ggplot vs imagefile",      
+       sub_title              = NULL, 
+       content_type           = "list", 
+       left_content_header    = "Image file",
+       left_content_type      = 'imagefile',
+       left_content           = system.file("ubinc", "images", "report_image.png", package="ubiquity"),
+       right_content_header   = "ggplot object",
+       right_content_type     = "ggplot",
+       right_content          = myfig)
+```
 
 
 ## Saving Slides 
