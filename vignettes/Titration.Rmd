@@ -170,7 +170,7 @@ parameters = system_fetch_parameters(cfg)
 cfg=system_set_option(cfg,group = "simulation", option = "solver", value = "lsoda")
 cfg=system_set_option(cfg, group  = "simulation", 
                            option = "output_times", 
-                           seq(0,28*7*4,1))
+                           seq(0,28*7*4,8))
 cfg=system_set_option(cfg,
                       group       = "titration",
                       option      = "titrate",   
@@ -218,7 +218,7 @@ rhandsontable(som_tt$titration_history, width=600)
 This example is similar to the last except here we are performing population simulations (20 for an example)
 
 
-```{r echo=FALSE, message=FALSE, results=FALSE}
+```{r echo=FALSE, message=FALSE, results=FALSE, warning=FALSE}
 cfg = system_set_option(cfg, group="stochastic", option="nsub",    value=20)
 som= simulate_subjects(parameters, cfg)
 ```
@@ -248,7 +248,7 @@ rhandsontable(som$titration$tt.ivdose.value, width=600, height=300)
 rhandsontable(som$titration$tt.ivdose.timescale, width=600, height=300)
 ```
 
-This data structure (``som``) can be collapsed down to a data frame using the ``som_to_df`` function. With titration simulations a column is added for each rule giving the value of that rule at the indicated time:
+This data structure (``som``) can be collapsed down to a data frame using the ``som_to_df`` function. With titration simulations a column is added for each rule giving the value of that rule at the indicated time (the first 100 rows are shown):
 ```{r message=FALSE, results=FALSE}
 sdf = som_to_df(cfg, som)
 ```

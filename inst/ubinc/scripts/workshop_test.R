@@ -30,7 +30,7 @@ ws$Titration$scripts  = c("analysis_repeat_dosing.r",
 
 totest = names(ws)
 
-totest = "Titration"
+totest = "Reporting"
 
 
 # First we clear out any testing directories already present

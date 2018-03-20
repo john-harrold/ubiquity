@@ -175,15 +175,6 @@ MAIN:
     #
     # Processing dynamic equations
     #
-    # line contains an equilibrium relationship
-    if($line =~ '<KD:\S+>'){
-      push @{$cfg->{equations}}, $line; 
-      $cfg  = &parse_equation_KD($cfg, $line);
-      &mywarn('The KD notation has been discontinued');
-      &mywarn('And it will not work in fugure versions');
-      &mywarn('Change:     <KD:X> ');
-      &mywarn('To:     <=kon_X:koff_X=> ');
-     }
     # line contains compartment exchange information
     if($line =~ '<C>'){
       push @{$cfg->{equations}}, $line; 
@@ -5375,12 +5366,93 @@ sub parse_if
     return $cfg;
 }
 
+sub extract_coeff       
+{
+  my ($ostr) = @_;
+
+  my $coeffs;
+
+  my $octr = 0;
+
+  $coeffs->{isgood} = 1;
+  $coeffs->{msg}    = "Init";
+
+
+
+
+  # Getting the number of ['s in ostr
+  my $nleft  = ($ostr =~ tr/\[//);
+  my $nright = ($ostr =~ tr/\]//);
+
+  # if the number of brackets don't match we give an error
+  if($nleft == $nright){
+    # indices of the brackets and plus
+    my $ridx = 0;
+    my $lidx = 0;
+    my $pidx = 0;
+
+    # offset to skip the last set of indices
+    my $offset = 0;
+
+    # current coefficient and species
+    my $coeff = '';
+    my $species = '';
+
+    # now we walk through the string extracting the coeff terms
+    while($octr < $nleft){
+
+      $lidx =  index($ostr, "[", $offset);
+      $ridx =  index($ostr, "]", $lidx);
+      $pidx =  index($ostr, "+", $ridx);
+
+
+      # First we pull out the coefficient
+      $coeff = substr($ostr, $lidx+1, $ridx-$lidx-1);
+
+      # Next we pull out the species
+      # If pidx is -1 then we've reached the last term and everything is
+      # relative to the length of the string. Otherwise it's relative to the
+      # location of the plus
+      if($pidx == -1){
+        $species = substr($ostr, $ridx+1, length($ostr)-$ridx);
+      } else {
+        $species = substr($ostr, $ridx+1, $pidx-$ridx-1);
+      }
+
+      print "$offset [$lidx ]$ridx +$pidx C>$coeff< S>$species<\n";
+
+      # Now we store the species/coeff
+      $coeffs->{species}->{$species} = $coeff;
+
+    
+      # updating the offset and counter
+      $offset = $pidx + 1;
+      $octr++;
+    }
+  } else {
+    $coeffs->{isgood} = 0;
+    $coeffs->{msg}    = "The number of '[' ($nleft) does not match the number of ']' ($nright)";
+  }
+
+  # Storing everything for debugging
+  $coeffs->{count}->{left}  = $nleft;
+  $coeffs->{count}->{right} = $nright;
+  $coeffs->{ostr} = $ostr;
+
+  return $coeffs;
+}
+
 sub parse_equation_rate
 {
     my ($cfg, $line) = @_;
 
     my $elements;
     my $species ;
+    my $coeffs;    # coefficient information extracted from string
+    my $spcoeff;   # coefficient for a specific species
+    my $ostr;
+    my @rels;      # array containing contributions to rate of individual species (rate elements)
+    my $rstr;      # consumption or production rate string for a species
 
     $elements->{rate}   = $line;
     $elements->{rate}   =~ s/.*=(\S+)=>.*/$1/;
@@ -5392,10 +5464,44 @@ sub parse_equation_rate
     $elements->{lhs} =~ s#\s+##g;
     $elements->{rhs} =~ s#\s+##g;
 
+    # looking to see if we have any coefficients
+    if($elements->{lhs} =~ m#\[# | $elements->{rhs} =~ m#\[#){
+      # finding the coeff terms
+      # $ ostr has both the RHS and the LHS catted together to
+      # create a string we can walk through
+      $ostr = $elements->{lhs}."+".$elements->{rhs};
+
+      # now we extract the coefficients that are not 1 for the different species
+      $coeffs = &extract_coeff($ostr);
+
+      # Stripping out the order terms
+      $elements->{lhs} =~ s#\[.*?\]##g;
+      $elements->{rhs} =~ s#\[.*?\]##g;
+    }
+
     # breaking up each side into the different species
     my @lhs_components =  split(/\+/,$elements->{lhs});
     my @rhs_components =  split(/\+/,$elements->{rhs});
     my @all_components   = (@lhs_components, @rhs_components);
+
+    #
+    # creating the rate from the lhs and coefficients from coeffs
+    #
+    foreach $species (@lhs_components){
+      # by default the coefficent will be 1
+      $spcoeff = '1';
+      if(defined($coeffs->{species}->{$species})){
+        $spcoeff = $coeffs->{species}->{$species};
+      }
+
+      # Adding the contribution of the reactants 
+      # to the rate
+      if($spcoeff == '1'){
+        push @rels, "$species";
+      } else {
+        push @rels, "SIMINT_POWER[$species][$spcoeff]";
+      }
+    }
 
     # making sure the data structure is present for each species
     foreach $species (@all_components){
@@ -5406,26 +5512,34 @@ sub parse_equation_rate
     # processing the left hand side
     #
     foreach $species (@lhs_components){
-      #
-      # adding the production and consumption terms 
-      #
-      # the left hand side is consumed at the specified rate 
-      push @{$cfg->{species}->{$species}->{consumption}},  $elements->{rate}."*".join("\*", @lhs_components);
+
+      # the rate string is the forward rate times the reactant contributions
+      $rstr = $elements->{rate}."*".join("\*", @rels);
+
+      # if there is a coefficient that is not 1 we add that here
+      if(defined($coeffs->{species}->{$species})){
+        $rstr =  "($coeffs->{species}->{$species})*$rstr";
+      }
+
+      # adding the consumption terms 
+      push @{$cfg->{species}->{$species}->{consumption}}, $rstr;
     }
 
     #
     # processing the right hand side
     #
     foreach $species (@rhs_components){
-      #
-      # adding the production and consumption terms 
-      #
-      # the left hand side is produced at the specified rate
-      push @{$cfg->{species}->{$species}->{production}},    $elements->{rate}."*".join("\*", @lhs_components);
-    }
+      # the rate string is the forward rate times the reactant contributions
+      $rstr = $elements->{rate}."*".join("\*", @rels);
 
-    # making sure each species present has been initialized
-    #$cfg = &initialize_species($cfg, $elements->{species});
+      # if there is a coefficient that is not 1 we add that here
+      if(defined($coeffs->{species}->{$species})){
+        $rstr =  "($coeffs->{species}->{$species})*$rstr";
+      }
+    
+      # the right hand side is produced at the specified rate
+      push @{$cfg->{species}->{$species}->{production}}, $rstr;
+    }
 
     return $cfg;
 }
@@ -5510,79 +5624,49 @@ sub parse_equation_C
     return $cfg;
 }
 
-sub parse_equation_KD
+sub parse_equation_fr_rate
 {
 
     my ($cfg, $line) = @_;
     my $elements;
-    my $species;
+    my $tmp_line;
 
     # stripping out spaces
     $line =~ s/\s//g;
 
-    # determining the kon, koff, 
-    # and KD governing this equation
-    $elements->{KD}   = $line;
-    $elements->{KD}   =~ s/.*<(\S+)>.*/$1/;
+    # determining the forward (kf), and reverse (kr) rates
+    $elements->{all_rates}   = $line;
+    $elements->{all_rates}   =~ s/.*<=(\S+)=>.*/$1/;
 
-    $elements->{kon}  = $elements->{KD};
-    $elements->{koff} = $elements->{KD};
+    $elements->{kf} = $elements->{all_rates};
+    $elements->{kr} = $elements->{all_rates};
 
-    $elements->{kon}  =~ s#KD:#kon#;
-    $elements->{koff} =~ s#KD:#koff#;
+    $elements->{kf}  =~ s#(\S+):\S+#$1#;
+    $elements->{kr}  =~ s#\S+:(\S+)#$1#;
 
-    my @equation =  split(/<\S+>/, $line);
+    my @equation =  split(/<=\S+=>/, $line);
 
     $elements->{lhs} = $equation[0];
     $elements->{rhs} = $equation[1]; 
 
-    #
-    # Now breaking each side up and gathering the indexed components
-    #
-    my @lhs_components   = split('\+', $elements->{lhs});
-    my @rhs_components   = split('\+', $elements->{rhs});
-    my @all_components   = (@lhs_components, @rhs_components);
+    # Converting the reversible reaction into two reactions
 
+    # Forward reaction:
+    $tmp_line = $elements->{lhs}."=".$elements->{kf}."=>".$elements->{rhs};
+    $cfg  = &parse_equation_rate($cfg, $tmp_line);
 
-    # making sure the data structure is present for each species
-    foreach $species (@all_components){
-       $cfg = &initialize_species($cfg, $species); }
+    # Reverse reaction:
+    $tmp_line = $elements->{rhs}."=".$elements->{kr}."=>".$elements->{lhs};
+    $cfg  = &parse_equation_rate($cfg, $tmp_line);
 
-    #
-    # processing the left hand side
-    #
-    foreach $species (@lhs_components){
-      #
-      # adding the production and consumption terms 
-      #
-      # the right hand side produces at a rate koff
-      push @{$cfg->{species}->{$species}->{production}},   $elements->{koff}."*".join("\*", @rhs_components);
-      # the left hand side is consumed at a rate kon
-      push @{$cfg->{species}->{$species}->{consumption}},  $elements->{kon} ."*".join("\*", @lhs_components);
-    }
-
-    #
-    # processing the right hand side
-    #
-    foreach $species (@rhs_components){
-      #
-      # adding the production and consumption terms 
-      #
-      # the right hand side is consumed at a rate koff
-      push @{$cfg->{species}->{$species}->{consumption}},   $elements->{koff}."*".join("\*", @rhs_components);
-      # the left hand side is produced at a rate kon
-      push @{$cfg->{species}->{$species}->{production}},  $elements->{kon} ."*".join("\*", @lhs_components);
-    }
-
-
-    #push @{$cfg->{reaction_elements}}, $elements; 
 
 
   return $cfg;
 
 
 }
-sub parse_equation_fr_rate
+
+sub parse_equation_fr_rate_old
 {
 
     my ($cfg, $line) = @_;

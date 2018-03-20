@@ -178,8 +178,13 @@ cfg = system_define_cohort(cfg, cohort)
 
 ```
 
-After the cohorts have been defined we call the estimation function (``system_estimate_parameters``). If ``flowctl`` is set to  ``'plot previous estimate'`` or ``'plot guess'`` the those values will just be returned. 
-```{r results="hide", echo=TRUE, warning=FALSE}
+After the cohorts have been defined we call the estimation function (``system_estimate_parameters``). If ``flowctl`` is set to  ``'plot previous estimate'`` or ``'plot guess'`` the those values will just be returned (the number of iterations is set low to speed up the vigenette generation). 
+```{r echo=TRUE, warning=FALSE}
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "control", 
+                             value  = list(trace  = TRUE,
+                                           maxit  = 10,
+                                           REPORT = 10))
 pest = system_estimate_parameters(cfg, 
                                   flowctl         = flowctl, 
                                   analysis_name   = analysis_name, 

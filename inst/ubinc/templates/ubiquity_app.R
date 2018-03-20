@@ -26,13 +26,13 @@ cfg = build_system()
 
 
 # Start Default:
-# The GUI Default values are set here, feel free to modify them 
+# The App Default values are set here, feel free to modify them 
 # 
 
 # Alter the parameter set at startup here:
 cfg              = system_select_set(cfg, 'default')
 
-# If you want to use the system paramters in the GUI defaults
+# If you want to use the system paramters in the App defaults
 # below uncomment the following line
 # parameters = system_fetch_parameters(cfg) 
 
@@ -234,7 +234,7 @@ cfg$gui$table_parameters_touched = TRUE
 cfg$gui$table_iiv_touched        = TRUE
 cfg$gui$table_covariates_touched = TRUE
 
-# The GUI is setup to run out of transient/rgui
+# The App is setup to run out of transient/rgui
 # So the following copies files into that directory 
 #
 # initializing the working directory
@@ -289,7 +289,7 @@ if( file.exists(sprintf('%s%ssystem.png', mywd, .Platform$file.sep))){
 }
 
 # Lastly we identify to the underlying functions 
-# that we're running things through the GUI
+# that we're running things through the App
 cfg$options$misc$operating_environment = 'gui'
 
 # If no timescale has been set by the user

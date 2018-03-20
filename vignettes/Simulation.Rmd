@@ -22,7 +22,7 @@ require(rhandsontable)
 
 ## Introduction
 
-To demonstrate running simulations we'll use a PK model of mAbs in people
+To demonstrate running simulations we'll use a PK model of mAbs in humans
 ([Davda etal. mAbs, 6(4), 1094-1102](http://doi.org/10.4161/mabs.29095)). You can copy this model to the local folder using ``system_new`` specifying the "mab_pk" system file. The contents of this system file can be seen at the bottom. Next it is necessary to build the system file creating the ubiquity model object (``cfg``). 
 
 ```{r results="hide", message=FALSE}
@@ -34,7 +34,7 @@ cfg = build_system(system_file = "system.txt")
 After building any system you can then create templates. To create a template script for running simulations use ``system_fetch_template`` and specify  ``"Simulation"`` as the template argument:
 
 ```{r eval=FALSE}
-system_fetch_template  <- function(cfg, template="Simulation")
+system_fetch_template(cfg, template="Simulation")
 ```
 
 This will create the file ``analysis_simulate.R`` in the working directory. This template should have common options and dosing information commented out. You simply need to uncomment them and run the simulation. 

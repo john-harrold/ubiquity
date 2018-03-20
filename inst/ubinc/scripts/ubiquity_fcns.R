@@ -8180,7 +8180,12 @@ return(cfg)}
 #'  \item \code{"list"} vector of paired values (indent level and text), eg.  c(1, "Main Bullet", 2 "Sub Bullet")
 #'  \item \code{"imagefile"} string containing path to image file
 #'  \item \code{"ggplot"} ggplot object, eg. p = ggplot() + ....
-#'  \item \code{"table"} data frame with with names used as column headers
+#'  \item \code{"table"} list containing the table content and other options with the following elements (defaults in parenthesis):
+#'   \itemize{
+#'      \item \code{table} Data frame containing the tabular data
+#'      \item \code{header} Boolean variable to control displaying the header (\code{TRUE})
+#'      \item \code{first_row} Boolean variable to indicate that the first row contains header information (\code{TRUE})
+#'    }
 #'  \item \code{"flextable"} list containing flextable content and other options with the following elements (defaults in parenthesis):
 #'   \itemize{
 #'      \item \code{table} Data frame containing the tabular data

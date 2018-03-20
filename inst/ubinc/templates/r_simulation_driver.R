@@ -169,7 +169,6 @@ som = run_simulation_ubiquity(parameters, cfg)
 # tcontent$table = data.frame(col1 = c(1), col2 = c(2))
 # 
 # cfg = system_report_slide_content(cfg,
-#         rptname      = "test",    
 #         title        = "Title Example",
 #         sub_title    = "Sub Title",
 #         content_type = "table", 
