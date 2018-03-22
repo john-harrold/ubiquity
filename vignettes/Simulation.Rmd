@@ -22,12 +22,27 @@ require(rhandsontable)
 
 ## Introduction
 
-To demonstrate running simulations we'll use a PK model of mAbs in humans
-([Davda etal. mAbs, 6(4), 1094-1102](http://doi.org/10.4161/mabs.29095)). You can copy this model to the local folder using ``system_new`` specifying the "mab_pk" system file. The contents of this system file can be seen at the bottom. Next it is necessary to build the system file creating the ubiquity model object (``cfg``). 
+The workshop (http://workshop.ubiquity.grok.tv) provides several examples of how to perform simulations in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
-```{r results="hide", message=FALSE}
+```{r eval=FALSE}
+library(ubiquity)
+fr = workshop_fetch(section="Simulation", overwrite=TRUE)
+```
+
+This should create the folloing scripts:
+
+* ``analysis_single.r`` Simulating the response for a single indiviudal
+* ``analysis_multiple.r`` Mote Carlo simulations using IIV
+* ``analysis_multiple_file.r`` Monte Carlo simulations reading subject information from a file
+
+These rely on a PK model of mAbs in humans ([Davda etal. mAbs, 6(4), 1094-1102](http://doi.org/10.4161/mabs.29095)).  The contents of the system file for this model can be seen at the bottom. The first step in any analysis (simulation, estimation, etc) is building the system file creating the ubiquity model object (``cfg``). 
+
+```{r results="hide", message=FALSE, echo=FALSE}
 library(ubiquity)
 system_new(file_name="system.txt", system_file="mab_pk", overwrite = TRUE)
+```
+
+```{r results="hide", message=FALSE}
 cfg = build_system(system_file = "system.txt")
 ```
 
@@ -39,9 +54,9 @@ system_fetch_template(cfg, template="Simulation")
 
 This will create the file ``analysis_simulate.R`` in the working directory. This template should have common options and dosing information commented out. You simply need to uncomment them and run the simulation. 
 
-## Simulating an Individual Response
+## Simulating an Individual Response (``analysis_single.r``) 
 
-The system parameters for the default parameter set can be pulled out of this object:
+We'll begin by demonstrating how to simulate an indiviudal response to dosing. The system parameters for the default parameter set can be pulled out of this object:
 
 ```{r results="hide", warning=FALSE}
 cfg = build_system(system_file = "system.txt")
@@ -65,11 +80,11 @@ cfg = system_set_bolus(cfg, state  = "At",
 ```
 
 Next we run the simulation:
-```{r results="hide"}
+```{r results="hide", warning=FALSE, message=FALSE}
 som = run_simulation_ubiquity(parameters, cfg)
 ```
 
-The variable ``som`` is a list contains the mapped simulation output, and the time course is stored in the ``simout`` element. The first column (``time``) contains the simulation time in the units of the simulation, days in this case. Next there is a column for each state (``At``, ``Cc``, ``Cp``) and a column for each output (``C_ng_ml``, ``C_DOSE``). Each system parameter is passed through the simulation into the output (``F1``, ... ``MW``). This model has two covariates specified DOSE and WT. The initial value of these covariates is passed through as well as the values at each time point. For the DOSE this is SIMINT_CVIC_DOSE and DOSE respectively. Next secondary parameters are also provided (``kel``, ... ``kpc``). Lastly each timescale specified in the system file is also passed through with a "``ts.``" prefix:
+The variable ``som`` is a list containing the mapped simulation output, and the time course is stored in the ``simout`` element. The first column (``time``) contains the simulation time in the units of the simulation, days in this case. Next there is a column for each state (``At``, ``Cc``, ``Cp``) and a column for each output (``C_ng_ml``, ``C_DOSE``). Each system parameter is passed through the simulation into the output (``F1``, ... ``MW``). This model has two covariates specified DOSE and WT. The initial value of these covariates is passed through as well as the values at each time point. For the covariate ``DOSE`` this is ``SIMINT_CVIC_DOSE`` and ``DOSE``, respectively. Next secondary parameters are also provided (``kel``, ... ``kpc``). Lastly each timescale specified in the system file is also passed through with a "``ts.``" prefix:
 
 ```{r echo=FALSE}
 rhandsontable(som$simout, width=600, height=300)
@@ -85,7 +100,7 @@ p = prepare_figure("print", p)
 print(p)
 ```
 
-## Simulating Population Response From IIV
+## Simulating Population Response From IIV (``analysis_multiple.r``) 
 
 Next we want to simulate the response of multiple subjects. This system has IIV specified in the following manner:
 ```{r warning=FALSE, comment=''}
@@ -102,13 +117,13 @@ cfg=system_set_option(cfg, group  = "stochastic",
 som  = simulate_subjects(parameters, cfg)
 ```
 
-The output here, som, has a different structure than the output from an individual simulation. It is a list with the following elements
+The output here, ``som``, has a different structure than the output from an individual simulation. It is a list with the following elements
 
 * ``som$subjects$parameters`` - Matrix with a row for each subject containing that subjects parameters
 * ``som$subjects$secondary_parameters`` - Matrix containing the static secondary parameters (one row for each subject) 
 * ``som$tcsummary`` - Data frame containing time course summary level information for the simulations there are columns for
-  * Timescales (prefix ``ts.``)
-  * States (prefix ``s.``) and Outputs (prefix ``o.``) with the mean (suffix ``.mean``) , median (suffix ``.median``) and upper (suffix ``.ub_ci``) and lower (suffix ``.lb_ci``) bounds on the specified confidence interval (default 95%)
+     * Timescales (prefix ``ts.``)
+     * States (prefix ``s.``) and Outputs (prefix ``o.``) with the mean (suffix ``.mean``) , median (suffix ``.median``) and upper (suffix ``.ub_ci``) and lower (suffix ``.lb_ci``) bounds on the specified confidence interval (default 95%)
 * ``som$states`` - List with an element for each state. Each of these is a matrix containing the subject level predictions for that state (one row for each subject)
 * ``som$output`` - List with an element for each output. Each of these is a matrix containing the subject level predictions for that output (one row for each subject)
 * ``som$times`` - Data frame with a column for the simulation time (``time``) and a column for each timescale with a ``ts.`` prefix.
@@ -133,9 +148,9 @@ p     = prepare_figure("print", p    )
 print(p)
 ```
 
-## Simulating Population Response From File
+## Simulating Population Response From File (``analysis_multiple_file.r``) 
 
-Subject information can be pulled from a data file. First we need to load the data set using ``system_load_data``, here the data set is named ``SUBS``.
+Subject information can be pulled from a data file. First we need to load the dataset using ``system_load_data``, here the dataset is named ``SUBS``.
 
 ```{r echo=TRUE, warning=FALSE }
 cfg = system_load_data(cfg, 
@@ -143,14 +158,14 @@ cfg = system_load_data(cfg,
                        data_file = system.file("ubinc", "csv", "mab_pk_subjects.csv", 
                                                package = "ubiquity"))
 ```
-The format of the data set is shown below. There needs to be an column for the subject ID (``SIMINT_ID``) and the simulation time (``SIMINT_TIME``). Next the subject level parameters can be specified where the column headers correspond to the parameter names. If a parameter is not specified, the default value will be taken from the ```parameters``` input. In this case ``MW`` was not specified in the data set, so it will be taken from ``parameters``. 
+The format of the dataset is shown below. There needs to be an column for the subject ID (``SIMINT_ID``) and the simulation time (``SIMINT_TIME``). Next the subject level parameters can be specified where the column headers correspond to the parameter names. If a parameter is not specified, the default value will be taken from the ```parameters``` input. In this case ``MW`` was not specified in the dataset, so it will be taken from ``parameters``. 
 
-Optionally, covariates can also be specified by name as well. For time varying covariates , multiple records can be specified for the same subject (the parameter values for that subject will remain unchanged over time). In this example ``WT`` and ``SEX`` are covariates but only ``WT`` has been defined in the system file, so ``SEX`` will be ignored. The co variate ``DOSE`` is not defined so the default from the system file will be used. 
+Optionally, covariates can also be specified by name as well. For time varying covariates, multiple records can be specified for the same subject (the parameter values for that subject should remain constant between records). In this example ``WT`` and ``SEX`` are covariates but only ``WT`` has been defined in the system file, so ``SEX`` will be ignored. The covariate ``DOSE`` is not defined so the default from the system file will be used. 
 ```{r echo=FALSE}
 rhandsontable(cfg$data$SUBS$values, width=800, height=300)
 ```
 
-With the data set loaded, we need to link that subject file to the stochastic simulations using the data set name (``SUBS``) and then we can tell the scripts how to handle sampling from the data set:
+With the dataset loaded, we need to link that subject file to the stochastic simulations using the dataset name (``SUBS``) and then we can tell the scripts how to handle sampling from the dataset:
 ```{r results=FALSE}
 cfg=system_set_option(cfg, group  = "stochastic",
                            option = "sub_file",

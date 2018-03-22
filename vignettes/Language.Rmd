@@ -208,9 +208,9 @@ H2O2 =kdeg=> H20 + [1/2]O2
 And this will be translated in to the following differential equations:
 
 ~~~
-<ODE:H2O2>   - kdegH2O2 
-<ODE:H20>      kdegH2O2 
-<ODE:O2>   0.5*kdegH2O2 
+<ODE:H2O2>   - kdeg*H2O2 
+<ODE:H20>      kdeg*H2O2 
+<ODE:O2>   0.5*kdeg*H2O2 
 ~~~
 
 The rates (e.g. ``kdeg``) need to be defined as either a system or secondary parameter. This is where you can put saturable terms, such as Michaelis-Menten kinetics.
@@ -230,7 +230,7 @@ Or these can be written as equilibrium equations:
 A + B  <=konR:koffR=>  C       
 ~~~
 
-To write this as diferential equations, the following would be used:
+To write this as differential equations, the following would be used:
 
 ~~~
 <ODE:A>  koffR*C - konR*A*B
@@ -280,7 +280,7 @@ Which is the equivalent of the following differential equation:
 
 ## Bringing it all together
 
-![Model parameterizations](system-tmdd.png){width=60%}
+![ODEs vs. Model Descriptors](system-tmdd.png){width=60%}
 
 As a final example consider the target-mediated drug disposition system above. This system can be defined with a set of ODES:
 
@@ -388,7 +388,7 @@ These two entries create the infusion rate called ``myrate``. This can be used i
 ### Covariates  ``<CV:?>``, ``<CVSET:?:?>``
 
 ###Simple Covariates 
-For simulation purposes covariates (normally found in a data set) need to be defined. Covariates can be be either constant or change with time. The times values *must be the same scale as the system*. The following defines the value for the covariate ``RACE``:
+For simulation purposes covariates (normally found in a dataset) need to be defined. Covariates can be be either constant or change with time. The times values *must be the same scale as the system*. The following defines the value for the covariate ``RACE``:
 
 ~~~
 <CV:RACE>; times;  [0];     hours
@@ -602,7 +602,7 @@ Now we need to define the rate of elimination such that the constraints above ar
 
 ## Controlling Indices 
 
-By default, the build script will construct odes, parameter sets, etc. automatically. This means that the order of states/compartments are going to be arbitrary. Sometimes it is necessary to specify the order of your states or outputs. For example when using NONMEM the order in the control stream must correlate with the values in the data set. To specify that a state ``Cp`` should be compartment ``3``, the following should be used:
+By default, the build script will construct odes, parameter sets, etc. automatically. This means that the order of states/compartments are going to be arbitrary. Sometimes it is necessary to specify the order of your states or outputs. For example when using NONMEM the order in the control stream must correlate with the values in the dataset. To specify that a state ``Cp`` should be compartment ``3``, the following should be used:
 
 ~~~
 <INDEX:STATE:Cp>  3
