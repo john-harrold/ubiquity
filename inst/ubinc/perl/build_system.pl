@@ -4384,8 +4384,9 @@ sub parse_amtify
      # Stripping off the delimiter
      $value =~ s#<AMTIFY>##;
      # pulling out the different components
-     if(scalar(split(';', $value)) == 3){
-       ($conc, $amt, $rel) = split(';', $value);
+     my @elements = split(';', $value);
+     if(scalar(@elements) == 3){
+       ($conc, $amt, $rel) = @elements;
        $cfg->{options}->{amtify}->{cmt_to_amt}->{$conc} = $amt;
        $cfg->{options}->{amtify}->{cmt_to_rel}->{$conc} = "($rel)";
      }

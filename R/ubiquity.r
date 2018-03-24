@@ -2815,6 +2815,12 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
       # JMH how to parallelize 
       pb$set(message = progress_message, value = 0)
     }
+
+    foreach_packages = c("deSolve")
+
+    if(cfg$options$misc$distribution == "package"){
+      foreach_packages = c(foreach_packages, "ubiquity")
+    }
   
     if("multicore" == cfg$options$simulation_options$parallel){
       #
@@ -2829,15 +2835,18 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
                         .verbose = FALSE,
                         .errorhandling='pass',
                         .options.snow=list(progress = myprogress),
-                        .packages=c("deSolve")) %dorng% {
+                        .packages=foreach_packages) %dorng% {
 
         # If we're using the c-file we tell the spawned instances to load
         # them.
         if(cfg$options$simulation_options$integrate_with == "c-file"){
-          dyn.load(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))
+          dyn.load(file.path(cfg$options$misc$temp_directory, paste("r_ode_model", .Platform$dynlib.ext, sep = "")))
         }
-        source("library/r_general/ubiquity.R");
-        source("transient/auto_rcomponents.R");
+
+        if(cfg$options$misc$distribution == "stand alone"){
+          source(file.path("library","r_general","ubiquity.R"))}
+
+        source(file.path(cfg$options$misc$temp_directory, "auto_rcomponents.R"))
       
         # Pulling out subject level parameters
         parameters_subject = p$subjects$parameters[sub_idx,]
