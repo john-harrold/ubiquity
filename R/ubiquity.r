@@ -1051,7 +1051,6 @@ return(cfg)}
 #' To use the particle swarm set the \code{optimizer} and \code{method}:
 #'  
 #' \preformatted{
-#'library("pso")
 #'cfg = system_set_option(cfg, 
 #'                        group  = "estimation",
 #'                        option = "optimizer",
@@ -1068,7 +1067,6 @@ return(cfg)}
 #' To use the genetic algorithm set the optimizer and method:
 #' 
 #' \preformatted{
-#'library("GA")
 #'cfg = system_set_option(cfg, 
 #'                        group  = "estimation",
 #'                        option = "optimizer",
@@ -1140,7 +1138,7 @@ system_set_option <- function(cfg, group, option, value){
         errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("pso")')
       }
     }
-    if(group == "estimation" & option == "optimizer" & value == "GA" ){
+    if(group == "estimation" & option == "optimizer" & value == "ga" ){
       if(!require(GA)){
         isgood = FALSE
         errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the Genetic Algoriths (GA) package")
