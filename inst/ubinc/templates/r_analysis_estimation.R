@@ -101,8 +101,6 @@ cfg = system_log_init(cfg)
 #
 # To use particle swarm optimization use the following:
 #
-# library("pso")
-#
 # cfg = system_set_option(cfg, group  = "estimation",
 #                              option = "optimizer", 
 #                              value  = "pso")
@@ -112,8 +110,6 @@ cfg = system_log_init(cfg)
 #                              value  = "psoptim")
 #
 # The following will use the genetic algorithm:
-#
-# library("GA")
 #
 # cfg = system_set_option(cfg, group  = "estimation",
 #                              option = "optimizer", 

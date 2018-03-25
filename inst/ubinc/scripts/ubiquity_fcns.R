@@ -23,6 +23,7 @@ require(foreach)
 require(doParallel)
 require(doRNG)
 
+
 # If the distribution is set to automatic we see if the package is loaded
 # If not we see if the stand alone library file is present, lastly we try to
 # load the package
@@ -1104,81 +1105,122 @@ system_set_option <- function(cfg, group, option, value){
  
   groups = c('solver', 'stochastic', 'simulation', 'estimation', 'logging', 'titration')
   
-  errormsg = '';
+  errormsg = ''
   # checking the user input
   isgood = TRUE
   if(group %in% groups){
-    # setting stochastic options
-    if(group == 'stochastic'){
+    #
+    # Loading required packages based on options selected 
+    #
+    if(group == "simulation" & option == "parallel" & value == "multicore"){
+      if(!require(doParallel)){
+        isgood = FALSE
+        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doParallel package")
+        errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doParallel")')
+      }
+      if(!require(foreach)){
+        isgood = FALSE
+        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the foreach package")
+        errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("foreach")')
+      }
+      if(!require(doRNG)){
+        isgood = FALSE
+        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doRNG package")
+        errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doRNG")')
+      }
 
-      if((option == "states") | (option == "outputs")){
-        for(val in value){
-          if(!(val %in% names(cfg$options$mi[[option]]))){
-            errormsg = sprintf(' #-> %s %s \n', errormsg, val)
+      if(!isgood){
+        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load one or more packages needed for the  multicore option") }
+    }
+
+    if(group == "estimation" & option == "optimizer" & value == "pso"){
+      if(!require(pso)){
+        isgood = FALSE
+        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the particle swarm optimizer (pso) package")
+        errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("pso")')
+      }
+    }
+    if(group == "estimation" & option == "optimizer" & value == "GA" ){
+      if(!require(GA)){
+        isgood = FALSE
+        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the Genetic Algoriths (GA) package")
+        errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("GA")')
+      }
+    }
+
+
+    if(isgood){
+      # setting stochastic options
+      if(group == 'stochastic'){
+
+        if((option == "states") | (option == "outputs")){
+          for(val in value){
+            if(!(val %in% names(cfg$options$mi[[option]]))){
+              errormsg = sprintf(' #-> %s %s \n', errormsg, val)
+              isgood = FALSE
+            }
+          } 
+        }
+
+        # Making sure the specified dataset is loaded
+        if(option == "sub_file"){
+          if(!(value %in% names(cfg$data))){
+            errormsg =  sprintf('%s #-> Error: dataset >%s< not found, please load first \n', errormsg, value)
+            errormsg =  sprintf('%s #-> using system_load_dataset() \n', errormsg)
             isgood = FALSE
           }
-        } 
-      }
-
-      # Making sure the specified dataset is loaded
-      if(option == "sub_file"){
-        if(!(value %in% names(cfg$data))){
-          errormsg =  sprintf('%s #-> Error: dataset >%s< not found, please load first \n', errormsg, value)
-          errormsg =  sprintf('%s #-> using system_load_dataset() \n', errormsg)
-          isgood = FALSE
         }
-      }
-      if(option == "sub_file_sample"){
-        if(!any(value == c("with replacement", "sequential", "without replacement"))){
-          errormsg =  sprintf('%s #-> The value  %s is invalid and must be one of the following \n', errormsg, toString(value))
-          errormsg =  sprintf('%s #->   sequential          - sample from data file sequentially \n', errormsg)
-          errormsg =  sprintf('%s #->   with replacement    - sample from data file with replacement \n', errormsg)
-          errormsg =  sprintf('%s #->   without replacement - sample from data file with out replacement \n', errormsg)
-          isgood = FALSE
+        if(option == "sub_file_sample"){
+          if(!any(value == c("with replacement", "sequential", "without replacement"))){
+            errormsg =  sprintf('%s #-> The value  %s is invalid and must be one of the following \n', errormsg, toString(value))
+            errormsg =  sprintf('%s #->   sequential          - sample from data file sequentially \n', errormsg)
+            errormsg =  sprintf('%s #->   with replacement    - sample from data file with replacement \n', errormsg)
+            errormsg =  sprintf('%s #->   without replacement - sample from data file with out replacement \n', errormsg)
+            isgood = FALSE
+          }
         }
-      }
 
 
-      if(isgood){
-        cfg$options$stochastic[[option]] = value
-      }else{
-       errormsg = sprintf(' #-> The following %s are not valid\n%s', option, errormsg)
-      }
-      
-      
-      }
-    
-    # setting simulation options
-    if(group == "simulation"){
-      cfg$options$simulation_options[[option]] = value}
-
-
-    # titration options
-    if(group == 'titration'){
-      if(option == "titrate")
-        if(is.logical(value)){
-           cfg$titration$titrate = value
+        if(isgood){
+          cfg$options$stochastic[[option]] = value
+        }else{
+         errormsg = sprintf(' #-> The following %s are not valid\n%s', option, errormsg)
         }
-        else{
-           errormsg = sprintf('%s #-> The titrate option should be TRUE or FALSE\n', errormsg)
-           isgood = FALSE
+        
         
         }
-      }
       
-    
-    # setting solver options
-    if(group == 'solver'){
-      cfg$options$simulation_options$solver_opts[[option]] = value}
+      # setting simulation options
+      if(group == "simulation"){
+        cfg$options$simulation_options[[option]] = value}
 
-    # setting logging options
-    if(group == 'logging'){
-      cfg$options$logging[[option]] = value}
-    
 
-    # setting estimation options
-    if(group == 'estimation'){
-      cfg$estimation$options[[option]] = value}
+      # titration options
+      if(group == 'titration'){
+        if(option == "titrate")
+          if(is.logical(value)){
+             cfg$titration$titrate = value
+          }
+          else{
+             errormsg = sprintf('%s #-> The titrate option should be TRUE or FALSE\n', errormsg)
+             isgood = FALSE
+          
+          }
+        }
+        
+      # setting solver options
+      if(group == 'solver'){
+        cfg$options$simulation_options$solver_opts[[option]] = value}
+
+      # setting logging options
+      if(group == 'logging'){
+        cfg$options$logging[[option]] = value}
+      
+
+      # setting estimation options
+      if(group == 'estimation'){
+        cfg$estimation$options[[option]] = value}
+    }
     
   } else {
     # flagging a bad group
@@ -2828,14 +2870,20 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
       #
 
       # Setting up and starting the cluter
+      # for doSnow
+      # cl <- makeSOCKcluster(cfg$options$simulation_options$compute_cores)
+      # registerDoSNOW(cl)
+      # snow_opts = list(progress = myprogress)
+      # for doParallel
       cl <- makeCluster(cfg$options$simulation_options$compute_cores)
       registerDoParallel(cl)
+      snow_opts = list()
       
       somall <- foreach(sub_idx=1:nsub,
                         .verbose = FALSE,
                         .errorhandling='pass',
                         .options.snow=list(progress = myprogress),
-                        .packages=foreach_packages) %dorng% {
+                        .packages=foreach_packages) %dopar% {
 
         # If we're using the c-file we tell the spawned instances to load
         # them.

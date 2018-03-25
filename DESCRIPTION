@@ -1,13 +1,13 @@
 Package: ubiquity
 Type: Package
 Title: PKPD Model Developemnt and Deployment Tools
+Year: 2018
 Version: 0.1.0
 Authors@R: c(person("John", "Harrold", role = c("aut", "cre"),
                      email = "john.m.harrold@gmail.com"))
 Author: John Harrold [aut, cre]
 Maintainer: John Harrold <john.m.harrold@gamil.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Package of the ubiquity PKPD tools (http://ubiquity.tools) used for model development and deployment
 License: BSD 3-Clause License
 Encoding: UTF-8
 LazyData: TRUE
