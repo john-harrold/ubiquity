@@ -19,9 +19,9 @@ build_system <- function(system_file    = "system.txt",
 require(deSolve)
 require(ggplot2)
 require(gdata)
-require(foreach)
-require(doParallel)
-require(doRNG)
+# require(foreach)
+# require(doParallel)
+# require(doRNG)
 
 
 # If the distribution is set to automatic we see if the package is loaded

@@ -18,7 +18,7 @@ if(cfg$options$misc$distribution  == "stand alone"){
   cfg$options$misc$templates      = file.path(getwd(), 'library', 'templates')
 } else {
   package_dir                = system.file("", package="ubiquity")
-  cfg$options$misc$templates = file.path(package_dir, 'ubiquity', "templates")
+  cfg$options$misc$templates = file.path(package_dir, 'ubinc', "templates")
 }
 
 
