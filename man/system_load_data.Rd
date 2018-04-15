@@ -11,7 +11,7 @@ system_load_data(cfg, dsname, data_file, data_sheet)
 
 \item{dsname}{short name of the dataset to be used to link this dataset to different operations}
 
-\item{data_file}{data frame containing the data or the file name of the dataset}
+\item{data_file}{the file name of the dataset or a data frame containing the data}
 
 \item{data_sheet}{argument identifying the name of the sheet in an excel file}
 }

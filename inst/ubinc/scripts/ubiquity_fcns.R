@@ -359,14 +359,15 @@ isgood}
 #'@title Create New Template After Building System File
 #'
 #'@description Building a system file will produce templates for R and other languages.
-#' This will provide users with the means to make local copies of these
-#' templates.
+#' This function provides a method to make local copies of these templates.
 #'
 #'@param cfg ubiquity system object    
 #'@param template template type  
 #'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
 #'
-#'@return \code{TRUE} if the new file(s) were created and \code{FALSE} otherwise
+#'@return List with vectors of template \code{sources}, \code{destinations}
+#' and corresponding write success (\code{write_file}), also a list element
+#' indicating the overall success of the function call (\code{isgood})
 #'
 #'@details The template argument can have the following values
 #'
@@ -374,14 +375,16 @@ isgood}
 #'  \item{"Simulation"} produces \code{analysis_simulate.R}: R-Script named  with placeholders used to run simulations
 #'  \item{"Estimation"} produces \code{analysis_estimate.R}: R-Script named  with placeholders used to perform naive-pooled parameter estimation
 #'  \item{"ShinyApp"} produces  \code{ubiquity_app.R}, \code{server.R} and \code{ui.R}: files needed to run the model through a Shiny App either locally or on a Shiny Server
+#'  \item{"Model Diagram"} produces \code{system.svg}: SVG template for producing a model diagram (Goto \url{https://inkscape.org} for a free SVG editor)
 #'  \item{"Shiny Rmd Report"} produces \code{system_report.Rmd} and \code{test_system_report.R}: R-Markdown file used to generate report tabs for the Shiny App and a script to test it
+#'  \item{"myOrg"} produces \code{myOrg.R}: R-Script for defining functions used within your organization
 #'  \item{"mrgsolve"} produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
 #'  \item{"Berkeley Madonna"} produces \code{system_berkeley_madonna.txt}: text file with the model and the currently selected parameter set in Berkeley Madonna format
 #'  \item{"Adapt"} produces \code{system_adapt.for} and \code{system_adapt.prm}: Fortran and parameter files for the currently selected parameter set in Adapt fothe currently selected parameter set in Adapt format.
 #'}
 #'
 #'@examples
-#' # system_fetch_template(cfg, template="Simulation")
+#' #tr =  system_fetch_template(cfg, template="Simulation")
 system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
 
  res = list()
@@ -389,7 +392,8 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
  allowed = c("Simulation", "Estimation", 
              "ShinyApp",   "Shiny Rmd Report",
              "mrgsolve",   "Berkley Madonna", 
-             "Adapt")
+             "Adapt",      "myOrg", 
+             "Model Diagram")
 
 
  # default value for the return variable
@@ -453,6 +457,18 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
      destinations = c("system_adapt.for", "system_adapt.prm")
      write_file   = c(TRUE, TRUE)
    }
+   if(template == "myOrg"){
+     sources      = c(file.path(template_dir, sprintf("org_functions.R")))
+     destinations = c("myOrg.R")
+     write_file   = c(TRUE)
+   }
+
+   if(template == "Model Diagram"){
+     sources      = c(file.path(template_dir, sprintf("system.svg")))
+     destinations = c("system.svg")
+     write_file   = c(TRUE)
+   }
+
    # if overwrite ifs FALSE we check each of the destination files to see if
    # they exist. Then we set write_file to FALSE if they do exist, and throw
    # up an error.
@@ -488,7 +504,7 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
  }
 
   if(!isgood){
-    vp(cfg, "system_new_template()")
+    vp(cfg, "system_fetch_template()")
     vp(cfg, "One or more templates failed to copy. See messages above for details")
   }
   res$isgood = isgood
@@ -514,9 +530,9 @@ return(res)}
 #'
 #'@param cfg ubiquity system object    
 #'@param dsname short name of the dataset to be used to link this dataset to different operations
-#'@param data_file data frame containing the data or the file name of the dataset
+#'@param data_file the file name of the dataset or a data frame containing the data 
 #'@param data_sheet argument identifying the name of the sheet in an excel file
-#'
+#' 
 #'@return Ubiquity system object with the dataset loaded
 #'
 #'@examples
@@ -1110,39 +1126,45 @@ system_set_option <- function(cfg, group, option, value){
     #
     # Loading required packages based on options selected 
     #
-    if(group == "simulation" & option == "parallel" & value == "multicore"){
-      if(!require(doParallel)){
-        isgood = FALSE
-        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doParallel package")
-        errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doParallel")')
-      }
-      if(!require(foreach)){
-        isgood = FALSE
-        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the foreach package")
-        errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("foreach")')
-      }
-      if(!require(doRNG)){
-        isgood = FALSE
-        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doRNG package")
-        errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doRNG")')
-      }
+    if(group == "simulation" & option == "parallel"){
+      if(value == "multicore"){
+        if(!require(doParallel)){
+          isgood = FALSE
+          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doParallel package")
+          errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doParallel")')
+        }
+        if(!require(foreach)){
+          isgood = FALSE
+          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the foreach package")
+          errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("foreach")')
+        }
+        if(!require(doRNG)){
+          isgood = FALSE
+          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doRNG package")
+          errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doRNG")')
+        }
 
-      if(!isgood){
-        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load one or more packages needed for the  multicore option") }
+        if(!isgood){
+          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load one or more packages needed for the  multicore option") }
+      }
     }
 
-    if(group == "estimation" & option == "optimizer" & value == "pso"){
-      if(!require(pso)){
-        isgood = FALSE
-        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the particle swarm optimizer (pso) package")
-        errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("pso")')
+    if(group == "estimation" & option == "optimizer"){
+      if(value == "pso"){
+        if(!require(pso)){
+          isgood = FALSE
+          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the particle swarm optimizer (pso) package")
+          errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("pso")')
+        }
       }
     }
-    if(group == "estimation" & option == "optimizer" & value == "ga" ){
-      if(!require(GA)){
-        isgood = FALSE
-        errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the Genetic Algoriths (GA) package")
-        errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("GA")')
+    if(group == "estimation" & option == "optimizer"){
+      if(value == "ga"){
+        if(!require(GA)){
+          isgood = FALSE
+          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the Genetic Algoriths (GA) package")
+          errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("GA")')
+        }
       }
     }
 

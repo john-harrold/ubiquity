@@ -29,7 +29,6 @@ cfg = system_fetch_cfg()
 # # Comment out the block above above then uncomment this block 
 # # to rebuild the system and incorporate modifications to the 
 # # system file into the simulation results
-# source("library/r_general/ubiquity.r");
 # if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
 #   source(file.path('library', 'r_general', 'ubiquity.R'))
 # } else { 

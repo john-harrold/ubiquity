@@ -168,7 +168,6 @@ genetic algorithm (\code{\link[GA]{GA}}) libraries.
 To use the particle swarm set the \code{optimizer} and \code{method}:
  
 \preformatted{
-library("pso")
 cfg = system_set_option(cfg, 
                        group  = "estimation",
                        option = "optimizer",
@@ -185,7 +184,6 @@ The control option is a list described \code{\link[psoptim]{psoptim}} documentat
 To use the genetic algorithm set the optimizer and method:
 
 \preformatted{
-library("GA")
 cfg = system_set_option(cfg, 
                        group  = "estimation",
                        option = "optimizer",

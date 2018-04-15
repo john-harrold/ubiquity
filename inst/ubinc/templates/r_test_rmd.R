@@ -4,10 +4,15 @@ library("rhandsontable")
 library("deSolve")
 library("ggplot2")
 
-source('library/r_general/ubiquity.r')
-source('transient/auto_rcomponents.r')
+if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
+  source(file.path('library', 'r_general', 'ubiquity.R'))
+} else { 
+  library(ubiquity) }
 
-Rmdfile = "my_report.Rmd"
+
+cfg = buil_system()
+
+Rmdfile = "system_report.Rmd"
 load("transient/rgui/default/gui_som.RData")
 load("transient/rgui/default/gui_state.RData")
 params = list()

@@ -132,7 +132,7 @@ cfg$estimation$options$control                = list(trace=TRUE,
 # Set sub_title fields to NULL if they do not exist in the template
 #
 # this is the information the title slide
-cfg$reporting$meta$title$layout$general                   = "Title Slide"
+cfg$reporting$meta$title$layout$general                   = "title_slide"
 cfg$reporting$meta$title$master$general                   = "Office Theme"             
 cfg$reporting$meta$title$type$title                       = 'ctrTitle'
 cfg$reporting$meta$title$type$sub_title                   = 'subTitle'
@@ -140,7 +140,7 @@ cfg$reporting$meta$title$indices$title                    = NULL
 cfg$reporting$meta$title$indices$sub_title                = NULL
 
 # this is the information the title slide
-cfg$reporting$meta$section$layout$general                 = "Section Header"
+cfg$reporting$meta$section$layout$general                 = "section_slide"
 cfg$reporting$meta$section$master$general                 = "Office Theme"             
 cfg$reporting$meta$section$type$title                     = 'ctrTitle'
 cfg$reporting$meta$section$type$sub_title                 = 'subTitle'
@@ -149,51 +149,54 @@ cfg$reporting$meta$section$indices$sub_title              = NULL
 
 # these contain the mapping information for content in the template
 # units = inches, height = 5.09, width = 9.45
-cfg$reporting$meta$content$indices$list_body              = 2
-cfg$reporting$meta$content$indices$content_body           = 1 
-cfg$reporting$meta$content$indices$list_sub_title         = 4 
-cfg$reporting$meta$content$indices$content_sub_title      = 4 
-cfg$reporting$meta$content$layout$list                    = "Title and Content List"
+# List content
+cfg$reporting$meta$content$layout$list                    = "content_list"
 cfg$reporting$meta$content$master$list                    = "Office Theme"             
-cfg$reporting$meta$content$layout$general                 = "Title and Content Text"
+cfg$reporting$meta$content$indices$list_body              = 2
+cfg$reporting$meta$content$indices$list_sub_title         = 4 
+
+# Text content
+cfg$reporting$meta$content$layout$general                 = "content_text"   
 cfg$reporting$meta$content$master$general                 = "Office Theme"             
+cfg$reporting$meta$content$indices$content_body           = 1 
+cfg$reporting$meta$content$indices$content_sub_title      = 4 
 
 # Two column slide options
 # Each place holder has dimensions of:
 # units = inches, height = 5.08, width = 4.65
 # No headers with text
+cfg$reporting$meta$two_col$layout$text                    = "two_content_text"
+cfg$reporting$meta$two_col$master$text                    = "Office Theme"             
 cfg$reporting$meta$two_col$indices$text_sub_title         = 4 
 cfg$reporting$meta$two_col$indices$text_left              = 5 
 cfg$reporting$meta$two_col$indices$text_right             = 3 
-cfg$reporting$meta$two_col$layout$text                    = "Two Content Text"
-cfg$reporting$meta$two_col$master$text                    = "Office Theme"             
 
 # No headers with lists
+cfg$reporting$meta$two_col$layout$list                    = "two_content_list"
+cfg$reporting$meta$two_col$master$list                    = "Office Theme"             
 cfg$reporting$meta$two_col$indices$list_sub_title         = 1 
 cfg$reporting$meta$two_col$indices$list_left              = 5 
 cfg$reporting$meta$two_col$indices$list_right             = 4 
-cfg$reporting$meta$two_col$layout$list                    = "Two Content List"
-cfg$reporting$meta$two_col$master$list                    = "Office Theme"             
 
 # Headers with text
 # Each place holder has dimensions of:
 # units = inches, height = 4.41, width = 4.65
+cfg$reporting$meta$two_col$layout$text_head               = "two_content_header_text"
+cfg$reporting$meta$two_col$master$text_head               = "Office Theme"             
 cfg$reporting$meta$two_col$indices$text_head_sub_title    = 3
 cfg$reporting$meta$two_col$indices$text_head_left_title   = 4 
 cfg$reporting$meta$two_col$indices$text_head_left         = 6 
 cfg$reporting$meta$two_col$indices$text_head_right_title  = 7 
 cfg$reporting$meta$two_col$indices$text_head_right        = 2 
-cfg$reporting$meta$two_col$layout$text_head               = "Two Content Header Text"
-cfg$reporting$meta$two_col$master$text_head               = "Office Theme"             
 
 # Headers with text
+cfg$reporting$meta$two_col$layout$list_head               = "two_content_header_list"
+cfg$reporting$meta$two_col$master$list_head               = "Office Theme"             
 cfg$reporting$meta$two_col$indices$list_head_sub_title    = 6
 cfg$reporting$meta$two_col$indices$list_head_left_title   = 2 
 cfg$reporting$meta$two_col$indices$list_head_left         = 3 
 cfg$reporting$meta$two_col$indices$list_head_right_title  = 5 
 cfg$reporting$meta$two_col$indices$list_head_right        = 1 
-cfg$reporting$meta$two_col$layout$list_head               = "Two Content Header List"
-cfg$reporting$meta$two_col$master$list_head               = "Office Theme"             
 
 #--------------------------------------------------------------------
 

@@ -14,12 +14,13 @@ system_fetch_template(cfg, template = "Simulation", overwrite = FALSE)
 \item{overwrite}{if \code{TRUE} the new system file will overwrite any existing files present}
 }
 \value{
-\code{TRUE} if the new file(s) were created and \code{FALSE} otherwise
+List with vectors of template \code{sources}, \code{destinations}
+and corresponding write success (\code{write_file}), also a list element
+indicating the overall success of the function call (\code{isgood})
 }
 \description{
 Building a system file will produce templates for R and other languages.
-This will provide users with the means to make local copies of these
-templates.
+This function provides a method to make local copies of these templates.
 }
 \details{
 The template argument can have the following values
@@ -28,12 +29,14 @@ The template argument can have the following values
  \item{"Simulation"} produces \code{analysis_simulate.R}: R-Script named  with placeholders used to run simulations
  \item{"Estimation"} produces \code{analysis_estimate.R}: R-Script named  with placeholders used to perform naive-pooled parameter estimation
  \item{"ShinyApp"} produces  \code{ubiquity_app.R}, \code{server.R} and \code{ui.R}: files needed to run the model through a Shiny App either locally or on a Shiny Server
+ \item{"Model Diagram"} produces \code{system.svg}: SVG template for producing a model diagram (Goto \url{https://inkscape.org} for a free SVG editor)
  \item{"Shiny Rmd Report"} produces \code{system_report.Rmd} and \code{test_system_report.R}: R-Markdown file used to generate report tabs for the Shiny App and a script to test it
+ \item{"myOrg"} produces \code{myOrg.R}: R-Script for defining functions used within your organization
  \item{"mrgsolve"} produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
  \item{"Berkeley Madonna"} produces \code{system_berkeley_madonna.txt}: text file with the model and the currently selected parameter set in Berkeley Madonna format
  \item{"Adapt"} produces \code{system_adapt.for} and \code{system_adapt.prm}: Fortran and parameter files for the currently selected parameter set in Adapt fothe currently selected parameter set in Adapt format.
 }
 }
 \examples{
-# system_fetch_template(cfg, template="Simulation")
+#tr =  system_fetch_template(cfg, template="Simulation")
 }

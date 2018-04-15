@@ -24,7 +24,7 @@ require(flextable)
 
 ## Introduction
 
-Reporting is implemented using the ``officer`` package. Officer provides a lot of control over the generation of both Word and PowerPoint documents. If you feel comfortable programming in R, you can simply use that package directly.  Currently Ubiquity has support for generating PowerPoint output. Trying to keep track of different slide layouts and their indices can be cumbersome.  The following functions have been created to allow slides to be created easily: 
+Reporting is implemented using the ``officer`` package. Officer provides a lot of control over the generation of both Word and PowerPoint documents. If you feel comfortable programming in R, you can simply use that package directly.  Currently ubiquity has support for generating PowerPoint output. Trying to keep track of different slide layouts and their indices can be cumbersome.  The following functions have been created to allow slides to be created easily: 
 
 * ``system_report_init`` - Initialize a new report from a template
 * ``system_report_slide_title`` - Add  a title slide
@@ -209,3 +209,77 @@ system_report_save(cfg, output_file = "report_vignette.pptx")
 ```
 
 ## Using Custom Template
+
+To use a custom template for your organization you need to do the follwoing: 
+
+1. Create a template with the appropriate slide masters
+2. Create a layout file with mapping information 
+3. From this template you need to map the indices in the slide to elements the ubiquity reporting functions expect to find
+4. Initialize a report indicating that you want to use this new template and add elements to the report
+
+
+### Creating the template for your organization:
+
+
+Using your organizational template create slide masters below with the content elements to the right. The title and sub title elements of the ``tite_slide`` and ``section_slide`` should be of the type ``ctrTitle`` and ``subTitle``, respecitvely. For the rest of the slides the title elements should be of the type ``title``, and the other elements should simply be of type ``body``. The format of the body elements should be plain text unless identified parenthetically below.
+
+----------------------------------------------------------------------------------------------------------------
+Master layout name          Content Elements
+--------------------------- -------------------------------------------------------------------------------------
+ title_slide                title, subtitle
+                           
+ section_slide              title, subtitle
+                           
+ content_text               title, subtitle, main content 
+                           
+ content_list               title, subtitle, main content (list)
+                           
+                           
+ two_content_list           title, subtitle, left, right, left body (list), right body (list)
+ 
+ two_content_text           title, subtitle, left, right, left body, right body 
+                           
+ two_content_header_list    title, subtitle, left header, right header, left body (list), right body (list)
+ 
+ two_content_header_text    title, subtitle, left header, right header, left body, right body
+ 
+ title_only                 title
+----------------------------------------------------------------------------------------------------------------
+
+### Creating the layout file for the template
+
+Each element in a master is identified with an index number. These numbers are asigned as the master slide is built, so it can be difficult to identify what these numbers are through PowerPoint. If you named your template ``mytemplate.pptx``, then you can have ubiquity produce a slide deck with the masters annotated so you can identify these indices:
+
+```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
+cfg = build_system()
+cfg = system_report_init(cfg, template="mytemplate.pptx")
+cfg = system_report_view_layout(cfg)
+```
+
+
+This should create a file called ``layout.pptx`` that has the ``layout`` name of each slide master in the title and the ``index`` of each body element identified. These slides should look something like:
+
+![Master slide layouts](report_template_layout.png){width=100%}
+
+### Mapping your layout to ubiquity functions
+
+To map your layout information you should use the ``myOrg`` template:
+
+```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
+tr = system_fetch_template(cfg, template="myOrg")
+```
+
+This should create the file ``myOrg.R`` in the current directory. You can edit this file and go to the function named ``org_pptx_meta``. This returns the variable ``meta`` which contains this mapping information. You need to look at the information in ``layout.pptx`` and make sure it matches the information returned in ``meta``.
+
+### Using your own template
+
+To use your own template you simply need to source the ``myOrg.R`` file at the top of your script and then initialize the report using your own template (``mytemplate.pptx``) and the meta information returned from ``org_pptx_meta``.
+
+```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
+source("myOrg.R")
+cfg = system_report_init(cfg  = cfg, 
+            meta     = org_pptx_meta(),
+            template = "mytemplate.pptx")
+```
+
+Now you can use the other reporting functions to add slides to the ``default`` report.

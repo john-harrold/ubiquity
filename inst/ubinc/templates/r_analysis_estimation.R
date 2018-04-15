@@ -290,4 +290,8 @@ plot_opts = c()
 
 # Plotting the simulated results at the estimates 
 # These figures will be placed in output/
-system_plot_cohorts(erp, plot_opts, cfg, prefix=analysis_name)
+pr = system_plot_cohorts(erp, plot_opts, cfg, prefix=analysis_name)
+
+# Uncomment to save the plot objects to a file for loading later
+# save(pr, file=sprintf('output%s%s_pr.RData', .Platform$file.sep, analysis_name))
+

@@ -25,7 +25,7 @@ if("ubiquity" %in% (.packages())){
   ubiquity_distribution = "package"
 }
 
-source(file.path("transient", "auto_rcomponents.r"))
+source(file.path("transient", "auto_rcomponents.R"))
 
 #-----------------------------------------
 str2list = function(cfg, str){
@@ -217,9 +217,9 @@ download_simulation = function(input, output, session){
         }
 
         # system specific functions
-        fname_arc_r      = file.path(cfg$gui$wd, "transient", "auto_rcomponents.r")
+        fname_arc_r      = file.path(cfg$gui$wd, "transient", "auto_rcomponents.R")
         # export template
-        fname_save_r     = file.path(cfg$options$misc$templates, "r_gui_save.r")
+        fname_save_r     = file.path(cfg$options$misc$templates, "r_gui_save.R")
         
 
         # Library file

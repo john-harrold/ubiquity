@@ -1,6 +1,6 @@
 ---
 title: 'Individual and Population Simulations in Ubiquity'
-author: "John Harrold <john.m.harrold@gmail.com>"
+author: "John Harrold & Anson K Abraham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -62,16 +62,18 @@ We'll begin by demonstrating how to simulate an indiviudal response to dosing. T
 cfg = build_system(system_file = "system.txt")
 parameters = system_fetch_parameters(cfg)
 ```
+To alter system parameters at the scripting level, you can just reassign the elements in ``parameters``. For example to change the celarance to a value of .015 you could simply use: ``parameters$CL = 0.15``. 
 
-Next different simulation options can be set. For example the following will set the duration of the simulation to three months:
+Next different simulation options can be set. For example the following will set the duration of the simulation to three months $\left(3\ \mbox{months} \times 4\frac{\mbox{weeks}}{\mbox{month}}\times7\frac{\mbox{days}}{\mbox{week}}\right)$ in days:
 
 ```{r results="hide"}
 cfg = system_set_option(cfg, group  = "simulation", 
                              option = "output_times", 
-                             seq(0,7*4*3,1))
+                             seq(0,3*4*7,1))
 ```
 
-The system file is written to allow both IV (``Cp``) and SC (``At``) dosing. So we zero out any default dosing specified in the system file and specify four SC doses given two weeks apart:
+The system file is written to allow both IV (``Cp``) and SC (``At``) dosing. So we zero out any default dosing specified in the system file. The next line specifies the SC dosing we want to simulate. 
+
 ```{r results="hide"}
 cfg = system_zero_inputs(cfg)
 cfg = system_set_bolus(cfg, state  = "At", 
