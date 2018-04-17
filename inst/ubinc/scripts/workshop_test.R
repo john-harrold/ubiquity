@@ -32,6 +32,8 @@ totest = names(ws)
 
 totest = "Reporting"
 
+totest = "Simulation"
+
 
 # First we clear out any testing directories already present
 for(sec in totest){
@@ -45,13 +47,12 @@ for(sec in totest){
 for(sec in totest){
   # making a directory for the workshop section
   dir.create(path=sec)
-
-  # making that new directory the working directory
+  # moving into the directory
   setwd(sec)
-
-
   # fetching the section of the workshop
   fr = workshop_fetch(section=sec)
+  # moving back into the testing directory
+  setwd('..')
 
   cat(sprintf("# \n"))
   cat(sprintf("# \n"))
@@ -59,13 +60,14 @@ for(sec in totest){
   cat(sprintf("# \n"))
   cat(sprintf("# \n"))
   # Running each script
-  for(file in ws[[sec]]$scripts){
+  for(script_file in ws[[sec]]$scripts){
     cat(sprintf("# \n"))
-    cat(sprintf("# Testing Script: %s \n", file))
+    cat(sprintf("# Testing Script: %s \n", script_file))
     cat(sprintf("# \n"))
-    source(file)
+    syscmd = sprintf("R -e 'setwd(\"%s\"); source(\"%s\")'", sec, script_file)
+    system(syscmd)
+    #source(file)
   }
-  setwd('..')
 }
 
 

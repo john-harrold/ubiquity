@@ -2964,6 +2964,7 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
 
     }
     else{
+      require(foreach)
       #
       # Running simulations sequentially 
       #
