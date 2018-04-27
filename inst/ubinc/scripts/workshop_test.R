@@ -30,9 +30,9 @@ ws$Titration$scripts  = c("analysis_repeat_dosing.r",
 
 totest = names(ws)
 
-totest = "Reporting"
+#totest = "Reporting"
 
-totest = "Simulation"
+#totest = "Simulation"
 
 
 # First we clear out any testing directories already present
@@ -56,7 +56,13 @@ for(sec in totest){
 
   cat(sprintf("# \n"))
   cat(sprintf("# \n"))
+  cat(sprintf("# \n"))
+  cat(sprintf("# \n"))
+  cat(sprintf("# \n"))
   cat(sprintf("# Testing Section: %s \n", sec))
+  cat(sprintf("# \n"))
+  cat(sprintf("# \n"))
+  cat(sprintf("# \n"))
   cat(sprintf("# \n"))
   cat(sprintf("# \n"))
   # Running each script
@@ -66,7 +72,6 @@ for(sec in totest){
     cat(sprintf("# \n"))
     syscmd = sprintf("R -e 'setwd(\"%s\"); source(\"%s\")'", sec, script_file)
     system(syscmd)
-    #source(file)
   }
 }
 

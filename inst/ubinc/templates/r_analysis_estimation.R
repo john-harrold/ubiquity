@@ -3,12 +3,9 @@ rm(list=ls())
 graphics.off()
 options(show.error.locations = TRUE)
 
-# if we are in a stand alone distribution we run from there
-# otherwise we try to load the package
-if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
-  source(file.path('library', 'r_general', 'ubiquity.R'))
-} else { 
-  library(ubiquity) }
+# If we cannot load the ubiquity package we try the stand alone distribution
+if(!require(ubiquity)){
+  source(file.path('library', 'r_general', 'ubiquity.R')) }
 
 # -------------------------------------------------------------------------
 

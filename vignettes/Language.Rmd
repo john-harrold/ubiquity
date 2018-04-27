@@ -1,6 +1,6 @@
 ---
 title: "Modeling Language"
-author: "John Harrold <john.m.harrold@gmail.com>"
+author: "John Harrold & Anson K Abraham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -22,7 +22,7 @@ At its core, ubiquity is a modeling language and a set of scripts meant to facil
 
 
 ## Parameters 
-### System Parameters ``<P>``
+### System parameters ``<P>``
 
 Each system parameter is specified with a name, value, lower bound, upper bound, units, whether it should be editable in the ShinyApp and the 'type' of parameter (grouping in the ShinyApp). The values of eps (machine precision, smallest value that is not zero) and inf (infinity) can be used. For example to specify a parameter koffR with a value of .1 that is positive and a parameter KDR with a value of .04 that is also positive:
 
@@ -32,7 +32,7 @@ Each system parameter is specified with a name, value, lower bound, upper bound,
 <P> KDR   0.04     eps    inf   nM    yes      Target
 ~~~
 
-### Parameter Sets
+### Parameter sets
 
 Often a model will be developed to incorporate different situations or scenarios. For example, a model may be used to describe both healthy and diseased individuals. When these differences are simply parametric in nature, it can be cumbersome to code a model multiple times (once for each parameterization). This framework provides a mechanism for including multiple parameterizations withing the same system file. Consider the system below where we want to describe antibody disposition. For humans this is described by a two compartment model, but for mice a single compartment is needed.
 
@@ -87,7 +87,7 @@ Consider the clearance parameter entry where we want the murine half-life of an 
 We use the set name (``mouse``) and the parameter name (``CL``) and then we overwrite the default with the specified value ``7.71e-6``. The other aspects of the parameter (bounds, edit flag, etc.) will be the same as the default value. 
 
 
-### Secondary Parameters ``<As>`` and ``<Ad>``
+### Secondary parameters ``<As>`` and ``<Ad>``
 
 A static secondary parameter refers to parameter does not change during a simulation.  These are specified using the ``<As>`` descriptor and can be written in terms of system parameters or previously defined static secondary parameters. These can be used in differential equations, defining initial conditions, input scaling and model outputs. This is similar to secondary parameters defined in the ``$PK`` block in NONMEM. For example, if you wanted to define the rate of elimination in terms of the system parameters for clearance ``CL`` and volume of distribution ``Vp`` the following would be used:
 
@@ -111,8 +111,7 @@ Variance parameters are specified using the same format as system parameters (``
 <VP > SLOPE  0.01  eps         inf         1/hr   yes     Variance
 ~~~
 
-The difference being that the ``<VP>`` descriptor is used and that the
-grouping is set to ``Variance``.
+The difference being that the ``<VP>`` descriptor is used and that the grouping is set to ``Variance``. These are used when performing parameter estimation and when simulating with residual variability.
 
 ### Variability: defining the variance/covariance Matrix ``<IIV:?>?`` \& ``<IIVCOR:?>?``
 
@@ -340,14 +339,7 @@ Then we can specify the initial value of the target as:
 
 ## Model inputs
 
-Inputs into the model include typical interventions such as bolus dosing or
-continuous infusions. However inputs here refers to mathematical inputs.
-Typically covariates may be attributes of the system (such as gender, or a
-specific genotype), but from a mathematical perspective they are grouped with
-the more traditional inputs. When defining inputs it is necessary to provide
-typical/placeholder values. These provide default values for both the ShinyApp
-interface as well as the scripting level (Matlab and R) where they can be
-overwritten by the user. 
+Inputs into the model include typical interventions such as bolus dosing or continuous infusions. However inputs here refers to mathematical inputs. Typically covariates may be attributes of the system (such as gender, or a specific genotype), but are treated here as inputs. When defining inputs it is necessary to provide typical/placeholder values. These provide default values for both the ShinyApp interface as well as the scripting level (Matlab and R) where they can be overwritten by the user. 
 
 
 ###Bolus dosing ``<B:times>``, ``<B:events>``
@@ -476,7 +468,7 @@ less than              | $a < b$   | ``SIMINT_LT[a][b]``
 less than or equal     | $a \le b$ | ``SIMINT_LE[a][b]``
 greater than           | $a > b$   | ``SIMINT_GT[a][b]``
 greater than or equal  | $a \ge b$ | ``SIMINT_GE[a][b]``
-equal                  | $a = b$   | ``SIMINT_EQ[a][b]``
+equal                  | $a == b$  | ``SIMINT_EQ[a][b]``
 and                    | $a \& b$  | ``SIMINT_AND[a][b]``
 
 

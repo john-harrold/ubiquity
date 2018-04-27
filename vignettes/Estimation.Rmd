@@ -64,7 +64,7 @@ The estimation script has the following main components:
 
 These will be explored using the scripts above.
 
-##  Least Squares Estimation/Single Output (``analysis_parent.r``)
+##  Least squares estimation/single output (``analysis_parent.r``)
 
 The first example above (``analysis_parent.r``) begins by specifying that we want to perform a parameter estimation and archive the results using the name[^1] ``parent_d1030`` to indicate we are analyzing the parent PK for the 10 and 30 mg dosing cohorts:
 
@@ -251,7 +251,7 @@ plinfo$timecourse$Parent
 plinfo$obs_pred$Parent
 ```
 
-## Maximum Likelihood/Two Outputs (``analysis_parent_metabolite.r``)
+## Maximum likelihood/two outputs (``analysis_parent_metabolite.r``)
 
 This example is similar to the last except we are analyzing two different outputs (parent and metabolite) and we have a proportional variance model. So now we can estimate the parameters associated with those outputs as well as the variance parameters:
 
@@ -304,7 +304,7 @@ cfg = system_define_cohort(cfg, cohort)
 
 Similar modifications were made to the 30 mg dosing cohort.
 
-## Global Estimation Routines (``analysis_parent_metabolite_global.r``)
+## Global estimation routines (``analysis_parent_metabolite_global.r``)
 
 Now we build on the previous example to demonstrate how to select different optimization routines. By default, the parameter estimation is carried out using the ``Nelder-Mead`` optimization method from the ``optim`` library. You can specify different functions in the library. See the documentation for optim (?optim) for valid values for method and elements for the control.  For example, to use simulated annealing change the ``method`` to ``SANN``. 
 
@@ -350,7 +350,7 @@ cfg = system_set_option(cfg, group  = "estimation",
 
 **Note:** Optimizers like ``SANN`` and the global optimizers (``pso`` and ``GA``) are good for identifying parameter sets outside of the region of the initial guess. However, one consequence of these algorithms is they can quickly approach the bounds. Consequently it is important to provide realistic upper and lower bounds on the parameters (the ``<P>`` descriptor in the system file or using ``system_set_guess`` at the scripting level). If you use the default value of machine precision (``eps``) for the lower bound and infinity (``Inf``) for the upper bound these optimization routines can choose parameter values that can cause the internal simulations to fail.
 
-## Cohorts from NONMEM Dataset (``analysis_parent_metabolite_nm_data.r``)
+## Cohorts from NONMEM dataset (``analysis_parent_metabolite_nm_data.r``)
 
 In the examples above, cohorts are defined manually. Sometimes you may have data in a NONMEM dataset where the dosing information is located in the dataset. It may be convenient to simply define a cohort for each subject in the dataset. To do that the function ``system_define_cohorts_nm`` can be used. The differences between the script ``analysis_parent_metabolite.r`` will now be highlighted:
 

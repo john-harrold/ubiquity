@@ -2,12 +2,14 @@ Package: ubiquity
 Type: Package
 Title: PKPD Model Developemnt and Deployment Tools
 Year: 2018
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: c(person("John", "Harrold", role = c("aut", "cre"),
                      email = "john.m.harrold@gmail.com"))
 Author: John Harrold [aut, cre]
 Maintainer: John Harrold <john.m.harrold@gamil.com>
 Description: Package of the ubiquity PKPD tools (http://ubiquity.tools) used for model development and deployment
+URL: https://ubiquity.tools, https://help.ubiquity.grok.tv
+BugReports: https://github.com/john-harrold/ubiquity/issues
 License: BSD 3-Clause License
 Encoding: UTF-8
 LazyData: TRUE

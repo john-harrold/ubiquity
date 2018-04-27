@@ -30,18 +30,24 @@ Reporting is implemented using the ``officer`` package. Officer provides a lot o
 * ``system_report_slide_title`` - Add  a title slide
 * ``system_report_slide_section`` - Add a slide separating sections in a presentation
 * ``system_report_slide_content`` - Add a slide with a title, subtitle and a single area of content taking up the entire slide
-* ``system_report_slide_two_col`` - Add a slide with a title, subtitle, and two columns of content with or without titles
-* ``system_report_view_layout`` - Generate a powepoint file from a template labeling the different elements each slide layout
+* ``system_report_slide_two_col`` - Add a slide with a title, subtitle, and two columns of content with or without headings
+* ``system_report_view_layout`` - Generate a PowerPoint file from a template labeling the different elements each slide layout
 * ``system_report_fetch`` - Fetch the officer object for a report
 * ``system_report_set`` - Set the officer object for a report
 * ``system_report_save`` - Save a report to a file
 
+The workshop (http://workshop.ubiquity.grok.tv) provides an example of how to use these functions. To make a copy this script run the following:
 
-Examples are provided for each of these in the following script:
+```{r eval=FALSE}
+library(ubiquity)
+fr = workshop_fetch(section="Reporting", overwrite=TRUE)
+```
 
-``r_examples/reporting/make_report.R``
+This should create the folloing script
 
-## Creating a Report
+* ``make_report.R`` Generates a PowerPoint presentation from an R script
+
+## Creating a report
 
 The first step is to initialize a report:
 
@@ -51,7 +57,7 @@ cfg = build_system(system_file = "system.txt")
 cfg = system_report_init(cfg)
 ```
 
-## Content Type
+## Content type
 
 With the report created we can begin adding slides. There are several diffent slide formats with different placeholders for content and each placehodler can contian a type of content (text, list, image file, etc). The following list provides a the available content types followed by the format of the content:
 
@@ -65,14 +71,14 @@ With the report created we can begin adding slides. There are several diffent sl
      - ``first_row`` Boolean variable to indicate that the first row contains header information (``TRUE``)
 * ``"flextable"`` list containing flextable content and other options with the following elements (defaults in parenthesis):
      - ``table`` Data frame containing the tabular data
-     - ``header_top``, ``header_middle``, ``header_bottom`` (``NULL``) a list the same names as the data frame frame names containing the tabular data and values with the header text to show in the table
+     - ``header_top``, ``header_middle``, ``header_bottom`` (``NULL``)  a list the same names as the data frame names of the tabular data and values with the header text to show in the table 
      - ``merge_header`` (``TRUE``) Set to true to combine column headers with the same information
-     - ``table_body_alignment``, table_header_alignment ("center") Controls alignment
+     - ``table_body_alignment``, ``table_header_alignment`` ("center") Controls alignment
      - ``table_autofit`` (``TRUE``) Automatically fit content, or specify the cell width and height with ``cwidth`` (``0.75``) and ``cheight`` (``0.25``)
      - ``table_theme`` (``"theme_vanilla"``) Table theme
 
 
-## Adding Slides
+## Adding slides
 
 First you may want to add a title slide to the presentation:
 
@@ -185,7 +191,7 @@ cfg = system_report_slide_two_col(cfg,
        right_content          = tcont)
 ```
 
-You can specify column headers if you like as well these can be ``text``, ``imagefile``, ``ggplot``, ``table`` or ``flextable``.
+You can specify column headers if you like. These be ``text``, ``imagefile``, ``ggplot``, ``table`` or ``flextable``.
 
 ```{r results="hide", message=FALSE, warning=FALSE}
 cfg = system_report_slide_two_col(cfg,
@@ -201,14 +207,14 @@ cfg = system_report_slide_two_col(cfg,
 ```
 
 
-## Saving Slides 
+## Saving slides 
 
-Finally, after you have added all of your sldies, you may want to put them in a file:
+Finally, after you have added all of your sldies, you will want to put them in a file:
 ```{r results="hide", message=FALSE, warning=FALSE}
 system_report_save(cfg, output_file = "report_vignette.pptx")
 ```
 
-## Using Custom Template
+## Using custom template
 
 To use a custom template for your organization you need to do the follwoing: 
 
@@ -221,7 +227,8 @@ To use a custom template for your organization you need to do the follwoing:
 ### Creating the template for your organization:
 
 
-Using your organizational template create slide masters below with the content elements to the right. The title and sub title elements of the ``tite_slide`` and ``section_slide`` should be of the type ``ctrTitle`` and ``subTitle``, respecitvely. For the rest of the slides the title elements should be of the type ``title``, and the other elements should simply be of type ``body``. The format of the body elements should be plain text unless identified parenthetically below.
+Using your organizational template create slide masters below with the content elements to the right. The title and subtitle elements of the ``title_slide`` and ``section_slide`` should be of the type ``ctrTitle`` and ``subTitle``, respecitvely. For the rest of the slides the title elements should be of the type ``title``, and the other elements should simply be of type ``body``. The format of the body elements should be plain text unless identified parenthetically below.
+
 
 ----------------------------------------------------------------------------------------------------------------
 Master layout name          Content Elements
