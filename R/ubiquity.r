@@ -7,14 +7,15 @@
 #' distribution of ubiquity. If set to 'automatic' the build script will first 
 #' look to see if the ubiquity R package is installed. If it is installed it
 #' will use the package. Otherwise, it will assume a 'sand alone' package.
+#'@param debug Boolean variable indicating if debugging information should be displayed
+#'
 #'
 #'@examples
 #' # build_system(system_file='system.txt')
 build_system <- function(system_file    = "system.txt",
                          distribution   = "automatic",
                          system_name    = "mysystem",
-                         debug          =  FALSE, 
-                         clean          =  TRUE) {
+                         debug          =  FALSE){
 
 require(deSolve)
 require(ggplot2)
@@ -176,6 +177,8 @@ return(cfg)}
 #'@title Fetch Sections of Ubiquity Workshop
 #'@details Valid sections are "Simulation", "Estimation", "Titration" and "Reporting"
 #'@param section Name of the section of workshop to retrieve 
+#'@param on Name of the section of workshop to retrieve 
+#'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
 #'
 #'@return list
 workshop_fetch <- function(section="Simulation", overwrite=FALSE){
@@ -841,10 +844,10 @@ return(cfg)}
 #'@return Ubiquity system object with the covariate set
 #'
 #'@examples
-#' cfg = system_set_covariate(cfg, 
-#'                            covariate = "COV",
-#'                            times     = c(1, 3, 25),
-#'                            values    = c(1, 2,  1))
+#'#  cfg = system_set_covariate(cfg, 
+#'#                             covariate = "COV",
+#'#                             times     = c(1, 3, 25),
+#'#                             values    = c(1, 2,  1))
 system_set_covariate <- function(cfg, covariate, times, values){
   isgood = TRUE
   if(!(length(times) == length(values)) ) {
@@ -1005,7 +1008,7 @@ return(cfg)}
 #' To pull subject information from a data file instead of generating the subject
 #' parameters from IIV information the \code{sub_file} option can be used. The value here
 #' \code{SUBFILE_NAME} is the name given to a dataset loaded with
-#' (\code{\link{system_load_dataset}}):
+#' (\code{\link{system_load_data}}):
 #'
 #' \preformatted{
 #'cfg=system_set_option(cfg, 
@@ -1186,7 +1189,7 @@ system_set_option <- function(cfg, group, option, value){
         if(option == "sub_file"){
           if(!(value %in% names(cfg$data))){
             errormsg =  sprintf('%s #-> Error: dataset >%s< not found, please load first \n', errormsg, value)
-            errormsg =  sprintf('%s #-> using system_load_dataset() \n', errormsg)
+            errormsg =  sprintf('%s #-> using system_load_data() \n', errormsg)
             isgood = FALSE
           }
         }
@@ -2092,6 +2095,7 @@ return(cfg)}
 #' when code is executed. Adapted from:
 #' http://stackoverflow.com/questions/1716012/stopwatch-function-in-r
 #'
+#'@param gcFirst controls garbage collection
 #'@param type can be either \code{"elapsed"} \code{"user.self"} or \code{"sys.self"} 
 #'
 #'@examples
@@ -2115,7 +2119,6 @@ tic <- function(gcFirst = TRUE, type=c("elapsed", "user.self", "sys.self"))
 #' when code is executed. Adapted from:
 #' http://stackoverflow.com/questions/1716012/stopwatch-function-in-r
 #'
-#'@param type can be either \code{"elapsed"} \code{"user.self"} or \code{"sys.self"} 
 #'
 #'@examples
 #' tic()
@@ -2550,6 +2553,7 @@ return(str)}
 #'
 #'@param parameters list containing the typical value of parameters
 #'@param cfg       ubiquity system object    
+#'@param progress_message text string to prepend when called from the ShinyApp
 #'
 #'@return Mapped simulation output with individual predictions, individual
 #' parameters, and summary statistics of the parameters. The Vignettes below
@@ -2588,7 +2592,7 @@ simulate_subjects = function (parameters, cfg, progress_message = "Simulating Su
 #      TRUE, or FALSE (default)
 #
 #   sub_file 
-#      name of the data structure loaded with system_load_dataset
+#      name of the data structure loaded with system_load_data
 #
 #
 # These values can then be modified as necessary.
@@ -3418,7 +3422,7 @@ if('yes' == cfg$options$verbose){
 #'@title Wrapper for system_log_entry Used in Shiny Apps
 #'
 #'@param cfg ubiquity system object    
-#'@param str string to print/log
+#'@param text string to print/log
 GUI_log_entry <-function(cfg, text){
    system_log_entry(cfg, sprintf("RGUI %s", text))
 }
@@ -5454,7 +5458,8 @@ system_fetch_guess <- function(cfg){
 #'
 #'@param erp output from \code{system_simulate_estimation_results}
 #'@param cfg ubiquity system object    
-#'@param plot_opts list controling how predictions and data are overlaid. 
+#'@param plot_opts list controling how predictions and data are overlaid 
+#'@param prefix  string of text to be prepended to the figures generated  
 #'
 #'@details
 #'
@@ -6875,7 +6880,7 @@ logspace = function(a, b, n=100){
 #'@export
 #'@title Define Cohorts Automatically from NONMEM Input File
 #'@param cfg ubiquity system object    
-#'@param DS Name of the dataset loaded using \code{system_load_dataset}
+#'@param DS Name of the dataset loaded using \code{system_load_data}
 #'@param col_ID Column of unique subject identifier
 #'@param col_CMT Compartment column
 #'@param col_DV Column with observations or \code{’.’} for input
@@ -7286,12 +7291,25 @@ TSsys}
 # system_nm_check_ds - Takes mapping information from a NONMEM dataset and
 # checks it with specifications in the system.txt file
 #'@export
-#'@title title
-#' Description 
+#'@title Check NONMEM dataset for automatic cohort definitions  
+#' Checks the dataset against the information specified by \code{\link{system_define_cohorts_nm}}
 #'
-#'@param p1
+#'@param cfg ubiquity system object    
 #'
-#'@return r1
+#'@param DS \code{\link{system_load_dataset}}
+#'
+#'@param DS Name of the dataset loaded using \code{system_load_data}
+#'@param col_ID Column of unique subject identifier
+#'@param col_CMT Compartment column
+#'@param col_DV Column with observations or \code{’.’} for input
+#'@param col_TIME Column with system time of each record
+#'@param col_AMT Infusion/dose amounts (these need to be in the same units specified in the system.txt file)
+#'@param col_RATE Rate of infusion or \code{’.’} for bolus
+#'@param col_EVID EVID (0 - observation, 1 dose)
+#'@param col_GROUP Column name to use for defining similar cohorts when generating figures.
+#'@param filter List used to filter the dataset or \code{NULL} if the whole dataset is to be used (see filter rules or  \code{\link{nm_select_records}} or a description of how to use this option)
+#'@param INPUTS List mapping input information in the dataset to names used in the system.txt file
+#'@param OBS List mapping obseravation information in the dataset to nams used in the system.txt file
 #'
 #'@examples
 #' # Examples
@@ -7698,8 +7716,6 @@ system_report_save = function (cfg,
 #'@param template path to template file (\code{NULL} will load the default ubiquity template)
 #'@param rptname report name 
 #'@param meta list containing metadata identifying relevant indices for slide layouts
-#'
-#'@param cfg ubiquity system object with the named report initialized
 #'
 #'@seealso Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 system_report_init = function (cfg,
