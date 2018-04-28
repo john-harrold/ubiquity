@@ -3,9 +3,10 @@
 #'@import ggplot2
 #'@import officer
 #'@import foreach
-#'@importFrom parallel stopCluster
-#'@importFrom grid pushViewport
-#'
+#'@importFrom parallel stopCluster makeCluster
+#'@importFrom grid pushViewport viewport grid.newpage grid.layout
+#'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar
+#'@importFrom stats median qt
 
 
 
@@ -575,11 +576,11 @@ system_load_data <- function(cfg, dsname, data_file, data_sheet){
     }
 
     if(regexpr(".csv$", as.character(data_file), ignore.case=TRUE) > 0){
-      cfg$data[[dsname]]$values = utils::read.csv(data_file, header=TRUE)
+      cfg$data[[dsname]]$values = read.csv(data_file, header=TRUE)
     }
 
     if(regexpr(".tab$", as.character(data_file), ignore.case=TRUE) > 0){
-      cfg$data[[dsname]]$values = utils::read.delim(data_file, header=TRUE)
+      cfg$data[[dsname]]$values = read.delim(data_file, header=TRUE)
     }
     cfg$data[[dsname]]$data_file$name  = data_file
   }
@@ -2911,7 +2912,7 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
       # snow_opts = list(progress = myprogress)
       # for doParallel
       cl <- makeCluster(cfg$options$simulation_options$compute_cores)
-      registerDoParallel(cl)
+      doParallel::registerDoParallel(cl)
       snow_opts = list()
       
       somall <- foreach(sub_idx=1:nsub,
@@ -3257,6 +3258,9 @@ iiv_sample = mvrnorm(n = 1, muzero, covmatrix, tol = 1e-6, empirical = FALSE, EI
 # now looping through each parameter with inter-individual variability
 #names(cfg$iiv$iivs)
 #names(cfg$iiv$parameters)
+TMP_equation  = NULL
+TMP_iiv_value = NULL
+TMP_iiv_name  = NULL
 for(TMP_parameter_name in names(cfg$iiv$parameters)){
 
   # getting the typical value of the parameter
@@ -4573,7 +4577,7 @@ SIMINT_cfg$parameters$values =  SIMINT_parameters
 # if the IC overide hasn't been specified then we set it using the system_IC
 # function:
 if(is.na(SIMINT_cfg$options$simulation_options$initial_conditions[1])){
-  SIMINT_IC = system_IC(SIMINT_cfg, SIMINT_parameters) }
+  SIMINT_IC = eval(parse(text="system_IC(SIMINT_cfg, SIMINT_parameters)")) }
 else{
   # otherwise we use the IC override 
   SIMINT_IC = SIMINT_cfg$options$simulation_options$initial_conditions }
@@ -4652,7 +4656,7 @@ for(SIMINT_cv_name in names(SIMINT_cfg$options$inputs$covariates)){
 
 
 # creating the bolus inputs
-SIMINT_eventdata = system_prepare_inputs(SIMINT_cfg, SIMINT_parameters, SIMINT_force_times)
+SIMINT_eventdata = eval(parse(text="system_prepare_inputs(SIMINT_cfg, SIMINT_parameters, SIMINT_force_times)"))
  
 # adding sample times around the bolus times to the important times
 SIMINT_important_times =   c(sample_around(SIMINT_eventdata$time, SIMINT_simulation_options$output_times), SIMINT_important_times)
@@ -4723,7 +4727,7 @@ SIMINT_simout_mapped = list()
 # outputs separately:
 if("r-file" == SIMINT_simulation_options$integrate_with){
   SIMINT_MAP_tic = proc.time()
-  SIMINT_simout  = system_map_output(SIMINT_cfg, SIMINT_simout, SIMINT_parameters, SIMINT_eventdata)
+  SIMINT_simout  = eval(parse(text="system_map_output(SIMINT_cfg, SIMINT_simout, SIMINT_parameters, SIMINT_eventdata)"))
   SIMINT_MAP_toc = proc.time()
   # Adding the timing for the mapping
   SIMINT_simout_mapped$timing$output_mapping = SIMINT_MAP_toc - SIMINT_MAP_tic
@@ -4750,7 +4754,7 @@ if(SIMINT_dropfirst){
 
 # adding error to the output
 SIMINT_ERR_tic = proc.time()
-SIMINT_simout  = add_observation_errors(SIMINT_simout, SIMINT_parameters, SIMINT_cfg);
+SIMINT_simout  = eval(parse(text="add_observation_errors(SIMINT_simout, SIMINT_parameters, SIMINT_cfg)"))
 SIMINT_ERR_toc = proc.time()
 
 SIMINT_simout_mapped$timing$adding_error   = SIMINT_ERR_toc - SIMINT_ERR_tic
