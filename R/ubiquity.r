@@ -2,13 +2,13 @@
 #'@import deSolve  
 #'@import ggplot2
 #'@import officer
+#'@import flextable
 #'@import foreach
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
-#'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar
+#'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv
 #'@importFrom stats median qt
-
-
+#'@importFrom MASS mvrnorm
 
 
 
@@ -5248,12 +5248,12 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
                                         cfg$estimation$options$optimizer)))
       }
       else if(cfg$estimation$options$optimizer %in% c('pso')){
-        p = psoptim(par     = as.vector(cfg$estimation$parameters$guess),
-                    fn      = calculate_objective_pso, 
-                    cfg     = cfg, 
-                    lower   = cfg$estimation$parameters$matrix$lower_bound,
-                    upper   = cfg$estimation$parameters$matrix$upper_bound,
-                    control = cfg$estimation$options$control)
+        p = pso::psoptim(par     = as.vector(cfg$estimation$parameters$guess),
+                         fn      = calculate_objective_pso, 
+                         cfg     = cfg, 
+                         lower   = cfg$estimation$parameters$matrix$lower_bound,
+                         upper   = cfg$estimation$parameters$matrix$upper_bound,
+                         control = cfg$estimation$options$control)
       
       }
       else if(cfg$estimation$options$optimizer %in% c('ga')){
@@ -5454,6 +5454,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
 #'
 #'@seealso \code{\link{system_define_cohort}} \code{\link{system_plot_cohorts}}
 system_simulate_estimation_results <- function(pest, cfg, details=FALSE){
+ observations = NULL
  eval(parse(text=sprintf('observations = %s(pest, cfg, estimation=FALSE, details=details)', cfg$estimation$options$observation_function)))
  return(observations)
 }
@@ -8423,7 +8424,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
      ft = align(ft, align=table_body_alignment,   part="body"  )
 
      rpt = ph_with_flextable(x         = rpt,       type   = type, 
-                             index     = index,     value  = ft)
+                                        index     = index,     value  = ft)
 
     }
    
