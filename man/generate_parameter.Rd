@@ -21,7 +21,4 @@ generate_parameter(SIMINT_parameters, SIMINT_cfg, SIMINT_PARAMETER_TV,
 \value{
 parameter value with the variability applied
 }
-\examples{
-# Examples
-}
 \keyword{internal}

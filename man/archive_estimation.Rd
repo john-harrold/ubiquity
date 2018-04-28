@@ -32,7 +32,4 @@ Would rename the files above
   \item \code{output/mysoln-report.txt}
  }
 }
-\examples{
-# Examples
-}
 \keyword{internal}

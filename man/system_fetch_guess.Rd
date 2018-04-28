@@ -12,6 +12,3 @@ system_fetch_guess(cfg)
 \value{
 list of current parameter gauesses
 }
-\examples{
-# Examples
-}

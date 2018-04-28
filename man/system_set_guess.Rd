@@ -51,6 +51,3 @@ To specify the guess and overwrite the upper bound on Vc and set it to 5
 cfg = system_set_guess(cfg, "Vc", value=3, ub=5)
 }
 }
-\examples{
-# Examples
-}

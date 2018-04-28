@@ -39,6 +39,3 @@ system_nm_check_ds(cfg, DS = "DSNAME", col_ID = "ID", col_CMT = "CMT",
 
 \item{DS}{Name of the dataset loaded using \code{system_load_data}}
 }
-\examples{
-# Examples
-}

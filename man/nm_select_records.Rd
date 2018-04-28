@@ -33,7 +33,4 @@ It would be translated into the boolean filter:
 ((ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)
 }
 }
-\examples{
-# Examples
-}
 \keyword{internal}

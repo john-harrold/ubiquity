@@ -13,6 +13,6 @@ var2string_gen(var)
 Variable in string form
 }
 \examples{
-var2string_gen(c(1,2,3))
+# var2string_gen(c(1,2,3))
 }
 \keyword{internal}

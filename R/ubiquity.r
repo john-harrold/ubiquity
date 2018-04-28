@@ -12,8 +12,6 @@
 #' look to see if the ubiquity R package is installed. If it is installed it
 #' will use the package. Otherwise, it will assume a 'sand alone' package.
 #'@param debug Boolean variable indicating if debugging information should be displayed
-#'
-#'
 #'@examples
 #' # build_system(system_file='system.txt')
 build_system <- function(system_file    = "system.txt",
@@ -2472,7 +2470,7 @@ return(msg)}
 #'@return Variable in string form
 #'
 #'@examples
-#'var2string_gen(c(1,2,3))
+#'# var2string_gen(c(1,2,3))
 var2string_gen <- function(var)  {
 if(is.vector(var)){
   mystr = sprintf('min = %s; max = %s; length = %d ', 
@@ -2500,8 +2498,8 @@ return(mystr)
 #'@return Number as a string padded
 #'
 #'@examples
-#'var2string(pi, nsig_f=20)
-#'var2string(.0001121, nsig_e=2, maxlength=10)
+#'#var2string(pi, nsig_f=20)
+#'#var2string(.0001121, nsig_e=2, maxlength=10)
 var2string <- function(var,maxlength=0, nsig_e = 3, nsig_f = 4) {
 #  str = var2string(var, 12) 
 #  converts the numerical value 'var' to a padded string 12 characters wide
@@ -3284,9 +3282,6 @@ return(subject)
 #'@param SIMINT_equation equation relating IIV and typical value to the parameter value with variability
 #'
 #'@return parameter value with the variability applied
-#'
-#'@examples
-#' # Examples
 generate_parameter = function (SIMINT_parameters, SIMINT_cfg, SIMINT_PARAMETER_TV, SIMINT_IIV_VALUE, SIMINT_equation){
   # Defining the system parameters locally
   for(SIMINT_pname in names(SIMINT_cfg$options$mi$parameters)){
@@ -3486,8 +3481,6 @@ GUI_log_entry <-function(cfg, text){
 #'\preformatted{
 #'((ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)
 #'}
-#'@examples
-#' # Examples
 nm_select_records    <- function(cfg, values, filter){
 
   cols = names(filter) 
@@ -5462,9 +5455,6 @@ system_simulate_estimation_results <- function(pest, cfg, details=FALSE){
 #'@param cfg ubiquity system object    
 #'
 #'@return list of current parameter gauesses
-#'
-#'@examples
-#' # Examples
 system_fetch_guess <- function(cfg){
   return(cfg$estimation$parameters$guess)
 }
@@ -5790,9 +5780,6 @@ return(grobs)
 #' \preformatted{
 #'cfg = system_set_guess(cfg, "Vc", value=3, ub=5)
 #' }
-#'
-#'@examples
-#' # Examples
 system_set_guess <- function(cfg, pname, value, lb=NULL, ub=NULL){
 #  cfg = system_set_guess(cfg,  pname, value, lb, ub)
 #
@@ -6053,9 +6040,6 @@ return(files)
 #'
 #'@param name analysis name 
 #'@param cfg ubiquity system object    
-#'
-#'@examples
-#' # Examples
 archive_estimation <- function(name, cfg){
 #
 #  archive_estimation(name, cfg)
@@ -6871,7 +6855,6 @@ ubiquity_name_check = function(test_name){
 #'
 #'@return vector of numbers from \code{a} to \code{b} with
 #'\code{n} linearly spaced apart
-#'
 #'@examples
 #' linspace(0,100, 20)
 linspace = function(a, b, n=100){
@@ -7333,9 +7316,6 @@ TSsys}
 #'@param filter List used to filter the dataset or \code{NULL} if the whole dataset is to be used (see filter rules or  \code{\link{nm_select_records}} or a description of how to use this option)
 #'@param INPUTS List mapping input information in the dataset to names used in the system.txt file
 #'@param OBS List mapping obseravation information in the dataset to nams used in the system.txt file
-#'
-#'@examples
-#' # Examples
 system_nm_check_ds = function(cfg, 
                               DS        = 'DSNAME',
                               col_ID    = 'ID',
