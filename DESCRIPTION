@@ -1,7 +1,7 @@
 Package: ubiquity
 Type: Package
 Title: PKPD Model Developemnt and Deployment Tools
-Year: 2018
+YEAR: 2018
 Version: 1.0.0
 Authors@R: c(person("John", "Harrold", role = c("aut", "cre"),
                      email = "john.m.harrold@gmail.com"))

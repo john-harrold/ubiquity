@@ -1,6 +1,15 @@
 
-#' @import deSolve  
-#' @import ggplot2
+#'@import deSolve  
+#'@import ggplot2
+#'@import officer
+#'@import foreach
+#'@importFrom parallel stopCluster
+#'@importFrom grid pushViewport
+#'
+
+
+
+
 
 #'@export
 #'@title Building The System
@@ -4285,10 +4294,10 @@ for(cohort_name in names(cfg$cohorts)){
 
 
     # sampling the model prediction at the times where we have observations
-    odchunk$PRED = approx( x      = som$simout[[sprintf("ts.%s", output_ts)]], 
-                           y      = som$simout[[output_name]], 
-                           xout   = odchunk$TIME, 
-                           method = "linear")$y
+    odchunk$PRED = stats::approx( x      = som$simout[[sprintf("ts.%s", output_ts)]], 
+                                  y      = som$simout[[output_name]], 
+                                  xout   = odchunk$TIME, 
+                                  method = "linear")$y
 
     # calculating the variance
     odchunk$VAR = calculate_variance(SIMINT_parameters = chparameters, 
@@ -7088,6 +7097,7 @@ cr = system_nm_check_ds(cfg       =  cfg,
           # If the subject has bolus inputs we store those, otherwise we push
           # a warning to the user
           if(length(BOLUS_AMTS) > 0){
+            BOLUS_TIME_SCALE = NULL
             eval(parse(text=sprintf('BOLUS_TIME_SCALE  = BOLUS_TIME_SYS/(%s)', cfg$options$inputs$bolus$times$scale)))
             subinputs$bolus[[name]]$TIME = BOLUS_TIME_SCALE
             subinputs$bolus[[name]]$AMT  = BOLUS_AMTS
@@ -7114,6 +7124,7 @@ cr = system_nm_check_ds(cfg       =  cfg,
           if(length(RATE_AMTS) > 0){
 
             # Converting the rates times from system times to the input time scale
+            RATE_TIME_SCALE = NULL
             eval(parse(text=sprintf('RATE_TIME_SCALE  = RATE_TIME_SYS/(%s)', cfg$options$inputs$infusion_rates[[name]]$times$scale)))
             eval(parse(text=sprintf('RATE_RATES_SCALE = RATE_RATES_SYS*(%s)', cfg$options$inputs$infusion_rates[[name]]$times$scale)))
 
@@ -8427,7 +8438,7 @@ return(rpt)}
 #'@return som
 #'@seealso \code{\link{system_new_tt_rule}}, \code{\link{system_set_tt_cond}} and the titration vignette (\code{vignette("Titration", package = "ubiquity")})
 run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
-  return(auto_run_simulation_titrate(SIMINT_p, SIMINT_cfg))
+  return(eval(parse(text="auto_run_simulation_titrate(SIMINT_p, SIMINT_cfg)")))
 }
 
 # .onLoad <- function(libname, pkgname) {
