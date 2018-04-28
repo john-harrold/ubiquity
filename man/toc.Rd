@@ -6,9 +6,6 @@
 \usage{
 toc()
 }
-\arguments{
-\item{type}{can be either \code{"elapsed"} \code{"user.self"} or \code{"sys.self"}}
-}
 \description{
 Used in conjunction with \code{tic()} to find the elapsed time
 when code is executed. Adapted from:

@@ -106,7 +106,7 @@ cfg = system_set_option (cfg,
 To pull subject information from a data file instead of generating the subject
 parameters from IIV information the \code{sub_file} option can be used. The value here
 \code{SUBFILE_NAME} is the name given to a dataset loaded with
-(\code{\link{system_load_dataset}}):
+(\code{\link{system_load_data}}):
 
 \preformatted{
 cfg=system_set_option(cfg, 

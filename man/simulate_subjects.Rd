@@ -10,6 +10,8 @@ simulate_subjects(parameters, cfg, progress_message = "Simulating Subjects:")
 \item{parameters}{list containing the typical value of parameters}
 
 \item{cfg}{ubiquity system object}
+
+\item{progress_message}{text string to prepend when called from the ShinyApp}
 }
 \value{
 Mapped simulation output with individual predictions, individual

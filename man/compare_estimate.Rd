@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{compare_estimate}
 \alias{compare_estimate}
-\title{Extracts Covariates for a Subject from a Subject Data File}
+\title{Compares estimate to the bounds}
 \usage{
 compare_estimate(cfg, parameters, pname)
 }
@@ -15,5 +15,9 @@ compare_estimate(cfg, parameters, pname)
 }
 \value{
 L - near the lower bound, U - near the upper bound
+}
+\description{
+Compares the parameter estimate to the bounds and indicates if
+the estimate is near the bound.
 }
 \keyword{internal}

@@ -12,7 +12,7 @@ system_define_cohorts_nm(cfg, DS = "DSNAME", col_ID = "ID",
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{DS}{Name of the dataset loaded using \code{system_load_dataset}}
+\item{DS}{Name of the dataset loaded using \code{system_load_data}}
 
 \item{col_ID}{Column of unique subject identifier}
 

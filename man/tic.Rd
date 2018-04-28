@@ -7,6 +7,8 @@
 tic(gcFirst = TRUE, type = c("elapsed", "user.self", "sys.self"))
 }
 \arguments{
+\item{gcFirst}{controls garbage collection}
+
 \item{type}{can be either \code{"elapsed"} \code{"user.self"} or \code{"sys.self"}}
 }
 \description{

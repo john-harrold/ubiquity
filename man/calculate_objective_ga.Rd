@@ -11,4 +11,8 @@ calculate_objective_ga(pvect, cfg)
 
 \item{cfg}{ubiquity system object}
 }
+\description{
+Converts the parameter vector to a named list and returns the
+negative of the objective (turning the maximization into a minimization)
+}
 \keyword{internal}

@@ -2,8 +2,8 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_nm_check_ds}
 \alias{system_nm_check_ds}
-\title{title
-Description}
+\title{Check NONMEM dataset for automatic cohort definitions  
+Checks the dataset against the information specified by \code{\link{system_define_cohorts_nm}}}
 \usage{
 system_nm_check_ds(cfg, DS = "DSNAME", col_ID = "ID", col_CMT = "CMT",
   col_DV = "DV", col_TIME = "TIME", col_AMT = "AMT", col_RATE = "RATE",
@@ -11,10 +11,33 @@ system_nm_check_ds(cfg, DS = "DSNAME", col_ID = "ID", col_CMT = "CMT",
   OBS = NULL)
 }
 \arguments{
-\item{p1}{}
-}
-\value{
-r1
+\item{cfg}{ubiquity system object}
+
+\item{DS}{\code{\link{system_load_dataset}}}
+
+\item{col_ID}{Column of unique subject identifier}
+
+\item{col_CMT}{Compartment column}
+
+\item{col_DV}{Column with observations or \code{’.’} for input}
+
+\item{col_TIME}{Column with system time of each record}
+
+\item{col_AMT}{Infusion/dose amounts (these need to be in the same units specified in the system.txt file)}
+
+\item{col_RATE}{Rate of infusion or \code{’.’} for bolus}
+
+\item{col_EVID}{EVID (0 - observation, 1 dose)}
+
+\item{col_GROUP}{Column name to use for defining similar cohorts when generating figures.}
+
+\item{filter}{List used to filter the dataset or \code{NULL} if the whole dataset is to be used (see filter rules or  \code{\link{nm_select_records}} or a description of how to use this option)}
+
+\item{INPUTS}{List mapping input information in the dataset to names used in the system.txt file}
+
+\item{OBS}{List mapping obseravation information in the dataset to nams used in the system.txt file}
+
+\item{DS}{Name of the dataset loaded using \code{system_load_data}}
 }
 \examples{
 # Examples

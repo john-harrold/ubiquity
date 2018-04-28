@@ -15,4 +15,8 @@ calculate_variance(SIMINT_parameters, SIMINT_varstr, SIMINT_odchunk, SIMINT_cfg)
 
 \item{SIMINT_cfg}{ubiquity system object}
 }
+\description{
+Takes the variance specified as a string and evaluates it
+locally, and returns that value
+}
 \keyword{internal}

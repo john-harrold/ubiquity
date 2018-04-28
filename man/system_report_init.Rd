@@ -14,8 +14,6 @@ system_report_init(cfg, template = NULL, rptname = "default", meta = NULL)
 \item{rptname}{report name}
 
 \item{meta}{list containing metadata identifying relevant indices for slide layouts}
-
-\item{cfg}{ubiquity system object with the named report initialized}
 }
 \seealso{
 Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})

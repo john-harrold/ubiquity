@@ -2,12 +2,16 @@
 % Please edit documentation in R/ubiquity.R
 \name{GUI_log_entry}
 \alias{GUI_log_entry}
-\title{Wrapper for system_log_entry Used in Shiny Apps}
+\title{Wrapper for system_log_entry Used in ShinyApp}
 \usage{
 GUI_log_entry(cfg, text)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{str}{string to print/log}
+\item{text}{string to print/log}
+}
+\description{
+Called from the ShinyApp to add a log entry with "App "
+prepended to the log entry
 }

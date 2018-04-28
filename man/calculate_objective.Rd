@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{calculate_objective}
 \alias{calculate_objective}
-\title{Calculates the Value of an Objective Function for a Given Set of System Parameters}
+\title{Calculates the Value of the Specified Objective Function}
 \usage{
 calculate_objective(parameters, cfg, estimation = TRUE)
 }
@@ -18,5 +18,10 @@ If estimation is \code{TRUE} it will return the objective function
 value, if it is \code{FALSE} it will return a list with an element
 \code{value} containing the objective function value and an element named
 \code{isgood} that is \cite{TRUE} if the objective function was successful.
+}
+\description{
+For a given set of system parameters the objective function
+will be calculated based on defined cohorts and variance models the
+objective function value will be calculated.
 }
 \keyword{internal}

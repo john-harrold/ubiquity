@@ -9,9 +9,11 @@ system_plot_cohorts(erp, plot_opts = c(), cfg, prefix = "analysis")
 \arguments{
 \item{erp}{output from \code{system_simulate_estimation_results}}
 
-\item{plot_opts}{list controling how predictions and data are overlaid.}
+\item{plot_opts}{list controling how predictions and data are overlaid}
 
 \item{cfg}{ubiquity system object}
+
+\item{prefix}{string of text to be prepended to the figures generated}
 }
 \value{
 List of plot outputs containing two elements \code{timecourse} and
