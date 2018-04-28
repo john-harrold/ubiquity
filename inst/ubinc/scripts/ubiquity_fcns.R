@@ -1,3 +1,7 @@
+
+#' @import deSolve  
+#' @import ggplot2
+
 #'@export
 #'@title Building The System
 #'@description  Builds the specified system file creating the targets for R and other languages as well as the templates for performing simulations and estimations. 
@@ -17,9 +21,9 @@ build_system <- function(system_file    = "system.txt",
                          system_name    = "mysystem",
                          debug          =  FALSE){
 
-require(deSolve)
-require(ggplot2)
-require(gdata)
+require(deSolve, quietly=TRUE)
+require(ggplot2, quietly=TRUE)
+require(gdata, quietly=TRUE)
 # require(foreach)
 # require(doParallel)
 # require(doRNG)
@@ -559,16 +563,16 @@ system_load_data <- function(cfg, dsname, data_file, data_sheet){
   else{
     # Reading the data based on the file extension
     if(regexpr(".xls$", as.character(data_file), ignore.case=TRUE) > 0){
-      cfg$data[[dsname]]$values = as.data.frame(read.xls(data_file, sheet=data_sheet))
+      cfg$data[[dsname]]$values = as.data.frame(gdata::read.xls(data_file, sheet=data_sheet))
       cfg$data[[dsname]]$data_file$sheet  = data_sheet
     }
 
     if(regexpr(".csv$", as.character(data_file), ignore.case=TRUE) > 0){
-      cfg$data[[dsname]]$values = read.csv(data_file, header=TRUE)
+      cfg$data[[dsname]]$values = utils::read.csv(data_file, header=TRUE)
     }
 
     if(regexpr(".tab$", as.character(data_file), ignore.case=TRUE) > 0){
-      cfg$data[[dsname]]$values = read.delim(data_file, header=TRUE)
+      cfg$data[[dsname]]$values = utils::read.delim(data_file, header=TRUE)
     }
     cfg$data[[dsname]]$data_file$name  = data_file
   }
@@ -3419,12 +3423,14 @@ if('yes' == cfg$options$verbose){
 }
 
 #'@export
-#'@title Wrapper for system_log_entry Used in Shiny Apps
+#'@title Wrapper for system_log_entry Used in ShinyApp
+#'@description Called from the ShinyApp to add a log entry with "App "
+#' prepended to the log entry 
 #'
 #'@param cfg ubiquity system object    
 #'@param text string to print/log
 GUI_log_entry <-function(cfg, text){
-   system_log_entry(cfg, sprintf("RGUI %s", text))
+   system_log_entry(cfg, sprintf("App %s", text))
 }
 
 
@@ -4459,6 +4465,9 @@ return(parameters)
 }
 
 #'@title Calculates the Variance in od_general      
+#'@description Takes the variance specified as a string and evaluates it
+#' locally, and returns that value
+#'
 #'@keywords internal
 #'@param SIMINT_parameters system parameters
 #'@param SIMINT_varstr string containing variance calculation 
@@ -4908,6 +4917,10 @@ return(df)
 }
 
 #'@title \code{pso} Wrapper for calculate_objective
+#'@description The psoptim objective function assumes parameters will be a
+#' vector and this function converts it to a named list to be consistent with the
+#' ubiquity optmization routines. 
+#' 
 #'@keywords internal
 #'@param pvect      system parameters
 #'@param cfg ubiquity system object    
@@ -4929,6 +4942,9 @@ calculate_objective_pso <- function(pvect, cfg){
 }
 
 #'@title \code{GA} Wrapper for calculate_objective
+#'@description Converts the parameter vector to a named list and returns the
+#' negative of the objective (turning the maximization into a minimization) 
+#'
 #'@keywords internal
 #'@param pvect      system parameters
 #'@param cfg ubiquity system object    
@@ -4953,7 +4969,11 @@ calculate_objective_ga  <- function(pvect, cfg){
 
 
 #'@export 
-#'@title Calculates the Value of an Objective Function for a Given Set of System Parameters
+#'@title Calculates the Value of the Specified Objective Function 
+#'@description For a given set of system parameters the objective function
+#' will be calculated based on defined cohorts and variance models the
+#' objective function value will be calculated.
+#'
 #'@keywords internal
 #'
 #'@param parameters system parameters
@@ -6083,7 +6103,10 @@ for(fidx in 1:length(f.source)){
 
 #-----------------------------------------------------------
 #compare_estimate
-#'@title Extracts Covariates for a Subject from a Subject Data File
+#'@title Compares estimate to the bounds
+#'@description Compares the parameter estimate to the bounds and indicates if
+#' the estimate is near the bound.
+#'
 #'@keywords internal
 #'
 #'@param cfg ubiquity system object    
@@ -8359,7 +8382,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       }
 
       # Creating the table
-      require(flextable)
+      require(flextable, quietly=TRUE)
       ft = regulartable(content$table,  cwidth = cwidth, cheight=cheight)
       
       # Adding headers
