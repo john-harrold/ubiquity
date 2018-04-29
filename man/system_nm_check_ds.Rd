@@ -12,7 +12,7 @@ system_nm_check_ds(cfg, DS = "DSNAME", col_ID = "ID", col_CMT = "CMT",
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{DS}{\code{\link{system_load_data}}}
+\item{DS}{Name of the dataset loaded using \code{system_load_data}}
 
 \item{col_ID}{Column of unique subject identifier}
 
@@ -35,8 +35,6 @@ system_nm_check_ds(cfg, DS = "DSNAME", col_ID = "ID", col_CMT = "CMT",
 \item{INPUTS}{List mapping input information in the dataset to names used in the system.txt file}
 
 \item{OBS}{List mapping obseravation information in the dataset to nams used in the system.txt file}
-
-\item{DS}{Name of the dataset loaded using \code{system_load_data}}
 }
 \description{
 Checks the dataset against the information specified by \code{\link{system_define_cohorts_nm}} for validity

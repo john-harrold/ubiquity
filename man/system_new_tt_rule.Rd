@@ -13,7 +13,7 @@ system_new_tt_rule(cfg, name, times, timescale)
 
 \item{times}{list of times when the rule will be evaluated}
 
-\item{timesscale}{time scale associated with the titraiton times (as defined by \code{<TS:?>})}
+\item{timescale}{time scale associated with the titraiton times (as defined by \code{<TS:?>})}
 }
 \value{
 Ubiquity system object with the titration rule created

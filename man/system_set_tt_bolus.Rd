@@ -16,6 +16,10 @@ system_set_tt_bolus(cfg, state, values, times, tt_ts, tsinfo,
 
 \item{times}{vector of dosing times relative to the current titration time (in # time units defiend by \code{<B:times>})}
 
+\item{tt_ts}{list of timescale values for the current titration time}
+
+\item{tsinfo}{list with timescale information for inputs (bolus, rates, etc)}
+
 \item{repdose}{\code{"none"}, \code{"last"}, \code{"all"}}
 
 \item{interval}{interval to repeat in the units defined in \code{<B:times>}}

@@ -10,8 +10,6 @@ workshop_fetch(section = "Simulation", overwrite = FALSE)
 \item{section}{Name of the section of workshop to retrieve}
 
 \item{overwrite}{if \code{TRUE} the new system file will overwrite any existing files present}
-
-\item{on}{Name of the section of workshop to retrieve}
 }
 \value{
 list
