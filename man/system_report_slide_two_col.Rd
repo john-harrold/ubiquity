@@ -41,6 +41,9 @@ system_report_slide_two_col(cfg, title = "Title", sub_title = NULL,
 \value{
 ubiquity system object with slide added to report
 }
+\description{
+Creates a report slide with a title two columns of content with optional headers over the columns
+}
 \details{
 For information on the format of content, see \code{\link{system_report_ph_content}}.
 }

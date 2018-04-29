@@ -17,6 +17,12 @@ system_report_view_layout(cfg, rptname = "default",
 \value{
 officer pptx object with the layout of the template annotated,
 }
+\description{
+Elements of slide masters are identified by indices of the
+different of these elements. As PowerPoint masters are created the indices can
+be difficult to predict. This function will create a layout file identifying
+all of the elements of each slide master.
+}
 \seealso{
 \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_fetch_guess}
 \alias{system_fetch_guess}
-\title{Fetch a List with the Current Parameter Guesses}
+\title{Fetch Current Parameter Guesses}
 \usage{
 system_fetch_guess(cfg)
 }
@@ -11,4 +11,8 @@ system_fetch_guess(cfg)
 }
 \value{
 list of current parameter gauesses
+}
+\description{
+Fetch a list of the guesses for the current parameter set and
+parameters selected for estimation
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_plot_cohorts}
 \alias{system_plot_cohorts}
-\title{Plot Estimation Cohorts and Model Predictions}
+\title{Plot Estimation Results}
 \usage{
 system_plot_cohorts(erp, plot_opts = c(), cfg, prefix = "analysis")
 }
@@ -24,6 +24,10 @@ output. For example, say there is an output named \code{PK} the both the
 \code{PK} containing a ggplot object
 and two fileds \code{PK_png} and \code{PK_pdf} containing the paths the the
 files containing that figure in the respecitve fortmats.
+}
+\description{
+Generates figures for each cohort/output for a given set of
+parameter estimates.
 }
 \details{
 The general format for a plot option for a given output (\code{OUTPUT}) is:

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_define_cohorts_nm}
 \alias{system_define_cohorts_nm}
-\title{Define Cohorts Automatically from NONMEM Input File}
+\title{Define Cohorts from NONMEM Input File}
 \usage{
 system_define_cohorts_nm(cfg, DS = "DSNAME", col_ID = "ID",
   col_CMT = "CMT", col_DV = "DV", col_TIME = "TIME", col_AMT = "AMT",
@@ -38,6 +38,10 @@ system_define_cohorts_nm(cfg, DS = "DSNAME", col_ID = "ID",
 }
 \value{
 ubiquity system object with cohorts defined.
+}
+\description{
+This function allows the user to define cohorts automatically
+from a NONMEM dataset
 }
 \details{
 \bold{NOTE: to use this function it is necessary that a timescale be define for the system time scale. For example, if the system time scale was days, something like the following is needed:}

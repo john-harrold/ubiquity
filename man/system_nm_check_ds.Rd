@@ -2,8 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_nm_check_ds}
 \alias{system_nm_check_ds}
-\title{Check NONMEM dataset for automatic cohort definitions  
-Checks the dataset against the information specified by \code{\link{system_define_cohorts_nm}}}
+\title{Check NONMEM Dataset for Automatic Definitions}
 \usage{
 system_nm_check_ds(cfg, DS = "DSNAME", col_ID = "ID", col_CMT = "CMT",
   col_DV = "DV", col_TIME = "TIME", col_AMT = "AMT", col_RATE = "RATE",
@@ -38,4 +37,7 @@ system_nm_check_ds(cfg, DS = "DSNAME", col_ID = "ID", col_CMT = "CMT",
 \item{OBS}{List mapping obseravation information in the dataset to nams used in the system.txt file}
 
 \item{DS}{Name of the dataset loaded using \code{system_load_data}}
+}
+\description{
+Checks the dataset against the information specified by \code{\link{system_define_cohorts_nm}} for validity
 }

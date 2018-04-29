@@ -179,7 +179,7 @@ cfg = system_set_option(cfg,
                        value  = "psoptim")
 }
 
-The control option is a list described \code{\link[psoptim]{psoptim}} documentation.
+The control option is a list described \code{psoptim} documentation.
 
 To use the genetic algorithm set the optimizer and method:
 

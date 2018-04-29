@@ -12,3 +12,7 @@ system_fetch_TSsys(cfg)
 \value{
 Name of the system timescale or \code{NULL} if it was not found
 }
+\description{
+Reads through the system information and tries to determine the
+system time scale (the timescale that has a value of 1)
+}

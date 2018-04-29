@@ -19,6 +19,9 @@ system_report_slide_section(cfg, title = "Title", sub_title = NULL,
 \value{
 ubiquity system object with slide added to report
 }
+\description{
+Creates a report slide with a section break.
+}
 \seealso{
 \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 }

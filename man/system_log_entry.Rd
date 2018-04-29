@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_log_entry}
 \alias{system_log_entry}
-\title{Append a Line to the Analysis Log}
+\title{Add Log Entry}
 \usage{
 system_log_entry(cfg, entry)
 }
@@ -10,5 +10,8 @@ system_log_entry(cfg, entry)
 \item{cfg}{ubiquity system object}
 
 \item{entry}{string containing the log entry}
+}
+\description{
+Appends a specified line to the analysis log
 }
 \keyword{internal}

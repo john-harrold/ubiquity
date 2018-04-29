@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_view}
 \alias{system_view}
-\title{View Options and Information about the system}
+\title{View Information About the System}
 \usage{
 system_view(cfg, field = "all")
 }
@@ -26,6 +26,10 @@ The \code{field}
    \item \code{"simulation"} simulation options
    \item \code{"estimation"} estimation options
 }
+}
+\description{
+Displays information (dosing, simulation options, covariates,
+etc) about the system.
 }
 \examples{
 # cat(system_view(cfg), field="parameters")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_define_cohort}
 \alias{system_define_cohort}
-\title{Define a cohort to include in a parameter estimation}
+\title{Define Estimation Cohort}
 \usage{
 system_define_cohort(cfg, cohort)
 }
@@ -13,6 +13,9 @@ system_define_cohort(cfg, cohort)
 }
 \value{
 ubiquity system object with cohort defined
+}
+\description{
+Define a cohort to include in a parameter estimation
 }
 \details{
 Each cohort has a name (eg \code{d5mpk}), and the dataset containing the

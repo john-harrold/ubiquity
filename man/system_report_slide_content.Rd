@@ -23,6 +23,9 @@ system_report_slide_content(cfg, title = "Title", sub_title = NULL,
 \value{
 ubiquity system object with slide added to report
 }
+\description{
+Creates a report slide with a title and single large area of content
+}
 \details{
 For information on the format of content, see \code{\link{system_report_ph_content}}.
 }

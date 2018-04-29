@@ -18,6 +18,9 @@ system_set_parameter(cfg, parameters, pname, value)
 \value{
 parameters vector with \code{pname} set to \code{value}
 }
+\description{
+Assigns a value for a named parameter in a parameter list.
+}
 \details{
 To set the parameter Vc to a value of 3, the following would be used:
 

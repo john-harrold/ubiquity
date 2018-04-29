@@ -12,3 +12,6 @@ system_log_init(cfg)
 \value{
 ubiquity system object with logging enabled
 }
+\description{
+Initializes the currently specified system log file.
+}

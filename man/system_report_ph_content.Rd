@@ -22,6 +22,9 @@ system_report_ph_content(cfg, rpt, content_type, content, type, index)
 \value{
 officer pptx object with the content added
 }
+\description{
+Places content in a PowerPoint placeholder for a given Officer document.
+}
 \details{
 For each content type listed below the following content is expected:
 

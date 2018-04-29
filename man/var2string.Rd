@@ -18,6 +18,9 @@ var2string(var, maxlength = 0, nsig_e = 3, nsig_f = 4)
 \value{
 Number as a string padded
 }
+\description{
+Mechanism for converting numeric variables into strings for reporting.
+}
 \examples{
 #var2string(pi, nsig_f=20)
 #var2string(.0001121, nsig_e=2, maxlength=10)

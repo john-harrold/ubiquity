@@ -12,4 +12,9 @@ ubiquity_name_check(test_name)
 \value{
 List with boolean element \code{isgood} that is \code{TRUE} when the name tests correct, \code{FALSE} when it fails. The element \code{msgs} contains a verbose message on why it fails.
 }
+\description{
+Checks names specified for different aspects (cohorts,
+analyses, reports, etc.) to make sure that they start with a letter and
+contain only letters, numbers and _
+}
 \keyword{internal}

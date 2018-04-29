@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{workshop_fetch}
 \alias{workshop_fetch}
-\title{Fetch Sections of Ubiquity Workshop}
+\title{Fetch Ubiquity Workshop Sections}
 \usage{
 workshop_fetch(section = "Simulation", overwrite = FALSE)
 }
@@ -15,6 +15,10 @@ workshop_fetch(section = "Simulation", overwrite = FALSE)
 }
 \value{
 list
+}
+\description{
+With the ubiquity package this function can be used to fetch
+sections of the workshop.
 }
 \details{
 Valid sections are "Simulation", "Estimation", "Titration" and "Reporting"

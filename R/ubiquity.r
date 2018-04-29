@@ -26,7 +26,6 @@
 #' # build_system(system_file='system.txt')
 build_system <- function(system_file    = "system.txt",
                          distribution   = "automatic",
-                         system_name    = "mysystem",
                          debug          =  FALSE){
 
 require(deSolve, quietly=TRUE)
@@ -186,11 +185,14 @@ return(cfg)}
 
 # -------------------------------------------------------------------------
 #'@export 
-#'@title Fetch Sections of Ubiquity Workshop
-#'@details Valid sections are "Simulation", "Estimation", "Titration" and "Reporting"
+#'@title Fetch Ubiquity Workshop Sections
+#'@description With the ubiquity package this function can be used to fetch
+#' sections of the workshop.
+#'
 #'@param section Name of the section of workshop to retrieve 
 #'@param on Name of the section of workshop to retrieve 
 #'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
+#'@details Valid sections are "Simulation", "Estimation", "Titration" and "Reporting"
 #'
 #'@return list
 workshop_fetch <- function(section="Simulation", overwrite=FALSE){
@@ -1093,7 +1095,7 @@ return(cfg)}
 #'                        value  = "psoptim")
 #' }
 #' 
-#' The control option is a list described \code{\link[psoptim]{psoptim}} documentation.
+#' The control option is a list described \code{psoptim} documentation.
 #'
 #' To use the genetic algorithm set the optimizer and method:
 #' 
@@ -2151,7 +2153,9 @@ toc <- function()
 #-----------------------------------------------------------
 # system_view(cfg,field="all") 
 #'@export
-#'@title View Options and Information about the system
+#'@title View Information About the System
+#'@description Displays information (dosing, simulation options, covariates,
+#' etc) about the system.
 #'
 #'@param cfg   ubiquity system object    
 #'@param field string indicating the aspect of the system to display
@@ -2472,7 +2476,8 @@ return(msg)}
 # /system_view
 #-----------------------------------------------------------
 
-#'@title General Method to Convert a Variable into a String for Automated Reporting Purposes
+#'@title General Method to Convert an R Object into a String for Automated Reporting Purposes
+#'@description Mechanism for converting R objects strings for reporting. 
 #'@keywords internal
 #'
 #'@param var R variable
@@ -2499,6 +2504,7 @@ return(mystr)
 
 #'@export
 #'@title Converts Numeric Variables into Padded Strings
+#'@description Mechanism for converting numeric variables into strings for reporting. 
 #'
 #'@param var numeric variable
 #'@param maxlength if this value is greater than zero spaces will be added to the beginning of the string until the total length is equal to maxlength
@@ -3309,6 +3315,7 @@ generate_parameter = function (SIMINT_parameters, SIMINT_cfg, SIMINT_PARAMETER_T
 
 #'@export
 #'@title Initialize System Log File
+#'@description Initializes the currently specified system log file.
 #'@param cfg ubiquity system object    
 #'
 #'@return ubiquity system object with logging enabled
@@ -3322,7 +3329,8 @@ system_log_init = function (cfg){
 return(cfg)
 }
 
-#'@title Append a Line to the Analysis Log
+#'@title Add Log Entry
+#'@description Appends a specified line to the analysis log
 #'@keywords internal
 #'
 #'@param cfg ubiquity system object    
@@ -3557,7 +3565,8 @@ return(cfg)}
 # Defines a cohort
 #
 #'@export
-#'@title Define a cohort to include in a parameter estimation 
+#'@title Define Estimation Cohort
+#'@description Define a cohort to include in a parameter estimation
 #'
 #'@param cfg ubiquity system object    
 #'@param cohort list with cohort information 
@@ -4446,6 +4455,7 @@ return(parameters_full)
 
 #'@export
 #'@title Set Value for Parameter
+#'@description Assigns a value for a named parameter in a parameter list.
 #'
 #'@param cfg ubiquity system object    
 #'@param parameters vector of parameters
@@ -5498,7 +5508,9 @@ system_simulate_estimation_results <- function(pest, cfg, details=FALSE){
 #-----------------------------------------------------------
 #system_fetch_guess
 #'@export
-#'@title Fetch a List with the Current Parameter Guesses
+#'@title Fetch Current Parameter Guesses
+#'@description Fetch a list of the guesses for the current parameter set and
+#' parameters selected for estimation
 #'
 #'@param cfg ubiquity system object    
 #'
@@ -5512,7 +5524,9 @@ system_fetch_guess <- function(cfg){
 #-----------------------------------------------------------
 # system_plot_cohorts
 #'@export
-#'@title Plot Estimation Cohorts and Model Predictions
+#'@title Plot Estimation Results
+#'@description Generates figures for each cohort/output for a given set of
+#' parameter estimates. 
 #'
 #'@param erp output from \code{system_simulate_estimation_results}
 #'@param cfg ubiquity system object    
@@ -6853,6 +6867,10 @@ fo}
 #---------------------------------------------------------------------------
 #ubiquity_name_check
 #'@title Check Names of Cohorts, Analyses, Reports, etc.
+#'@description  Checks names specified for different aspects (cohorts,
+#' analyses, reports, etc.) to make sure that they start with a letter and
+#' contain only letters, numbers and _
+#'
 #'@keywords internal
 #'
 #'@param test_name string containing the name to be tested
@@ -6940,7 +6958,9 @@ logspace = function(a, b, n=100){
 # -------------------------------------------------------------------------
 # system_define_cohorts_nm  -  Defining cohorts from a NONMEM dataset
 #'@export
-#'@title Define Cohorts Automatically from NONMEM Input File
+#'@title Define Cohorts from NONMEM Input File
+#'@description This function allows the user to define cohorts automatically
+#' from a NONMEM dataset
 #'@param cfg ubiquity system object    
 #'@param DS Name of the dataset loaded using \code{system_load_data}
 #'@param col_ID Column of unique subject identifier
@@ -7334,6 +7354,8 @@ cfg}
 
 #'@export
 #'@title Fetch System Timescale
+#'@description Reads through the system information and tries to determine the
+#' system time scale (the timescale that has a value of 1)
 #'
 #'@param cfg ubiquity system object    
 #'
@@ -7355,8 +7377,8 @@ TSsys}
 # system_nm_check_ds - Takes mapping information from a NONMEM dataset and
 # checks it with specifications in the system.txt file
 #'@export
-#'@title Check NONMEM dataset for automatic cohort definitions  
-#' Checks the dataset against the information specified by \code{\link{system_define_cohorts_nm}}
+#'@title Check NONMEM Dataset for Automatic Definitions  
+#'@description Checks the dataset against the information specified by \code{\link{system_define_cohorts_nm}} for validity
 #'
 #'@param cfg ubiquity system object    
 #'
@@ -7610,6 +7632,10 @@ result}
 # system_report_view_layout
 #'@export
 #'@title Generate Annotated Layout for pptx Template
+#'@description Elements of slide masters are identified by indices of the
+#' different of these elements. As PowerPoint masters are created the indices can
+#' be difficult to predict. This function will create a layout file identifying
+#' all of the elements of each slide master. 
 #'
 #'@param cfg ubiquity system object    
 #'@param rptname report name initialized with \code{system_report_init}
@@ -7852,6 +7878,7 @@ return(cfg)
 # ggsave(filename=imgfile, plot=p, height=5.15, width=9, units="in")
 #'@export
 #'@title Add Slide With Main Body of Content
+#'@description Creates a report slide with a title and single large area of content 
 #'
 #'@param cfg ubiquity system object    
 #'@param rptname report name initialized with \code{system_report_init}
@@ -7947,6 +7974,8 @@ return(cfg)}
 # 
 #'@export
 #'@title Generate Slide with Two Column Layout
+#'@description Creates a report slide with a title two columns of content with optional headers over the columns
+#'
 #'@param cfg ubiquity system object    
 #'@param title                     string with slide title
 #'@param sub_title                 string with slide sub title
@@ -8125,6 +8154,7 @@ return(cfg)}
 #        rptname    = "default")
 #'@export
 #'@title Generate Slide with Section Break
+#'@description Creates a report slide with a section break.
 #'@param cfg ubiquity system object    
 #'@param title                     string with slide title
 #'@param sub_title                 string with slide sub title
@@ -8202,6 +8232,7 @@ return(cfg)}
 #         rptname   = "default")
 #'@export
 #'@title Generate Title Slide
+#'@description Creates a report title slide.
 #'@param cfg ubiquity system object    
 #'@param title                     string with slide title
 #'@param sub_title                 string with slide sub title
@@ -8317,6 +8348,8 @@ return(cfg)}
 # system_report_ph_content
 #'@export
 #'@title Populate Placeholder In Officer Report
+#'@description Places content in a PowerPoint placeholder for a given Officer document.
+#'
 #'@param cfg ubiquity system object    
 #'@param rpt officer pptx object
 #'@param content_type string indicating the content type 

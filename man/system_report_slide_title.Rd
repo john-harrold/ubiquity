@@ -19,6 +19,9 @@ system_report_slide_title(cfg, title = "Title", sub_title = NULL,
 \value{
 ubiquity system object with slide added to report
 }
+\description{
+Creates a report title slide.
+}
 \seealso{
 \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 }

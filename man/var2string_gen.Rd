@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{var2string_gen}
 \alias{var2string_gen}
-\title{General Method to Convert a Variable into a String for Automated Reporting Purposes}
+\title{General Method to Convert an R Object into a String for Automated Reporting Purposes}
 \usage{
 var2string_gen(var)
 }
@@ -11,6 +11,9 @@ var2string_gen(var)
 }
 \value{
 Variable in string form
+}
+\description{
+Mechanism for converting R objects strings for reporting.
 }
 \examples{
 # var2string_gen(c(1,2,3))
