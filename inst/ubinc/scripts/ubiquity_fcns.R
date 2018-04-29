@@ -174,7 +174,7 @@ if(file.exists(system_file)){
   # Returning the ubiquity model object:
   if(file.exists(file.path(temp_directory, "auto_rcomponents.R"))){
     source(file.path(temp_directory, "auto_rcomponents.R"))
-    cfg = system_fetch_cfg()
+    eval(parse(text="cfg = system_fetch_cfg()"))
   } 
   
   } else {
@@ -5040,6 +5040,7 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
 
   # Trying to pull out the observations
   # if we fail we throw an error and flip the error flag
+  od = NULL
   tryCatch(
    { 
       eval(parse(text=sprintf('od = %s(parameters, cfg)', cfg$estimation$options$observation_function)))
@@ -6234,6 +6235,7 @@ solution_statistics <- function(parameters, cfg){
 
   
   # Getting the observations at the estimate
+  observations = NULL
   eval(parse(text=sprintf("observations = %s(parameters, cfg)", cfg$estimation$options$observation_function)))
   
   # Getting the objective at the estimate
@@ -6702,7 +6704,7 @@ gg_axis  = function(fo,
                                      minor_breaks = ytick_minor,
                                      trans        = 'log10',
                                      limits       = myylim,
-                                     labels       = scales::trans_format("log10", scales::math_format(10^.x)))
+                                     labels       = eval(parse(text="scales::trans_format('log10', scales::math_format(10^.x))")))
       }
       else{
         fo = fo + scale_y_continuous(breaks       = ytick_major,
@@ -7813,7 +7815,7 @@ vp(cfg, "--------------------------------")
         vp(cfg, sprintf("Template: %s", template))
       } else {
         isgood = FALSE
-        vp(cfg, sprintf('Error: report name >%s< is invalid', cohort$name))
+        vp(cfg, sprintf('Error: report name >%s< is invalid', rptname))
       }
     
     } else {
