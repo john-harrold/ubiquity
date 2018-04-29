@@ -26,6 +26,9 @@ Next secondary parameters
 are also provided as well as a column for each timescale specified in
 the system file with a "\code{ts.}" prefix.
 }
+\description{
+Controls the execution of individual simulations with deSolve using either R scripts or loadable C libraries.
+}
 \seealso{
 Simulation vignette (\code{vignette("Simulation", package = "ubiquity")})
 }

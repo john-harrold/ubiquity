@@ -21,4 +21,7 @@ generate_parameter(SIMINT_parameters, SIMINT_cfg, SIMINT_PARAMETER_TV,
 \value{
 parameter value with the variability applied
 }
+\description{
+Internal function used to generate parameters based on IIV information
+}
 \keyword{internal}

@@ -15,4 +15,7 @@ list with elements: \code{estimate} - vector of parameter estimates,
 \code{obj} - objective function value,  \code{statistics_est} - solution
 statistics
 }
+\description{
+Performs the actual parameter estimation
+}
 \keyword{internal}

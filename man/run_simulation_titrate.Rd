@@ -14,6 +14,10 @@ run_simulation_titrate(SIMINT_p, SIMINT_cfg)
 \value{
 som
 }
+\description{
+Provides an interface to \code{\link{run_simulation_ubiquity}}
+ to start and stop simulations and apply rules to control dosing and state-resets.
+}
 \seealso{
 \code{\link{system_new_tt_rule}}, \code{\link{system_set_tt_cond}} and the titration vignette (\code{vignette("Titration", package = "ubiquity")})
 }

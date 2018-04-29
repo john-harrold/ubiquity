@@ -23,3 +23,7 @@ prepare_figure(purpose, fo, y_tick_minor = FALSE, y_tick_major = FALSE,
 \value{
 ggplot object
 }
+\description{
+Takes a ggplot object and alters the line thicknesses and makes
+other cosmetic changes to make it more appropriate for exporting.
+}

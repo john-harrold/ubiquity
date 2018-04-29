@@ -17,6 +17,9 @@ linspace(a, b, n = 100)
 vector of numbers from \code{a} to \code{b} with
 \code{n} linearly spaced apart
 }
+\description{
+Creates a vector of n elements equally spaced apart.
+}
 \examples{
 linspace(0,100, 20)
 }

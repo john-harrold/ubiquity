@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{gg_axis}
 \alias{gg_axis}
-\title{Make ggplot x or y Axis Log 10 Scale}
+\title{Make ggplot x- or y-Axis Log 10 Scale}
 \usage{
 gg_axis(fo, yaxis_scale = TRUE, xaxis_scale = TRUE, ylim_min = NULL,
   ylim_max = NULL, xlim_min = NULL, xlim_max = NULL,
@@ -11,17 +11,17 @@ gg_axis(fo, yaxis_scale = TRUE, xaxis_scale = TRUE, ylim_min = NULL,
 \arguments{
 \item{fo}{ggplot figure object}
 
-\item{yaxis_scale}{\code{TRUE} indicates that the y axis should be log10 scaled}
+\item{yaxis_scale}{\code{TRUE} indicates that the y-axis should be log10 scaled}
 
-\item{xaxis_scale}{\code{TRUE} indicates that the x axis should be log10 scaled}
+\item{xaxis_scale}{\code{TRUE} indicates that the x-axis should be log10 scaled}
 
-\item{ylim_min}{set to a number to define the lower bound of the y axis}
+\item{ylim_min}{set to a number to define the lower bound of the y-axis}
 
-\item{ylim_max}{set to a number to define the upper bound of the y axis}
+\item{ylim_max}{set to a number to define the upper bound of the y-axis}
 
-\item{xlim_min}{set to a number to define the lower bound of the x axis}
+\item{xlim_min}{set to a number to define the lower bound of the x-axis}
 
-\item{xlim_max}{set to a number to define the upper bound of the x axis}
+\item{xlim_max}{set to a number to define the upper bound of the x-axis}
 
 \item{x_tick_label}{\code{TRUE} to show x tick labels, \code{FALSE} to hide the x tick labels}
 
@@ -29,6 +29,9 @@ gg_axis(fo, yaxis_scale = TRUE, xaxis_scale = TRUE, ylim_min = NULL,
 }
 \value{
 ggplot object with formatted axis
+}
+\description{
+used to convert the x and y-axis of a ggplot to a log 10 scale that is more visually satisfying than the ggplot default.
 }
 \seealso{
 \code{\link{gg_log10_xaxis}} and \code{\link{gg_log10_yaxis}}

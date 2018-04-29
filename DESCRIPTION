@@ -21,6 +21,7 @@ Imports:
    foreach,
    gdata,
    ggplot2,
+   MASS,
    officer,
    optimx,
    rmarkdown,     

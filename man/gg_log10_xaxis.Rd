@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{gg_log10_xaxis}
 \alias{gg_log10_xaxis}
-\title{Make ggplot x Axis Log 10 Scale}
+\title{Make ggplot x-Axis Log 10 Scale}
 \usage{
 gg_log10_xaxis(fo, xlim_min = NULL, xlim_max = NULL, y_tick_label = TRUE,
   x_tick_label = TRUE)
@@ -10,9 +10,9 @@ gg_log10_xaxis(fo, xlim_min = NULL, xlim_max = NULL, y_tick_label = TRUE,
 \arguments{
 \item{fo}{ggplot figure object}
 
-\item{xlim_min}{set to a number to define the lower bound of the x axis}
+\item{xlim_min}{set to a number to define the lower bound of the x-axis}
 
-\item{xlim_max}{set to a number to define the upper bound of the x axis}
+\item{xlim_max}{set to a number to define the upper bound of the x-axis}
 
 \item{y_tick_label}{\code{TRUE} to show y tick labels, \code{FALSE} to hide the y tick labels}
 
@@ -20,6 +20,9 @@ gg_log10_xaxis(fo, xlim_min = NULL, xlim_max = NULL, y_tick_label = TRUE,
 }
 \value{
 ggplot object with formatted axis
+}
+\description{
+Wrapper for \code{\link{system_new_tt_rule}} to create a log 10 x-axis
 }
 \seealso{
 \code{\link{gg_axis}} and \code{\link{gg_log10_xaxis}}

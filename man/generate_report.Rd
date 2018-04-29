@@ -23,4 +23,7 @@ List with the following elements:
   \item \code{parameters_est_file} name of CSV file with only the estimates 
 }
 }
+\description{
+Internal function used to generate a report of estimation results
+}
 \keyword{internal}

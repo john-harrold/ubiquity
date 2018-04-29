@@ -3286,6 +3286,7 @@ return(subject)
 
 #'@export
 #'@title Generates a Parameter Based on \code{<IIV:?>} in the System File
+#'@description  Internal function used to generate parameters based on IIV information 
 #'@keywords internal
 #'
 #'@param SIMINT_parameters parameters vector containing the typical values
@@ -3470,10 +3471,11 @@ GUI_log_entry <-function(cfg, text){
 
 #'@export
 #'@title Select Records from NONMEM-ish Data Set
+#'@description Retrieves a subset of a NONMEM-ish data set based on a list containing filtering information.
 #'@keywords internal
 #'
 #'@param cfg ubiquity system object    
-#'@param values dataset with column headers
+#'@param values dataframe containing the dataset with column headers
 #'@param filter list with element names as headers for \code{values} with values from the same header OR'd and values across headers AND'd
 #'
 #'@return subset of dataset 
@@ -4387,6 +4389,9 @@ return(od)
 
 #'@export
 #'@title Create Full Parameter Vector from Estimation Subset
+#'@description Can be used to take a subset of parameters (those being
+#' estimated and returned from ' \code{\link{system_estimate_parameters}})
+#' into a full list of system parameters.
 #'@param pest subset of parameters being estimated
 #'@param cfg ubiquity system object    
 #'
@@ -4504,7 +4509,7 @@ calculate_variance <- function(SIMINT_parameters, SIMINT_varstr, SIMINT_odchunk,
 
 #'@export
 #'@title Simulate Individual Response
-#'
+#'@description Controls the execution of individual simulations with deSolve using either R scripts or loadable C libraries. 
 #'@param SIMINT_parameters vector of parameters
 #'@param SIMINT_cfg ubiquity system object    
 #'@param SIMINT_dropfirst when \code{TRUE} it will drop the first sample point (prevents bolus doses from starting at 0)
@@ -4769,11 +4774,37 @@ return(SIMINT_simout_mapped) }
 
 #'@export
 #'@title Converts the Wide/Verbose Output Simulation Functions into Data Frames
+#'@description  
+#' The functions \code{\link{run_simulation_ubiquity}}, \code{\link{simulate_subjects}}, or \code{\link{run_simulation_titrate}}
+#' provide outputs in a more structured format, but it may be useful to
+#' convert this "wide" format to a tall/skinny format. 
 #'
 #'@param cfg ubiquity system object    
-#'@param som simulation output from \code{run_simulation_ubiquity}, \code{simulate_subjects},  \code{run_simulation_titrate}
+#'@param som simulation output from \code{\link{run_simulation_ubiquity}}, \code{\link{simulate_subjects}}, or  \code{\link{run_simulation_titrate}}
 #'
-#'@return r1
+#'@return Dataframe of the format:
+#'
+#'When applied to the output of   \code{\link{run_simulation_ubiquity}} or  \code{\link{run_simulation_titrate}}
+#'\itemize{
+#'  \item \code{ts.time}                   - timescale of the system
+#'  \item \code{ts.ts1}, ... \code{ts.tsn} - timescales defined in the system (<TS>)
+#'  \item \code{pred}                      - predicted/simulated response
+#'  \item \code{tt.ti1.x}                  - titration event information (*)
+#'  \item \code{name}                      - state or output (<O>) name corresponding to the prediction
+#'}
+#'
+#'When applied to the output of  \code{\link{simulate_subjects}}
+#'\itemize{
+#'  \item \code{ID}                      - subject ID
+#'  \item \code{ts.time}                 - timescale of the system
+#'  \item \code{ts.ts1, ... ts.tsn}      - timescales defined in the system (<TS>)
+#'  \item \code{pred}                    - predicted/simulated response
+#'  \item \code{tt.ti1.x}                - titration event information (*)
+#'  \item \code{P1, P2, ... Pn}          - system parameters for the subject (<P>)
+#'  \item \code{name}                    - state or output (<O>) name corresponding to the prediction
+#'}
+#' (* - field present when titration is enabled)
+#'
 #'
 #'@seealso
 #' \code{\link{run_simulation_titrate}} internally when running simulations.
@@ -5212,6 +5243,7 @@ return(pest)}
 #-----------------------------------------------------------
 # estimate_parameters
 #'@title Performs parameter estimation 
+#'@description Performs the actual parameter estimation
 #'@keywords internal
 #'@param cfg ubiquity system object    
 #'
@@ -5850,6 +5882,7 @@ return(cfg)
 #-----------------------------------------------------------
 #generate_report  
 #'@title Generate Text Report with Estimation Results
+#'@description Internal function used to generate a report of estimation results
 #'@keywords internal
 #'
 #'@param cfg ubiquity system object    
@@ -6436,6 +6469,8 @@ check_steady_state  <- function(cfg, som){
 
 #'@export
 #'@title Make ggplot Figure Pretty
+#'@description Takes a ggplot object and alters the line thicknesses and makes
+#' other cosmetic changes to make it more appropriate for exporting. 
 #'
 #'@param purpose either \code{"present"}, \code{"print"} or \code{"shiny"}
 #'@param fo ggplot figure object
@@ -6534,15 +6569,16 @@ return(fo)
 #---------------------------------------------------------------------------
 # gg_axis
 #'@export
-#'@title Make ggplot x or y Axis Log 10 Scale
+#'@title Make ggplot x- or y-Axis Log 10 Scale
+#'@description used to convert the x and y-axis of a ggplot to a log 10 scale that is more visually satisfying than the ggplot default.
 #'
 #'@param fo ggplot figure object
-#'@param yaxis_scale  \code{TRUE} indicates that the y axis should be log10 scaled
-#'@param xaxis_scale  \code{TRUE} indicates that the x axis should be log10 scaled
-#'@param ylim_min     set to a number to define the lower bound of the y axis
-#'@param ylim_max     set to a number to define the upper bound of the y axis
-#'@param xlim_min     set to a number to define the lower bound of the x axis
-#'@param xlim_max     set to a number to define the upper bound of the x axis
+#'@param yaxis_scale  \code{TRUE} indicates that the y-axis should be log10 scaled
+#'@param xaxis_scale  \code{TRUE} indicates that the x-axis should be log10 scaled
+#'@param ylim_min     set to a number to define the lower bound of the y-axis
+#'@param ylim_max     set to a number to define the upper bound of the y-axis
+#'@param xlim_min     set to a number to define the lower bound of the x-axis
+#'@param xlim_max     set to a number to define the upper bound of the x-axis
 #'@param x_tick_label \code{TRUE} to show x tick labels, \code{FALSE} to hide the x tick labels
 #'@param y_tick_label \code{TRUE} to show y tick labels, \code{FALSE} to hide the y tick labels
 #'
@@ -6744,11 +6780,12 @@ fo}
 #---------------------------------------------------------------------------
 # gg_log10_yaxis
 #'@export
-#'@title Make ggplot y Axis Log 10 Scale
+#'@title Make ggplot y-Axis Log 10 Scale
+#'@description Wrapper for \code{\link{system_new_tt_rule}} to create a log 10 y-axis
 #'
 #'@param fo ggplot figure object
-#'@param ylim_min     set to a number to define the lower bound of the y axis
-#'@param ylim_max     set to a number to define the upper bound of the y axis
+#'@param ylim_min     set to a number to define the lower bound of the y-axis
+#'@param ylim_max     set to a number to define the upper bound of the y-axis
 #'@param x_tick_label \code{TRUE} to show x tick labels, \code{FALSE} to hide the x tick labels
 #'@param y_tick_label \code{TRUE} to show y tick labels, \code{FALSE} to hide the y tick labels
 #'
@@ -6778,11 +6815,12 @@ fo}
 #---------------------------------------------------------------------------
 # gg_log10_xaxis
 #'@export
-#'@title Make ggplot x Axis Log 10 Scale
+#'@title Make ggplot x-Axis Log 10 Scale
+#'@description Wrapper for \code{\link{system_new_tt_rule}} to create a log 10 x-axis
 #'
 #'@param fo ggplot figure object
-#'@param xlim_min     set to a number to define the lower bound of the x axis
-#'@param xlim_max     set to a number to define the upper bound of the x axis
+#'@param xlim_min     set to a number to define the lower bound of the x-axis
+#'@param xlim_max     set to a number to define the upper bound of the x-axis
 #'@param x_tick_label \code{TRUE} to show x tick labels, \code{FALSE} to hide the x tick labels
 #'@param y_tick_label \code{TRUE} to show y tick labels, \code{FALSE} to hide the y tick labels
 #'
@@ -6861,7 +6899,7 @@ ubiquity_name_check = function(test_name){
 
 #'@export
 #'@title Implementation of the \code{linspace} function from Matlab
-#'
+#'@description Creates a vector of n elements equally spaced apart.
 #'
 #'@param a initial number
 #'@param b final number  
@@ -6878,6 +6916,7 @@ linspace = function(a, b, n=100){
 
 #'@export
 #'@title Implementation of the \code{logspace} function from Matlab
+#'@description Creates a vector of n elements logarithmically spaced apart.
 #'
 #'
 #'@param a initial number
@@ -7318,7 +7357,7 @@ TSsys}
 #'
 #'@param cfg ubiquity system object    
 #'
-#'@param DS \code{\link{system_load_dataset}}
+#'@param DS \code{\link{system_load_data}}
 #'
 #'@param DS Name of the dataset loaded using \code{system_load_data}
 #'@param col_ID Column of unique subject identifier
@@ -8437,6 +8476,8 @@ return(rpt)}
 
 #'@export 
 #'@title Simulate With Titration or Rule-Based Inputs
+#'@description Provides an interface to \code{\link{run_simulation_ubiquity}}
+#'  to start and stop simulations and apply rules to control dosing and state-resets.
 #'@param SIMINT_p list of system parameters
 #'@param SIMINT_cfg ubiquity system object    
 #'

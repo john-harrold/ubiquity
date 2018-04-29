@@ -9,12 +9,15 @@ nm_select_records(cfg, values, filter)
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{values}{dataset with column headers}
+\item{values}{dataframe containing the dataset with column headers}
 
 \item{filter}{list with element names as headers for \code{values} with values from the same header OR'd and values across headers AND'd}
 }
 \value{
 subset of dataset
+}
+\description{
+Retrieves a subset of a NONMEM-ish data set based on a list containing filtering information.
 }
 \details{
 If the dataset has the headings \code{ID}, \code{DOSE} and \code{SEX}  and

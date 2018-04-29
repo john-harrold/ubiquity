@@ -14,6 +14,11 @@ fetch_full_parameters(pest, cfg)
 \value{
 Full parameter vector
 }
+\description{
+Can be used to take a subset of parameters (those being
+estimated and returned from ' \code{\link{system_estimate_parameters}})
+into a full list of system parameters.
+}
 \details{
 This function is used to build a full parameter set from a subset, and is
  normally used during parameter estimation in the observation details

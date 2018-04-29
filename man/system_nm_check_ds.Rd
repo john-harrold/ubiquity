@@ -13,7 +13,7 @@ system_nm_check_ds(cfg, DS = "DSNAME", col_ID = "ID", col_CMT = "CMT",
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{DS}{\code{\link{system_load_dataset}}}
+\item{DS}{\code{\link{system_load_data}}}
 
 \item{col_ID}{Column of unique subject identifier}
 

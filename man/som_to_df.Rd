@@ -9,10 +9,36 @@ som_to_df(cfg, som)
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{som}{simulation output from \code{run_simulation_ubiquity}, \code{simulate_subjects},  \code{run_simulation_titrate}}
+\item{som}{simulation output from \code{\link{run_simulation_ubiquity}}, \code{\link{simulate_subjects}}, or  \code{\link{run_simulation_titrate}}}
 }
 \value{
-r1
+Dataframe of the format:
+
+When applied to the output of   \code{\link{run_simulation_ubiquity}} or  \code{\link{run_simulation_titrate}}
+\itemize{
+ \item \code{ts.time}                   - timescale of the system
+ \item \code{ts.ts1}, ... \code{ts.tsn} - timescales defined in the system (<TS>)
+ \item \code{pred}                      - predicted/simulated response
+ \item \code{tt.ti1.x}                  - titration event information (*)
+ \item \code{name}                      - state or output (<O>) name corresponding to the prediction
+}
+
+When applied to the output of  \code{\link{simulate_subjects}}
+\itemize{
+ \item \code{ID}                      - subject ID
+ \item \code{ts.time}                 - timescale of the system
+ \item \code{ts.ts1, ... ts.tsn}      - timescales defined in the system (<TS>)
+ \item \code{pred}                    - predicted/simulated response
+ \item \code{tt.ti1.x}                - titration event information (*)
+ \item \code{P1, P2, ... Pn}          - system parameters for the subject (<P>)
+ \item \code{name}                    - state or output (<O>) name corresponding to the prediction
+}
+(* - field present when titration is enabled)
+}
+\description{
+The functions \code{\link{run_simulation_ubiquity}}, \code{\link{simulate_subjects}}, or \code{\link{run_simulation_titrate}}
+provide outputs in a more structured format, but it may be useful to
+convert this "wide" format to a tall/skinny format.
 }
 \seealso{
 \code{\link{run_simulation_titrate}} internally when running simulations.
