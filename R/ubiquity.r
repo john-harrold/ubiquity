@@ -190,7 +190,6 @@ return(cfg)}
 #' sections of the workshop.
 #'
 #'@param section Name of the section of workshop to retrieve 
-#'@param on Name of the section of workshop to retrieve 
 #'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
 #'@details Valid sections are "Simulation", "Estimation", "Titration" and "Reporting"
 #'
@@ -1288,7 +1287,7 @@ return(cfg)}
 #'@param cfg ubiquity system object    
 #'@param name name for the titration rule
 #'@param times list of times when the rule will be evaluated 
-#'@param timesscale time scale associated with the titraiton times (as defined by \code{<TS:?>})
+#'@param timescale time scale associated with the titraiton times (as defined by \code{<TS:?>})
 #'
 #'@return Ubiquity system object with the titration rule created
 #'
@@ -1859,6 +1858,8 @@ return(finfo)
 #'@param state     dosing state/compartment (Defined in \code{<B:events>})
 #'@param values    vector of dosing amounts (in dosing units defined by \code{<B:events>})
 #'@param times     vector of dosing times relative to the current titration time (in # time units defiend by \code{<B:times>})
+#'@param tt_ts     list of timescale values for the current titration time
+#'@param tsinfo    list with timescale information for inputs (bolus, rates, etc)
 #'@param repdose   \code{"none"}, \code{"last"}, \code{"all"}
 #'@param interval  interval to repeat in the units defined in \code{<B:times>}
 #'@param number    number of times to repeat 
@@ -7042,8 +7043,7 @@ system_define_cohorts_nm = function(cfg,
                                     col_GROUP =  NULL,
                                     filter    =  NULL,
                                     INPUTS    =  NULL,
-                                    OBS       =  NULL,
-                                    group     =  FALSE){
+                                    OBS       =  NULL){
 
 vp(cfg,'------------------------------------------')
 vp(cfg, sprintf('Defining cohorts from NONMEM dataset'))
@@ -7381,8 +7381,6 @@ TSsys}
 #'@description Checks the dataset against the information specified by \code{\link{system_define_cohorts_nm}} for validity
 #'
 #'@param cfg ubiquity system object    
-#'
-#'@param DS \code{\link{system_load_data}}
 #'
 #'@param DS Name of the dataset loaded using \code{system_load_data}
 #'@param col_ID Column of unique subject identifier
