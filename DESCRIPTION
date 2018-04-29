@@ -9,7 +9,7 @@ Maintainer: John Harrold <john.m.harrold@gamil.com>
 Description: Package of the ubiquity PKPD tools (http://ubiquity.tools) used for model development and deployment
 URL: https://ubiquity.tools
 BugReports: https://github.com/john-harrold/ubiquity/issues
-License: BSD 3-Clause License
+License: file LICENSE
 Encoding: UTF-8
 LazyData: TRUE
 Imports:

@@ -4850,6 +4850,7 @@ df = c()
     ts_names = names(som$simout)
     ts_names = ts_names[grep('^ts.', ts_names)]
     
+    dfos = NULL
     dfos_str = 'dfos = data.frame('
     
     # defining the timescales
@@ -6757,7 +6758,7 @@ gg_axis  = function(fo,
                                      minor_breaks = xtick_minor,
                                      trans        = 'log10',
                                      limits       = myxlim,
-                                     labels       = scales::trans_format("log10", scales::math_format(10^.x)))
+                                     labels       = eval(parse(text="scales::trans_format('log10', scales::math_format(10^.x))")))
       }
       else{
         fo = fo + scale_x_continuous(breaks       = xtick_major,
@@ -7413,6 +7414,7 @@ else{
 if(isgood){
   # Checking the required columns to make sure they exist in the dataset
   col_vars = c('col_ID', 'col_CMT', 'col_DV', 'col_TIME', 'col_AMT', 'col_RATE', 'col_EVID')
+  col_val = NULL
   for(col_var in col_vars){
     eval(parse(text=sprintf('col_val = %s', col_var))) 
     if(!(col_val %in% names(cfg$data[[DS]]$values))){
