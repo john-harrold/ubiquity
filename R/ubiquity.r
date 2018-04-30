@@ -6,7 +6,7 @@
 #'@import foreach
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
-#'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv
+#'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail
 #'@importFrom stats median qt
 #'@importFrom MASS mvrnorm
 
@@ -5568,6 +5568,10 @@ system_plot_cohorts <- function(erp, plot_opts=c(), cfg, prefix='analysis'){
 # list of graphics objects to return
 grobs = list()
 
+# This gets rid of NOTES for the R package. 
+OBS = NULL
+PRED = NULL
+
 def = c() 
 def$yscale = "linear"
 def$xlim  = NULL
@@ -8523,6 +8527,7 @@ run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
 }
 
 #-------------------------------------------------------------------------
+#'@export
 make_forcing_function = function(times, values, type, name, output_times){
 #
 # Inputs:
@@ -8588,6 +8593,7 @@ return(myforce)
 }
 
 #-------------------------------------------------------------------------
+#'@export
 sample_around = function(tvals, ot){
 
 # removing any duplicates
