@@ -619,13 +619,13 @@ if(is.null(cfg$parameters$sets[[set_name]])){
   vp(cfg,sprintf('Could not find set: %s', set_name))
   vp(cfg,sprintf('Returning the default set instead'))
   set_name = 'default'
-  cfg$parameters$matrix$value = cfg$parameters$sets$default$values;
-  cfg$parameters$current_set  = 'default';
+  cfg$parameters$matrix$value = cfg$parameters$sets$default$values
+  cfg$parameters$current_set  = 'default'
   }
 
-  cfg$parameters$matrix$value  = cfg$parameters$sets[[set_name]]$values;
-  cfg$parameters$current_set   = set_name;
-  p_idx = 1;
+  cfg$parameters$matrix$value  = cfg$parameters$sets[[set_name]]$values
+  cfg$parameters$current_set   = set_name
+  p_idx = 1
   for(p_name in names(cfg$options$mi$parameters)){
     eval(parse(text=sprintf('cfg$parameters$values$%s = cfg$parameters$matrix$value[[p_idx]]', p_name)))
     p_idx = 1+p_idx
@@ -8522,11 +8522,94 @@ run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
   return(eval(parse(text="auto_run_simulation_titrate(SIMINT_p, SIMINT_cfg)")))
 }
 
-# .onLoad <- function(libname, pkgname) {
-#     vig_list = tools::vignetteEngine(package = 'knitr')
-#     vweave <- vig_list[['knitr::knitr']][c('weave')][[1]]
-#     vtangle <- vig_list[['knitr::knitr']][c('tangle')][[1]]
-#     tools::vignetteEngine(pkgname, weave = vweave, tangle = vtangle,
-#                           pattern = "[.]Rmd$", package = pkgname)
-#     register_vignette_engines(pkgname)
-# }
+#-------------------------------------------------------------------------
+make_forcing_function = function(times, values, type, name, output_times){
+#
+# Inputs:
+#
+# times - time values for the forcing function
+#
+# values - magnitude for each time (same length of time)
+#
+# type - type of forcing function can be one of the following:
+#         "step" for constant values that switch to new values at
+#                the times
+#         "linear" to linearly interpolate between the points
+#
+# cfg - System configuration variable generated in the following manner:
+#
+
+
+if("step" == type){
+ counter = 1
+ while( counter <= length(times)){
+  if(counter == 1){
+    myforce = matrix(ncol=2,byrow=TRUE,data=c(times[counter], values[counter]))
+  } else{
+    if(times[counter] == 0){
+      delta         = 250*.Machine$double.eps
+    } else {
+      delta         = 250*.Machine$double.eps*times[counter]
+    }
+    delta         = 250000*.Machine$double.eps
+
+   ## placing sample points in the constant region
+   #if(counter ==2){
+   # npts = 10
+   # tmp_tstart = myforce[length(myforce[,1]), 1] + 2*delta
+   # tmp_tstop  = times[counter] - 2*delta
+   # stimes  = seq(tmp_tstart, tmp_tstop, (tmp_tstop - tmp_tstart)/npts)
+   # svalues = rep(myforce[length(myforce[,1]), 2], npts)
+   # myforce = rbind(myforce, cbind(stimes, svalues))
+   #}
+    # just before the switching time it takes the previous value
+    myforce = (rbind(myforce, c((times[counter]-delta), values[counter-1])))
+    # just afterwards it takes on the next value
+    myforce = (rbind(myforce, c((times[counter]+delta), values[counter])))
+  }
+  counter = counter +1
+ }
+
+ # if the last switching time occurs before the end of the simulation
+ # then we extend the last rate specified to the end of the simulation
+ if(tail(myforce[,1], n=1) < tail(output_times, n=1)){
+   myforce = (rbind(myforce, c((tail(output_times, n=1)), tail(values, n=1) )))
+   }
+}else  if("linear" == type){
+   myforce = cbind(times, values)
+ # if the last switching time occurs before the end of the simulation
+ # then we extend the last rate specified to the end of the simulation
+ if(tail(myforce[,1], n=1) < tail(output_times, n=1)){
+   myforce = (rbind(myforce, c((tail(output_times, n=1)), tail(values, n=1) )))
+ }
+}
+
+return(myforce)
+}
+
+#-------------------------------------------------------------------------
+sample_around = function(tvals, ot){
+
+# removing any duplicates
+tvals = unique(tvals)
+# calculating the total simulation time 
+# and using that as a basis for simulations
+tlength = abs(max(ot) - min(ot))
+tsample = c()
+delta   = 1e-8*tlength
+ffollow = 0.10 # percent to follow effects of event
+nfollow = 40   # number of sample times
+vfollow = seq(0, tlength*ffollow, tlength*ffollow/nfollow)
+for(tval in tvals){
+  # This samples just before and just after the sample time
+  tsample = c(tsample, (tval -delta), (tval + delta), (tval + 50*delta), (tval + 100*delta))
+
+  # now adding ffolow percent of the total time to the end
+  tsample = c(tsample, (vfollow + tval + 150*delta))
+}
+
+return(tsample)
+}
+#-------------------------------------------------------------------------
+
+
