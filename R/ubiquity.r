@@ -1,17 +1,34 @@
 
-#'@import deSolve  
-#'@import ggplot2
-#'@import officer
+
+#'@import deSolve
+#'@import doParallel
+#'@import doRNG
 #'@import flextable
 #'@import foreach
+#'@import gdata
+#'@import ggplot2
+#'@import knitr
+#'@import MASS
+#'@import officer
+#'@import optimx
+#'@import rmarkdown
 #'@import rhandsontable
 #'@import rstudioapi
-#'@importFrom parallel stopCluster makeCluster
-#'@importFrom grid pushViewport viewport grid.newpage grid.layout
-#'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail
-#'@importFrom stats median qt
-#'@importFrom MASS mvrnorm
-#'@importFrom pso psoptim 
+#'@import shiny
+
+##@import deSolve  
+##@import ggplot2
+##@import officer
+##@import flextable
+##@import foreach
+##@import rhandsontable
+##@import rstudioapi
+##@importFrom parallel stopCluster makeCluster
+##@importFrom grid pushViewport viewport grid.newpage grid.layout
+##@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail
+##@importFrom stats median qt
+##@importFrom MASS mvrnorm
+##@importFrom pso psoptim 
 
 
 

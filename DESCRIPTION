@@ -24,7 +24,6 @@ Imports:
    MASS,
    officer,
    optimx,
-   parallel,
    rmarkdown,     
    rhandsontable,
    rstudioapi,
