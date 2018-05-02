@@ -25,6 +25,7 @@ Imports:
    MASS,
    officer,
    optimx,
+   pso,
    rmarkdown,     
    rhandsontable,
    rstudioapi,
@@ -34,7 +35,6 @@ Suggests:
    GGally,
    gridExtra,
    gridGraphics,
-   pso,
    webshot,
    testthat
 VignetteBuilder: knitr

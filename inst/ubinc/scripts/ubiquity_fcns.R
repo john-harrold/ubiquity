@@ -13,15 +13,6 @@
 #'@import rmarkdown
 #'@import rhandsontable
 #'@import rstudioapi
-#'@import parallel
-
-##@import deSolve  
-##@import ggplot2
-##@import officer
-##@import flextable
-##@import foreach
-##@import rhandsontable
-##@import rstudioapi
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail
@@ -48,6 +39,7 @@ build_system <- function(system_file    = "system.txt",
 
 
 pkgs = c("deSolve", "ggplot2", "gdata")
+require(deSolve)
 invisible(system_req(pkgs))
 
 
