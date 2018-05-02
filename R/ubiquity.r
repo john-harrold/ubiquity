@@ -30,12 +30,9 @@ build_system <- function(system_file    = "system.txt",
                          distribution   = "automatic",
                          debug          =  FALSE){
 
-require(deSolve, quietly=TRUE)
-require(ggplot2, quietly=TRUE)
-require(gdata, quietly=TRUE)
-# require(foreach)
-# require(doParallel)
-# require(doRNG)
+
+pkgs = c("deSolve", "ggplot2", "gdata")
+invisible(system_req(pkgs))
 
 
 # If the distribution is set to automatic we see if the package is loaded
@@ -48,7 +45,7 @@ if(distribution == "automatic"){
     source(file.path('library', 'r_general', 'ubiquity.R'))
     distribution = "stand alone"
   } else { 
-    require(ubiquity) 
+    invisible(system_req("ubiquity"))
     distribution = "package"
   }
 } else if(distribution == "package"){
@@ -1146,17 +1143,17 @@ system_set_option <- function(cfg, group, option, value){
     #
     if(group == "simulation" & option == "parallel"){
       if(value == "multicore"){
-        if(!require(doParallel)){
+        if(!system_req(doParallel)){
           isgood = FALSE
           errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doParallel package")
           errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doParallel")')
         }
-        if(!require(foreach)){
+        if(!system_req(foreach)){
           isgood = FALSE
           errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the foreach package")
           errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("foreach")')
         }
-        if(!require(doRNG)){
+        if(!system_req(doRNG)){
           isgood = FALSE
           errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doRNG package")
           errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doRNG")')
@@ -1169,7 +1166,7 @@ system_set_option <- function(cfg, group, option, value){
 
     if(group == "estimation" & option == "optimizer"){
       if(value == "pso"){
-        if(!require(pso)){
+        if(!system_req(pso)){
           isgood = FALSE
           errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the particle swarm optimizer (pso) package")
           errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("pso")')
@@ -1178,7 +1175,7 @@ system_set_option <- function(cfg, group, option, value){
     }
     if(group == "estimation" & option == "optimizer"){
       if(value == "ga"){
-        if(!require(GA)){
+        if(!system_req(GA)){
           isgood = FALSE
           errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the Genetic Algoriths (GA) package")
           errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("GA")')
@@ -2998,7 +2995,7 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
 
     }
     else{
-      require(foreach)
+      system_req(foreach)
       #
       # Running simulations sequentially 
       #
@@ -7837,7 +7834,7 @@ if(is.null(template)){
 }
 
 vp(cfg, "--------------------------------")
-  if(require('officer')){
+  if(system_req('officer')){
     cfg$reporting$enabled = TRUE
     # Checking to see if the template file exists
     if(file.exists(template)){
@@ -8470,7 +8467,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       }
 
       # Creating the table
-      require(flextable, quietly=TRUE)
+      invisible(system_req("flextable"))
       ft = regulartable(content$table,  cwidth = cwidth, cheight=cheight)
       
       # Adding headers
@@ -8648,4 +8645,20 @@ return(tsample)
 }
 #-------------------------------------------------------------------------
 
+#'@title Require Suggested Packages 
+#'@keywords internal
+#'@description  Used to ensure packages are loaded as they are needed.
+#' 
+#'@param pkgs  character vector of s
+#'
+#'@return Boolean result of all packages 
+system_req <- function(pkgs){
+
+  res_pkg  = NULL
+  res_pkgs = c()
+  for(pkg in pkgs){
+    eval(parse(text=sprintf("res_pkg = require(%s, quietly=TRUE)", pkg))) 
+    res_pkgs = c(res_pkgs, res_pkg)
+  }
+all(res_pkgs)}
 

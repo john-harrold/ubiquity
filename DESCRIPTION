@@ -20,18 +20,20 @@ Imports:
    foreach,
    gdata,
    ggplot2,
+   knitr,
    MASS,
    officer,
    optimx,
    rmarkdown,     
    rhandsontable,
    rstudioapi,
-   knitr,
    shiny
 Suggests:
+   GA,
    GGally,
    gridExtra,
    gridGraphics,
+   pso,
    webshot,
    testthat
 VignetteBuilder: knitr
