@@ -18,6 +18,7 @@ Imports:
    doRNG,
    flextable,
    foreach,
+   grid, 
    gdata,
    ggplot2,
    knitr,
