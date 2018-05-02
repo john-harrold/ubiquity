@@ -8540,7 +8540,6 @@ run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
 }
 
 #-------------------------------------------------------------------------
-#'@export
 #'@title Makes Forcing Function From Times and Values
 #'@keywords internal
 #'@description Takes a list of times, values, and an interpolation method
@@ -8606,7 +8605,6 @@ return(myforce)
 }
 
 #-------------------------------------------------------------------------
-#'@export
 #'@title Define Sample Times Around Events 
 #'@keywords internal
 #'@description  When events, such as bolus doses, are applied to the system
