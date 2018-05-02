@@ -39,7 +39,6 @@ build_system <- function(system_file    = "system.txt",
 
 
 pkgs = c("deSolve", "ggplot2", "gdata")
-require(deSolve)
 invisible(system_req(pkgs))
 
 
