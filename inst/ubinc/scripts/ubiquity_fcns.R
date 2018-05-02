@@ -11,6 +11,7 @@
 #'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail
 #'@importFrom stats median qt
 #'@importFrom MASS mvrnorm
+#'@importFrom pso psoptim 
 
 
 
