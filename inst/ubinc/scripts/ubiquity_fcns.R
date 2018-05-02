@@ -5,6 +5,7 @@
 #'@import flextable
 #'@import foreach
 #'@import rhandsontable
+#'@import rstudioapi
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail

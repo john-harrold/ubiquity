@@ -6,10 +6,10 @@ Authors@R: c(person("John", "Harrold", role = c("aut", "cre"),
                      email = "john.m.harrold@gmail.com"))
 Author: John Harrold [aut, cre]
 Maintainer: John Harrold <john.m.harrold@gmail.com>
-Description: Package of the ubiquity PKPD tools (http://ubiquity.tools) used for model development and deployment
+Description: Package of the ubiquity PKPD tools (http://ubiquity.tools) used for model development and deployment.
 URL: https://ubiquity.tools
 BugReports: https://github.com/john-harrold/ubiquity/issues
-License: file LICENSE
+License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: TRUE
 Imports:
