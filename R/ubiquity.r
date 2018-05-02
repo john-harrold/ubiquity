@@ -1161,17 +1161,17 @@ system_set_option <- function(cfg, group, option, value){
     #
     if(group == "simulation" & option == "parallel"){
       if(value == "multicore"){
-        if(!system_req(doParallel)){
+        if(!system_req("doParallel")){
           isgood = FALSE
           errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doParallel package")
           errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doParallel")')
         }
-        if(!system_req(foreach)){
+        if(!system_req("foreach")){
           isgood = FALSE
           errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the foreach package")
           errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("foreach")')
         }
-        if(!system_req(doRNG)){
+        if(!system_req("doRNG")){
           isgood = FALSE
           errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doRNG package")
           errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doRNG")')
@@ -1184,7 +1184,7 @@ system_set_option <- function(cfg, group, option, value){
 
     if(group == "estimation" & option == "optimizer"){
       if(value == "pso"){
-        if(!system_req(pso)){
+        if(!system_req("pso")){
           isgood = FALSE
           errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the particle swarm optimizer (pso) package")
           errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("pso")')
@@ -1193,7 +1193,7 @@ system_set_option <- function(cfg, group, option, value){
     }
     if(group == "estimation" & option == "optimizer"){
       if(value == "ga"){
-        if(!system_req(GA)){
+        if(!system_req("GA")){
           isgood = FALSE
           errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the Genetic Algoriths (GA) package")
           errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("GA")')
@@ -3013,7 +3013,7 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
 
     }
     else{
-      system_req(foreach)
+      system_req("foreach")
       #
       # Running simulations sequentially 
       #
@@ -3267,7 +3267,7 @@ return(tmpcfg)
 generate_subject = function (parameters, cfg){
 # function [subject] = generate_subject(parameters, cfg)
 
-invisible(system_req(c("MASS")))
+invisible(system_req("MASS"))
 
 subject = list()
 subject$parameters   = parameters;
@@ -3404,7 +3404,7 @@ if(cfg$options$logging$enabled ==  "yes"){
 #'@param layout of the multiplot
 #'@return multiplot object 
 multiplot <- function(..., plotlist=NULL, cols=1, layout=NULL) {
-  invisible(system_req(c("grid")))
+  invisible(system_req("grid"))
   
   # Make a list from the ... arguments and plotlist
   plots <- c(list(...), plotlist)
@@ -7852,7 +7852,7 @@ if(is.null(template)){
 }
 
 vp(cfg, "--------------------------------")
-  if(system_req('officer')){
+  if(system_req("officer")){
     cfg$reporting$enabled = TRUE
     # Checking to see if the template file exists
     if(file.exists(template)){
