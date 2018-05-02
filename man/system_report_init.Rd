@@ -15,6 +15,11 @@ system_report_init(cfg, template = NULL, rptname = "default", meta = NULL)
 
 \item{meta}{list containing metadata identifying relevant indices for slide layouts}
 }
+\description{
+Creates a new officer report based either on the ubiquity
+template or one specified by the user. Once created, slides can then be
+added.
+}
 \seealso{
 Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 }

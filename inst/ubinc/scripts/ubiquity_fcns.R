@@ -4,6 +4,7 @@
 #'@import officer
 #'@import flextable
 #'@import foreach
+#'@import rhandsontable
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail
@@ -3384,7 +3385,7 @@ if(cfg$options$logging$enabled ==  "yes"){
 #'@param ... list of plot objects  
 #'@param plotlist list of plot objects  
 #'@param cols number of columns
-#'@pramm layout of the multiplot
+#'@param layout of the multiplot
 #'@return multiplot object 
 multiplot <- function(..., plotlist=NULL, cols=1, layout=NULL) {
   library(grid)
@@ -7809,7 +7810,7 @@ system_report_save = function (cfg,
 # system_report_init 
 #'@export
 #'@title Initialize a New officer Report
-#'@Description Creates a new officer report based either on the ubiquity
+#'@description Creates a new officer report based either on the ubiquity
 #' template or one specified by the user. Once created, slides can then be
 #' added. 
 #'

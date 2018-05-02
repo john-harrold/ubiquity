@@ -12,6 +12,8 @@ multiplot(..., plotlist = NULL, cols = 1, layout = NULL)
 \item{plotlist}{list of plot objects}
 
 \item{cols}{number of columns}
+
+\item{layout}{of the multiplot}
 }
 \value{
 multiplot object
