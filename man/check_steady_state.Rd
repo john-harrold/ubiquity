@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{check_steady_state}
 \alias{check_steady_state}
-\title{Verify system steady-state}
+\title{Verify System steady-state}
 \usage{
 check_steady_state(cfg, som)
 }

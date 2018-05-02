@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{compare_estimate}
 \alias{compare_estimate}
-\title{Compares estimate to the bounds}
+\title{Compares Estimate to Bounds}
 \usage{
 compare_estimate(cfg, parameters, pname)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{linspace}
 \alias{linspace}
-\title{Implementation of the \code{linspace} function from Matlab}
+\title{Implementation of the \code{linspace} Function from Matlab}
 \usage{
 linspace(a, b, n = 100)
 }

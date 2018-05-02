@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_set_iiv}
 \alias{system_set_iiv}
-\title{Set variability terms}
+\title{Set Variability Terms}
 \usage{
 system_set_iiv(cfg, IIV1, IIV2, VALUE)
 }

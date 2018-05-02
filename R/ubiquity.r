@@ -1850,7 +1850,7 @@ return(finfo)
 }
 
 #'@export
-#'@title Actual function called by \code{SI_TT_BOLUS}
+#'@title Actual Function Called by \code{SI_TT_BOLUS}
 #'@description The prototype function \code{SI_TT_BOLUS} provides an interface to this function. Based on the input from \code{SI_TT_BOLUS}
 #' bolus inputs will be updated for the current titration time. 
 #' 
@@ -1887,7 +1887,7 @@ return(cfg)
 }
 
 #'@export
-#'@title Actual function called by \code{SI_TT_RATE}
+#'@title Actual Function Called by \code{SI_TT_RATE}
 #'@description The prototype function \code{SI_TT_RATE} provides an interface to this function. Based on the input from \code{SI_TT_RATE}
 #' infusion rate inputs will be updated for the current titration time. 
 #' 
@@ -2067,7 +2067,7 @@ return(cfg)}
 #
 #
 #'@export
-#'@title Set variability terms
+#'@title Set Variability Terms
 #'@description Set elements of the current variance covariance matrix
 #' specified in the system file with \code{<IIV:?:?> ?}, \code{<IIVCOR:?:?>?}, \code{<IIVSET:?:?> ?}, \code{<IIVCORSET:?:?>?}
 #'
@@ -2477,7 +2477,7 @@ return(msg)}
 # /system_view
 #-----------------------------------------------------------
 
-#'@title General Method to Convert an R Object into a String for Automated Reporting Purposes
+#'@title Convert R Objects to Strings
 #'@description Mechanism for converting R objects strings for reporting. 
 #'@keywords internal
 #'
@@ -2569,7 +2569,10 @@ return(str)}
 
 #'@export
 #'@title Run Population Simulations 
-#'
+#'@description  Used to run Population/Monte Carlo simulations with subjects
+#' generated from either provided variance/covariance information or a dataset. 
+#' 
+#' 
 #'@param parameters list containing the typical value of parameters
 #'@param cfg       ubiquity system object    
 #'@param progress_message text string to prepend when called from the ShinyApp
@@ -2577,6 +2580,12 @@ return(str)}
 #'@return Mapped simulation output with individual predictions, individual
 #' parameters, and summary statistics of the parameters. The Vignettes below
 #' details on the format of the output.
+#'
+#'@details 
+#'
+#'For more information on setting options for population simulation see the
+#'stochastic section of the \code{\link{system_set_option}} help file.
+#'
 #'
 #'@seealso Vignette on simulation (\code{vignette("Simulation", package = "ubiquity")}) titration (\code{vignette("Titration", package = "ubiquity")}) as well as \code{\link{som_to_df}}
 simulate_subjects = function (parameters, cfg, progress_message = "Simulating Subjects:"){
@@ -3373,9 +3382,11 @@ if(cfg$options$logging$enabled ==  "yes"){
 #' http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
 #'
 #'@param ... list of plot objects  
+#'@param plotlist list of plot objects  
 #'@param cols number of columns
+#'@pramm layout of the multiplot
 #'@return multiplot object 
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+multiplot <- function(..., plotlist=NULL, cols=1, layout=NULL) {
   library(grid)
   
   # Make a list from the ... arguments and plotlist
@@ -4627,7 +4638,7 @@ for(SIMINT_rate_name in names(SIMINT_cfg$options$inputs$infusion_rates)){
 
   SIMINT_my_ff = make_forcing_function(SIMINT_my_rate$times$values*SIMINT_rate_time_scale,
                                        SIMINT_my_rate$levels$values*SIMINT_rate_values_scale,
-                                       "step", SIMINT_rate_name,  
+                                       "step", 
                                        SIMINT_simulation_options$output_times)
   
   eval(parse(text=sprintf("SIMINT_forces$%s = SIMINT_my_ff", SIMINT_rate_name)))
@@ -4649,7 +4660,6 @@ for(SIMINT_cv_name in names(SIMINT_cfg$options$inputs$covariates)){
   SIMINT_my_ff = make_forcing_function(SIMINT_my_cv$times$values,
                                        SIMINT_my_cv$values$values,
                                        SIMINT_my_cv$cv_type, 
-                                       SIMINT_cv_name,  
                                        SIMINT_simulation_options$output_times)
   eval(parse(text=sprintf("SIMINT_forces$%s = SIMINT_my_ff", SIMINT_cv_name)))
   # adding the time values to important times
@@ -4659,7 +4669,6 @@ for(SIMINT_cv_name in names(SIMINT_cfg$options$inputs$covariates)){
   SIMINT_my_ff = make_forcing_function(SIMINT_my_cv$times$values[1],
                                        SIMINT_my_cv$values$values[1],
                                        SIMINT_my_cv$cv_type, 
-                                       'step',  
                                        SIMINT_simulation_options$output_times)
   eval(parse(text=sprintf("SIMINT_forces$SIMINT_CVIC_%s = SIMINT_my_ff", SIMINT_cv_name)))
   # adding the time values to important times
@@ -6155,7 +6164,7 @@ for(fidx in 1:length(f.source)){
 
 #-----------------------------------------------------------
 #compare_estimate
-#'@title Compares estimate to the bounds
+#'@title Compares Estimate to Bounds
 #'@description Compares the parameter estimate to the bounds and indicates if
 #' the estimate is near the bound.
 #'
@@ -6453,7 +6462,7 @@ solution_statistics <- function(parameters, cfg){
 }
 
 #'@export
-#'@title Verify system steady-state
+#'@title Verify System steady-state
 #'
 #'@description Takes the output  \code{\link{run_simulation_ubiquity}} and verifies that the system is running at steady-state by analyzing the timecourse of all of the states in the system
 #'
@@ -6591,7 +6600,7 @@ return(fo)
 #---------------------------------------------------------------------------
 # gg_axis
 #'@export
-#'@title Make ggplot x- or y-Axis Log 10 Scale
+#'@title Make Pretty ggplot x- or y-Axis Log 10 Scale
 #'@description used to convert the x and y-axis of a ggplot to a log 10 scale that is more visually satisfying than the ggplot default.
 #'
 #'@param fo ggplot figure object
@@ -6802,7 +6811,7 @@ fo}
 #---------------------------------------------------------------------------
 # gg_log10_yaxis
 #'@export
-#'@title Make ggplot y-Axis Log 10 Scale
+#'@title Make Pretty ggplot y-Axis Log 10 Scale
 #'@description Wrapper for \code{\link{system_new_tt_rule}} to create a log 10 y-axis
 #'
 #'@param fo ggplot figure object
@@ -6837,7 +6846,7 @@ fo}
 #---------------------------------------------------------------------------
 # gg_log10_xaxis
 #'@export
-#'@title Make ggplot x-Axis Log 10 Scale
+#'@title Make Pretty ggplot x-Axis Log 10 Scale
 #'@description Wrapper for \code{\link{system_new_tt_rule}} to create a log 10 x-axis
 #'
 #'@param fo ggplot figure object
@@ -6924,7 +6933,7 @@ ubiquity_name_check = function(test_name){
 #---------------------------------------------------------------------------
 
 #'@export
-#'@title Implementation of the \code{linspace} function from Matlab
+#'@title Implementation of the \code{linspace} Function from Matlab
 #'@description Creates a vector of n elements equally spaced apart.
 #'
 #'@param a initial number
@@ -6941,7 +6950,7 @@ linspace = function(a, b, n=100){
 }
 
 #'@export
-#'@title Implementation of the \code{logspace} function from Matlab
+#'@title Implementation of the \code{logspace} Function from Matlab
 #'@description Creates a vector of n elements logarithmically spaced apart.
 #'
 #'
@@ -7706,7 +7715,7 @@ return(ppt)}
 # rpt = system_report_fetch(cfg, 
 #     rptname       =  "default")
 #'@export
-#'@title Retrieve the officer pptx Object for a Report 
+#'@title Retrieve the officer pptx Object of a Report 
 #'
 #'@description Reports are stored in the ubiquity system object and this provides a method for retrieving them by name.
 #'
@@ -7800,6 +7809,9 @@ system_report_save = function (cfg,
 # system_report_init 
 #'@export
 #'@title Initialize a New officer Report
+#'@Description Creates a new officer report based either on the ubiquity
+#' template or one specified by the user. Once created, slides can then be
+#' added. 
 #'
 #'
 #'@param cfg ubiquity system object    
@@ -8528,22 +8540,22 @@ run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
 
 #-------------------------------------------------------------------------
 #'@export
-make_forcing_function = function(times, values, type, name, output_times){
-#
-# Inputs:
-#
-# times - time values for the forcing function
-#
-# values - magnitude for each time (same length of time)
-#
-# type - type of forcing function can be one of the following:
-#         "step" for constant values that switch to new values at
-#                the times
-#         "linear" to linearly interpolate between the points
-#
-# cfg - System configuration variable generated in the following manner:
-#
-
+#'@title Makes Forcing Function From Times and Values
+#'@keywords internal
+#'@description Takes a list of times, values, and an interpolation method
+#'
+#'
+#'@param times  time values for the forcing function  
+#'@param values magnitude for each time (same length of time)  
+#'@param type string indicating the type of forcing function can be one of the following:
+#' \itemize{
+#'       \item  \code{"step"} for constant values that switch to new values at the times
+#'       \item  \code{"linear"} to linearly interpolate between the points
+#'        }
+#'@param output_times vector of simulation output times
+#'
+#'@return matrix with two columns: first column is a vector of times and the second column is a vector of values
+make_forcing_function = function(times, values, type, output_times){
 
 if("step" == type){
  counter = 1
@@ -8594,6 +8606,24 @@ return(myforce)
 
 #-------------------------------------------------------------------------
 #'@export
+#'@title Define Sample Times Around Events 
+#'@keywords internal
+#'@description  When events, such as bolus doses, are applied to the system
+#' rapid changes can occur. If the system is not sampled heavily around these
+#' times, these changes may be missed in the output profiles. Based on the total
+#' duration of the sample times, extra samples can be added near these events.
+#' 
+#'@param tvals vector of event times
+#'@param ot    simualtion output times
+#'
+#'@return vector of event times and added samples
+#'
+#'@details 
+#'
+#'For more information on setting options for population simulation see the
+#'stochastic section of the \code{\link{system_set_option}} help file.
+#'
+#'
 sample_around = function(tvals, ot){
 
 # removing any duplicates

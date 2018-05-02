@@ -4,10 +4,12 @@
 \alias{multiplot}
 \title{Collect Multiple Plots}
 \usage{
-multiplot(..., plotlist = NULL, file, cols = 1, layout = NULL)
+multiplot(..., plotlist = NULL, cols = 1, layout = NULL)
 }
 \arguments{
 \item{...}{list of plot objects}
+
+\item{plotlist}{list of plot objects}
 
 \item{cols}{number of columns}
 }

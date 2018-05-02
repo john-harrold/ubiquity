@@ -18,6 +18,14 @@ Mapped simulation output with individual predictions, individual
 parameters, and summary statistics of the parameters. The Vignettes below
 details on the format of the output.
 }
+\description{
+Used to run Population/Monte Carlo simulations with subjects
+generated from either provided variance/covariance information or a dataset.
+}
+\details{
+For more information on setting options for population simulation see the
+stochastic section of the \code{\link{system_set_option}} help file.
+}
 \seealso{
 Vignette on simulation (\code{vignette("Simulation", package = "ubiquity")}) titration (\code{vignette("Titration", package = "ubiquity")}) as well as \code{\link{som_to_df}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_report_fetch}
 \alias{system_report_fetch}
-\title{Retrieve the officer pptx Object for a Report}
+\title{Retrieve the officer pptx Object of a Report}
 \usage{
 system_report_fetch(cfg, rptname = "default")
 }

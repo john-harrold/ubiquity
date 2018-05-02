@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_set_tt_bolus}
 \alias{system_set_tt_bolus}
-\title{Actual function called by \code{SI_TT_BOLUS}}
+\title{Actual Function Called by \code{SI_TT_BOLUS}}
 \usage{
 system_set_tt_bolus(cfg, state, values, times, tt_ts, tsinfo,
   repdose = "none", interval = 1, number = 0)

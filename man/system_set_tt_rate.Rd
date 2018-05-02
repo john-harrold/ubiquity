@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_set_tt_rate}
 \alias{system_set_tt_rate}
-\title{Actual function called by \code{SI_TT_RATE}}
+\title{Actual Function Called by \code{SI_TT_RATE}}
 \usage{
 system_set_tt_rate(cfg, rate, times, levels, tt_ts, tsinfo, repdose = "none",
   interval = 1, number = 0)

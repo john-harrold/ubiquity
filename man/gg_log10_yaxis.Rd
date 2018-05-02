@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{gg_log10_yaxis}
 \alias{gg_log10_yaxis}
-\title{Make ggplot y-Axis Log 10 Scale}
+\title{Make Pretty ggplot y-Axis Log 10 Scale}
 \usage{
 gg_log10_yaxis(fo, ylim_min = NULL, ylim_max = NULL, y_tick_label = TRUE,
   x_tick_label = TRUE)

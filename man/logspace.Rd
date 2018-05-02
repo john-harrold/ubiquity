@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{logspace}
 \alias{logspace}
-\title{Implementation of the \code{logspace} function from Matlab}
+\title{Implementation of the \code{logspace} Function from Matlab}
 \usage{
 logspace(a, b, n = 100)
 }
