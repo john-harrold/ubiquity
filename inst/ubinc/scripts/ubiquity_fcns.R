@@ -3249,7 +3249,7 @@ return(tmpcfg)
 generate_subject = function (parameters, cfg){
 # function [subject] = generate_subject(parameters, cfg)
 
-library("MASS") 
+invisible(system_req(c("MASS")))
 
 subject = list()
 subject$parameters   = parameters;
@@ -3386,7 +3386,7 @@ if(cfg$options$logging$enabled ==  "yes"){
 #'@param layout of the multiplot
 #'@return multiplot object 
 multiplot <- function(..., plotlist=NULL, cols=1, layout=NULL) {
-  library(grid)
+  invisible(system_req(c("grid")))
   
   # Make a list from the ... arguments and plotlist
   plots <- c(list(...), plotlist)
