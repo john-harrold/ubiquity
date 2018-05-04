@@ -8,6 +8,7 @@ Author: John Harrold [aut, cre]
 Maintainer: John Harrold <john.m.harrold@gmail.com>
 Description: Package of the ubiquity PKPD tools (http://ubiquity.tools) used for model development and deployment.
 URL: https://ubiquity.tools
+SystemRequirements: Perl
 BugReports: https://github.com/john-harrold/ubiquity/issues
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8

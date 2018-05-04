@@ -37,7 +37,6 @@ build_system <- function(system_file    = "system.txt",
                          distribution   = "automatic",
                          debug          =  FALSE){
 
-
 pkgs = c("deSolve", "ggplot2", "gdata")
 invisible(system_req(pkgs))
 
@@ -2513,7 +2512,7 @@ return(mystr)
 #'@title Converts Numeric Variables into Padded Strings
 #'@description Mechanism for converting numeric variables into strings for reporting. 
 #'
-#'@param var numeric variable
+#'@param var numeric variable or a vector of numeric variables
 #'@param maxlength if this value is greater than zero spaces will be added to the beginning of the string until the total length is equal to maxlength
 #'@param nsig_e number of significant figures for scientific notation
 #'@param nsig_f number of significant figures for numbers (2.123)
@@ -2523,23 +2522,32 @@ return(mystr)
 #'@examples
 #'#var2string(pi, nsig_f=20)
 #'#var2string(.0001121, nsig_e=2, maxlength=10)
-var2string <- function(var,maxlength=0, nsig_e = 3, nsig_f = 4) {
+var2string <- function(vars,maxlength=0, nsig_e = 3, nsig_f = 4) {
 #  str = var2string(var, 12) 
 #  converts the numerical value 'var' to a padded string 12 characters wide
 
-if(var == 0){
- str = '0' 
-}else if((var < .01 )| (var > 999)){
-  #str = sprintf('%.3e', var )
-  eval(parse(text=sprintf("str = sprintf('%%.%de', var )",nsig_e)))
-}
-else{
-  #str = sprintf('%.4f', var )}
-   eval(parse(text=sprintf("str = sprintf('%%.%df', var )",nsig_f)))
-  }
+strs = c()
 
-str = pad_string(str, maxlength)
-return(str)}
+for(var in vars){
+  if(var == 0){
+   str = '0' 
+  }else if((var < .01 )| (var > 999)){
+    #str = sprintf('%.3e', var )
+    eval(parse(text=sprintf("str = sprintf('%%.%de', var )",nsig_e)))
+  }
+  else{
+    #str = sprintf('%.4f', var )}
+     eval(parse(text=sprintf("str = sprintf('%%.%df', var )",nsig_f)))
+    }
+  
+  str = pad_string(str, maxlength)
+
+  strs = c(strs, str)
+}
+
+
+
+return(strs)}
 
 
 #'@export
