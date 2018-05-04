@@ -2,10 +2,15 @@
 
 Ubiquity (https://ubiquity.tools) is a set of modeling tools created to accelerate PKPD model development and deployment within an organization or institution. It is designed to make model development easier, reduce the pain when moving between modeling software, and provide a simple but customizable interface to allow other scientists to interrogate models. It is provide free under a BSD license with source code available in GitHub ([R-package](https://github.com/john-harrold/ubiquity), [ubiquity project](https://github.com/john-harrold/ubiquity-pkpd)). This package provides an interface to the ubiquity R Workflow. 
 
+To install from GitHub:
+```
+library("devtools")
+install_github("john-harrold/ubiquity",  build_vignettes = TRUE)
+```
 For more information on specific tasks see the vignettes: 
 
 * Constructing ODE based systems using the ubiquity language: ``vignette("Language", package = "ubiquity")``
-* Running indiviudal and population simulations: ``vignette("Simulation", package = "ubiquity")``
+* Running individual and population simulations: ``vignette("Simulation", package = "ubiquity")``
 * Naive-pooled parameter estimation: ``vignette("Estimation", package = "ubiquity")``
 * Rule-based/titration simulations: ``vignette("Titration", package = "ubiquity")``
 * ShinyApp for running and deploying models: ``vignette("Deployment", package = "ubiquity")``

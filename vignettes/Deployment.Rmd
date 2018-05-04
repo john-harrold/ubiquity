@@ -49,7 +49,7 @@ This should create the following three files:
 
 Next simply open ``ubiquity_app.R`` in RStudio and source it, and RStudio will open in a window associated with that application. The ShinyApp tends to work better when run within a browser. 
 
-After startup the App will load the default dosing from the \verb|system.txt| file and run the model. The first model output will be plotted. And as you make changes to the App, those changes will be reflected in the user log at the bottom of the screen. You can change the outputs being plotted, the axis limits, and other aspects of the plot using the plot controls below the figure. 
+After starting  the App will load the default dosing from the \verb|system.txt| file and run the model. The first model output will be plotted. And as you make changes to the App, those changes will be reflected in the user log at the bottom of the screen. You can change the outputs being plotted, the axis limits, and other aspects of the plot using the plot controls below the figure. 
 
 ![ShinyApp interface after initialization](ShinyApp-ss-Initialization.png){width=60%} 
 
@@ -79,7 +79,7 @@ When you select "Update Plot", each selected output will be plotted (mean -- sol
 
 ##Saving model results   
 
-![Saving an analysis](ShinyApp-ss-save.png){width=30%}
+![Saving an analysis](ShinyApp-ss-Save.png){width=30%}
 
 To save the model results you need to only provide a descriptive name for the analysis, push the save button, and click on the link that is generated. If you select the time stamp, this will be appended to the name of the zip file. By default the following files will be saved:
 
@@ -106,7 +106,7 @@ cfg = build_system(system_file="system.txt")
 ```
 
 ### Controlling what is saved
-In certain instances you may not want to allow the user access to everythign that is saved by default. If you edit the ``ubiquity_app.R`` you can alter what is being pushed to the user by setting the relevant fields to ``FALSE``.
+In certain instances you may not want to allow the user access to everything that is saved by default. If you edit the ``ubiquity_app.R`` you can alter what is being pushed to the user by setting the relevant fields to ``FALSE``.
 
 ```{r, eval=FALSE}
 cfg$gui$save$system_txt = TRUE
@@ -151,7 +151,7 @@ The file ``test_system_report.r`` can be used to debug your model report file. F
 * ``cfg`` $\rightarrow$ ``transient/rgui/default/gui_state.RData``
 * ``som`` $\rightarrow$ ``transient/rgui/default/gui_som.RData``
 
-Next run the test script and modify the report name accordingly:
+Next load the test script, modify the report name accordingly, and run it:
 
 ```{r, eval=FALSE}
 load("transient/rgui/default/gui_som.RData")
@@ -164,7 +164,7 @@ rmarkdown::render("my_report.Rmd",
                    output_format = "html_document")
 ```
 
-This shoudl generate your report in HTML format. You can insert debugging commands in the report and test it while you add information. Once you have it working, you can enable the report as described above and it shoudl appear as a tab viewable by the user.  
+This should generate your report in HTML format. You can insert debugging commands in the report and test it while you add information. Once you have it working, you can enable the report as described above and it should appear as a tab viewable by the user.  
 
 
 ##User definable functions
@@ -176,7 +176,7 @@ cfg$gui$functions$user_def = 'mylibs.r'
 ```
 
 ###Custom simulation commands
-By default the ShinyApp will run simulations using ``run_simulation_ubiquity`` (indivdual) or ``simulate_subjects`` (population). These take as inputs the ``parameters`` vector containing the current parameter set with any changes made through the interface and ``cfg`` data structure. You can create your own functions and overwrite these by defining the following:
+By default the ShinyApp will run simulations using ``run_simulation_ubiquity`` (individual) or ``simulate_subjects`` (population). These take as inputs the ``parameters`` vector containing the current parameter set with any changes made through the interface and ``cfg`` data structure. You can create your own functions and overwrite these by defining the following:
 
 
 **Individual Simulations**
@@ -218,7 +218,7 @@ cfg$gui$functions$plot_var =  'function_name(cfg, parameters,som)'
 
 ##Deployment on a Shiny Server
 
-To deploy the ShinyApp on a shiny server you need to indicate this by modifying ``ubiquity_app.R`` and chainging the deploying variable to ``TRUE``:
+To deploy the ShinyApp on a shiny server you need to indicate this by modifying ``ubiquity_app.R`` and chaining the deploying variable to ``TRUE``:
 
 ```{r, eval=FALSE}
 deploying = TRUE
@@ -233,7 +233,7 @@ R -e "source('model_gui.r')"
 
 
 If the App fails to run on the Shiny Server two options should be checked:
-* Make sure all of the correct packages have been installed and are avialble to the user the Shiny Server is running under.
+* Make sure all of the correct packages have been installed and are available to the user the Shiny Server is running under.
 * Make sure the ownership and permissions on the server files is correct.
 
 To test deployment you can install the [shinyVM](https://github.com/nsh87/shinyVM)

@@ -1,5 +1,5 @@
 ---
-title: 'Titration/Rule-Based Simulation'
+title: 'Titration/Rule-Based Simulations'
 author: "John Harrold <john.m.harrold@gmail.com>"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
