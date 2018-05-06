@@ -5,7 +5,7 @@
 \title{Building The System}
 \usage{
 build_system(system_file = "system.txt", distribution = "automatic",
-  debug = FALSE)
+  perlcmd = "perl", verbose = TRUE, debug = FALSE)
 }
 \arguments{
 \item{system_file}{name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt')}
@@ -15,7 +15,11 @@ distribution of ubiquity. If set to 'automatic' the build script will first
 look to see if the ubiquity R package is installed. If it is installed it
 will use the package. Otherwise, it will assume a 'sand alone' package.}
 
+\item{perlcmd}{system command to run perl}
+
 \item{debug}{Boolean variable indicating if debugging information should be displayed}
+
+\item{verbse}{enable verbose messaging}
 }
 \description{
 Builds the specified system file creating the targets for R and other languages as well as the templates for performing simulations and estimations.

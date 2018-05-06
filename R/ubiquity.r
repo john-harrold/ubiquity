@@ -30,15 +30,19 @@
 #' distribution of ubiquity. If set to 'automatic' the build script will first 
 #' look to see if the ubiquity R package is installed. If it is installed it
 #' will use the package. Otherwise, it will assume a 'sand alone' package.
+#'@param perlcmd system command to run perl
+#'@param verbse enable verbose messaging   
 #'@param debug Boolean variable indicating if debugging information should be displayed
 #'@examples
 #' # build_system(system_file='system.txt')
 build_system <- function(system_file    = "system.txt",
                          distribution   = "automatic",
+                         perlcmd        = "perl",
+                         verbose        =  TRUE,
                          debug          =  FALSE){
 
-pkgs = c("deSolve", "ggplot2", "gdata")
-invisible(system_req(pkgs))
+
+ 
 
 
 # If the distribution is set to automatic we see if the package is loaded
@@ -50,10 +54,7 @@ if(distribution == "automatic"){
   } else if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
     source(file.path('library', 'r_general', 'ubiquity.R'))
     distribution = "stand alone"
-  } else { 
-    invisible(system_req("ubiquity"))
-    distribution = "package"
-  }
+  } 
 } else if(distribution == "package"){
   # If it's set to package we make sure the package is installed and
   # if ti's not we default to stand alone
@@ -62,6 +63,19 @@ if(distribution == "automatic"){
     distribution = "stand alone" }
 }
 
+
+if(verbose == TRUE){
+  cat(sprintf("#> Ubiquity: (https://ubiquity.tools) \n"))
+  cat(sprintf("#> Distribution:           %s \n", distribution))
+}
+# Checking for perl
+if(as.character(Sys.which(perlcmd )) == ""){
+  stop("No perl interpreter found")
+}
+
+
+pkgs = c("deSolve", "ggplot2", "gdata")
+invisible(system_req(pkgs))
 
 # For stand alone distributions we just use the default template and transient
 # directory
@@ -95,10 +109,11 @@ options(warn=-1)
 cfg = list()
 
 if(file.exists(system_file)){
-  cat(sprintf("#> Building the system:    %s \n", system_file))
-  cat(sprintf("#> Ubiquity distribution:  %s \n", distribution))
+  if(verbose == TRUE){
+    cat(sprintf("#> Building the system:    %s \n", system_file))
+  }
   
-  build_command = sprintf('perl "%s" "%s" "%s" "%s" "%s"', build_script_pl, system_file, temp_directory, templates, distribution)
+  build_command = sprintf('%s "%s" "%s" "%s" "%s" "%s"', perlcmd, build_script_pl, system_file, temp_directory, templates, distribution)
   output = system(build_command, intern=TRUE)
   
   # CFILE is used to indicate if we have compiled and loaded the CFILE successfully 
@@ -113,7 +128,9 @@ if(file.exists(system_file)){
     }
     rm('line')
   } else{
-    cat("#> Done \n")}
+    if(verbose == TRUE){
+      cat("#> Done \n")}
+    }
   
   #
   # Cleaning up any older versions of the C file
@@ -124,7 +141,9 @@ if(file.exists(system_file)){
   
   # making the output directory to store generated information
   if(!file.exists('output')){
-    cat("#> Creating output directory \n")
+    if(verbose == TRUE){
+      cat("#> Creating output directory \n")
+    }
     dir.create('output')
   }
   
@@ -136,7 +155,9 @@ if(file.exists(system_file)){
   
   
   # Now we compile the C file
-  cat("#> Compiling C version of system \n")
+  if(verbose == TRUE){
+    cat("#> Compiling C version of system \n")
+  }
   if(file.exists(file.path(temp_directory, 'r_ode_model.c'))){
     # storing the working directory and 
     # changing the working directory to the
@@ -149,29 +170,37 @@ if(file.exists(system_file)){
     if(debug == TRUE){
       cat(output)}
     if("status" %in% names(attributes(output))){
-      cat("#> Failed: Unable to compile C file\n")
+      if(verbose == TRUE){
+        cat("#> Failed: Unable to compile C file\n") }
       CFILE = FALSE
     }else{
       # Loading the shared library
-      cat("#> Loading the shared C library\n")
+      if(verbose == TRUE){
+        cat("#> Loading the shared C library\n") }
       dyn.load(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))
     }
     # Returning to the working directory
     setwd(mywd)
   
   
-    cat('#> System built, to fetch a new template use the following commands:\n')
-    cat('#>   system_fetch_template(cfg, template = "Simulation")\n')
-    cat('#>   system_fetch_template(cfg, template = "Estimation")\n')
+    if(verbose == TRUE){
+      cat('#> System built, to fetch a new template use the following commands:\n')
+      cat('#>   system_fetch_template(cfg, template = "Simulation")\n')
+      cat('#>   system_fetch_template(cfg, template = "Estimation")\n')
+    }
   }else{
-    cat(sprintf("#> Failed: file %s%sr_ode_model.c not found \n",temp_directory, .Platform$file.sep))
+    if(verbose == TRUE){
+      cat(sprintf("#> Failed: file %s%sr_ode_model.c not found \n",temp_directory, .Platform$file.sep))
+    }
     CFILE = FALSE
   }
   
   if(CFILE == FALSE){
-    cat("#> C model not available compile manually using the\n") 
-    cat("#> following command to debug:           \n") 
-    cat(sprintf("#> system('R CMD SHLIB %s%sr_ode_model.c') \n", temp_directory, .Platform$file.sep))
+    if(verbose == TRUE){
+      cat("#> C model not available. Compile manually using the\n") 
+      cat("#> following command to debug:           \n") 
+      cat(sprintf("#> system('R CMD SHLIB %s%sr_ode_model.c') \n", temp_directory, .Platform$file.sep))
+    }
     
     }
   
@@ -182,7 +211,9 @@ if(file.exists(system_file)){
   } 
   
   } else {
-    cat(sprintf('#> Unable to file system file >%s<\n',system_file))
+    if(verbose == TRUE){
+      cat(sprintf('#> Unable to find system file >%s<\n',system_file))
+    }
   }
 # turning warnings back on
 options(warn=0)
@@ -8659,7 +8690,6 @@ for(tval in tvals){
 return(tsample)
 }
 #-------------------------------------------------------------------------
-
 #'@title Require Suggested Packages 
 #'@keywords internal
 #'@description  Used to ensure packages are loaded as they are needed.
@@ -8668,7 +8698,6 @@ return(tsample)
 #'
 #'@return Boolean result of all packages 
 system_req <- function(pkgs){
-
   res_pkg  = NULL
   res_pkgs = c()
   for(pkg in pkgs){
@@ -8676,4 +8705,157 @@ system_req <- function(pkgs){
     res_pkgs = c(res_pkgs, res_pkg)
   }
 all(res_pkgs)}
+#-------------------------------------------------------------------------
+#'@export
+#'@title Check For Perl and C Tools 
+#'@description  Check the local installation for perl and verify C compiler is installed and working.
+#'  
+#'@param checklist list with names corresponding to elements of the system to check.
+#'@param verbose enable verbose messaging   
+#'
+#'@return List fn result of all packages 
+system_check_requirements <- function(checklist = list(perl    = list(check   = TRUE, 
+                                                         perlcmd = "perl"),
+                                          C       = list(check   = TRUE)), 
+                       verbose   = TRUE){
+
+  res = list()
+
+  if(verbose == TRUE){
+    cat("#> system_check_requirements()\n")}
+                       
+
+  # Checking Perl
+  if("perl" %in% names(checklist)){
+    res$perl = TRUE
+
+    if(verbose == TRUE){ cat("#> Testing perl, looking for a perl interpreter\n")}
+    # First we see if we can find the interpreter
+    if(as.character(Sys.which(checklist$perl$perlcmd)) != ""){
+      if(verbose == TRUE){ cat("#> Perl interpreter found, now testing it\n")}
+      # if we find the interpreter we try to run a simple perl command
+      perl_test_cmd = "perl -e  \"print 'perl works';\""
+      
+      perl_test_cmd_result = "" 
+
+      perl_test_cmd_result_numeric = system(perl_test_cmd, ignore.stdout=TRUE)
+
+      # If the numeric result is 0 then it the command executed 
+      if( perl_test_cmd_result_numeric  == 0){
+        if(verbose == TRUE){ cat("#>    > Success: Perl runs, everything should be good\n")}
+        res$perl = TRUE
+        # perl_test_cmd_result_string = system(perl_test_cmd, intern = TRUE)
+      } else {
+        res$perl = FALSE
+        if(verbose == TRUE){ cat("#>    > Failure: Execution of perl test failed\n")}
+      }
+    } else {
+      res$perl   = FALSE
+      if(verbose == TRUE){
+        cat("#> Unable to find perl\n")
+        cat("#> \n")
+        if(.Platform$OS.type == "windows"){
+          cat("#> On Windows you will need to install a perl distribution.\n")
+          cat("#> Windows testing for ubiquity is done with strawberry perl:\n")
+          cat("#> http://strawberryperl.com \n")
+          cat("#> \n")
+          cat("#> After you've installed perl you may need to update\n")
+          cat("#> the PATH through the Control Panel (Environment Variables) \n")
+        
+        }
+        if(.Platform$OS.type == "unix"){
+          cat("#> On Unix (Linux, Mac OS, etc) perl should come standard.\n")
+        }
+      }
+    }
+  }
+
+
+cfile = "
+/* file mymod.c */
+#include <R.h>
+static double parms[1];
+#define k1 parms[0]
+
+/* initializer  */
+void initmod(void (* odeparms)(int *, double *))
+{
+    int N=1;
+    odeparms(&N, parms);
+}
+void derivs (int *neq, double *t, double *y, double *ydot,
+             double *yout, int *ip)
+{
+    if (ip[0] <1) error(\"nout should be at least 1\");
+    ydot[0] = -k1*y[0];
+    yout[0] = y[0];
+}
+/* END file mymod.c */
+"
+  if("C" %in% names(checklist)){
+
+    # if the model exists from before we unload it
+    if(('mymod' %in% names(getLoadedDLLs()))){
+      dyn.unload(getLoadedDLLs()$mymod[["path"]])}
+
+    # Cleaning up any model files from previous run
+    if(file.exists(paste("mymod", .Platform$dynlib.ext, sep = ""))){
+      file.remove( paste("mymod", .Platform$dynlib.ext, sep = "")) }
+    if(file.exists("mymod.c")){
+       file.remove("mymod.c") }
+    if(file.exists("mymod.o")){
+       file.remove("mymod.o") }
+
+    # Making the c file
+    fileConn<-file("mymod.c")
+    writeLines(cfile, fileConn)
+    close(fileConn)
+    
+    # Compiling the C file
+    if(verbose == TRUE){ cat("#> Attempting to compile C file\n")}
+    compile_result = system("R CMD SHLIB mymod.c", ignore.stderr=TRUE, ignore.stdout=TRUE)
+
+    if(compile_result == 0){
+      if(verbose == TRUE){ cat("#>    > Success: C file compiled\n")}
+      # loading it
+
+      if(verbose == TRUE){ cat("#> Loading the library \n")}
+
+        load_result = FALSE
+        tryCatch(
+         { 
+          load_result = dyn.load(paste("mymod", .Platform$dynlib.ext, sep = ""))
+          load_result = TRUE
+         },
+          warning = function(w) { },
+          error = function(e) { })
+      
+        if(load_result){
+          if(verbose == TRUE){ cat("#>    > Success: C library loaded\n")}
+          # running the model
+          parms <- c(k1 = 0.04)
+          Y     <- c(y1 = 10.0)
+          times <- seq(0,10,.1)
+          out <- ode(Y, times, func = "derivs", parms = parms,
+                     dllname = "mymod",
+                     initfunc = "initmod", nout = 1, outnames = "Conc")
+          
+          # unloading the model
+          dyn.unload(getLoadedDLLs()$mymod[["path"]])
+
+          res$C = TRUE
+        } else {
+          if(verbose == TRUE){ cat("#>    > Failure: Unable to load the C library\n")}
+          res$C = FALSE
+        }
+    } else {
+      if(verbose == TRUE){ cat("#>    > Failure: Unable to compile C file\n")}
+      res$C = FALSE
+    }
+       
+  }
+  
+res}
+
+#-------------------------------------------------------------------------
 

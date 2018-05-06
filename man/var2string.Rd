@@ -4,16 +4,16 @@
 \alias{var2string}
 \title{Converts Numeric Variables into Padded Strings}
 \usage{
-var2string(var, maxlength = 0, nsig_e = 3, nsig_f = 4)
+var2string(vars, maxlength = 0, nsig_e = 3, nsig_f = 4)
 }
 \arguments{
-\item{var}{numeric variable}
-
 \item{maxlength}{if this value is greater than zero spaces will be added to the beginning of the string until the total length is equal to maxlength}
 
 \item{nsig_e}{number of significant figures for scientific notation}
 
 \item{nsig_f}{number of significant figures for numbers (2.123)}
+
+\item{var}{numeric variable or a vector of numeric variables}
 }
 \value{
 Number as a string padded
