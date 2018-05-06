@@ -5479,7 +5479,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       pindex = cfg$parameters$matrix$name == pname
       ptmp = c()
       ptmp$set_name  = cfg$parameters$current_set
-      ptmp$value     = var2string(maxlength=12, nsig_f=5, nsig_e=5, var=pest$estimate[[pname]])
+      ptmp$value     = var2string(maxlength=12, nsig_f=5, nsig_e=5, vars=pest$estimate[[pname]])
       ptmp$ptype     = toString(cfg$parameters$matrix$ptype[pindex])
       ptmp$type      = toString(cfg$parameters$matrix$type[pindex])
       ptmp$units     = toString(cfg$parameters$matrix$units[pindex])
@@ -6057,10 +6057,10 @@ for(pname in names(cfg$parameters$values)){
   
   pstr = pad_string(maxlength=20, str=pname)
   if(pname %in% names(parameters)){
-    pstr = sprintf('%s%s    ',   pstr, var2string(maxlength=10, var=parameters_full[[pname]]))
-    pstr = sprintf('%s%s    ',   pstr, var2string(maxlength=11, var=ss$confidence_interval$lower_bound[[pname]]))
-    pstr = sprintf('%s%s      ', pstr, var2string(maxlength=11, var=ss$confidence_interval$upper_bound[[pname]]))
-    pstr = sprintf('%s%s     ',  pstr, var2string(maxlength=8,  var= ss$coefficient_of_variation[[pname]]))
+    pstr = sprintf('%s%s    ',   pstr, var2string(maxlength=10, vars=parameters_full[[pname]]))
+    pstr = sprintf('%s%s    ',   pstr, var2string(maxlength=11, vars=ss$confidence_interval$lower_bound[[pname]]))
+    pstr = sprintf('%s%s      ', pstr, var2string(maxlength=11, vars=ss$confidence_interval$upper_bound[[pname]]))
+    pstr = sprintf('%s%s     ',  pstr, var2string(maxlength=8,  vars= ss$coefficient_of_variation[[pname]]))
     pstr = sprintf('%s%s',       pstr, pad_string(maxlength=3,  str=compare_estimate(cfg, parameters, pname))) 
   } else {
     pstr = sprintf('%s%s', pstr, pad_string(maxlength=10, str=toString(parameters_full[[pname]])))
