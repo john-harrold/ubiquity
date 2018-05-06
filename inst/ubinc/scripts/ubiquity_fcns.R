@@ -31,7 +31,7 @@
 #' look to see if the ubiquity R package is installed. If it is installed it
 #' will use the package. Otherwise, it will assume a 'sand alone' package.
 #'@param perlcmd system command to run perl
-#'@param verbse enable verbose messaging   
+#'@param verbose enable verbose messaging   
 #'@param debug Boolean variable indicating if debugging information should be displayed
 #'@examples
 #' # build_system(system_file='system.txt')
@@ -2543,7 +2543,7 @@ return(mystr)
 #'@title Converts Numeric Variables into Padded Strings
 #'@description Mechanism for converting numeric variables into strings for reporting. 
 #'
-#'@param var numeric variable or a vector of numeric variables
+#'@param vars numeric variable or a vector of numeric variables
 #'@param maxlength if this value is greater than zero spaces will be added to the beginning of the string until the total length is equal to maxlength
 #'@param nsig_e number of significant figures for scientific notation
 #'@param nsig_f number of significant figures for numbers (2.123)

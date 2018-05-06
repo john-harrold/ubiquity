@@ -17,9 +17,9 @@ will use the package. Otherwise, it will assume a 'sand alone' package.}
 
 \item{perlcmd}{system command to run perl}
 
-\item{debug}{Boolean variable indicating if debugging information should be displayed}
+\item{verbose}{enable verbose messaging}
 
-\item{verbse}{enable verbose messaging}
+\item{debug}{Boolean variable indicating if debugging information should be displayed}
 }
 \description{
 Builds the specified system file creating the targets for R and other languages as well as the templates for performing simulations and estimations.
