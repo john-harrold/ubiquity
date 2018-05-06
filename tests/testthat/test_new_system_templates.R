@@ -1,6 +1,7 @@
 context("Creating new system files and model templates")
 test_that("System examples", {
 
+  require(tools)
   #Testing the template file
   expect_true(system_new(system_file="template", file_name="system_template.txt", overwrite=TRUE), info="copying system template")
   expect_true(md5sum("system_template.txt") == md5sum(system.file("ubinc", "templates", "system_template.txt", package="ubiquity")))
