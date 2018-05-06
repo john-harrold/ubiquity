@@ -6086,7 +6086,7 @@ for(pname_r in names(parameters)){
   row_str = pad_string(maxlength=20, str=pname_r)
   for(pname_c in names(parameters)){
     if(ridx >= cidx){
-      row_str = sprintf('%s%s', row_str, var2string(maxlength=20, var=ss$covariance[ridx,cidx]))
+      row_str = sprintf('%s%s', row_str, var2string(maxlength=20, vars=ss$covariance[ridx,cidx]))
     }
     cidx = cidx+1
   }
@@ -6098,9 +6098,9 @@ for(pname_r in names(parameters)){
 
 rl = c(rl, '', '', '',
        'Misc Information')
-rl = c(rl, sprintf('OBJ = %s', var2string(maxlength=1, var=ss$objective)))
-rl = c(rl, sprintf('AIC = %s', var2string(maxlength=1, var=ss$aic)))
-rl = c(rl, sprintf('BIC = %s', var2string(maxlength=1, var=ss$bic)))
+rl = c(rl, sprintf('OBJ = %s', var2string(maxlength=1, vars=ss$objective)))
+rl = c(rl, sprintf('AIC = %s', var2string(maxlength=1, vars=ss$aic)))
+rl = c(rl, sprintf('BIC = %s', var2string(maxlength=1, vars=ss$bic)))
 
 fileConn<-file(report_file)
 writeLines(rl, fileConn)
