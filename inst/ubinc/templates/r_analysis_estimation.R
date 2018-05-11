@@ -4,8 +4,8 @@ graphics.off()
 options(show.error.locations = TRUE)
 
 # If we cannot load the ubiquity package we try the stand alone distribution
-if(!require(ubiquity)){
-  source(file.path('library', 'r_general', 'ubiquity.R')) }
+if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
+{source(file.path('library', 'r_general', 'ubiquity.R')) }
 
 # -------------------------------------------------------------------------
 

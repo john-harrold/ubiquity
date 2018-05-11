@@ -1,6 +1,6 @@
 ---
 title: "Modeling Language"
-author: "John Harrold & Anson K Abraham"
+author: "John Harrold & Anson Abraham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >

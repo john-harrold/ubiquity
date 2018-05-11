@@ -5129,7 +5129,7 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
   
   # Sometimes the eval above fails and it doesn't trigger the error block
   # but when run outside of try catch it does work. 
-  if(!exists('od') & !errorflag){
+  if(is.null(od) & !errorflag){
   eval(parse(text=sprintf('od = %s(parameters, cfg)', cfg$estimation$options$observation_function)))
   }
 
@@ -5321,6 +5321,7 @@ return(pest)}
 estimate_parameters <- function(cfg){
 
 pest = c()
+pest$sysup = ''
 
 # calling calculate_ojective outside of the estimation scope to make sure 
 # it is working properly
@@ -5437,6 +5438,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
     pest_bound    = bound_parameters(pv = pest$estimate_ub, cfg = cfg)
     pest$estimate = pest_bound$pv
 
+   pest$statistics_est = NULL
    tCcode = '
       vp(cfg, "-----------------------------------")
       vp(cfg, "Calculating solution statistics. Be")
@@ -5452,6 +5454,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       vp(cfg, "can be used to update system.txt file. Just copy, ")
       vp(cfg, "paste, and delete the previous entries")'
 
+   ssError = FALSE
    tryCatch(
     { 
       eval(parse(text=tCcode))
@@ -5460,14 +5463,16 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       eval(parse(text=tCcode))
     },
       error = function(e) {
+        ssError = TRUE
         vp(cfg, "Solution statistics calculation failed")
         vp(cfg, "This can happen when you have a parameter")
         vp(cfg, "set that makes the system stiff.")
         vp(cfg, "The final parameter estimates are:")
     })
 
-
-
+    if(is.null(pest$statistics_est) & !ssError){
+      pest$statistics_est = solution_statistics(pest$estimate, cfg)
+    }
 
     # writing the system components to the screen
     # pstr = sprintf('%s%s', pstr, '\n')
@@ -5527,6 +5532,8 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       
       }
     cat(pstr, "\n")
+    pest$sysup = paste(pest$sysup, pstr, "\n")
+
     }
 
   } else {

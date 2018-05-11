@@ -6,11 +6,8 @@ deploying = FALSE
 
 library("shiny")
 
-if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
-  source(file.path('library', 'r_general', 'ubiquity.R'))
-} else { 
-  library(ubiquity) }
-
+if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
+{source(file.path('library', 'r_general', 'ubiquity.R')) }
 
 
 if(deploying){

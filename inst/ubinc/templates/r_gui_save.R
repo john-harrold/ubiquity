@@ -29,8 +29,8 @@ cfg = system_fetch_cfg()
 # # Comment out the block above above then uncomment this block 
 # # to rebuild the system and incorporate modifications to the 
 # # system file into the simulation results
-# if(!require(ubiquity)){
-#   source(file.path('library', 'r_general', 'ubiquity.R')) }
+# if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
+# {source(file.path('library', 'r_general', 'ubiquity.R')) }
 # # Rebuilding the system (R scripts and compiling C code)
 # cfg = build_system(system_file="<system_file>")
 # --------------------------------------------------------------

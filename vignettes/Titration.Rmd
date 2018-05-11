@@ -1,6 +1,6 @@
 ---
 title: 'Titration/Rule-Based Simulations'
-author: "John Harrold <john.m.harrold@gmail.com>"
+author: "John Harrold & Anson Abraham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -33,8 +33,8 @@ This should provide you with the following scripts:
 
 * ``analysis_repeat_dosing.r`` - Implement fixed bolus dosing using the titration framework
 * ``analysis_repeat_infusion.r`` - Implement fixed infusion rates using the titration framework
-* ``analysis_visit_dosing_titration.r`` - Alter dosing based on observations (individual)
-* ``analysis_visit_dosing_titration_stochastic.r`` - Alter dosing based on observations (population)
+* ``analysis_visit_dosing_titration.r`` - Alter dosing based on predictions at specified time points (individual)
+* ``analysis_visit_dosing_titration_stochastic.r`` - Alter dosing based on predictions at specified time points (population)
 * ``analysis_state_reset.r`` - Combine multiple rules to dose the drug and perform a state reset
 
 Titration or rule-based simulations are run using the following functions:
@@ -106,7 +106,7 @@ Now we can overlay the predictions using both methods to show that they produce 
  print(myfig)
 ```
 
-The output of ``run_simulation_titrate`` is similar to that of ``run_simulation_ubiquity`` with to extra elements in the list that is returned:
+The output of ``run_simulation_titrate`` is similar to that of ``run_simulation_ubiquity`` with two extra elements in the list that is returned:
 
 * ``titration`` - A data frame with a row for each time course output and the following columns for titration rule ``tname``:
      + ``tt.tname.value`` - Value of the rule for the active condition or -1 if not triggered
@@ -224,7 +224,7 @@ rhandsontable(som_tt$titration_history, width=600)
 
 ## Monte Carlo Simulations (``analysis_visit_dosing_titration_stochastic.r``)
 
-This example is similar to the last except here we are performing population simulations (20 for an example). The same function (``simulate_subjects``) is used but setting the ``'titrate'`` option to ``TRUE`` tells that function to use the rule-based dosing. 
+This example is similar to the last except here we are performing population simulations (20 subjects). The same function (``simulate_subjects``) is used but setting the ``'titrate'`` option to ``TRUE`` tells that function to use the rule-based dosing. 
 
 
 ```{r echo=TRUE, message=FALSE, results=FALSE, warning=FALSE}
@@ -239,23 +239,12 @@ each titration rule (``tname``):
 * ``tt.tname.simtime`` - Simulation time where the last condition became active
 * ``tt.tname.timescale`` - Simulation time in the time scale the rule was specified in
 
-Each of these fields is a matrix with an entry for each simulation time (column)
-and each subject (row).
+Each of these fields is a matrix with an entry for each simulation time (column) and each subject (row). In this example these would be accessed through the following list elements:
 
 
-*``som$titration$tt.ivdose.simtime``*
-```{r echo=FALSE}
-rhandsontable(som$titration$tt.ivdose.simtime, width=600, height=300)
-```
-
-*``som$titration$tt.ivdose.value``*  
-```{r echo=FALSE}
-rhandsontable(som$titration$tt.ivdose.value, width=600, height=300)
-```
-*``som$titration$tt.ivdose.timescaletimescale``*  
-```{r echo=FALSE}
-rhandsontable(som$titration$tt.ivdose.timescale, width=600, height=300)
-```
+* *``som$titration$tt.ivdose.simtime``*
+* *``som$titration$tt.ivdose.value``*  
+* *``som$titration$tt.ivdose.timescaletimescale``*  
 
 This data structure (``som``) can be collapsed down to a data frame using the ``som_to_df`` function. With titration simulations a column is added for each rule giving the value of that rule at the indicated time (the first 100 rows are shown):
 ```{r message=FALSE, results=FALSE}

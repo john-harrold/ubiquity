@@ -4,13 +4,11 @@ library("rhandsontable")
 library("deSolve")
 library("ggplot2")
 
-if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
-  source(file.path('library', 'r_general', 'ubiquity.R'))
-} else { 
-  library(ubiquity) }
 
+if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
+{source(file.path('library', 'r_general', 'ubiquity.R')) }
 
-cfg = buil_system()
+cfg = build_system()
 
 Rmdfile = "system_report.Rmd"
 load("transient/rgui/default/gui_som.RData")
