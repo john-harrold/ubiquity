@@ -975,6 +975,34 @@ return(cfg)}
 #'
 #'@details 
 #'
+#' \bold{\code{group=logging}}
+#'
+#' By default ubiquity prints different information to the console and logs this
+#' information to a log file. The following options can be used to control
+#' this behavior:
+#'
+#' \itemize{
+#' \item \code{"enabled"}   = Boolean variable to control logging: \code{TRUE}
+#' \item \code{"file"}      = String containing the name of the log file: file.path("transient", "ubiquity_log.txt")
+#' \item \code{"timestamp"} = Boolean switch to control appending a time stamp to log entries: \code{TRUE}
+#' \item \code{"ts_str"}    = String format of timestamp: \code{"%Y-%m-%d %H:%M:%S"}
+#' \item \code{"debug"}     = Boolean switch to control debugging (see below): \code{FALSE}
+#' \item \code{"verbose"}   = Boolean switch to control printing to the console \code{FALSE}
+#' }
+#'
+#'
+#'
+#' To enable debugging of different functions (like when performing esitmation), 
+#' set the \code{debug} option to \code{TRUE}. Important function calls will be 
+#' trapped and information will be logged and reported to the console.
+#'
+#' \preformatted{
+#'cfg = system_set_option(cfg, 
+#'                        group  = "estimation",
+#'                        option = "debug",
+#'                        value  = FALSE)
+#'}
+#'
 #' \bold{\code{group=solver}}
 #'
 #' Depending on the solver, different options can be set. The documentation
@@ -3378,7 +3406,7 @@ system_log_init = function (cfg){
 # initializes the log file then enables logging
 
   file.create(cfg$options$logging$file)
-  cfg$options$logging$enabled = 'yes';
+  cfg$options$logging$enabled = TRUE
   system_log_entry(cfg, 'Ubiquity log init - R')
 
 return(cfg)
@@ -3403,14 +3431,14 @@ system_log_entry = function(cfg, entry){
 
 
 # if logging is disabled we don't do anything 
-if(cfg$options$logging$enabled ==  "yes"){
+if(cfg$options$logging$enabled ==  TRUE){
   # If the log file doesn't exist we initialize it
   if(!file.exists(cfg$options$logging$file)){
    system_log_init(cfg);
   }
   # If the timestamp is enabled we prepend it to the
   # log message
-  if(cfg$options$logging$timestamp == "yes"){
+  if(cfg$options$logging$timestamp == TRUE){
     entry = sprintf('%s %s',  format(Sys.time(), format=cfg$options$logging$ts_str), entry)
   }
 
@@ -3480,7 +3508,7 @@ vp = function(cfg, str){
 # Print out the message contained in 'str' if the verbose option in cfg is
 # set. Example:
 #
-#  cfg$options$verbose = 'yes';
+#  cfg$options$logging$verbose = TRUE;
 #
 #  vp(cfg, 'Hellow world');
 #
@@ -3490,8 +3518,8 @@ system_log_entry(cfg, str)
 
 # printing if verbose is enabled
 if('options' %in% names(cfg)){
-if('verbose' %in% names(cfg$options)){
-if('yes' == cfg$options$verbose){
+if('verbose' %in% names(cfg$options$logging)){
+if(TRUE == cfg$options$logging$verbose){
   cat(sprintf('#> %s \n',toString(str)));
   }}}
 }
@@ -3913,6 +3941,7 @@ system_define_cohort <- function(cfg, cohort){
    # covariate       
   if('covariates' %in% names(cohort$inputs)){
     if('covariates' %in% names(cfg$options$inputs)){
+      # Check to see if covariates were defined
       # processing each covariates
       for(iname in names(cohort$inputs$covariates)){
         if(iname %in% names(cfg$options$inputs$covariates)){
@@ -3922,6 +3951,15 @@ system_define_cohort <- function(cfg, cohort){
               isgood = FALSE
               vp(cfg, sprintf('Error: For the covariates >%s< the length of ', iname))
               vp(cfg, sprintf('       the AMT and TIME fields need to be the same'))
+            } else {
+              # Checking for multiple entries in the time column for the same
+              # time:
+              if(length(cohort$inputs$covariates[[iname]]$TIME) != length(unique(cohort$inputs$covariates[[iname]]$TIME))){
+                vp(cfg, sprintf('Warning: Covariate %s has duplicate time values. Only ', iname)) 
+                vp(cfg, sprintf('         the first value for each time will be used')) 
+                cohort$inputs$covariates[[iname]]$AMT  = cohort$inputs$covariates[[iname]]$AMT[!duplicated(cohort$inputs$covariates[[iname]]$TIME)]
+                cohort$inputs$covariates[[iname]]$TIME = cohort$inputs$covariates[[iname]]$TIME[!duplicated(cohort$inputs$covariates[[iname]]$TIME)]
+              }
             }
           }
           else{
@@ -3941,7 +3979,7 @@ system_define_cohort <- function(cfg, cohort){
     }
     else{  
      isgood = FALSE  
-     vp(cfg, sprintf('Error: An covariates was specified for this cohort but')) 
+     vp(cfg, sprintf('Error: A covariate was specified for this cohort but')) 
      vp(cfg, sprintf('       there are no covariatess defined in the system.txt file.')) 
      vp(cfg, sprintf('       <CV:CNAME>; times;   []; units '))
      vp(cfg, sprintf('       <CV:CNAME>; values;  []; units '))
@@ -4253,6 +4291,14 @@ else{
 #'   \item \code{name}               - state or output name corresponding to the prediction
 #'   \item \code{cohort}             - name of the cohort for these predictions
 #' }
+#'
+#' Lastly if debugging is enabled the field \code{isgood} will be set to \code{FALSE}
+#' if any problems are encountered.
+#'
+#' \preformatted{
+#'od$isgood = TRUE
+#' }
+#'
 #'@seealso \code{\link{system_define_cohort}} and \code{\link{system_simulate_estimation_results}}
 system_od_general <- function(pest, cfg, estimation=TRUE, details=FALSE){
 
@@ -4261,6 +4307,7 @@ odall  = c()
 odpred = c() 
 
 
+isgood = TRUE
 
 chidx = 1
 for(cohort_name in names(cfg$cohorts)){
@@ -4342,6 +4389,9 @@ for(cohort_name in names(cfg$cohorts)){
   som = run_simulation_ubiquity(chparameters, chcfg, SIMINT_dropfirst=FALSE) 
 
 
+  # Flag to indicate that an error has occurred and the parameters should be
+  # dumped if debugging is enabled (bottom of the for loop)
+  DUMP_PARAMS = FALSE
 
   # sampling the different outputs for this cohort
   opidx = 1
@@ -4365,6 +4415,9 @@ for(cohort_name in names(cfg$cohorts)){
     }
 
 
+
+
+
     # sampling the model prediction at the times where we have observations
     odchunk$PRED = stats::approx( x      = som$simout[[sprintf("ts.%s", output_ts)]], 
                                   y      = som$simout[[output_name]], 
@@ -4376,6 +4429,17 @@ for(cohort_name in names(cfg$cohorts)){
                                      SIMINT_varstr     = cohort$outputs[[output]]$model$variance, 
                                      SIMINT_odchunk    = odchunk, 
                                      SIMINT_cfg        = chcfg)
+
+    # Checking for integration failures by looking at the predcitons
+    # and calculations made based on those predictions:
+    if(any(c(is.na(odchunk$VAR), is.na(odchunk$PRED)))){
+      isgood = FALSE
+      DUMP_PARAMS = TRUE
+      # If debugging is set we dump the information to the screen
+      if(chcfg$options$logging$debug){
+          vp(chcfg, sprintf("Simulation failed for cohort: %s, output: %s", cohort_name, output))
+      }
+    }
 
 
     if(estimation){
@@ -4420,8 +4484,23 @@ for(cohort_name in names(cfg$cohorts)){
 
       odpred = rbind(odpred, od_current)
     }
+
   
   opidx = opidx + 1
+  }
+
+  # If debugging is enabled and the solver failed we dump the parameters
+  # (initial guess, current value and the difference).
+  if(chcfg$options$logging$debug & DUMP_PARAMS){
+      vp(chcfg, "         Parameter | Guess         | Value         | Difference ")
+      for(tmppname in names(pest)){
+        vp(chcfg, 
+          sprintf("%s | %s | %s | %s", 
+          pad_string(str=tmppname, maxlength=18),
+          var2string(maxlength=13, vars=chcfg$estimation$parameters$guess[[tmppname]], nsig_e=5, nsig_f=5),
+          var2string(maxlength=13, vars=pest[[tmppname]], nsig_e=5, nsig_f=5),
+          var2string(maxlength=13, vars=(pest[[tmppname]] - chcfg$estimation$parameters$guess[[tmppname]]), nsig_e=5, nsig_f=5)))
+     }
   }
 
   # storing the smooth profiles for all of timescale, states and outputs
@@ -4445,9 +4524,9 @@ for(cohort_name in names(cfg$cohorts)){
 chidx = chidx + 1
 }
 
-od$pred = odpred
-od$all  = odall
-
+od$pred   = odpred
+od$all    = odall
+od$isgood = isgood
 
 return(od)
 
@@ -5091,30 +5170,19 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
 
 
   errorflag = FALSE
-  # We default to Inf in case the observation function below fails. This way 
-  # if we move into a bad parameter space, the Inf will push it away from that
+  # We default to a really big value in case the observation function below fails. This way 
+  # if we move into a bad parameter space, the big value will push it away from that
   # parameter space
-  value     = Inf 
-
-  # Bounding the parameters
-  bv    = bound_parameters(pv = parameters, cfg = cfg)
-  # pulling out the bounded parameters and objective multiplier
-  parameters = bv$pv
-  objmult   = bv$objmult
-
-
+  value = .Machine$double.xmax/100
 
   # Trying to pull out the observations
   # if we fail we throw an error and flip the error flag
-  od = NULL
-  tryCatch(
+  tcres = list(od=NULL)
+  tcres = tryCatch(
    { 
       eval(parse(text=sprintf('od = %s(parameters, cfg)', cfg$estimation$options$observation_function)))
-   },
-    warning = function(w) {
-    # place warning stuff here
-      eval(parse(text=sprintf('od = %s(parameters, cfg)', cfg$estimation$options$observation_function)))
-   },
+
+    list(od=od, msg="success")},
     error = function(e) {
     vp(cfg, sprintf(' -> unable to retrieve observations'))
     vp(cfg, sprintf(' -> possible causes:')) 
@@ -5123,20 +5191,32 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
     vp(cfg, sprintf('        objective function during estimation '))
     vp(cfg, sprintf('        is causing problems '))
     vp(cfg, sprintf(' Error: %s ', e$message))
+    list(value=e, od=NULL, msg="error")})
+
+  if(tcres$msg == "error"){
     errorflag = TRUE
-    value = Inf 
-   })
+  }
+
   
   # Sometimes the eval above fails and it doesn't trigger the error block
   # but when run outside of try catch it does work. 
-  if(is.null(od) & !errorflag){
-  eval(parse(text=sprintf('od = %s(parameters, cfg)', cfg$estimation$options$observation_function)))
+  if(is.null(tcres$od) & tcres$msg == "success"){
+    eval(parse(text=sprintf('od = %s(parameters, cfg)', cfg$estimation$options$observation_function)))
   }
 
 
+  # detecting failures in the od function:
+  if("isgood" %in% names(tcres$od)){
+    if(!od$isgood){
+      errorflag = TRUE
+    }
+  }
+
+  od = tcres$od
+
+
+
   if(!errorflag){
-
-
   tCcode     = '
     yobs = od$pred[,2]
     ypred= od$pred[,3]
@@ -5150,10 +5230,6 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
       # Constant portion of the negative log likelihood objective
       value = value + length(yobs)*log(2*pi)/2
     }
-   
-    # Parameter bounds, are handled by increasing the objective function due
-    # to the parameter bounds being crossed.
-    value = value*(1+objmult)
 
     # if the objective function is inf or NA we throw the error flag
     if(is.na(value) | is.infinite(value)){
@@ -5161,20 +5237,27 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
 
 
 
-  tryCatch(
+  tcres = tryCatch(
    { 
    eval(parse(text=tCcode))
-   },
-    warning = function(w) {
-    # place warning stuff here
-   eval(parse(text=tCcode))
-   },
+   list(value=value,
+        msg="success") },
     error = function(e) {
     vp(cfg, sprintf(' Error: %s ', e$message))
-    errorflag = TRUE
-    value = Inf 
-   })
+    list(value=e, msg="error")})
+
+    if(tcres$msg =="success"){
+      value = tcres$value
+    } else if(tcres$msg=="error"){
+      #value = .Machine$double.xmax/100
+      errorflag = TRUE
+    }
   }
+
+
+  
+  if(cfg$options$logging$debug){
+    vp(cfg, sprintf("Obj: %s", toString(value))) }
 
   # If we're in the estimation we return the objective function value
   # otherwise we return a structured output and any relevant errors
@@ -5201,45 +5284,6 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
   }
 
 
-}
-
-#'@title Bound Parameters
-#'@keywords internal
-#'@description 
-#' Takes a vector of parameters and returns the same vector where parameters beyond there bounds are replaced with the bounds
-#'
-#'@param pv parameter vector
-#'@param cfg ubiquity system object    
-#'
-#'@return bounded parameters vector
-#'
-bound_parameters  <- function(pv, cfg){
-objmult = 0.0
-  for(pname in names(pv)){
-    # pulling out the bounds for the current parameter
-    ub = cfg$estimation$parameters$matrix[cfg$estimation$parameters$matrix$name == pname, ]$upper_bound
-    lb = cfg$estimation$parameters$matrix[cfg$estimation$parameters$matrix$name == pname, ]$lower_bound
-    if(pv[[pname]] >  ub){
-      # adding the multiplier
-      objmult = objmult + 10*exp(abs(pv[[pname]] - ub))
-      # fixing the parameter to the bound
-      pv[[pname]] = ub
-    } else if(pv[[pname]] < lb ) {
-      # adding the multiplier
-      objmult = objmult + 10*exp(abs(pv[[pname]] - lb))
-      # fixing the parameter to the bound
-      pv[[pname]] = lb
-    }
-  
-  }
-
-  # storing the bounds and objective multiplier
-  # for bound violations
-  bv = c()
-  bv$objmult = objmult
-  bv$pv = pv
-
-  return(bv)
 }
 
 
@@ -5339,13 +5383,25 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       #
       # We perform the estimation depending on the optimizer selected 
       #
-      if(cfg$estimation$options$optimizer %in% c('optim', 'optimx')){
-        eval(parse(text=sprintf('p = %s(cfg$estimation$parameters$guess, 
-                                        calculate_objective, 
-                                        cfg     = cfg, 
-                                        method  = cfg$estimation$options$method, 
-                                        control = cfg$estimation$options$control)', 
-                                        cfg$estimation$options$optimizer)))
+      if(cfg$estimation$options$optimizer %in% c('optim', 'optimx', 'optimr')){
+        if( cfg$estimation$options$method %in% c("Brent", "L-BGFS-B")){
+          eval(parse(text=sprintf('p = %s(cfg$estimation$parameters$guess, 
+                                          calculate_objective, 
+                                          cfg     = cfg, 
+                                          lower   = cfg$estimation$parameters$matrix$lower_bound,
+                                          upper   = cfg$estimation$parameters$matrix$upper_bound,
+                                          method  = cfg$estimation$options$method, 
+                                          control = cfg$estimation$options$control)', 
+                                          cfg$estimation$options$optimizer)))
+        } else {
+          eval(parse(text=sprintf('p = %s(cfg$estimation$parameters$guess, 
+                                          calculate_objective, 
+                                          cfg     = cfg, 
+                                          method  = cfg$estimation$options$method, 
+                                          control = cfg$estimation$options$control)', 
+                                          cfg$estimation$options$optimizer)))
+        
+        }
       }
       else if(cfg$estimation$options$optimizer %in% c('pso')){
         p = pso::psoptim(par     = as.vector(cfg$estimation$parameters$guess),
@@ -5381,12 +5437,6 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
 
       }
 
-                        sprintf('p = %s(cfg$estimation$parameters$guess, 
-                                        calculate_objective, 
-                                        cfg     = cfg, 
-                                        method  = cfg$estimation$options$method, 
-                                        control = cfg$estimation$options$control)', 
-                                        cfg$estimation$options$optimizer)
       
       vp(cfg,'Estimation Complete ')
       vp(cfg,'------------------------------------------')
@@ -5398,15 +5448,14 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
     # First we keep the 'raw' data
     pest$raw = p
 
-    # estimate_ub is the unbound estimate
     if(cfg$estimation$options$optimizer == "optim"){
-      pest$estimate_ub = p$par 
+      pest$estimate = p$par 
       pest$obj      = p$value
     } 
     else if(cfg$estimation$options$optimizer == "optimx"){
       pest$obj               = p$value
       for(pname in names(cfg$estimation$parameters$guess)){
-        pest$estimate_ub[[pname]] = p[[pname]]
+        pest$estimate[[pname]] = p[[pname]]
       }
 
     } 
@@ -5415,28 +5464,24 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       # Pso returns the parameters as a vector so we 
       # have to put it back into a list for the other functions
       pest$obj      = p$value
-      pest$estimate_ub = list()
+      pest$estimate = list()
       pidx = 1
       for(pname in names(cfg$estimation$parameters$guess)){
-        pest$estimate_ub[[pname]] = p$par[pidx]
+        pest$estimate[[pname]] = p$par[pidx]
         pidx = pidx+1
       }
     } 
     # Genetic algorithm (ga) output
     else if(cfg$estimation$options$optimizer %in% c("ga")){
        pest$obj = p@fitnessValue
-       pest$estimation_ub = structure(rep(-1, length(cfg$estimation$parameters$guess)), 
+       pest$estimation = structure(rep(-1, length(cfg$estimation$parameters$guess)), 
                                       names=names(cfg$estimation$parameters$guess))
        pidx = 1
        for(pname in names(cfg$estimation$parameters$guess)){
-         pest$estimate_ub[[pname]] = p@solution[pidx]
+         pest$estimate[[pname]] = p@solution[pidx]
          pidx = pidx+1
        }
     }
-
-    # Applying bound to estimate
-    pest_bound    = bound_parameters(pv = pest$estimate_ub, cfg = cfg)
-    pest$estimate = pest_bound$pv
 
    pest$statistics_est = NULL
    tCcode = '
@@ -5454,25 +5499,25 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       vp(cfg, "can be used to update system.txt file. Just copy, ")
       vp(cfg, "paste, and delete the previous entries")'
 
-   ssError = FALSE
-   tryCatch(
+   tcres = tryCatch(
     { 
       eval(parse(text=tCcode))
-    },
+    "success"},
       warning = function(w) {
       eval(parse(text=tCcode))
-    },
+    "warning"},
       error = function(e) {
-        ssError = TRUE
         vp(cfg, "Solution statistics calculation failed")
         vp(cfg, "This can happen when you have a parameter")
         vp(cfg, "set that makes the system stiff.")
         vp(cfg, "The final parameter estimates are:")
-    })
+    "error"})
 
-    if(is.null(pest$statistics_est) & !ssError){
+
+    if(is.null(pest$statistics_est) & tcres =="warning"){
       pest$statistics_est = solution_statistics(pest$estimate, cfg)
     }
+    cat("b\n")
 
     # writing the system components to the screen
     # pstr = sprintf('%s%s', pstr, '\n')

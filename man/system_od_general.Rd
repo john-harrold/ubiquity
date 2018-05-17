@@ -52,6 +52,13 @@ od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]
   \item \code{name}               - state or output name corresponding to the prediction
   \item \code{cohort}             - name of the cohort for these predictions
 }
+
+Lastly if debugging is enabled the field \code{isgood} will be set to \code{FALSE}
+if any problems are encountered.
+
+\preformatted{
+od$isgood = TRUE
+}
 }
 \description{
 Used to calculate observation details based on 

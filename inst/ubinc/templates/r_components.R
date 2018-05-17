@@ -111,13 +111,14 @@ cfg$options$stochastic$sub_file         = NULL
 cfg$options$stochastic$sub_file_sample  = 'with replacement'
 
 # default logging options
-cfg$options$logging$enabled   = 'yes'
+cfg$options$logging$enabled   = TRUE 
 cfg$options$logging$file      = sprintf('transient%subiquity_log.txt', .Platform$file.sep)
-cfg$options$logging$timestamp = 'yes'
+cfg$options$logging$timestamp = TRUE 
 cfg$options$logging$ts_str    = "%Y-%m-%d %H:%M:%S"
+cfg$options$logging$debug     = FALSE
 
 # defaulting to verbose output
-cfg$options$verbose           = 'yes'
+cfg$options$logging$verbose   = TRUE
 
 # default estimation options
 cfg$estimation$options$observation_function   = 'system_od_general'

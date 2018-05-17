@@ -92,8 +92,7 @@ cfg = system_define_cohorts_nm(cfg,
                                col_GROUP= 'DOSE',
                                filter   =  filter, 
                                INPUTS   =  INPUTMAP,
-                               OBS      =  OBSMAP,
-                               group    =  FALSE)
+                               OBS      =  OBSMAP)
                                 
 
 
