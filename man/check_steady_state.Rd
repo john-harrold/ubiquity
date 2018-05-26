@@ -11,6 +11,9 @@ check_steady_state(cfg, som)
 
 \item{som}{output of \code{\link{run_simulation_ubiquity}}}
 }
+\value{
+list with name \code{steady_state} (boolean indicating weather the system was at steady state) and \code{states} a vector of states that have steady state offset.
+}
 \description{
 Takes the output  \code{\link{run_simulation_ubiquity}} and verifies that the system is running at steady-state by analyzing the timecourse of all of the states in the system
 }

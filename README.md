@@ -1,6 +1,6 @@
 ## ubiquity
 
-Ubiquity (https://ubiquity.tools) is a set of modeling tools created to accelerate PKPD model development and deployment within an organization or institution. It is designed to make model development easier, reduce the pain when moving between modeling software, and provide a simple but customizable interface to allow other scientists to interrogate models. It is provide free under a BSD license with source code available in GitHub ([R-package](https://github.com/john-harrold/ubiquity), [ubiquity project](https://github.com/john-harrold/ubiquity-pkpd)). This package provides an interface to the ubiquity R Workflow. 
+Ubiquity (<https://ubiquity.tools>) is a set of modeling tools created to accelerate PKPD model development and deployment within an organization or institution. It is designed to make model development easier, reduce the pain when moving between modeling software, and provide a simple but customizable interface to allow other scientists to interrogate models. It is provide free under a BSD license with source code available in GitHub ([R-package](https://github.com/john-harrold/ubiquity), [ubiquity project](https://github.com/john-harrold/ubiquity-pkpd)). This package provides an interface to the ubiquity R Workflow. 
 
 To install from GitHub:
 ```
@@ -17,4 +17,4 @@ For more information on specific tasks see the vignettes:
 * Inline generation of PowerPoint reports: ``vignette("Reporting", package = "ubiquity")``
 
 ### Note
-To build systems in R it is necessary that you have a perl interpreter installed and that it is in your search path. Most Unix systems will have perl installed and there are many free distributions for windows. For testing [Strawberry Perl](http://strawberryperl.com}) is used. 
+To build systems in R it is necessary that you have a Perl interpreter installed and that it is in your search path. Most Unix systems will have Perl installed and there are many free distributions for windows. For testing [Strawberry Perl](http://strawberryperl.com) is used. 
