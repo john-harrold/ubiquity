@@ -4389,6 +4389,7 @@ for(cohort_name in names(cfg$cohorts)){
   som = run_simulation_ubiquity(chparameters, chcfg, SIMINT_dropfirst=FALSE) 
 
 
+
   # Flag to indicate that an error has occurred and the parameters should be
   # dumped if debugging is enabled (bottom of the for loop)
   DUMP_PARAMS = FALSE
@@ -4520,6 +4521,7 @@ for(cohort_name in names(cfg$cohorts)){
       odall = rbind(odall, odall_cohort )
     }
   }
+
 
 chidx = chidx + 1
 }
@@ -5175,6 +5177,31 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
   # parameter space
   value = .Machine$double.xmax/100
 
+  bounds_violated = FALSE
+  bvdiff = 0.0
+
+  if(any(parameters < cfg$estimation$parameters$matrix$lower_bound)){
+    bounds_violation = TRUE
+    bvdiff = bvdiff +  sum(abs(cfg$estimation$parameters$matrix$lower_bound[parameters < cfg$estimation$parameters$matrix$lower_bound]- parameters[parameters < cfg$estimation$parameters$matrix$lower_bound]))
+  }
+
+  if(any(parameters > cfg$estimation$parameters$matrix$uppper_bound)){
+    bounds_violation = TRUE
+    bvdiff = bvdiff +  sum(abs(cfg$estimation$parameters$matrix$upper_bound[parameters > cfg$estimation$parameters$matrix$upper_bound]- parameters[parameters > cfg$estimation$parameters$matrix$upper_bound]))
+  }
+
+  # By default the objective function multiplier will be 1.0
+  objmult = 1.0
+
+  # however if here were bounds violations that will be increased
+  if(bvdiff > 0){
+    objmult = objmult + 10*exp(bvdiff)
+  } 
+
+  if(is.infinite(objmult)){
+    objmult = .Machine$double.xmax/1e6
+  }
+
   # Trying to pull out the observations
   # if we fail we throw an error and flip the error flag
   tcres = list(od=NULL)
@@ -5231,6 +5258,8 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
       value = value + length(yobs)*log(2*pi)/2
     }
 
+    value = value*objmult
+
     # if the objective function is inf or NA we throw the error flag
     if(is.na(value) | is.infinite(value)){
       errorflag = TRUE } '
@@ -5267,6 +5296,7 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
     of = list()
     of$value = value 
     of$isgood = !errorflag
+    of$od = od
     if(errorflag){
       vp(cfg, 'calculate_objective failed')
       vp(cfg, sprintf('   Obj: %s ', toString(value)))
@@ -5517,7 +5547,6 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
     if(is.null(pest$statistics_est) & tcres =="warning"){
       pest$statistics_est = solution_statistics(pest$estimate, cfg)
     }
-    cat("b\n")
 
     # writing the system components to the screen
     # pstr = sprintf('%s%s', pstr, '\n')
@@ -6565,9 +6594,13 @@ solution_statistics <- function(parameters, cfg){
 #'
 #'@param cfg ubiquity system object    
 #'@param som output of \code{\link{run_simulation_ubiquity}} 
+#'@return list with name \code{steady_state} (boolean indicating weather the system was at steady state) and \code{states} a vector of states that have steady state offset.  
 check_steady_state  <- function(cfg, som){ 
 
   offset_found = FALSE
+
+  res = list()
+  res$states = c()
 
   for(sname in names(cfg$options$mi$states)){
      state = som$simout[[sname]]
@@ -6587,12 +6620,15 @@ check_steady_state  <- function(cfg, som){
            offset_found = TRUE  
         }
         vp(cfg, sprintf('#> %.3e   | %.3e   | %s', offset, state_max, sname))
+        res$states = c(res$states, sname)
        
        }
      }
   }
 
-}
+  res$steady_state = !offset_found
+
+res}
 
 
 #'@export
@@ -8654,27 +8690,28 @@ run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
 make_forcing_function = function(times, values, type, output_times){
 
 if("step" == type){
+
+ # The delta here is the switching time between steps. Below calculates it as
+ # .1% of the smallest time between steps. 
+ delta         = 250000*.Machine$double.eps
+ if(length(times) > 1){
+    offsets = ( times[2:length(times)] - times[1:length(times)-1])
+    delta = 0.001*min(offsets)
+ } 
+
  counter = 1
  while( counter <= length(times)){
   if(counter == 1){
     myforce = matrix(ncol=2,byrow=TRUE,data=c(times[counter], values[counter]))
   } else{
-    if(times[counter] == 0){
-      delta         = 250*.Machine$double.eps
-    } else {
-      delta         = 250*.Machine$double.eps*times[counter]
-    }
-    delta         = 250000*.Machine$double.eps
+    # if(times[counter] == 0){
+    #   delta         = 250*.Machine$double.eps
+    # } else {
+    #   delta         = 250*.Machine$double.eps*times[counter]
+    # }
+    # delta         = 250000*.Machine$double.eps
 
-   ## placing sample points in the constant region
-   #if(counter ==2){
-   # npts = 10
-   # tmp_tstart = myforce[length(myforce[,1]), 1] + 2*delta
-   # tmp_tstop  = times[counter] - 2*delta
-   # stimes  = seq(tmp_tstart, tmp_tstop, (tmp_tstop - tmp_tstart)/npts)
-   # svalues = rep(myforce[length(myforce[,1]), 2], npts)
-   # myforce = rbind(myforce, cbind(stimes, svalues))
-   #}
+
     # just before the switching time it takes the previous value
     myforce = (rbind(myforce, c((times[counter]-delta), values[counter-1])))
     # just afterwards it takes on the next value
