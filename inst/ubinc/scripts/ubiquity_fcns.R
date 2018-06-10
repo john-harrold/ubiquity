@@ -2588,7 +2588,10 @@ var2string <- function(vars,maxlength=0, nsig_e = 3, nsig_f = 4) {
 strs = c()
 
 for(var in vars){
-  if(var == 0){
+  if(is.character(var)){
+    str = var
+  }
+  else if(var == 0){
    str = '0' 
   }else if((var < .01 )| (var > 999)){
     #str = sprintf('%.3e', var )
@@ -5172,22 +5175,27 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
 
 
   errorflag = FALSE
-  # We default to a really big value in case the observation function below fails. This way 
-  # if we move into a bad parameter space, the big value will push it away from that
-  # parameter space
-  value = .Machine$double.xmax/100
+  # We default value to NA and we catch it at the bottom in case something
+  # fails between here and there
+  value = NA
 
   bounds_violated = FALSE
   bvdiff = 0.0
 
+  # Checking the bounds of the parameters
   if(any(parameters < cfg$estimation$parameters$matrix$lower_bound)){
-    bounds_violation = TRUE
+    bounds_violated  = TRUE
     bvdiff = bvdiff +  sum(abs(cfg$estimation$parameters$matrix$lower_bound[parameters < cfg$estimation$parameters$matrix$lower_bound]- parameters[parameters < cfg$estimation$parameters$matrix$lower_bound]))
+    # set the parameters below the bounds to the lower bound
+    parameters[parameters < cfg$estimation$parameters$matrix$lower_bound] = cfg$estimation$parameters$matrix$lower_bound[parameters < cfg$estimation$parameters$matrix$lower_bound]
   }
 
-  if(any(parameters > cfg$estimation$parameters$matrix$uppper_bound)){
-    bounds_violation = TRUE
+  if(any(parameters > cfg$estimation$parameters$matrix$upper_bound)){
+    bounds_violated  = TRUE
+    # calculate the diff for the multiplier below
     bvdiff = bvdiff +  sum(abs(cfg$estimation$parameters$matrix$upper_bound[parameters > cfg$estimation$parameters$matrix$upper_bound]- parameters[parameters > cfg$estimation$parameters$matrix$upper_bound]))
+    # set the parameters above thier bounds to their upper bound
+    parameters[parameters > cfg$estimation$parameters$matrix$upper_bound] = cfg$estimation$parameters$matrix$upper_bound[parameters > cfg$estimation$parameters$matrix$upper_bound]
   }
 
   # By default the objective function multiplier will be 1.0
@@ -5201,6 +5209,9 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
   if(is.infinite(objmult)){
     objmult = .Machine$double.xmax/1e6
   }
+
+  # JMH
+
 
   # Trying to pull out the observations
   # if we fail we throw an error and flip the error flag
@@ -5225,11 +5236,11 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
   }
 
   
-  # Sometimes the eval above fails and it doesn't trigger the error block
-  # but when run outside of try catch it does work. 
-  if(is.null(tcres$od) & tcres$msg == "success"){
-    eval(parse(text=sprintf('od = %s(parameters, cfg)', cfg$estimation$options$observation_function)))
-  }
+  # # Sometimes the eval above fails and it doesn't trigger the error block
+  # # but when run outside of try catch it does work. 
+  # if(is.null(tcres$od) & tcres$msg == "success"){
+  #   eval(parse(text=sprintf('od = %s(parameters, cfg)', cfg$estimation$options$observation_function)))
+  # }
 
 
   # detecting failures in the od function:
@@ -5258,14 +5269,10 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
       value = value + length(yobs)*log(2*pi)/2
     }
 
-    value = value*objmult
+    value = value*objmult '
 
-    # if the objective function is inf or NA we throw the error flag
-    if(is.na(value) | is.infinite(value)){
-      errorflag = TRUE } '
-
-
-
+ 
+  # this code attempts to calculate the objective function value:
   tcres = tryCatch(
    { 
    eval(parse(text=tCcode))
@@ -5275,18 +5282,28 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
     vp(cfg, sprintf(' Error: %s ', e$message))
     list(value=e, msg="error")})
 
+   
+    # If the objective function value is successfully calculated then we
+    # pull out the value, otherwise we set value to a large value to push the
+    # optimizer away from that parameter set and then we flip the error flag
     if(tcres$msg =="success"){
       value = tcres$value
     } else if(tcres$msg=="error"){
-      #value = .Machine$double.xmax/100
+      value = .Machine$double.xmax/100
       errorflag = TRUE
     }
   }
 
+  # if the objective function is Inf or NA we throw the error flag and
+  # set the value to a large number
+  if(is.na(value) | is.infinite(value)){
+    value = .Machine$double.xmax/100
+    errorflag = TRUE } 
 
   
   if(cfg$options$logging$debug){
-    vp(cfg, sprintf("Obj: %s", toString(value))) }
+    vp(cfg, paste("Obj:", toString(value) ," Bound Difference:", toString(bvdiff), "Objective Multiplier:", toString(objmult)))}
+
 
   # If we're in the estimation we return the objective function value
   # otherwise we return a structured output and any relevant errors

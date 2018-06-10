@@ -290,13 +290,15 @@ else{
   }
 
 
- SIMINT_events = data.frame(
-    var    = SIMINT_var, 
-    time   = SIMINT_time,
-    value  = SIMINT_value,
-    method = SIMINT_method)
+ # Making sure the time of the events is ordered
+ SIMINT_EO = order(SIMINT_time)
 
- #SIMINT_events = SIMINT_events[order(SIMINT_events$time),]
+ SIMINT_events = data.frame(
+    var    = SIMINT_var[SIMINT_EO], 
+    time   = SIMINT_time[SIMINT_EO],
+    value  = SIMINT_value[SIMINT_EO],
+    method = SIMINT_method[SIMINT_EO])
+
 
 
 return(SIMINT_events)
