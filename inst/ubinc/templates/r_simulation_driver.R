@@ -170,4 +170,6 @@ som = run_simulation_ubiquity(parameters, cfg)
 #         sub_title    = "Sub Title",
 #         content_type = "table", 
 #         content      = tcontent)
+#
+# cfg = system_report_save(cfg, output_file=file.path("output", "report.pptx"))
 # -------------------------------------------------------------------------

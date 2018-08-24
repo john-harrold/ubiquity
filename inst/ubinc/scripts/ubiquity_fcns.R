@@ -607,19 +607,27 @@ system_load_data <- function(cfg, dsname, data_file, data_sheet){
   }
   else{
     # Reading the data based on the file extension
-    if(regexpr(".xls$", as.character(data_file), ignore.case=TRUE) > 0){
-      cfg$data[[dsname]]$values = as.data.frame(gdata::read.xls(data_file, sheet=data_sheet))
-      cfg$data[[dsname]]$data_file$sheet  = data_sheet
-    }
+    if(file.exists(data_file)){
+      if(regexpr(".xls$", as.character(data_file), ignore.case=TRUE) > 0){
+        cfg$data[[dsname]]$values = as.data.frame(gdata::read.xls(data_file, sheet=data_sheet))
+        cfg$data[[dsname]]$data_file$sheet  = data_sheet
+      }
 
-    if(regexpr(".csv$", as.character(data_file), ignore.case=TRUE) > 0){
-      cfg$data[[dsname]]$values = read.csv(data_file, header=TRUE)
-    }
+      if(regexpr(".csv$", as.character(data_file), ignore.case=TRUE) > 0){
+        cfg$data[[dsname]]$values = read.csv(data_file, header=TRUE)
+      }
 
-    if(regexpr(".tab$", as.character(data_file), ignore.case=TRUE) > 0){
-      cfg$data[[dsname]]$values = read.delim(data_file, header=TRUE)
+      if(regexpr(".tab$", as.character(data_file), ignore.case=TRUE) > 0){
+        cfg$data[[dsname]]$values = read.delim(data_file, header=TRUE)
+      }
+      cfg$data[[dsname]]$data_file$name  = data_file
+    } else {
+      cat(sprintf("#> ------------------------------------\n")) 
+      vp(cfg, "system_load_data()") 
+      vp(cfg, sprintf("unable to find the specified file >%s<", data_file)) 
+      cat(sprintf("#> ------------------------------------\n")) 
+    
     }
-    cfg$data[[dsname]]$data_file$name  = data_file
   }
 
   return(cfg)
@@ -5210,8 +5218,6 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
     objmult = .Machine$double.xmax/1e6
   }
 
-  # JMH
-
 
   # Trying to pull out the observations
   # if we fail we throw an error and flip the error flag
@@ -5529,6 +5535,15 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
          pidx = pidx+1
        }
     }
+
+   # Making sure the parameters are within the bounds
+   if(any(pest$estimate < cfg$estimation$parameters$matrix$lower_bound)){
+     pest$estimate[pest$estimate < cfg$estimation$parameters$matrix$lower_bound] = cfg$estimation$parameters$matrix$lower_bound[pest$estimate < cfg$estimation$parameters$matrix$lower_bound]
+   }
+
+   if(any(pest$estimate > cfg$estimation$parameters$matrix$upper_bound)){
+     pest$estimate[pest$estimate > cfg$estimation$parameters$matrix$upper_bound] = cfg$estimation$parameters$matrix$upper_bound[pest$estimate > cfg$estimation$parameters$matrix$upper_bound]
+   }
 
    pest$statistics_est = NULL
    tCcode = '
@@ -7948,6 +7963,9 @@ system_report_save = function (cfg,
   if(cfg$reporting$enabled){
     if(rptname %in% names(cfg$reporting$reports)){
       print(cfg$reporting$reports[[rptname]]$report, output_file)
+      vp(cfg, "--------------------------------")
+      vp(cfg, sprintf("Report saved to: %s", output_file))
+      vp(cfg, "--------------------------------")
     } else {
       vp(cfg, sprintf("system_report_save()"))
       vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
@@ -8964,4 +8982,280 @@ void derivs (int *neq, double *t, double *y, double *ydot,
 res}
 
 #-------------------------------------------------------------------------
+#'@export 
+#'@title Add NCA output to ubiquity report
+#'@description Performs NCA in an automated fashion subsetting the data using muleiple criteria 
+#'
+#'@param cfg ubiquity system object
+#'@param ncares result of (\code{\link{system_nca_run}}) 
+#'@param maxrow maximum number of rows per slide for tables
+#'@param label_data Boolean variable to control labeling of data on plots (\code{FALSE})
+#'@param rptname optional name of the report (\code{"default"})
+#'
+#'@details 
+#'
+system_nca_report = function(cfg, 
+                             ncares      = NULL,
+                             maxrow      = 15,
+                             label_data  = FALSE,
+                             rptname     ="default"){
 
+  #------------------------- 
+  # Adding the nca table
+
+  # remaining nca summary results:
+  ncasum_rem = ncares$ncasum
+
+  while(!is.null(ncasum_rem) > 0){
+   if(nrow(ncasum_rem) > maxrow){
+     # pulling off the top rows (1 to maxrow):
+     tmprows    = head(ncasum_rem, n=maxrow)
+     #remmoving those rows from the remaing:
+     ncasum_rem = tail(ncasum_rem, n=-maxrow)
+   
+   } else {
+     tmprows    = ncasum_rem
+     ncasum_rem = NULL
+   }
+
+   ntab = list(table=tmprows)
+   cfg = system_report_slide_content(cfg, 
+       rptname      = rptname, 
+       title        = "NCA",
+       content_type = "table",
+       content      = ntab)
+  }
+  #------------------------- 
+
+
+  #-------------------------
+  # For each scenario we'll show the results with the PK
+  for(res_name in names(ncares$scenres)){
+    res = ncares$scenres[[res_name]]
+
+    # building the bulleted list of NCA metrics
+    res_list = c()
+    for(nca_metric in names(res$ncasum)){
+      if(is.na(res$ncasum[[nca_metric]])){
+         res$ncasum[[nca_metric]] = "NA"
+      }
+      res_list = c(res_list, 1, paste(nca_metric, ": ", var2string(res$ncasum[[nca_metric]], nsig_f=2), sep=""))
+    }
+
+    # plotting the actual data
+    p = ggplot() 
+    p = p  + geom_point(data=NULL, aes(x=res$time, res$conc))
+    p = p  + geom_line(data=NULL, aes(x=res$time, res$conc))
+    p = prepare_figure(fo=p, purpose="print")
+    p = p + xlab(ncares$obs$time) + ylab(ncares$obs$conc )
+    p = p +ggtitle(res$row_str)
+    if(label_data){
+      label_str = paste("[", var2string(res$time, nsig_f=1, nsig_e=1), ",", var2string(res$conc, nsig_f=1, nsig_e=1),"]", sep="")
+      p = p + ggrepel::geom_text_repel(aes(x=res$time, y=res$conc, label=label_str)) }
+
+    cfg = system_report_slide_two_col(cfg, 
+         rptname            = rptname, 
+         title              = res$row_str,
+         content_type       = 'list',
+         left_content_type  = "ggplot",
+         left_content       = p,
+         right_content      = res_list)
+  
+  }
+
+  #-------------------------
+
+
+return(cfg)}
+#-------------------------------------------------------------------------
+#'@export 
+#'@title Automatic NCA
+#'@description Performs NCA in an automated fashion subsetting the data using muleiple criteria 
+#'
+#'@param cfg ubiquity system object
+#'@param DSNAME name of dataset loaded with (\code{\link{system_load_data}})
+#'@param dscale factor to multiply the dose to get it into the same units as concentration:
+#' if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscale = 1e6}
+#'@param ssby list specifying how to subset the data, with list names being
+#' column names from the dataset and values being those used for subsetting (note
+#' every combination will be considered when performing NCA:
+#'         If your dataset specifies the dose number (\code{dose_number}) for subjects and you want to perform NCA on doses 1 and 5 for subjects (\code{id}) 2, 8 and 120 then ssby would look like:
+#'\preformatted{
+#'  ssby = list(id=c(2,8,120),  dose_number=c(1,5))
+#' }
+#'@param obs list with names specifying the time, concentration, dose, and id columns to use when performing NCA
+#'@param dsinc character vector of columns from the dataset to include in the output summary: These should be constant for the combinations specified in \code{ssby}
+#'
+system_nca_run = function(cfg, 
+                          DSNAME="PKDS", 
+                          dscale = 1,
+                          ssby=list(id=c(1,2,3), dose_number=c(1,2)),
+                          obs=list(time="TIME", conc="DV", dose="AMT", id="ID",
+                          dsinc=NULL)){
+                      
+
+  ncares = list()
+  ncasum = list()
+  scenres = list()
+  isgood = TRUE
+  
+  if(DSNAME %in% names(cfg$data)){
+    DS = cfg$data[[DSNAME]]$values
+  } else {
+    isgood = FALSE
+    vp(cfg, paste("Error: Dataset >", DSNAME, "< was not found use system_load_data() to create this dataset", sep=""))
+  }
+  
+  
+  # Checking the subset columns 
+  for(cn in names(ssby)){
+    if(!(cn %in% names(DS))){
+      isgood = FALSE
+      vp(cfg, paste("Error: Subset column >", cn, "< was not found in the provided dataset", sep=""))
+    }
+  }
+
+
+  if(isgood){
+    # Checking the obs information
+    obscols = c("time", "conc", "dose")
+    for(cn in obscols){
+      # Checking to see if correct names were specified in obs
+      if(cn %in% names(obs)){
+
+        # Now making sure they exist in the dataset
+        if(!(obs[[cn]] %in% names(DS))){
+          isgood = FALSE
+          vp(cfg, paste("Error: Observation column ", obs[[cn]], " was not found in the dataset ",DSNAME, sep=""))
+        }
+      } else {
+        isgood = FALSE
+        vp(cfg, paste("Error: Observation column >", cn, "< was not found",sep=""))
+        vp(cfg, paste("        obs$",cn, ' = "colname"',sep=""))
+      }
+    }
+
+    # checking the data set columns to include in the summary output 
+    if(!is.null(dsinc)){
+      for(cn in dsinc){
+        if(!(cn %in% names(DS))) {
+          isgood = FALSE
+          vp(cfg, paste("Error: Column name >", cn, "< to include in summary output was not found in the dataset",sep=""))
+        }
+      }
+    }
+  }
+  
+  # If everything checks out we'll go through and 
+  if(isgood){
+  
+    # taking all of the different subset values and expanding them into all the
+    # possible scenarios
+    eval(parse(text=sprintf(' scenarios = expand.grid(%s)',  paste(sprintf("ssby$%s", names(ssby)), collapse=", "))))
+    colnames(scenarios) = names(ssby)
+    
+    for(ridx in 1:nrow(scenarios)){
+      # Current row 
+      sr  = scenarios[ridx,]
+    
+      # filtering the dataset down to rows that match the scenarios
+      tds = DS
+      sr_str = NULL
+      for(cn in names(sr)){
+        tds = tds[tds[[cn]] == sr[[cn]],]
+    
+        # Creating a verbose string from the current scenario row
+        # to be used in the output and (optionally) the reporting below
+        if(is.null(sr_str)){
+          sr_str = paste(cn, " = ", sr[[cn]])
+        } else {
+          sr_str = paste(sr_str, ",", cn, " = ", sr[[cn]])
+        }
+      }
+    
+      # If there are at least four records we calculate the NCA
+      if(nrow(tds) >= 4){
+
+        AUC_times = tds[[obs$time]]
+        AUC_times = AUC_times[AUC_times> 0]
+     
+        eval(parse(text=paste("d.dose   = data.frame(",obs$dose," = unique(tds$",obs$dose,")[1]*dscale, ",obs$time," = min(AUC_times), ",obs$id," = unique(tds$",obs$id,"))", sep="")))
+        eval(parse(text=paste("dose_obj <- PKNCAdose(d.dose, ",obs$dose,"~",obs$time,"|",obs$id,")", sep="")))
+        eval(parse(text=paste("conc_obj <- PKNCAconc(tds, ",obs$conc,"~",obs$time,"|",obs$id,")", sep="")))
+   
+        data_obj <- PKNCAdata(data.conc=conc_obj,
+                              data.dose = dose_obj,
+                              intervals=data.frame(start=min(AUC_times),
+                                                   end=max(AUC_times),
+                                                   aucall=TRUE,
+                                                   auclast=TRUE,
+                                                   cmax = TRUE, 
+                                                   vss.obs = TRUE,
+                                                   vss.pred = TRUE,
+                                                   cl.pred = TRUE,
+                                                   cl.obs = TRUE,
+                                                   aucinf.pred=TRUE,
+                                                   aucinf.obs=TRUE))
+        res         <- pk.nca(data_obj)
+        AUC_last = res$result[res$result$PPTESTCD == "auclast",   ]$PPORRES
+        AUC_all  = res$result[res$result$PPTESTCD == "aucall",    ]$PPORRES
+        Cmax     = res$result[res$result$PPTESTCD == "cmax",      ]$PPORRES
+        Tmax     = res$result[res$result$PPTESTCD == "tmax",      ]$PPORRES
+
+        Vss_obs  = res$result[res$result$PPTESTCD == "vss.obs",   ]$PPORRES
+        Vss_pred = res$result[res$result$PPTESTCD == "vss.pred",  ]$PPORRES
+        CL_obs   = res$result[res$result$PPTESTCD == "cl.obs" ,   ]$PPORRES
+        CL_pred  = res$result[res$result$PPTESTCD == "cl.pred",   ]$PPORRES
+        HL       = res$result[res$result$PPTESTCD == "half.life", ]$PPORRES
+
+        Cmax_obs = max(tds[[obs$conc]])
+        Tmax_obs = tds[tds[[obs$conc]] == Cmax_obs, ][[obs$time]][1]
+
+        tmpdf = data.frame(AUC_last = AUC_last,
+                           AUC_all  = AUC_all,
+                           Tmax     = Tmax,
+                           Cmax     = Cmax,
+                           Tmax_obs = Tmax_obs,
+                           Cmax_obs = Cmax_obs)
+
+        # Now we add the columsn from the dataset we want to retain in our NCA
+        # summary table
+        for(tdsinc in dsinc){
+           tmpdf[[tdsinc]] = tds[[tdsinc]][1] }
+
+        tmpdf$Vss_obs =  Vss_obs
+        tmpdf$Vss_pred=  Vss_pred
+        tmpdf$CL_obs  =  CL_obs
+        tmpdf$CL_pred =  CL_pred
+        tmpdf$HL      =  HL
+
+        if(is.null(ncasum)){
+          ncasum = tmpdf
+        } else {
+          ncasum = rbind(ncasum, tmpdf)
+        }
+
+        # storing the results of this scenario 
+        eval(parse(text=paste("scenres$res_", ridx, "$row     = sr",                    sep="")))
+        eval(parse(text=paste("scenres$res_", ridx, "$row_str = sr_str",                sep="")))
+        eval(parse(text=paste("scenres$res_", ridx, "$res     = res",                   sep="")))
+        eval(parse(text=paste("scenres$res_", ridx, "$tds     = tds",                   sep="")))
+        eval(parse(text=paste("scenres$res_", ridx, "$time    = tds$", obs$time,        sep="")))
+        eval(parse(text=paste("scenres$res_", ridx, "$conc    = tds$", obs$conc,        sep="")))
+        eval(parse(text=paste("scenres$res_", ridx, "$dose    = tds$", obs$dose,        sep="")))
+        eval(parse(text=paste("scenres$res_", ridx, "$id      = tds$", obs$id  ,        sep="")))
+        eval(parse(text=paste("scenres$res_", ridx, "$ncasum  = tmpdf"         ,        sep="")))
+      
+      } else {
+        vp(cfg, paste("Warning: Subset ", sr_str, " has no insufficient records, skipping"))
+      }
+    }
+  }
+
+  ncares$DSNAME  = DSNAME
+  ncares$obs     = obs
+  ncares$isgood  = isgood
+  ncares$scenres = scenres
+  ncares$ncasum  = ncasum
+return(ncares)}
+#-------------------------------------------------------------------------

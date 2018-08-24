@@ -266,6 +266,10 @@ pest = system_estimate_parameters(cfg,
 #                            option = "output_times", 
 #                            seq(0,100,1))
 
+# Any cohorts added here will be plotted by will not have been used to
+# estimate parameters. This allows you to see how the current estimates
+# predict data (validation)
+
 # Simulating the system at the estimates
 erp = system_simulate_estimation_results(pest = pest, cfg = cfg) 
 # -------------------------------------------------------------------------
