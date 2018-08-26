@@ -991,9 +991,9 @@ return(cfg)}
 #'
 #' \itemize{
 #' \item \code{"enabled"}   = Boolean variable to control logging: \code{TRUE}
-#' \item \code{"file"}      = String containing the name of the log file: file.path("transient", "ubiquity_log.txt")
+#' \item \code{"file"}      = String containing the name of the log file: \code{file.path("transient", "ubiquity_log.txt")}
 #' \item \code{"timestamp"} = Boolean switch to control appending a time stamp to log entries: \code{TRUE}
-#' \item \code{"ts_str"}    = String format of timestamp: \code{"%Y-%m-%d %H:%M:%S"}
+#' \item \code{"ts_str"}    = String format of timestamp: "%Y-%m-%d %H:%M:%S"
 #' \item \code{"debug"}     = Boolean switch to control debugging (see below): \code{FALSE}
 #' \item \code{"verbose"}   = Boolean switch to control printing to the console \code{FALSE}
 #' }
