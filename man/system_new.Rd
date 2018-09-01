@@ -22,11 +22,24 @@ Copy a blank template (\code{system_file="template"}) file to the working direct
 
 \itemize{
   \item \code{"template"} - Empty system file template
+  \item \code{"two_cmt_macro"} - Two compartment model parameterized in terms of clearances (macro constants)
+  \item \code{"one_cmt_macro"} - One compartment model parameterized in terms of clearances (macro constants)
+  \item \code{"two_cmt_micro"} - Two compartment model parameterized in terms of rates (micro constants)
+  \item \code{"one_cmt_micro"} - One compartment model parameterized in terms of rates (micro constants)
+  \item \code{"adapt"} - Parent/metabolite model taken from the adapt manual used in estimation examples
   \item \code{"mab_pk"} - General compartmental model of mAb PK from Davda 2014 http://doi.org/10.4161/mabs.29095
   \item \code{"pbpk"} - PBPK model of mAb disposition in mice from Shah 2012 
+  \item \code{"tmdd"} - Model of antibody with target-mediated drug disposition
+  \item \code{"pwc"} - Example showing how to make if/then or piece-wise continuous variables  
 }
 }
 \examples{
 # To create an empty template:
-system_new("system.txt", TRUE)
+system_new()
+# To create a compartmental model of mAb PK, 
+# build the system, and create a simulation 
+# template:
+system_new(file_name="system-mabs.txt", system_file="mab_pk", overwrite=TRUE)
+cfg = build_system("system-mabs.txt")
+system_fetch_template(cfg, template = "Simulation")
 }
