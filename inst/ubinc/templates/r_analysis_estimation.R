@@ -30,14 +30,13 @@ cfg = system_log_init(cfg)
 
 <PSETS>
 
-# # The following will estimate a subset of the parameters:
-# pnames = c('PNAME1', 'PNAME2')
-# cfg = system_select_set(cfg, "default", pnames)
-#
 # # This will estiamte all parameters:
 # cfg = system_select_set(cfg, "default")
 
-#
+# # To fix parameters, simply specify only those you want to estimate here:
+# pnames = c('PNAME1', 'PNAME2')
+# cfg = system_select_set(cfg, "default", pnames)
+ 
 # Change initial guess for parameter PNAME to VALUE. The lower bound (lb) and
 # upper bound (ub) can also be changed as well
 #

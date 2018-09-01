@@ -352,8 +352,15 @@ return(res)}
 #'
 #' \itemize{
 #'   \item \code{"template"} - Empty system file template
+#'   \item \code{"two_cmt_macro"} - Two compartment model parameterized in terms of clearances (macro constants)
+#'   \item \code{"one_cmt_macro"} - One compartment model parameterized in terms of clearances (macro constants)
+#'   \item \code{"two_cmt_micro"} - Two compartment model parameterized in terms of rates (micro constants)
+#'   \item \code{"one_cmt_micro"} - One compartment model parameterized in terms of rates (micro constants)
+#'   \item \code{"adapt"} - Parent/metabolite model taken from the adapt manual used in estimation examples
 #'   \item \code{"mab_pk"} - General compartmental model of mAb PK from Davda 2014 http://doi.org/10.4161/mabs.29095
 #'   \item \code{"pbpk"} - PBPK model of mAb disposition in mice from Shah 2012 
+#'   \item \code{"tmdd"} - Model of antibody with target-mediated drug disposition
+#'   \item \code{"pwc"} - Example showing how to make if/then or piece-wise continuous variables  
 #' }
 #'
 #'@param file_name name of the new file to create   
@@ -364,15 +371,24 @@ return(res)}
 #'
 #'@examples
 #' # To create an empty template:
-#' system_new("system.txt", TRUE)
+#' system_new()
+#' # To create a compartmental model of mAb PK, 
+#' # build the system, and create a simulation 
+#' # template:
+#' system_new(file_name="system-mabs.txt", system_file="mab_pk", overwrite=TRUE)
+#' cfg = build_system("system-mabs.txt")
+#' system_fetch_template(cfg, template = "Simulation")
+
 system_new  <- function(file_name="system.txt", system_file="template", overwrite=FALSE){
 
- allowed = c("template", "mab_pk", "pbpk", "pwc", "tmdd", "adapt")
+ allowed = c("template",      "mab_pk",         "pbpk",          "pwc", 
+             "tmdd",          "adapt",          "one_cmt_micro", "one_cmt_macro",  
+             "two_cmt_micro", "two_cmt_macro")
 
  isgood = FALSE
 
  # first we look to see if the package is installed, if it's not
- # we look for the system_template.txt file 
+ # we look for files in the stand alone distribution locations
  if("ubiquity" %in% rownames(installed.packages())){
    if(system_file == "template"){
      file_path       = system.file("ubinc",    "templates", "system_template.txt", package="ubiquity")

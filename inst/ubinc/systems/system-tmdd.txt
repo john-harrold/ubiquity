@@ -1,4 +1,3 @@
-#
 # Units:
 #                
 #   mass          [=] nmoles
@@ -22,9 +21,9 @@
 #                
 
 
-#-------------#
-# Parameters  #
-#-------------#
+# #-------------#
+# # Parameters  #
+# #-------------#
 #
 #   name         value  lower  upper    units       editable grouping
 #                       bound  bound
@@ -49,12 +48,9 @@
 <As> kint = SIMINT_LOGN[2.0]/thalf_hr
 <As> ksyn = Tp_IC*kint*Vp
 
-#dynamic secondary parameters
-# <Ad> param_name = right hand side
-
-#--------------------#
-# Dosing information #
-#--------------------#
+# #--------------------#
+# # Dosing information #
+# #--------------------#
 #
 #  Dosing times in   weeks ==> days
 #  dosing magnitude in mpk ==> nM
@@ -72,10 +68,6 @@
 # times/events  state   values        scale      units
   <B:times>;              [  0  ];     24*7 ;       weeks
   <B:events>;      Cp ;   [ 30  ];    467/Vp;       mpk    
-
-#------------------#
-# Rate Information #
-#------------------#
 
 # Initial conditions
 # define the non-zero initial conditions
@@ -114,9 +106,9 @@ Cp + Tp <=kon:koff=> CpTp
          <S:CpTp> kint*CpTp
 #---------------------------------------------------------------------------#
 
-#----------#
-# Outputs  #
-#----------#
+# #----------#
+# # Outputs  #
+# #----------#
 # Outputs that begin with QC will not be displayed in the GUI
 #
 # Convert ng/ml to nM
@@ -133,20 +125,8 @@ Cp + Tp <=kon:koff=> CpTp
 <O> Coverage = 1- Tp/Tp_IC
 
 # free drug in ng/ml
-<O> QC_Cp_free_ng_ml = Cp*D_MW
+<O> Cp_free_ng_ml = Cp*D_MW
 
-
-#------------#
-# Estimation #
-#------------#
- 
-# Variance parameters
-#     name       value     lower  upper    units  editable  Label
-#                          bound  bound
-# <VP> name      -1        eps    inf       --    no        Variance
- 
-# Variance Model      
-# <VE:OUTPUT> expression
 
 #---------#
 # Options #
@@ -161,13 +141,5 @@ Cp + Tp <=kon:koff=> CpTp
 <OPT:output_times> SIMINT_SEQ[0][2*7*24][10]
 # default time scale
 <OPT:TS>  weeks 
-# <OPT:ylim>  [ymin ymax]
-# <OPT:ylim>  [ymin ymax]
-#
-# GUI Callback
-# <OPT:callback_gui> [SIMINT_simulation_options] = update_dosing(SIMINT_cfg, SIMINT_simulation_options, SIMINT_handles);
-
-# guides
-<GUIDE>  horizontal; cmin; 1200; '--'; 'm'
 
 

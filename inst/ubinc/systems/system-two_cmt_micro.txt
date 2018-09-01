@@ -1,0 +1,93 @@
+# Author: John Harrold <john.m.harrold@gmail.com>
+#
+# Two compartment model with absorption compartment (At). The central
+# compartment (Cp) had a volume (Vp), and the tissue compartment (Cp) has a
+# volume (Vt).  The model is parameterized in terms of micro constants (kpt,
+# ktp, and kel).
+#
+# While the the default dosing is a 1 mg IV dose into the central compartment,
+# the model is written to accept dosing into an absorption compartment and
+# through continuous IV infusion.
+#
+#       _________ 
+#      |         |
+#      |   At    |
+#      |         |
+#      |_________|
+#           |
+#           | ka, fb
+#           |
+#           V
+#       _________         _________  
+#      |         |  kpt  |         | 
+#      |   Cp    |------>|   Ct    |
+#      |   Vp    |<------|   Vt    |
+#      |_________|  ktp  |_________|
+#           |
+#           | kel 
+#           |
+#           V  
+#
+# System Units:
+#                
+#   mass          [=] mg 
+#   volume        [=] ml
+#   concentration [=] mg/ml
+#   time          [=] hr
+
+
+# #-------------#
+# | Parameters  |
+# #-------------#
+#
+# System parameters
+#    name              value     lower      upper   units editable    grouping
+#                                bound      bound
+
+<P>  Vp                  1.0       eps        Inf   ml/hr      yes     System
+<P>  Vt                  1.0       eps        Inf   ml/hr      yes     System
+<P>  kel                 1.0       eps        Inf   1/hr       yes     System
+<P>  kpt                 1.0       eps        Inf   1/hr       yes     System
+<P>  ktp                 1.0       eps        Inf   1/hr       yes     System
+<P>  ka                  1.0       eps        Inf    1/hr      yes     System
+<P>  fb                  1.0       eps        Inf   --         yes     System
+
+
+# #-------------------#
+# |Input Information |
+# #-------------------#
+#
+# Bolus Events
+# ------------
+# # times/events state   values        scale      units
+<B:times>;             [  0  ];        1;         hr 
+<B:events>;      Cp;   [1.0  ];        1/Vp;      mg     
+<B:events>;      At;   [0.0  ];        1;         mg     
+
+# Infusion Rate 
+# ------------
+# #  name     time/levels  values  scale    units
+<R:Dinf>;     times;       [0];     1;    hr  
+<R:Dinf>;     levels;      [0];     1;    mg/hr
+
+# #-----------------------------#
+# | ODEs, and State Information |
+# #-----------------------------#
+
+<ODE:At> -ka*At           
+<ODE:Cp>  ka*At*fb - kel*Cp -kpt*Cp       + ktp*Ct*Vt/Vp + Dinf/Vp
+<ODE:Ct>                    +kpt*Cp*Vp/Vt - ktp*Ct 
+
+
+# #---------#
+# | Outputs |
+# #---------#
+ 
+<O> Cp_mg_ml    = Cp
+
+# #---------#
+# | Options #
+# #---------#
+# specify different time scales
+<TS:hours> 1.0
+<TS:days>  1.0/24
