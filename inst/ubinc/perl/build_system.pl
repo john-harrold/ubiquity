@@ -4159,6 +4159,31 @@ sub apply_format
  $patterns->{power}->{nonmem}                   =  '(SIMINT_ARG_0)**(SIMINT_ARG_1)';
  $patterns->{power}->{rproject}                 =  '(SIMINT_ARG_0)^(SIMINT_ARG_1)';
 
+
+ # error functions
+ $patterns->{erf}->{pattern}                  =  'SIMINT_ERF[';
+ $patterns->{erf}->{number_arguments}         =  1;
+ $patterns->{erf}->{C}                        =  'erf(SIMINT_ARG_1)';
+ $patterns->{erf}->{matlab}                   =  'erf(SIMINT_ARG_1)';
+ $patterns->{erf}->{pw}                       =  'erf(SIMINT_ARG_1)';
+ $patterns->{erf}->{bm}                       =  'erf(SIMINT_ARG_1)';
+ $patterns->{erf}->{fortran}                  =  'ERF(SIMINT_ARG_1)';
+ $patterns->{erf}->{monolix}                  =  'erf(SIMINT_ARG_1)';
+ $patterns->{erf}->{nonmem}                   =  'ERF(SIMINT_ARG_1)';
+ $patterns->{erf}->{rproject}                 =  'erf(SIMINT_ARG_1)';
+
+ $patterns->{erfc}->{pattern}                  =  'SIMINT_ERFC[';
+ $patterns->{erfc}->{number_arguments}         =  1;
+ $patterns->{erfc}->{C}                        =  'erfc(SIMINT_ARG_1)';
+ $patterns->{erfc}->{matlab}                   =  'erfc(SIMINT_ARG_1)';
+ $patterns->{erfc}->{pw}                       =  'erfc(SIMINT_ARG_1)';
+ $patterns->{erfc}->{bm}                       =  'erfc(SIMINT_ARG_1)';
+ $patterns->{erfc}->{fortran}                  =  'ERFC(SIMINT_ARG_1)';
+ $patterns->{erfc}->{monolix}                  =  'erfc(SIMINT_ARG_1)';
+ $patterns->{erfc}->{nonmem}                   =  'ERFC(SIMINT_ARG_1)';
+ $patterns->{erfc}->{rproject}                 =  'erfc(SIMINT_ARG_1)';
+
+ # log and exp
  $patterns->{logn}->{pattern}                   =  'SIMINT_LOGN[';
  $patterns->{logn}->{number_arguments}          =  1;
  $patterns->{logn}->{C}                         =  'log(SIMINT_ARG_0)';

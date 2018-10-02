@@ -10,7 +10,7 @@ ubiquity_name_check(test_name)
 \item{test_name}{string containing the name to be tested}
 }
 \value{
-List with boolean element \code{isgood} that is \code{TRUE} when the name tests correct, \code{FALSE} when it fails. The element \code{msgs} contains a verbose message on why it fails.
+List with Boolean element \code{isgood} that is \code{TRUE} when the name tests correct, \code{FALSE} when it fails. The element \code{msgs} contains a verbose message on why it fails.
 }
 \description{
 Checks names specified for different aspects (cohorts,

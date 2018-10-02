@@ -12,13 +12,13 @@ prepare_figure(purpose, fo, y_tick_minor = FALSE, y_tick_major = FALSE,
 
 \item{fo}{ggplot figure object}
 
-\item{y_tick_minor}{boolean value to control grid lines}
+\item{y_tick_minor}{Boolean value to control grid lines}
 
-\item{y_tick_major}{boolean value to control grid lines}
+\item{y_tick_major}{Boolean value to control grid lines}
 
-\item{x_tick_minor}{boolean value to control grid lines}
+\item{x_tick_minor}{Boolean value to control grid lines}
 
-\item{x_tick_major}{boolean value to control grid lines}
+\item{x_tick_major}{Boolean value to control grid lines}
 }
 \value{
 ggplot object

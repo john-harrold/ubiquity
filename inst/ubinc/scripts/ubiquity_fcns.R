@@ -867,8 +867,8 @@ return(VALUE)}
 #' apply ony the subsequently specified inputs. 
 #'
 #'@param cfg ubiquity system object    
-#'@param bolus boolean value indicating weather bolus inputs should be set to zero
-#'@param rates boolean value indicating weather infusion rate inputs should be set to zero
+#'@param bolus Boolean value indicating weather bolus inputs should be set to zero
+#'@param rates Boolean value indicating weather infusion rate inputs should be set to zero
 #'
 #'@return Ubiquity system object with the specified inputs set to zero
 #'
@@ -6680,16 +6680,111 @@ res}
 
 
 #'@export
+#'@title Verify System steady-state 
+#'
+#'@description Takes the system system object and other optional inputs to verify the system is running at steady state. This also provides information that can be helpful in debugging systems not running at steady state. 
+#'
+#'@param cfg ubiquity system object    
+#'@param zero_rates Boolean value to control removing all rate inputs (\code{TRUE})
+#'@param zero_bolus Boolean value to control removing all bolus inputs (\code{TRUE})
+#'@param output_times sequence of output times to simulate for offset determination (\code{seq(0,100,1)})
+#'@param offset_tol        maximum percent offset to be considered zero
+#'@param derivative_tol    maximum derivative value to be considered zero
+#'@param derivative_time   time to evaluate derivatives to identify deviations, set to \code{NULL} to skip derivative evaluation
+#'@return list with name \code{steady_state} (boolean indicating weather the system was at steady state) and \code{states} a vector of states that have steady state offset.  
+system_check_steady_state  <- function(cfg, 
+                                       parameters=NULL, 
+                                       zero_rates=TRUE,
+                                       zero_bolus=TRUE,
+                                       output_times = seq(0,100,1),
+                                       offset_tol = 1e-5,
+                                       derivative_tol = 1e-10,
+                                       derivative_time  = 0){ 
+
+
+  derivative_offset_found = FALSE
+  simulation_offset_found = FALSE
+
+  if(is.null(parameters)){
+    parameters = system_fetch_parameters(cfg)
+  }
+
+  #
+  # Clearing out inputs
+  #
+  if(zero_rates){
+    cfg = system_zero_inputs(cfg, bolus=FALSE, rates=TRUE)
+  }
+  if(zero_bolus){
+    cfg = system_zero_inputs(cfg, bolus=TRUE, rates=FALSE)
+  }
+
+  if(!is.null(output_times)){
+    cfg=system_set_option(cfg, group  = "simulation", 
+                               option = "output_times", 
+                               output_times)
+  }
+  
+  # Calculating the derivatives
+  if(!is.null(derivative_time)){
+    # First we calculate the initial conditions
+    SIMINT_IC = system_IC(cfg, parameters)
+
+    # Next we evaluate the derivative at that 
+    # initial condition and the specified time
+    SIMINT_DER = system_DYDT(derivative_time, SIMINT_IC, cfg)
+  }
+
+  # Simulating the system
+  som = run_simulation_ubiquity(parameters, cfg, FALSE)
+
+
+  browser()
+
+
+  res = list()
+  res$states = c()
+
+  for(sname in names(cfg$options$mi$states)){
+     state = som$simout[[sname]]
+
+     state_max = max(abs(state))
+     
+     # if the state has a value other than zero 
+     # we look at it a little more closely
+     if(state_max > 0){
+       offset = abs(range(state)[2]-range(state)[1])
+       if( offset/state_max > 100*.Machine$double.eps){
+         if(!simulation_offset_found){
+           vp(cfg, sprintf('#> Possible steady state offset'))
+           vp(cfg, sprintf('#> range       |             | state'))
+           vp(cfg, sprintf('#> (max-min)   | max(abs(s)) | name '))
+           vp(cfg, sprintf('#>------------------------------------'))
+           simulation_offset_found = TRUE  
+        }
+        vp(cfg, sprintf('#> %.3e   | %.3e   | %s', offset, state_max, sname))
+        res$states = c(res$states, sname)
+       
+       }
+     }
+  }
+
+  res$steady_state = !simulation_offset_found
+
+res}
+
+
+#'@export
 #'@title Make ggplot Figure Pretty
 #'@description Takes a ggplot object and alters the line thicknesses and makes
 #' other cosmetic changes to make it more appropriate for exporting. 
 #'
 #'@param purpose either \code{"present"}, \code{"print"} or \code{"shiny"}
 #'@param fo ggplot figure object
-#'@param y_tick_minor boolean value to control grid lines
-#'@param y_tick_major boolean value to control grid lines
-#'@param x_tick_minor boolean value to control grid lines
-#'@param x_tick_major boolean value to control grid lines
+#'@param y_tick_minor Boolean value to control grid lines
+#'@param y_tick_major Boolean value to control grid lines
+#'@param x_tick_minor Boolean value to control grid lines
+#'@param x_tick_major Boolean value to control grid lines
 #'
 #'@return ggplot object 
 prepare_figure = function(purpose, fo,
@@ -7070,7 +7165,7 @@ fo}
 #'
 #'@param test_name string containing the name to be tested
 #'
-#'@return List with boolean element \code{isgood} that is \code{TRUE} when the name tests correct, \code{FALSE} when it fails. The element \code{msgs} contains a verbose message on why it fails.
+#'@return List with Boolean element \code{isgood} that is \code{TRUE} when the name tests correct, \code{FALSE} when it fails. The element \code{msgs} contains a verbose message on why it fails.
 ubiquity_name_check = function(test_name){
 #
 # Error checking function to make sure the test_name 

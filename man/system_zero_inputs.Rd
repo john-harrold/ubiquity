@@ -9,9 +9,9 @@ system_zero_inputs(cfg, bolus = TRUE, rates = TRUE)
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{bolus}{boolean value indicating weather bolus inputs should be set to zero}
+\item{bolus}{Boolean value indicating weather bolus inputs should be set to zero}
 
-\item{rates}{boolean value indicating weather infusion rate inputs should be set to zero}
+\item{rates}{Boolean value indicating weather infusion rate inputs should be set to zero}
 }
 \value{
 Ubiquity system object with the specified inputs set to zero
