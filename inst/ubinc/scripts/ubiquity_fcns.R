@@ -6688,19 +6688,24 @@ res}
 #'@param zero_rates Boolean value to control removing all rate inputs (\code{TRUE})
 #'@param zero_bolus Boolean value to control removing all bolus inputs (\code{TRUE})
 #'@param output_times sequence of output times to simulate for offset determination (\code{seq(0,100,1)})
-#'@param offset_tol        maximum percent offset to be considered zero
-#'@param derivative_tol    maximum derivative value to be considered zero
+#'@param offset_tol        maximum percent offset to be considered zero (\code{.Machine$double.eps*100})
+#'@param derivative_tol    maximum derivative value to be considered zero (\code{.Machine$double.eps*100})
 #'@param derivative_time   time to evaluate derivatives to identify deviations, set to \code{NULL} to skip derivative evaluation
 #'@return list with name \code{steady_state} (boolean indicating weather the system was at steady state) and \code{states} a vector of states that have steady state offset.  
 system_check_steady_state  <- function(cfg, 
-                                       parameters=NULL, 
-                                       zero_rates=TRUE,
-                                       zero_bolus=TRUE,
-                                       output_times = seq(0,100,1),
-                                       offset_tol = 1e-5,
-                                       derivative_tol = 1e-10,
-                                       derivative_time  = 0){ 
+                                       parameters        = NULL, 
+                                       zero_rates        = TRUE,
+                                       zero_bolus        = TRUE,
+                                       output_times      = seq(0,100,1),
+                                       offset_tol        = .Machine$double.eps*100,
+                                       derivative_tol    = .Machine$double.eps*100, 
+                                       derivative_time   = 0){ 
 
+  vp(cfg, sprintf('--------------------------'))
+  vp(cfg, sprintf(' Checking for steady state offset'))
+  res = list()
+  res$states_simulation = c()
+  res$states_derivative = c()
 
   derivative_offset_found = FALSE
   simulation_offset_found = FALSE
@@ -6714,17 +6719,22 @@ system_check_steady_state  <- function(cfg,
   #
   if(zero_rates){
     cfg = system_zero_inputs(cfg, bolus=FALSE, rates=TRUE)
+    vp(cfg, sprintf('   - Removing infusion inputs'))
   }
   if(zero_bolus){
     cfg = system_zero_inputs(cfg, bolus=TRUE, rates=FALSE)
+    vp(cfg, sprintf('   - Removing bolus inputs'))
   }
 
   if(!is.null(output_times)){
     cfg=system_set_option(cfg, group  = "simulation", 
                                option = "output_times", 
                                output_times)
+    vp(cfg, sprintf('   - Setting simulation times: %s', var2string_gen(output_times)))
   }
   
+  vp(cfg, sprintf(' '))
+
   # Calculating the derivatives
   if(!is.null(derivative_time)){
     # First we calculate the initial conditions
@@ -6733,18 +6743,37 @@ system_check_steady_state  <- function(cfg,
     # Next we evaluate the derivative at that 
     # initial condition and the specified time
     SIMINT_DER = system_DYDT(derivative_time, SIMINT_IC, cfg)
+    vp(cfg, sprintf(' First we analyze the derivatives, values of the ODEs, at time %s',var2string(derivative_time) ))
+    vp(cfg, sprintf(' with a derivative_tol = %.3e', derivative_tol))
+    vp(cfg, sprintf(' '))
+    if(any(abs(SIMINT_DER$dy) > derivative_tol)){
+      vp(cfg, sprintf(' Derivatives were found that were larger than the tolerance'))
+      vp(cfg, sprintf(' ---------------------'))
+      vp(cfg, sprintf('  dx/dt       | state  '))
+      vp(cfg, sprintf(' ---------------------'))
+      derivative_offset_found = TRUE
+      stctr = 1
+      for(sname in names(SIMINT_DER$dy)){
+        if(abs(SIMINT_DER$dy[stctr]) > derivative_tol){
+         vp(cfg, sprintf(' %.3e    | %s', SIMINT_DER$dy[stctr], sname))
+        } 
+        stctr = stctr +1
+      }
+      vp(cfg, sprintf(' '))
+    } else {
+      vp(cfg, sprintf(' The magnitudes of all derivatives were below the tolerance'))
+    }
   }
 
   # Simulating the system
   som = run_simulation_ubiquity(parameters, cfg, FALSE)
-
-
-  browser()
-
-
-  res = list()
-  res$states = c()
-
+  vp(cfg, sprintf(' Next we simulate (from time = %s to %s) and calculate the percent ',  
+        var2string(min(cfg$options$simulation_options$output_times, nsig_f=1, nsig_e=2)),  
+        var2string(max(cfg$options$simulation_options$output_times, nsig_f=1, nsig_e=2))))
+  vp(cfg, sprintf(' of steady state offset as compared to the maximum observed value:'))
+  vp(cfg, sprintf(' Percent Offset = 100*(|max|-|min|)/|max|'))
+  vp(cfg, sprintf(' Time course analysis: offset_tol = %.3e', offset_tol))
+  vp(cfg, sprintf(' '))
   for(sname in names(cfg$options$mi$states)){
      state = som$simout[[sname]]
 
@@ -6754,22 +6783,22 @@ system_check_steady_state  <- function(cfg,
      # we look at it a little more closely
      if(state_max > 0){
        offset = abs(range(state)[2]-range(state)[1])
-       if( offset/state_max > 100*.Machine$double.eps){
+       pct_offset = offset/state_max*100
+       if( pct_offset > offset_tol){
          if(!simulation_offset_found){
-           vp(cfg, sprintf('#> Possible steady state offset'))
-           vp(cfg, sprintf('#> range       |             | state'))
-           vp(cfg, sprintf('#> (max-min)   | max(abs(s)) | name '))
-           vp(cfg, sprintf('#>------------------------------------'))
-           simulation_offset_found = TRUE  
+           vp(cfg, sprintf(' Possible steady state offset'))
+           vp(cfg, sprintf(' range       |             | Percent     | state'))
+           vp(cfg, sprintf(' |max|-|min| | max(|state|)| Offset      | name '))
+           vp(cfg, sprintf(' -------------------------------------------------'))
+           simulation_offset_found = TRUE                               
         }
-        vp(cfg, sprintf('#> %.3e   | %.3e   | %s', offset, state_max, sname))
-        res$states = c(res$states, sname)
-       
+        vp(cfg, sprintf(' %.3e   | %.3e   | %.3e   | %s', offset, state_max, pct_offset, sname))
+        res$states_simulation = c(res$states_simulation, sname)
        }
      }
   }
 
-  res$steady_state = !simulation_offset_found
+  res$steady_state = !simulation_offset_found & !derivative_offset_found
 
 res}
 

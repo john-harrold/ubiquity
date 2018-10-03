@@ -5,8 +5,9 @@
 \title{Verify System steady-state}
 \usage{
 system_check_steady_state(cfg, parameters = NULL, zero_rates = TRUE,
-  zero_bolus = TRUE, output_times = seq(0, 100, 1), offset_tol = 1e-05,
-  derivative_tol = 1e-10, derivative_time = 0)
+  zero_bolus = TRUE, output_times = seq(0, 100, 1),
+  offset_tol = .Machine$double.eps * 100,
+  derivative_tol = .Machine$double.eps * 100, derivative_time = 0)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
@@ -17,9 +18,9 @@ system_check_steady_state(cfg, parameters = NULL, zero_rates = TRUE,
 
 \item{output_times}{sequence of output times to simulate for offset determination (\code{seq(0,100,1)})}
 
-\item{offset_tol}{maximum percent offset to be considered zero}
+\item{offset_tol}{maximum percent offset to be considered zero (\code{.Machine$double.eps*100})}
 
-\item{derivative_tol}{maximum derivative value to be considered zero}
+\item{derivative_tol}{maximum derivative value to be considered zero (\code{.Machine$double.eps*100})}
 
 \item{derivative_time}{time to evaluate derivatives to identify deviations, set to \code{NULL} to skip derivative evaluation}
 }
