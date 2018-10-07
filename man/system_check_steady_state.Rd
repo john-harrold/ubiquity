@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_check_steady_state}
 \alias{system_check_steady_state}
-\title{Verify System steady-state}
+\title{Verify System Steady State}
 \usage{
 system_check_steady_state(cfg, parameters = NULL, zero_rates = TRUE,
   zero_bolus = TRUE, output_times = seq(0, 100, 1),
@@ -28,5 +28,5 @@ system_check_steady_state(cfg, parameters = NULL, zero_rates = TRUE,
 list with name \code{steady_state} (boolean indicating weather the system was at steady state) and \code{states} a vector of states that have steady state offset.
 }
 \description{
-Takes the system system object and other optional inputs to verify the system is running at steady state. This also provides information that can be helpful in debugging systems not running at steady state.
+Takes the ubiquity system object and other optional inputs to verify the system is running at steady state. This also provides information that can be helpful in debugging systems not running at steady state.
 }

@@ -6680,9 +6680,9 @@ res}
 
 
 #'@export
-#'@title Verify System steady-state 
+#'@title Verify System Steady State 
 #'
-#'@description Takes the system system object and other optional inputs to verify the system is running at steady state. This also provides information that can be helpful in debugging systems not running at steady state. 
+#'@description Takes the ubiquity system object and other optional inputs to verify the system is running at steady state. This also provides information that can be helpful in debugging systems not running at steady state. 
 #'
 #'@param cfg ubiquity system object    
 #'@param zero_rates Boolean value to control removing all rate inputs (\code{TRUE})
@@ -6749,19 +6749,21 @@ system_check_steady_state  <- function(cfg,
     if(any(abs(SIMINT_DER$dy) > derivative_tol)){
       vp(cfg, sprintf(' Derivatives were found that were larger than the tolerance'))
       vp(cfg, sprintf(' ---------------------'))
-      vp(cfg, sprintf('  dx/dt       | state  '))
+      vp(cfg, sprintf('       dx/dt  | state  '))
       vp(cfg, sprintf(' ---------------------'))
       derivative_offset_found = TRUE
       stctr = 1
-      for(sname in names(SIMINT_DER$dy)){
+      for(sname in names(cfg$options$mi$states)){
         if(abs(SIMINT_DER$dy[stctr]) > derivative_tol){
-         vp(cfg, sprintf(' %.3e    | %s', SIMINT_DER$dy[stctr], sname))
+         dxdtstr = sprintf("%s ", var2string(maxlength=13, nsig_e=3, nsig_f=2, vars=SIMINT_DER$dy[stctr]))
+         vp(cfg, sprintf('%s| %s', dxdtstr, sname))
         } 
         stctr = stctr +1
       }
       vp(cfg, sprintf(' '))
     } else {
       vp(cfg, sprintf(' The magnitudes of all derivatives were below the tolerance'))
+      vp(cfg, sprintf(' '))
     }
   }
 
