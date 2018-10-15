@@ -199,7 +199,7 @@ if(file.exists(system_file)){
     if(verbose == TRUE){
       cat("#> C model not available. Compile manually using the\n") 
       cat("#> following command to debug:           \n") 
-      cat(sprintf("#> system('R CMD SHLIB %s%sr_ode_model.c') \n", temp_directory, .Platform$file.sep))
+      cat(sprintf("#> system('R CMD SHLIB \"%s%sr_ode_model.c\"') \n", temp_directory, .Platform$file.sep))
     }
     
     }
@@ -459,7 +459,7 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
  # These are the allowed templates:
  allowed = c("Simulation", "Estimation", 
              "ShinyApp",   "Shiny Rmd Report",
-             "mrgsolve",   "Berkley Madonna", 
+             "mrgsolve",   "Berkeley Madonna", 
              "Adapt",      "myOrg", 
              "Model Diagram")
 
@@ -514,12 +514,12 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
      destinations = c("system_mrgsolve.cpp")
      write_file   = c(TRUE)
    }
-   if(template == "Berkley Madonna"){
+   if(template == "Berkeley Madonna"){
      sources      = c(file.path(temp_directory, sprintf("target_berkeley_madonna-%s.txt",current_set)))
      destinations = c("system_berkeley_madonna.txt")
      write_file   = c(TRUE)
    }
-   if(template == "Adapt 5"){
+   if(template == "Adapt"){
      sources      = c(file.path(temp_directory, sprintf("target_adapt_5.for")),
                       file.path(temp_directory, sprintf("target_adpat_5-%s.prm",current_set)))
      destinations = c("system_adapt.for", "system_adapt.prm")

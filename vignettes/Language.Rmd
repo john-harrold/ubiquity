@@ -193,7 +193,7 @@ It might be more convenient to specify an ODE across several lines, making thing
 It may be more convenient to write out chemical reactions rather than differential equations. This can be done using the general form:
 
 ~~~
-[CR1]Reactant1 + [CR2]Species2 + ... =kf=> [CP1]*Product1 + [CP2]Product2 + ...
+[CR1]Reactant1 + [CR2]Reactant2 + ... =kf=> [CP1]Product1 + [CP2]Product2 + ...
 ~~~
 
 Where the stoichiometric coefficients, beginning with ``CR`` and ``CP`` above, in brackets only need to be specified if they are not one. The reaction order will be assumed to be equal to the stoichiometric coefficient of the reactant. For a more specific example Consider decomposition of hydrogen peroxide into water and oxygen:
