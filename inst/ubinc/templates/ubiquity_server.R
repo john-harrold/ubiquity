@@ -2091,6 +2091,14 @@ generate_model_report <- function(cfg, session, RID){
     Rmdfile  = sprintf('%s%s%s', cfg$gui$wd, .Platform$file.sep, cfg$gui$modelreport_files[[RID]]$file)
     htmlfile = sprintf('%s%smodel_report_%s.html', user_dir, .Platform$file.sep, RID)
 
+    # If the html file does not exits and the Rmd file ends in html then we 
+    # just use that as the report instead of rendering it.
+    if(!file.exists(htmlfile)){
+    if(grepl("\\.html$", Rmdfile, ignore.case=TRUE)){
+      file.copy(Rmdfile, htmlfile, overwrite=TRUE)
+    }
+    }
+
     success = FALSE
     message = "Unable to generate html report"
     # If the report has already been generated 

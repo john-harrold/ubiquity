@@ -159,13 +159,21 @@ load("transient/rgui/default/gui_state.RData")
 params = list()
 params$cfg = cfg
 params$som = som
-rmarkdown::render("my_report.Rmd",
+rmarkdown::render("system_report.Rmd",
                    params = params,
                    output_format = "html_document")
 ```
 
 This should generate your report in HTML format. You can insert debugging commands in the report and test it while you add information. Once you have it working, you can enable the report as described above and it should appear as a tab viewable by the user.  
 
+Not all reports may depend on user input. For example, if you have an RMarkdown file that documents your modeling assumptions or the model construction process then the content will not change as the user interacts with the App. To use a pre-rendered report you simply have to replace ``.Rmd`` with ``.html``: 
+
+```{r, eval=FALSE}
+cfg$gui$modelreport_files$R1$title = "Tab Title"
+cfg$gui$modelreport_files$R1$file  = "system_report.html"
+```
+
+This will tell the App to read in the html, prevent rendering the report, and speed things up for the user.
 
 ##User definable functions
 

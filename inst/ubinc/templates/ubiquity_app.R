@@ -96,13 +96,16 @@ cfg$gui$colors$region     = c("cadetblue1",  "pink"      , "olivedrab2", "darkor
 # convey detailed information to the user. For example this functionality can
 # be used to provide more detailed documentation of how the model is used. 
 #
-# To create a model report, copy the file from 
-# library/templates/r_system_report.Rmd
-# to the main directory. If you give it the name my_report.Rmd you can add it
-# to the gui by commenting out the following lines:
+# To create a model report create a template:
+# system_fetch_template(cfg, template="Shiny Rmd Report")
+# 
+# This should create the two files. An RMarkdown report (system_report.Rmd)
+# and a script to help with debugging the report (test_system_report.R) in the 
+# current working directory. To use this report simply uncomment the following
+# lines
 
 #cfg$gui$modelreport_files$R1$title = "Tab Title"
-#cfg$gui$modelreport_files$R1$file  = "my_report.Rmd"
+#cfg$gui$modelreport_files$R1$file  = "system_report.Rmd"
 
 # To create more reports just:
 #
@@ -111,7 +114,18 @@ cfg$gui$colors$region     = c("cadetblue1",  "pink"      , "olivedrab2", "darkor
 #  3 Increment R1 to R2
 #  4 Change the values for the title and file name
 #
-# You can do this for values up to R5
+# You can do this for values up to R5. If you have an Rmd file that does not
+# depend on what the user enters into the App. For example, if you simply want
+# to document the model and this will not change as the user interacts with
+# the App, you may not want to render the html each time the user clicks on the
+# report tab. For these cases you can render the report to the html file and simply use that
+# as the file name. For the example abvoe, you could do the following:
+#
+#cfg$gui$modelreport_files$R1$title = "Tab Title"
+#cfg$gui$modelreport_files$R1$file  = "system_report.html"
+#
+# And it can speed things up. 
+
 
 # To more finely control the gui it may be necessary to define your own user functions. 
 # These can be placed in a user library and included here
