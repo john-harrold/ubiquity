@@ -191,4 +191,11 @@ plot_opts$outputs$parent$xlabel        = 'Time (hours)'
 
 # Plotting the simulated results at the estimates 
 # These figures will be placed in output/
-system_plot_cohorts(erp, plot_opts, cfg, prefix=analysis_name)
+system_plot_cohorts(erp, plot_opts, cfg, analysis_name=analysis_name)
+
+# Writing the results to a PowerPoint report
+# cfg = system_report_init(cfg)
+# cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
+# cfg = system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.pptx", sep="")))
+
+

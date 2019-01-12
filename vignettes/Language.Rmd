@@ -611,6 +611,19 @@ The general notation for an output or state ``name`` assigned to a ``number`` is
 <INDEX:OUTPUT:name> number
 ~~~
 
+## Options
+
+Several options can be specified using the ``<OPT:?`` delimiter. If you've defined the ``days`` timescale using ``<TS:?>?`` this can be used as the timescale for plotting in the ShinyApp by using:
+
+~~~
+<OPT:TS>  days
+~~~
+
+To define the default output times for the ShinyApp and simulation scripts use the following:
+
+~~~
+<OPT:output_times> SIMINT_SEQ[0][100][1]
+~~~
 
 ## References
 

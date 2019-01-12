@@ -145,9 +145,14 @@ som = run_simulation_ubiquity(parameters, cfg)
 # p = p + xlab('Time (TS)')                     
 # p = p + ylab('Output')                        
 # p = prepare_figure('present', p)              
-# p = p + scale_colour_manual(values=c("OUTPUT"="darkblue"))   
-# p = p + theme(legend.title = element_blank()) 
-# p = p + theme(legend.position = 'bottom') 
+# # Plot customizaton
+# p = p + scale_colour_manual(values=c("OUTPUT"="darkblue"))   # manually specifying colors
+# p = p + guides(color=guide_legend(title="Color Title"))      # Alter legend title
+# p = p + theme(legend.title = element_blank())                # Remove all legend titles
+# p = p + guides(linetype = FALSE)                             # Remove just the linetype legend
+# p = p + theme(legend.position="none")                        # Remove all legends
+# p = p + theme(legend.position = 'bottom')                    # Set the legend location
+# p = p + theme(legend.position = c(0.8, 0.2))                 # Manually  specify legend position
 #
 # print(p)
 # 
@@ -171,5 +176,5 @@ som = run_simulation_ubiquity(parameters, cfg)
 #         content_type = "table", 
 #         content      = tcontent)
 #
-# cfg = system_report_save(cfg, output_file=file.path("output", "report.pptx"))
+# system_report_save(cfg, output_file=file.path("output", "report.pptx"))
 # -------------------------------------------------------------------------

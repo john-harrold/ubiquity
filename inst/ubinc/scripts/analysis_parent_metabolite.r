@@ -148,10 +148,10 @@ erp = system_simulate_estimation_results(pest = pest, cfg = cfg)
 
 plot_opts = c()
 
-plot_opts$outputs$metabolite$yscale   = 'log'   
-plot_opts$outputs$metabolite$ylabel   = 'Metabolite'
-plot_opts$outputs$metabolite$ylim     = c(1, 100)
-plot_opts$outputs$metabolite$xlabel   = 'Time (hours)'
+plot_opts$outputs$Metabolite$yscale   = 'log'   
+plot_opts$outputs$Metabolite$ylabel   = 'Metabolite'
+plot_opts$outputs$Metabolite$ylim     = c(1, 100)
+plot_opts$outputs$Metabolite$xlabel   = 'Time (hours)'
 
 plot_opts$outputs$Parent$yscale        = 'log'
 plot_opts$outputs$Parent$ylabel        = 'Parent'
@@ -160,4 +160,10 @@ plot_opts$outputs$Parent$xlabel        = 'Time (hours)'
 
 # Plotting the simulated results at the estimates 
 # These figures will be placed in output/
-system_plot_cohorts(erp, plot_opts, cfg, prefix=analysis_name)
+system_plot_cohorts(erp, plot_opts, cfg, analysis_name=analysis_name)
+
+# Writing the results to a PowerPoint report
+# cfg = system_report_init(cfg)
+# cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
+# cfg = system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.pptx", sep="")))
+

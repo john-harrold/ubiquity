@@ -27,7 +27,7 @@ Once a model has been developed it may be useful to provide an easy way to run s
 
 To demonstrate this interface we can begin with the PK model of mAbs in humans ([Davda etal. mAbs, 6(4), 1094-1102](http://doi.org/10.4161/mabs.29095)):
 
-```{r results="hide", message=FALSE, echo=FALSE}
+```{r results="hide", message=FALSE, echo=TRUE}
 library(ubiquity)
 system_new(file_name = "system.txt", system_file = "mab_pk", overwrite = TRUE)
 cfg = build_system(system_file = "system.txt")

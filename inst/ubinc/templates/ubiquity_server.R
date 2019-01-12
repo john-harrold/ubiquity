@@ -1984,20 +1984,20 @@ user_log_init <- function(input, output, session) {
 # assume we're working on a local install and return
 # 'default'
 find_user_dir <- function(session) {
-
   
-  # Trying to determine the user name
-  if(is.null(session$user)){
-    user = 'default'  
+  # Trying to determine where to store the user information
+  # First we see if the session$user exists, if not we look for the
+  # session token, then we look for 
+  if(!is.null(session$user)){
+    user = session$user 
+  } else if (!is.null(session$token)) {
+    user = session$token 
   } else {
-    user = session$user }
+    user = 'default'  
+  }
 
   # returning the full path to the user directory
-  user = sprintf("%s%stransient%srgui%s%s", 
-                 getwd(), 
-                 .Platform$file.sep , 
-                 .Platform$file.sep, 
-                 .Platform$file.sep, user) 
+  user = file.path(getwd(),"transient", "rgui", user)
 
   return(user)
 }

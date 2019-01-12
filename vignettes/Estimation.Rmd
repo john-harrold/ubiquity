@@ -233,7 +233,7 @@ plot_opts$outputs$Parent$yscale       = 'log'
 ```
  
 ```{r results="hide", echo=TRUE, warning=FALSE, eval=TRUE}
-plinfo = system_plot_cohorts(erp, plot_opts, cfg, prefix=analysis_name)
+plinfo = system_plot_cohorts(erp, plot_opts, cfg, analysis_name=analysis_name)
 ```
 
 When called, ``system_plot_cohorts`` will write ``png`` and ``pdf`` output for the time course and observed vs predicted files. It will also return a list with the ``ggplot`` objects and relative paths to the files as well. In this example the following will be generated:

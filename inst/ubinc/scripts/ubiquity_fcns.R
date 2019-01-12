@@ -2614,8 +2614,11 @@ strs = c()
 for(var in vars){
   if(is.character(var)){
     str = var
-  }
-  else if(var == 0){
+  } else if(is.na(var)){
+    str = "NA"
+  } else if(is.nan(var)){
+    str = "NaN"
+  } else if(var == 0){
    str = '0' 
   }else if((var < .01 )| (var > 999)){
     #str = sprintf('%.3e', var )
@@ -2819,6 +2822,7 @@ if("stochastic" %in% names(cfg$options)){
 max_errors = 100;
 
 isgood = TRUE;
+
 
 if("iiv" %in% names(cfg) | !is.null(sub_file)){
 
@@ -5394,26 +5398,29 @@ system_estimate_parameters <- function(cfg,
       vp(cfg, sprintf('Instead Using: %s', analysis_name))
       }
   
+    fname_estimate = sprintf('output%s%s.RData', .Platform$file.sep, analysis_name) 
     #loading the previous estimate and setting that as a guess
     if(flowctl == "previous estimate as guess"){
-      load(file=sprintf('output%s%s.RData', .Platform$file.sep, analysis_name))
+      vp(cfg, paste("Loading the previous solution from:", fname_estimate))
+      load(file=fname_estimate)
       vp(cfg, "Setting initial guess to previous solution")
       for(pname in names(cfg$estimation$parameters$guess)){
         cfg = system_set_guess(cfg, pname=pname, value=pest[[pname]]) }
     }
-  
+
     # performing the estimation
     pe   = estimate_parameters(cfg)
     pest = pe$estimate
-    save(pe, pest, file=sprintf('output%s%s.RData', .Platform$file.sep, analysis_name))
+    save(pe, pest, file=fname_estimate)
     if(archive_results){
       archive_estimation(analysis_name, cfg)
+      vp(cfg, paste("Estimate archived to:", fname_estimate))
     }
   } else if(flowctl == "plot guess"){
     pest = system_fetch_guess(cfg)
   } else if(flowctl == "plot previous estimate"){
-    vp(cfg, "Loading the previous solution")
-    load(file=sprintf('output%s%s.RData', .Platform$file.sep, analysis_name))
+    vp(cfg, paste("Loading the previous solution from:", fname_estimate))
+    load(file=fname_estimate)
   }
 
 return(pest)}
@@ -5448,6 +5455,16 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       vp(cfg, sprintf('Method:              %s', cfg$estimation$options$method))
       vp(cfg, sprintf('Observation Detials: %s', cfg$estimation$options$observation_function))
       vp(cfg, sprintf('Integrating with:    %s', cfg$options$simulation_options$integrate_with))
+
+
+      #
+      # Clearing out any previous outputs summarizing the solution
+      #  - estimate csv files
+      #  - report
+      if(file.exists(file.path("output","report.txt"        ))){file.remove(file.path("output","report.txt"        ))}
+      if(file.exists(file.path("output","parameters_all.csv"))){file.remove(file.path("output","parameters_all.csv"))}
+      if(file.exists(file.path("output","parameters_est.csv"))){file.remove(file.path("output","parameters_est.csv"))}
+
 
       #
       # We perform the estimation depending on the optimizer selected 
@@ -5561,13 +5578,15 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
      pest$estimate[pest$estimate > cfg$estimation$parameters$matrix$upper_bound] = cfg$estimation$parameters$matrix$upper_bound[pest$estimate > cfg$estimation$parameters$matrix$upper_bound]
    }
 
+   files = NULL
    pest$statistics_est = NULL
+   vp(cfg, "-----------------------------------")
+   vp(cfg, "Calculating solution statistics. Be")
+   vp(cfg, "patient this can take a while when ")
+   vp(cfg, "there are many parameters          ")
+   vp(cfg, "-----------------------------------")
+
    tCcode = '
-      vp(cfg, "-----------------------------------")
-      vp(cfg, "Calculating solution statistics. Be")
-      vp(cfg, "patient this can take a while when ")
-      vp(cfg, "there are many parameters          ")
-      vp(cfg, "-----------------------------------")
       # Generating the solution statistics and writing the results to a file
       pest$statistics_est = solution_statistics(pest$estimate, cfg)
       files = generate_report(pest$estimate, pest$statistics_est, cfg)
@@ -5581,9 +5600,6 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
     { 
       eval(parse(text=tCcode))
     "success"},
-      warning = function(w) {
-      eval(parse(text=tCcode))
-    "warning"},
       error = function(e) {
         vp(cfg, "Solution statistics calculation failed")
         vp(cfg, "This can happen when you have a parameter")
@@ -5591,16 +5607,30 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
         vp(cfg, "The final parameter estimates are:")
     "error"})
 
+  # JMH it looks like removing the warning argument will allow access to the
+  # initial expression even when warnings are generated
+  #tcres = tryCatch(
+  # { 
+  #   eval(parse(text=tCcode))
+  # "success"},
+  #   warning = function(w) {
+  #   eval(parse(text=tCcode))
+  # "warning"},
+  #   error = function(e) {
+  #     vp(cfg, "Solution statistics calculation failed")
+  #     vp(cfg, "This can happen when you have a parameter")
+  #     vp(cfg, "set that makes the system stiff.")
+  #     vp(cfg, "The final parameter estimates are:")
+  # "error"})
+  #
+  #
+  # if(is.null(pest$statistics_est) & tcres =="warning"){
+  #   pest$statistics_est = solution_statistics(pest$estimate, cfg)
+  #   files = generate_report(pest$estimate, pest$statistics_est, cfg)
+  # }
 
-    if(is.null(pest$statistics_est) & tcres =="warning"){
-      pest$statistics_est = solution_statistics(pest$estimate, cfg)
-    }
-
-    # writing the system components to the screen
-    # pstr = sprintf('%s%s', pstr, '\n')
-      #name          value           lower  upper    units  editable grouping
-      #                              bound  bound
-      # <P> name       1.0            eps    inf      ???    yes      System
+    # Saving the report information 
+    pest$report = files
 
     for(pname in names(pest$estimate)){
       pindex = cfg$parameters$matrix$name == pname
@@ -5715,7 +5745,9 @@ system_fetch_guess <- function(cfg){
 #'@param erp output from \code{system_simulate_estimation_results}
 #'@param cfg ubiquity system object    
 #'@param plot_opts list controling how predictions and data are overlaid 
-#'@param prefix  string of text to be prepended to the figures generated  
+#'@param analysis_name string containing the name of the analysis 
+#'@param archive_results boolean variable to control whether results will be archived
+#'@param prefix depreciated input mapped to analysis_name
 #'
 #'@details
 #'
@@ -5737,6 +5769,11 @@ system_fetch_guess <- function(cfg){
 #'  \item \code{plot_opts$op$width  = 10}  
 #'  \item \code{plot_opts$op$height = 8.0} 
 #'  }
+#'
+#' To control the figures that are generated you can set the purpose to either "print", "present" (default) or "shiny".
+#'
+#'  \code{plot_opts$purpose = "present"} 
+#'
 #'@return List of plot outputs containing two elements \code{timecourse} and
 #' \code{obs_pred}, for the time course of and observed vs predicted,
 #' respectively. Both of these fields contain three elements for a given
@@ -5746,10 +5783,20 @@ system_fetch_guess <- function(cfg){
 #' and two fileds \code{PK_png} and \code{PK_pdf} containing the paths the the
 #' files containing that figure in the respecitve fortmats.
 #'@seealso The estimation vignette (\code{vignette("Estimation", package = "ubiquity")}) 
-system_plot_cohorts <- function(erp, plot_opts=c(), cfg, prefix='analysis'){
+system_plot_cohorts <- function(erp, plot_opts=c(), cfg, analysis_name='analysis', archive_results = TRUE, prefix=NULL){
 
+
+if(!is.null(prefix)){
+  vp(cfg, "The input 'prefix' has been depreciated and you should use analysis_name now")
+}
+if(!is.null(prefix) & analysis_name == "analysis"){
+  vp(cfg, " The input analysis_name is being overwritten by the value in 'prefix' to maintain compatibility with older scripts.")
+  vp(cfg, " in the future this will be removed and an error will result.")
+  analysis_name = prefix
+}
 # list of graphics objects to return
 grobs = list()
+grobs$outputs = c()
 
 # This gets rid of NOTES for the R package. 
 OBS = NULL
@@ -5782,10 +5829,13 @@ if(!is.null(plot_opts$op$height)){
 } else {
   def$dim$op$height = 8.0 }
 
+if(!is.null(plot_opts$purpose)){
+  def$purpose  = plot_opts$purpose
+} else {
+  def$purpose = "present" }
 #def$dim$tc$height= 5.5
 #def$dim$op$width = 10
 #def$dim$op$height= 8
-
 
 for(output in levels(erp$pred$OUTPUT)){
 
@@ -5804,7 +5854,6 @@ for(output in levels(erp$pred$OUTPUT)){
   if(is.null(plot_opts$outputs[[output]]$ylabel)){
    plot_opts$outputs[[output]]$ylabel   = output }
 }
-
 
 
 #
@@ -5854,7 +5903,7 @@ for(output in levels(erp$pred$OUTPUT)){
     p = p + xlab(plot_opts$outputs[[output]]$xlabel) }
 
   # making the figure pretty
-  p = prepare_figure(p, purpose="present")
+  p = prepare_figure(p, purpose=def$purpose)
 
   # x-axis limits
   if(!is.null(plot_opts$outputs[[output]]$xlim)){
@@ -5883,22 +5932,24 @@ for(output in levels(erp$pred$OUTPUT)){
   }
 
 
-
-
-
-  fname_pdf = sprintf('output%s%s_timecourse_%s.pdf', .Platform$file.sep, prefix, output )
-  ggsave(fname_pdf, plot=p, height=def$dim$tc$height, width=def$dim$tc$width)
+  fname_pdf = sprintf('output%s%s_timecourse_%s.pdf', .Platform$file.sep, analysis_name, output )
+  ggsave(fname_pdf, plot=p, device=pdf(), height=def$dim$tc$height, width=def$dim$tc$width)
   vp(cfg, sprintf('Figure written: %s', fname_pdf))
 
-  fname_png = sprintf('output%s%s_timecourse_%s.png', .Platform$file.sep, prefix, output )
-  ggsave(fname_png, plot=p, height=def$dim$tc$height, width=def$dim$tc$width)
+  fname_png = sprintf('output%s%s_timecourse_%s.png', .Platform$file.sep, analysis_name, output )
+  ggsave(fname_png, plot=p, device=pdf(), height=def$dim$tc$height, width=def$dim$tc$width)
   vp(cfg, sprintf('Figure written: %s', fname_png))
 
   # storing the plot object to be returned to the user
   eval(parse(text=sprintf('grobs$timecourse$%s     = p',         output)))
   eval(parse(text=sprintf('grobs$timecourse$%s_png = fname_png', output)))
   eval(parse(text=sprintf('grobs$timecourse$%s_pdf = fname_pdf', output)))
+
+  # storing the list of outputs as well
+  grobs$outputs = c(grobs$outputs, output)
 }
+
+
 
 #
 # creating the observed vs predicted plot
@@ -5960,15 +6011,15 @@ for(output in levels(erp$pred$OUTPUT)){
     p = p + scale_x_log10()
     p = p + scale_y_log10()}
 
-  p = prepare_figure(p, purpose="present")
+  p = prepare_figure(p, purpose=def$purpose)
   eval(parse(text=sprintf('p = p + scale_colour_manual(values=c(%s))', color_string)))
 
-  fname_pdf = sprintf('output%s%s_obs_pred_%s.pdf', .Platform$file.sep, prefix, output )
-  ggsave(fname_pdf, plot=p, height=def$dim$op$height, width=def$dim$op$width)
+  fname_pdf = sprintf('output%s%s_obs_pred_%s.pdf', .Platform$file.sep, analysis_name, output )
+  ggsave(fname_pdf, plot=p, device=pdf(), height=def$dim$op$height, width=def$dim$op$width)
   vp(cfg, sprintf('Figure written: %s', fname_pdf))
 
-  fname_png = sprintf('output%s%s_obs_pred_%s.png', .Platform$file.sep, prefix, output )
-  ggsave(fname_png, plot=p, height=def$dim$op$height, width=def$dim$op$width)
+  fname_png = sprintf('output%s%s_obs_pred_%s.png', .Platform$file.sep, analysis_name, output )
+  ggsave(fname_png, plot=p, device=png(), height=def$dim$op$height, width=def$dim$op$width)
   vp(cfg, sprintf('Figure written: %s', fname_png))
 
 
@@ -5980,6 +6031,11 @@ for(output in levels(erp$pred$OUTPUT)){
 }
 
 
+if(archive_results){
+  fname_grobs = file.path("output", paste(analysis_name, "_pr.Rdata", sep=""))
+  vp(cfg, sprintf('Graphics objects written to: %s', fname_grobs))
+  save(grobs, file=fname_grobs)
+}
 return(grobs)
 
 }
@@ -6106,9 +6162,9 @@ generate_report  <- function( parameters, ss, cfg){
 
 parameters_full = fetch_full_parameters(cfg=cfg, pest=parameters)
 
-report_file         = sprintf('output%sreport.txt', .Platform$file.sep) 
-parameters_all_file = sprintf('output%sparameters_all.csv',.Platform$file.sep )
-parameters_est_file = sprintf('output%sparameters_est.csv', .Platform$file.sep) 
+report_file         = file.path("output","report.txt")
+parameters_all_file = file.path("output","parameters_all.csv")
+parameters_est_file = file.path("output","parameters_est.csv")
 
 #p_all    c('pname' 'guess'  'estimate' 'cvpct' 'cilb' 'ciub' 'units' 'notes')
 
@@ -6250,11 +6306,13 @@ vp(cfg, sprintf('   %s', parameters_all_file))
 
 
 
-files                     = list()
-files$report_file         = report_file         
-files$report_file_contents= rl
-files$parameters_all_file = parameters_all_file 
-files$parameters_est_file = parameters_est_file 
+files                       = list()
+files$report_file           = report_file         
+files$report_file_contents  = rl
+files$parameters_all_file   = parameters_all_file 
+files$parameters_est_file   = parameters_est_file 
+files$parameters_est        = p_est
+files$parameters_all        = p_all
 
 
 return(files)
@@ -6318,18 +6376,31 @@ f.source      = c()
 f.destination = c()
 
 
-f.source      = c(f.source,      sprintf('output%sparameters_all.csv',   .Platform$file.sep))
-f.source      = c(f.source,      sprintf('output%sparameters_est.csv',   .Platform$file.sep))
-f.source      = c(f.source,      sprintf('output%sreport.txt'        ,   .Platform$file.sep))
+f.source      = c(f.source,      file.path("output","parameters_all.csv"))
+f.source      = c(f.source,      file.path("output","parameters_est.csv"))
+f.source      = c(f.source,      file.path("output","report.txt"        ))
 
-f.destination = c(f.destination, sprintf('output%s%s-parameters_all.csv', .Platform$file.sep, name))
-f.destination = c(f.destination, sprintf('output%s%s-parameters_est.csv', .Platform$file.sep, name))
-f.destination = c(f.destination, sprintf('output%s%s-report.txt'        , .Platform$file.sep, name))
+
+
+
+
+f.destination = c(f.destination, file.path("output",paste(name, "-parameters_all.csv", sep="")))
+f.destination = c(f.destination, file.path("output",paste(name, "-parameters_est.csv", sep="")))
+f.destination = c(f.destination, file.path("output",paste(name, "-report.txt"        , sep="")))
+
+# clearing out the destination files to prevent old results from lingering
+for(fidx in 1:length(f.destination)){ 
+  if(file.exists(f.destination[fidx])){
+    file.remove(f.destination[fidx]) 
+  }
+}
 
 vp(cfg, "Archiving the estimation results")
 for(fidx in 1:length(f.source)){ 
-   file.copy(f.source[fidx], f.destination[fidx], overwrite=TRUE)
-   vp(cfg, sprintf('%s --> %s', f.source[fidx], f.destination[fidx]))
+  if(file.exists(f.source[fidx])){
+    file.copy(f.source[fidx], f.destination[fidx], overwrite=TRUE)
+    vp(cfg, sprintf('%s --> %s', f.source[fidx], f.destination[fidx]))
+  }
 }
 }
 #/archive_estimation
@@ -6691,7 +6762,17 @@ res}
 #'@param offset_tol        maximum percent offset to be considered zero (\code{.Machine$double.eps*100})
 #'@param derivative_tol    maximum derivative value to be considered zero (\code{.Machine$double.eps*100})
 #'@param derivative_time   time to evaluate derivatives to identify deviations, set to \code{NULL} to skip derivative evaluation
-#'@return list with name \code{steady_state} (boolean indicating weather the system was at steady state) and \code{states} a vector of states that have steady state offset.  
+#'@return List with the following names
+#' \itemize{
+#' \item \code{steady_state} Boolean indicating weather the system was at steady state
+#' \item \code{states_derivative} Derivatives that had values greater than the \code{derivative_tol}
+#' \item \code{states_simulation} States that had values greater than the \code{offset_tol}
+#' \item \code{som} Simulated output 
+#' \item \code{derivatives} Derivatives
+#' \item \code{states_derivative_NA_NaN} States that had derivatives that evaluated as either NA or NaN
+#' \item \code{states_simulation_NA_NaN} States with simulation values that had either NA or NaN
+#' \item \code{derivative_tc} Data frame with the timecourse of states where the derivative was found to be greater than tolerance (states_derivative)
+#' }
 system_check_steady_state  <- function(cfg, 
                                        parameters        = NULL, 
                                        zero_rates        = TRUE,
@@ -6704,8 +6785,13 @@ system_check_steady_state  <- function(cfg,
   vp(cfg, sprintf('--------------------------'))
   vp(cfg, sprintf(' Checking for steady state offset'))
   res = list()
-  res$states_simulation = c()
-  res$states_derivative = c()
+  res$states_simulation        = c()
+  res$states_derivative        = c()
+  res$states_simulation_NA_NaN = c()
+  res$states_derivative_NA_NaN = c()
+  res$som                      = c()
+  res$derivatives              = list()
+  res$derivative_tc            = NULL
 
   derivative_offset_found = FALSE
   simulation_offset_found = FALSE
@@ -6746,19 +6832,41 @@ system_check_steady_state  <- function(cfg,
     vp(cfg, sprintf(' First we analyze the derivatives, values of the ODEs, at time %s',var2string(derivative_time) ))
     vp(cfg, sprintf(' with a derivative_tol = %.3e', derivative_tol))
     vp(cfg, sprintf(' '))
-    if(any(abs(SIMINT_DER$dy) > derivative_tol)){
+    if(any(abs(SIMINT_DER$dy) > derivative_tol) | any(is.nan(SIMINT_DER$dy)) | any(is.na(SIMINT_DER$dy))){
       vp(cfg, sprintf(' Derivatives were found that were larger than the tolerance'))
       vp(cfg, sprintf(' ---------------------'))
       vp(cfg, sprintf('       dx/dt  | state  '))
       vp(cfg, sprintf(' ---------------------'))
+
+      NA_NaN_FLAG             = FALSE
       derivative_offset_found = TRUE
       stctr = 1
       for(sname in names(cfg$options$mi$states)){
-        if(abs(SIMINT_DER$dy[stctr]) > derivative_tol){
-         dxdtstr = sprintf("%s ", var2string(maxlength=13, nsig_e=3, nsig_f=2, vars=SIMINT_DER$dy[stctr]))
-         vp(cfg, sprintf('%s| %s', dxdtstr, sname))
+
+        # Storing the derivatives to be returned
+        res$derivatives[sname] = SIMINT_DER$dy[stctr]
+        
+        # Checking to see if the state returned NaN or NA
+        if(is.nan(SIMINT_DER$dy[stctr]) | is.na(SIMINT_DER$dy[stctr])){
+           dxdtstr = pad_string(toString(SIMINT_DER$dy[stctr]), maxlength = 13)
+           vp(cfg, sprintf('%s | %s', dxdtstr, sname))
+           # flipping the flag
+           NA_NaN_FLAG = TRUE 
+          res$states_derivative_NA_NaN  = c(res$states_derivative_NA_NaN, sname)
+        } else  {
+          if(abs(SIMINT_DER$dy[stctr]) > derivative_tol){
+           dxdtstr = sprintf("%s ", var2string(maxlength=13, nsig_e=3, nsig_f=2, vars=SIMINT_DER$dy[stctr]))
+           vp(cfg, sprintf('%s| %s', dxdtstr, sname))
+           res$states_derivative  = c(res$states_derivative, sname)
+          }
         } 
+
+
         stctr = stctr +1
+      }
+      # If we hit some NA or NaNs we drop a message to the user
+      if(NA_NaN_FLAG){
+        vp(cfg, "One or more derivatives evaluated as NaN or NA, see above for details")
       }
       vp(cfg, sprintf(' '))
     } else {
@@ -6769,38 +6877,72 @@ system_check_steady_state  <- function(cfg,
 
   # Simulating the system
   som = run_simulation_ubiquity(parameters, cfg, FALSE)
-  vp(cfg, sprintf(' Next we simulate (from time = %s to %s) and calculate the percent ',  
+  vp(cfg, sprintf(' Next we simulate (from time = %s to %s) and calculate: ',  
         var2string(min(cfg$options$simulation_options$output_times, nsig_f=1, nsig_e=2)),  
         var2string(max(cfg$options$simulation_options$output_times, nsig_f=1, nsig_e=2))))
-  vp(cfg, sprintf(' of steady state offset as compared to the maximum observed value:'))
-  vp(cfg, sprintf(' Percent Offset = 100*(|max|-|min|)/|max|'))
-  vp(cfg, sprintf(' Time course analysis: offset_tol = %.3e', offset_tol))
+  vp(cfg, sprintf('   range                        = |max(state)|-|min (state)|)'))
+  vp(cfg, sprintf('   absolute maximum observation = |max(state)| '))
+  vp(cfg, sprintf('   percent offset               = 100*(|max|-|min|)/|max|'))
   vp(cfg, sprintf(' '))
+  vp(cfg, sprintf(' The values where the range  > offset_tol = %.3e', offset_tol))
+  vp(cfg, sprintf(' will be flagged for potential steady state offset.'))
+  vp(cfg, sprintf(' '))
+
+  NA_NaN_FLAG = FALSE
+
   for(sname in names(cfg$options$mi$states)){
      state = som$simout[[sname]]
+     if(any(is.nan(state)) | any(is.na(state))){
 
-     state_max = max(abs(state))
-     
-     # if the state has a value other than zero 
-     # we look at it a little more closely
-     if(state_max > 0){
-       offset = abs(range(state)[2]-range(state)[1])
-       pct_offset = offset/state_max*100
-       if( pct_offset > offset_tol){
-         if(!simulation_offset_found){
-           vp(cfg, sprintf(' Possible steady state offset'))
-           vp(cfg, sprintf(' range       |             | Percent     | state'))
-           vp(cfg, sprintf(' |max|-|min| | max(|state|)| Offset      | name '))
-           vp(cfg, sprintf(' -------------------------------------------------'))
-           simulation_offset_found = TRUE                               
-        }
-        vp(cfg, sprintf(' %.3e   | %.3e   | %.3e   | %s', offset, state_max, pct_offset, sname))
-        res$states_simulation = c(res$states_simulation, sname)
+       NA_NaN_FLAG = TRUE
+       res$states_simulation_NA_NaN = c(res$states_simulation_NA_NaN, sname)
+     }
+     else {
+       state_max = max(abs(state))
+       # if the state has a value other than zero 
+       # we look at it a little more closely
+       if(state_max > 0){
+         offset = abs(range(state)[2]-range(state)[1])
+         pct_offset = offset/state_max*100
+         if( offset > offset_tol){
+           if(!simulation_offset_found){
+             vp(cfg, sprintf(' Possible steady state offset'))
+             vp(cfg, sprintf(' range       |             | Percent     | state'))
+             vp(cfg, sprintf(' |max|-|min| | max(|state|)| Offset      | name '))
+             vp(cfg, sprintf(' -------------------------------------------------'))
+             simulation_offset_found = TRUE                               
+          }
+          vp(cfg, sprintf(' %.3e   | %.3e   | %.3e   | %s', offset, state_max, pct_offset, sname))
+          res$states_simulation = c(res$states_simulation, sname)
+         }
        }
      }
   }
 
+  if(NA_NaN_FLAG){
+    vp(cfg, "The following states contained NaN and/or NA values")
+    vp(cfg,paste(res$states_simulation_NA_NaN, collapse=", ") )
+  }
+
+
+  # if we find derivative offsets we create a data frame with just the offsets
+  # called and stick it in:  res$derivative_tc
+  if(derivative_offset_found){
+    for(pname in res$states_derivative){
+      #creating a data frame of just the timescales
+      tmpdf = som$simout[  , c(paste("ts.", names(cfg$options$time_scales), sep=""))]
+      # Adding the state_name and state_values
+      tmpdf = cbind(tmpdf, VALUE = som$simout[[pname]], STATE=pname)
+      if(is.null(res$derivative_tc)){
+        res$derivative_tc = tmpdf
+      } else {
+        res$derivative_tc = rbind(res$derivative_tc, tmpdf)
+      }
+    }
+  }
+
   res$steady_state = !simulation_offset_found & !derivative_offset_found
+  res$som = som
 
 res}
 
@@ -8702,7 +8844,7 @@ return(cfg)}
 #'  \item \code{"flextable"} list containing flextable content and other options with the following elements (defaults in parenthesis):
 #'   \itemize{
 #'      \item \code{table} Data frame containing the tabular data
-#'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list the same names as the data frame frame names containing the tabular data and values with the header text to show in the table
+#'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list the same names as the data frame names containing the tabular data and values with the header text to show in the table
 #'      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
 #'      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
 #'      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
@@ -8834,6 +8976,101 @@ return(rpt)}
 # /system_report_ph_content
 # -------------------------------------------------------------------------
 
+# -------------------------------------------------------------------------
+# system_report_estimation
+#'@export
+#'@title Generate a Report from Parameter Estimation
+#'@description This will take the output generated during a parameter estimation and append those results to a specified report.
+#'
+#'@param cfg ubiquity system object    
+#'@param rptname report name 
+#'@param analysis_name string containing the name of the estimation analysis and used as a prefix to store the results
+system_report_estimation = function (cfg,
+                               rptname        = "default",
+                               analysis_name  = NULL){
+  isgood = TRUE
+  if(is.null(analysis_name)){
+   isgood = FALSE
+   vp(" No analysis_name was specified")
+  }
+
+
+  if(rptname %in% names(cfg$reporting$reports)){
+    if(isgood){
+      vp(cfg, paste("Generating estimation report for:", analysis_name))
+      vp(cfg, paste("Appending to report:", rptname))
+
+      # File names where the estimation results should be stored:
+      fname_estimate = file.path("output", paste(analysis_name, ".RData",    sep=""))
+      fname_grobs    = file.path("output", paste(analysis_name, "_pr.RData", sep=""))
+      if(file.exists(fname_estimate)){
+        vp(cfg, paste("Loading estimation results from file:", fname_estimate))
+        # Loads the variable pe and pest
+        load(fname_estimate)
+        #
+        # Adding a slide with the parameter estimates:
+        #  this is triggered when confidence intervals were able to be
+        #  calculated 
+        if(!is.null(pe$report$parameters_est)){
+          # pulling out the parameters table
+          petab = as.data.frame(pe$report$parameters_est)
+          # Trimming off the last row and last column
+          petab = petab[1:(nrow(petab)-1),1:(ncol(petab)-1)]
+          # Removing the guess column
+          petab = petab[,c(1,3:ncol(petab))]
+
+          ptab       = list()
+          ptab$table = petab
+          ptab$header_top = list(pname    = "Parameter", 
+                                 estimate = "Estimate",
+                                 cvpct    = "CV Percent", 
+                                 cilb     = "Lower Bound", 
+                                 ciub     = "Upper Bound", 
+                                 units    = "Units")
+          cfg = system_report_slide_content(cfg, 
+                title        = "Parameter Estimates",
+                rptname      = rptname,
+                content_type = "flextable",
+                content      = ptab)
+        }
+      } else {
+        vp(cfg, paste("Unable to load the estimate results from file:", fname_estimate))
+      }
+      if(file.exists(fname_grobs)){
+        vp(cfg, paste("Loading the figures from file:", fname_grobs))
+        # Loads the variable pr
+        load(fname_grobs)
+        # Looping through each output and creating a slide for the timecourse
+        # and the obs vs pred figures
+        for(output in grobs$outputs){
+          if(is.ggplot(grobs$timecourse[[output]]) & is.ggplot(grobs$obs_pred[[output]])){
+            cfg = system_report_slide_two_col(cfg, 
+                  title              = paste(output),
+                  rptname            = rptname,
+                  left_content_type  = "ggplot",
+                  left_content       = grobs$timecourse[[output]],
+                  right_content_type = "ggplot",
+                  right_content      = grobs$obs_pred[[output]])
+          }
+        }
+      } else {
+        vp(cfg, paste("Unable to load the figures from file:", fname_grobs))
+      }
+
+    }
+  } else {
+    isgood = FALSE
+    vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
+    vp(cfg, sprintf("       Estimation report not generated"))
+  }
+
+  if(!isgood){
+    vp(cfg, "system_report_estimation()")
+    vp(cfg, "Unable to generate estimation report, see above for details") }
+
+cfg}
+#/system_report_estimation
+# -------------------------------------------------------------------------
 
 #'@export 
 #'@title Simulate With Titration or Rule-Based Inputs
@@ -9125,279 +9362,1541 @@ res}
 
 #-------------------------------------------------------------------------
 #'@export 
-#'@title Add NCA output to ubiquity report
-#'@description Performs NCA in an automated fashion subsetting the data using muleiple criteria 
-#'
-#'@param cfg ubiquity system object
-#'@param ncares result of (\code{\link{system_nca_run}}) 
-#'@param maxrow maximum number of rows per slide for tables
-#'@param label_data Boolean variable to control labeling of data on plots (\code{FALSE})
-#'@param rptname optional name of the report (\code{"default"})
-#'
-#'@details 
-#'
-system_nca_report = function(cfg, 
-                             ncares      = NULL,
-                             maxrow      = 15,
-                             label_data  = FALSE,
-                             rptname     ="default"){
-
-  #------------------------- 
-  # Adding the nca table
-
-  # remaining nca summary results:
-  ncasum_rem = ncares$ncasum
-
-  while(!is.null(ncasum_rem) > 0){
-   if(nrow(ncasum_rem) > maxrow){
-     # pulling off the top rows (1 to maxrow):
-     tmprows    = head(ncasum_rem, n=maxrow)
-     #remmoving those rows from the remaing:
-     ncasum_rem = tail(ncasum_rem, n=-maxrow)
-   
-   } else {
-     tmprows    = ncasum_rem
-     ncasum_rem = NULL
-   }
-
-   ntab = list(table=tmprows)
-   cfg = system_report_slide_content(cfg, 
-       rptname      = rptname, 
-       title        = "NCA",
-       content_type = "table",
-       content      = ntab)
-  }
-  #------------------------- 
-
-
-  #-------------------------
-  # For each scenario we'll show the results with the PK
-  for(res_name in names(ncares$scenres)){
-    res = ncares$scenres[[res_name]]
-
-    # building the bulleted list of NCA metrics
-    res_list = c()
-    for(nca_metric in names(res$ncasum)){
-      if(is.na(res$ncasum[[nca_metric]])){
-         res$ncasum[[nca_metric]] = "NA"
-      }
-      res_list = c(res_list, 1, paste(nca_metric, ": ", var2string(res$ncasum[[nca_metric]], nsig_f=2), sep=""))
-    }
-
-    # plotting the actual data
-    p = ggplot() 
-    p = p  + geom_point(data=NULL, aes(x=res$time, res$conc))
-    p = p  + geom_line(data=NULL, aes(x=res$time, res$conc))
-    p = prepare_figure(fo=p, purpose="print")
-    p = p + xlab(ncares$obs$time) + ylab(ncares$obs$conc )
-    p = p +ggtitle(res$row_str)
-    if(label_data){
-      label_str = paste("[", var2string(res$time, nsig_f=1, nsig_e=1), ",", var2string(res$conc, nsig_f=1, nsig_e=1),"]", sep="")
-      p = p + ggrepel::geom_text_repel(aes(x=res$time, y=res$conc, label=label_str)) }
-
-    cfg = system_report_slide_two_col(cfg, 
-         rptname            = rptname, 
-         title              = res$row_str,
-         content_type       = 'list',
-         left_content_type  = "ggplot",
-         left_content       = p,
-         right_content      = res_list)
-  
-  }
-
-  #-------------------------
-
-
-return(cfg)}
-#-------------------------------------------------------------------------
-#'@export 
 #'@title Automatic NCA
-#'@description Performs NCA in an automated fashion subsetting the data using muleiple criteria 
+#'@description Performs NCA in an automated fashion 
 #'
 #'@param cfg ubiquity system object
 #'@param DSNAME name of dataset loaded with (\code{\link{system_load_data}})
-#'@param dscale factor to multiply the dose to get it into the same units as concentration:
+#'@param NCA_min minimum number of points required to perform NCA for a given subset (default 4)
+#'@param rptname name of report to append results to (default 'default')
+#'@param analysis_name string containing the name of the analysis (default 'analysis') to archive to files and reference results later
+#'@param rescorr  Boolean variable to correct for residual drug in a multiple dose setting (default \code{TRUE}): If there is an observation before the first observation of a given subset, that concentration will subtracted from the values of the subset
+#'@param dscale factor to multiply the dose to get it into the same units as concentration (default 1):
 #' if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscale = 1e6}
-#'@param ssby list specifying how to subset the data, with list names being
-#' column names from the dataset and values being those used for subsetting (note
-#' every combination will be considered when performing NCA:
-#'         If your dataset specifies the dose number (\code{dose_number}) for subjects and you want to perform NCA on doses 1 and 5 for subjects (\code{id}) 2, 8 and 120 then ssby would look like:
+#'@param ssby sequence specifying how to subset the data to provide unique identifier for the different timeseries in the dataset (default \code{NULL} treats entire dataset as a single individual 
+#'  For example if you want to perform NCA for each subject (specified by the column id in the dataset) and each dose (specfieid by "DOSE_NUMBER" in the dataset).
 #'\preformatted{
-#'  ssby = list(id=c(2,8,120),  dose_number=c(1,5))
-#' }
-#'@param obs list with names specifying the time, concentration, dose, and id columns to use when performing NCA
-#'@param dsinc character vector of columns from the dataset to include in the output summary: These should be constant for the combinations specified in \code{ssby}
+#'  ssby = c("ID", "DOSE_NUMBER")
+#'}
 #'
+#'@param dsfilter list of names corresponding to the column names in the dataset and values are a sequence indicating values to keep (default \code{NULL}. Multiple names are and-ed together. For example the following would keep all of the records where dose is 1, 2, or 5 and the dose_number is 1
+#'\preformatted{
+#'  dsfilter = list(dose=c(1,2,5), dose_number = c(1))
+#'}
+#'
+#'@param dsmap list with names specifying the time (TIME), nominal time since last dose (NTIME), concentration (CONC), dose (DOSE), and id (ID) columns to use when performing NCA
+#'@param dsinc character vector of columns from the dataset to include in the output summary: These should be constant for the combinations specified in \code{ssby}
+#'@return cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:
+#' \itemize{
+#'     \item{output/{analysis_name}-nca_summary.csv} NCA summary 
+#'     \item{output/{analysis_name}-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
+#' }
 system_nca_run = function(cfg, 
-                          DSNAME="PKDS", 
-                          dscale = 1,
-                          ssby=list(id=c(1,2,3), dose_number=c(1,2)),
-                          obs=list(time="TIME", conc="DV", dose="AMT", id="ID",
-                          dsinc=NULL)){
-                      
+                          DSNAME        = "PKDS", 
+                          dscale        = 1,
+                          NCA_min       = 4,
+                          rptname       = "default",
+                          analysis_name = "analysis",
+                          rescorr       = TRUE,
+                          dsfilter      = NULL,
+                          dsmap         = list(TIME="TIME", NTIME="NTIME", CONC="DV", DOSE="AMT", ID="ID", DOSENUM=NULL),
+                          dsinc         = NULL){
 
   ncares = list()
   ncasum = list()
   scenres = list()
   isgood = TRUE
+
+  system_req("PKNCA")
+
+  #---------------------------------------
+  # Checking the user input
+  #saving files
+  if(!(ubiquity_name_check(analysis_name)$isgood)){
+    isgood=FALSE
+    vp(cfg, paste("The analysis_name >", analysis_name, " is not valid", sep=""))
+    vp(cfg, paste( ubiquity_name_check(analysis_name)$msg[1]))
+  }
+
+
+  if((rptname %in% names(cfg$reporting$reports))){
+    rptenabled = TRUE
+  } else {
+    rptenabled = FALSE
+    vp(cfg, paste("The report >", rptname, "has not been defined, and reporting will not be available.", sep=""))
+    vp(cfg, paste("Initiialize the report to enable this feature: ", sep=""))
+    vp(cfg, paste("cfg = system_report_init(cfg, rptname='", rptname, "')", sep=""))
+  }
   
   if(DSNAME %in% names(cfg$data)){
     DS = cfg$data[[DSNAME]]$values
+    # If a filter has been specified then we apply it to the dataset
+    if(!is.null(dsfilter)){
+      # First we make sure the column names exist
+      for(cn in names(dsfilter)){
+        if(!(cn %in% names(DS))){
+          isgood = FALSE
+          vp(cfg, paste("Error: Subset column >", cn, "< was not found in the provided dataset", sep=""))
+        }
+      }
+      # If it does then we apply the filter
+      for(cn in names(dsfilter)){
+        DS = DS[DS[[cn]] %in% dsfilter[[cn]], ]
+      }
+
+
+    }
   } else {
     isgood = FALSE
     vp(cfg, paste("Error: Dataset >", DSNAME, "< was not found use system_load_data() to create this dataset", sep=""))
   }
-  
-  
-  # Checking the subset columns 
-  for(cn in names(ssby)){
-    if(!(cn %in% names(DS))){
+
+  # Now we check the dataset to make sure there are records. This catches
+  # issues in the dataset itself or potential problems with applying filters
+  if(nrow(DS) <1){
+    isgood = FALSE
+    vp(cfg, paste("Error: Dataset >", DSNAME, "< is empty", sep=""))
+    vp(cfg, paste("Check the orignal dataset or the filters that were specified", sep=""))
+  }
+
+  # Creating the sub setting column
+  if(is.null(dsmap$DOSENUM)){
+    DS$SI_DOSENUM = 1
+  } else {
+    if(dsmap$DOSENUM %in% names(DS)){
+      DS$SI_DOSENUM =  DS[[dsmap$DOSENUM]]
+    } else {
       isgood = FALSE
-      vp(cfg, paste("Error: Subset column >", cn, "< was not found in the provided dataset", sep=""))
+      vp(cfg, paste("Error: DOSENUM column >", dsmap$DOSENUM, "< was not found in the provided dataset", sep=""))
     }
+
   }
 
-
-  if(isgood){
-    # Checking the obs information
-    obscols = c("time", "conc", "dose")
-    for(cn in obscols){
-      # Checking to see if correct names were specified in obs
-      if(cn %in% names(obs)){
-
-        # Now making sure they exist in the dataset
-        if(!(obs[[cn]] %in% names(DS))){
-          isgood = FALSE
-          vp(cfg, paste("Error: Observation column ", obs[[cn]], " was not found in the dataset ",DSNAME, sep=""))
-        }
-      } else {
+  # Checking the obs information
+  dscols = c("TIME", "NTIME", "CONC", "DOSE", "ID")
+  for(cn in dscols){
+    # Checking to see if correct names were specified in obs
+    if(cn %in% names(dsmap)){
+      # Now making sure they exist in the dataset
+      if(!(dsmap[[cn]] %in% names(DS))){
         isgood = FALSE
-        vp(cfg, paste("Error: Observation column >", cn, "< was not found",sep=""))
-        vp(cfg, paste("        obs$",cn, ' = "colname"',sep=""))
+        vp(cfg, paste("Error: Dataset column ", dsmap[[cn]], " was not found in the dataset ",DSNAME, sep=""))
       }
-    }
-
-    # checking the data set columns to include in the summary output 
-    if(!is.null(dsinc)){
-      for(cn in dsinc){
-        if(!(cn %in% names(DS))) {
-          isgood = FALSE
-          vp(cfg, paste("Error: Column name >", cn, "< to include in summary output was not found in the dataset",sep=""))
-        }
-      }
+    } else {
+      isgood = FALSE
+      vp(cfg, paste("Error: Dataset column >", cn, "< was not found",sep=""))
+      vp(cfg, paste("        dsmap$",cn, ' = "colname"',sep=""))
     }
   }
-  
-  # If everything checks out we'll go through and 
+
+  # calculating the dose in the same mass units as concentration
   if(isgood){
-  
-    # taking all of the different subset values and expanding them into all the
-    # possible scenarios
-    eval(parse(text=sprintf(' scenarios = expand.grid(%s)',  paste(sprintf("ssby$%s", names(ssby)), collapse=", "))))
-    colnames(scenarios) = names(ssby)
-    
-    for(ridx in 1:nrow(scenarios)){
-      # Current row 
-      sr  = scenarios[ridx,]
-    
-      # filtering the dataset down to rows that match the scenarios
-      tds = DS
-      sr_str = NULL
-      for(cn in names(sr)){
-        tds = tds[tds[[cn]] == sr[[cn]],]
-    
-        # Creating a verbose string from the current scenario row
-        # to be used in the output and (optionally) the reporting below
-        if(is.null(sr_str)){
-          sr_str = paste(cn, " = ", sr[[cn]])
-        } else {
-          sr_str = paste(sr_str, ",", cn, " = ", sr[[cn]])
-        }
-      }
-    
-      # If there are at least four records we calculate the NCA
-      if(nrow(tds) >= 4){
+    DS$SI_DOSE = DS[, dsmap$DOSE]*dscale
+  }
 
-        AUC_times = tds[[obs$time]]
-        AUC_times = AUC_times[AUC_times> 0]
-     
-        eval(parse(text=paste("d.dose   = data.frame(",obs$dose," = unique(tds$",obs$dose,")[1]*dscale, ",obs$time," = min(AUC_times), ",obs$id," = unique(tds$",obs$id,"))", sep="")))
-        eval(parse(text=paste("dose_obj <- PKNCAdose(d.dose, ",obs$dose,"~",obs$time,"|",obs$id,")", sep="")))
-        eval(parse(text=paste("conc_obj <- PKNCAconc(tds, ",obs$conc,"~",obs$time,"|",obs$id,")", sep="")))
-   
-        data_obj <- PKNCAdata(data.conc=conc_obj,
-                              data.dose = dose_obj,
-                              intervals=data.frame(start=min(AUC_times),
-                                                   end=max(AUC_times),
-                                                   aucall=TRUE,
-                                                   auclast=TRUE,
-                                                   cmax = TRUE, 
-                                                   vss.obs = TRUE,
-                                                   vss.pred = TRUE,
-                                                   cl.pred = TRUE,
-                                                   cl.obs = TRUE,
-                                                   aucinf.pred=TRUE,
-                                                   aucinf.obs=TRUE))
-        res         <- pk.nca(data_obj)
-        AUC_last = res$result[res$result$PPTESTCD == "auclast",   ]$PPORRES
-        AUC_all  = res$result[res$result$PPTESTCD == "aucall",    ]$PPORRES
-        Cmax     = res$result[res$result$PPTESTCD == "cmax",      ]$PPORRES
-        Tmax     = res$result[res$result$PPTESTCD == "tmax",      ]$PPORRES
-
-        Vss_obs  = res$result[res$result$PPTESTCD == "vss.obs",   ]$PPORRES
-        Vss_pred = res$result[res$result$PPTESTCD == "vss.pred",  ]$PPORRES
-        CL_obs   = res$result[res$result$PPTESTCD == "cl.obs" ,   ]$PPORRES
-        CL_pred  = res$result[res$result$PPTESTCD == "cl.pred",   ]$PPORRES
-        HL       = res$result[res$result$PPTESTCD == "half.life", ]$PPORRES
-
-        Cmax_obs = max(tds[[obs$conc]])
-        Tmax_obs = tds[tds[[obs$conc]] == Cmax_obs, ][[obs$time]][1]
-
-        tmpdf = data.frame(AUC_last = AUC_last,
-                           AUC_all  = AUC_all,
-                           Tmax     = Tmax,
-                           Cmax     = Cmax,
-                           Tmax_obs = Tmax_obs,
-                           Cmax_obs = Cmax_obs)
-
-        # Now we add the columsn from the dataset we want to retain in our NCA
-        # summary table
-        for(tdsinc in dsinc){
-           tmpdf[[tdsinc]] = tds[[tdsinc]][1] }
-
-        tmpdf$Vss_obs =  Vss_obs
-        tmpdf$Vss_pred=  Vss_pred
-        tmpdf$CL_obs  =  CL_obs
-        tmpdf$CL_pred =  CL_pred
-        tmpdf$HL      =  HL
-
-        if(is.null(ncasum)){
-          ncasum = tmpdf
-        } else {
-          ncasum = rbind(ncasum, tmpdf)
-        }
-
-        # storing the results of this scenario 
-        eval(parse(text=paste("scenres$res_", ridx, "$row     = sr",                    sep="")))
-        eval(parse(text=paste("scenres$res_", ridx, "$row_str = sr_str",                sep="")))
-        eval(parse(text=paste("scenres$res_", ridx, "$res     = res",                   sep="")))
-        eval(parse(text=paste("scenres$res_", ridx, "$tds     = tds",                   sep="")))
-        eval(parse(text=paste("scenres$res_", ridx, "$time    = tds$", obs$time,        sep="")))
-        eval(parse(text=paste("scenres$res_", ridx, "$conc    = tds$", obs$conc,        sep="")))
-        eval(parse(text=paste("scenres$res_", ridx, "$dose    = tds$", obs$dose,        sep="")))
-        eval(parse(text=paste("scenres$res_", ridx, "$id      = tds$", obs$id  ,        sep="")))
-        eval(parse(text=paste("scenres$res_", ridx, "$ncasum  = tmpdf"         ,        sep="")))
-      
-      } else {
-        vp(cfg, paste("Warning: Subset ", sr_str, " has no insufficient records, skipping"))
+  # checking the data set columns to include in the summary output 
+  if(!is.null(dsinc)){
+    for(cn in dsinc){
+      if(!(cn %in% names(DS))) {
+        isgood = FALSE
+        vp(cfg, paste("Error: Column name >", cn, "< to include in summary output was not found in the dataset",sep=""))
       }
     }
   }
 
-  ncares$DSNAME  = DSNAME
-  ncares$obs     = obs
-  ncares$isgood  = isgood
-  ncares$scenres = scenres
-  ncares$ncasum  = ncasum
-return(ncares)}
+  #---------------------------------------
+  
+  # these will store the summary information:
+  NCA_sum   = NULL
+  grobs_sum = list()
+
+  # If everything checks out we'll go through and perform NCA on the
+  # individuals
+  if(isgood){
+    # Looping through each subject ID
+    subs  = unique(DS[[dsmap$ID]])
+
+    # Getting the uppoer and lower bounds on the whole dataset
+    ylim_min = min(DS[[dsmap$CONC]])
+    ylim_max = max(DS[[dsmap$CONC]])
+    for(sub in subs){
+      # This is the entire dataset for the subject
+      SUBDS = DS[DS[[dsmap$ID]] == sub,]
+
+      # Figure with summary info for the subject
+      ptmp = ggplot()
+      eval(parse(text=paste("ptmp = ptmp +  geom_line(data=SUBDS, aes(x=",dsmap$TIME,", y=", dsmap$CONC,")            )", sep="")))
+      eval(parse(text=paste("ptmp = ptmp + geom_point(data=SUBDS, aes(x=",dsmap$TIME,", y=", dsmap$CONC,"),  shape=16 )", sep="")))
+
+      ptmp = prepare_figure(fo=ptmp, purpose="present")
+      ptmp = gg_log10_yaxis(fo=ptmp, ylim_max=ylim_max, ylim_min=ylim_min)
+
+      # Next we process each of the doses   
+      dosenum_all = unique(SUBDS$SI_DOSENUM)
+      for(dosenum in dosenum_all){
+        # this is subject's data for the given subset
+        SUBDS_DN = SUBDS[SUBDS$SI_DOSENUM == dosenum, ]
+
+
+        # By default we process the current subject/dose combination
+        PROC_SUBDN = TRUE
+
+        # But we check a few things first:
+        # Checking to make sure dose is unique
+        if(length(unique(SUBDS_DN[[dsmap$DOSE]]))>1){
+          PROC_SUBDN = FALSE
+          vp(cfg, paste("Subject: >", sub, "< Dose ", dosenum, " had more than 1 value in the dose column",sep=""))
+          vp(cfg, paste("    Dose column >", dsmap$DOSE, "< has values: ", paste(unique(SUBDS_DN[[dsmap$DOSE]]), collapse=", "), sep=""))
+        }
+
+        # Make sure there are enough observations:
+        if(nrow(SUBDS_DN) < NCA_min){
+          PROC_SUBDN = FALSE
+          vp(cfg, paste("Subject: >", sub, "< Dose ", dosenum, " had less than ", NCA_min, " observations (NCA_min)",sep=""))
+        }
+
+
+        # This will hold the NCA summary information for the current subject
+        # subset
+        tmpsum = NULL  
+        
+        # Getting the Cmax and Tmax the min() below selects the first time
+        # that tmax is observed if there are multiple occurances of the tmax
+        tmpsum$ID              = sub
+        tmpsum$Nobs            = nrow(SUBDS_DN)
+        tmpsum$Dose_Number     = dosenum
+        tmpsum$Dose            = SUBDS_DN[[dsmap$DOSE]][1]
+        tmpsum$Dose_CU         = SUBDS_DN$SI_DOSE[1]
+        tmpsum$Cmax            = max(SUBDS_DN[[dsmap$CONC]])
+        tmpsum$Tmax            = min(SUBDS_DN[SUBDS_DN[[dsmap$CONC]] == tmpsum$Cmax, ][[dsmap$TIME]])
+        tmpsum$halflife        = -1
+        tmpsum$Vp_obs          = -1
+        tmpsum$Vss_obs         = -1
+        tmpsum$Vss_pred        = -1
+        tmpsum$CL_obs          = -1
+        tmpsum$CL_pred         = -1
+        tmpsum$AUClast         = -1
+        tmpsum$AUCinf_pred     = -1
+        tmpsum$AUCinf_obs      = -1
+
+        if(PROC_SUBDN){
+          # Calculating the predose conc to subtract from the concentration
+          # By default it's zero:
+          PREDOSE_CONC = 0.0
+          # If rescorr is selected we look for residual observations before the
+          # first observation of the given subset
+          if(rescorr){
+            # first we look for observations with time values before the first
+            # observation of the current subset
+            if(any(SUBDS[[dsmap$TIME]] < min(SUBDS_DN[[dsmap$TIME]]))){
+              # This gets the subject dataset leading up to the current subset
+              PREDOSEDS = SUBDS[SUBDS[[dsmap$TIME]] < min(SUBDS_DN[[dsmap$TIME]]), ]
+              # Now we pluck off the last value:
+              PREDOSE_CONC = PREDOSEDS[nrow(PREDOSEDS), ][[dsmap$CONC]]
+            }
+          }
+        
+          # Creating data frames for NCA
+          NCA_CONCDS = data.frame(NTIME =   SUBDS_DN[[dsmap$NTIME]],
+                                  TIME  =   SUBDS_DN[[dsmap$TIME]],
+                                  CONC  = c(SUBDS_DN[[dsmap$CONC]] - PREDOSE_CONC),
+                                  ID    = sub)
+          NCA_DOSEDS = data.frame(NTIME  =   min(NCA_CONCDS$NTIME),
+                                  DOSE  = SUBDS_DN$SI_DOSE[1],
+                                  ID    = sub)
+
+          # Calculating the observed plasma concentration 
+          #
+          #                Dose in conc units
+          # Vp_obs = ------------------------------
+          #           Corrected first observed conc
+          Vp_obs = SUBDS_DN$SI_DOSE[1]/(SUBDS_DN[[dsmap$CONC]][1] - PREDOSE_CONC)
+
+          # Removing negative concentration values that may result from the
+          # residual correction
+          NCA_CONCDS = NCA_CONCDS[NCA_CONCDS$CONC > 0, ]
+
+          NCA.conc = PKNCA::PKNCAconc(NCA_CONCDS, CONC~NTIME|ID)
+          NCA.dose = PKNCA::PKNCAdose(NCA_DOSEDS, DOSE~NTIME|ID)
+          NCA.data = PKNCA::PKNCAdata(data.conc = NCA.conc,
+                                      data.dose = NCA.dose,
+                                      intervals = data.frame(start       = min(NCA_CONCDS$NTIME),
+                                                             end         = max(NCA_CONCDS$NTIME),
+                                                             half.life   = TRUE,
+                                                             aucall      = TRUE,
+                                                             auclast     = TRUE,
+                                                             cmax        = TRUE, 
+                                                             vss.obs     = TRUE,
+                                                             vss.pred    = TRUE,
+                                                             cl.pred     = TRUE,
+                                                             cl.obs      = TRUE,
+                                                             aucinf.pred = TRUE,
+                                                             aucinf.obs  = TRUE))
+          NCA.res =  PKNCA::pk.nca(NCA.data)
+
+          tmpsum$halflife      =  NCA.res$result[NCA.res$result$PPTESTCD == "half.life",   ]$PPORRES
+          tmpsum$Vp_obs        =  Vp_obs
+          tmpsum$Vss_obs       =  NCA.res$result[NCA.res$result$PPTESTCD == "vss.obs",     ]$PPORRES
+          tmpsum$Vss_pred      =  NCA.res$result[NCA.res$result$PPTESTCD == "vss.pred",    ]$PPORRES
+          tmpsum$CL_obs        =  NCA.res$result[NCA.res$result$PPTESTCD == "cl.obs",      ]$PPORRES
+          tmpsum$CL_pred       =  NCA.res$result[NCA.res$result$PPTESTCD == "cl.pred",     ]$PPORRES  
+          tmpsum$AUClast       =  NCA.res$result[NCA.res$result$PPTESTCD == "auclast",     ]$PPORRES
+          tmpsum$AUCinf_pred   =  NCA.res$result[NCA.res$result$PPTESTCD == "aucinf.pred", ]$PPORRES
+          tmpsum$AUCinf_obs    =  NCA.res$result[NCA.res$result$PPTESTCD == "aucinf.obs",  ]$PPORRES
+        } else {
+          vp(cfg, "    Skipping this subject/dose combination")
+        }
+
+
+        # Adding a summary slide for the current dose
+        if(rptenabled){
+          lctmp = c(1, paste("Number of observations:"   , var2string(tmpsum$Nobs       , nsig_e=2, nsig_f=2) ),
+                    1, paste("Dose: "                    , var2string(tmpsum$Dose       , nsig_e=2, nsig_f=2) ), 
+                    1, paste("Dose concentration units: ", var2string(tmpsum$Dose_CU    , nsig_e=2, nsig_f=2) ), 
+                    1, paste("Cmax: "                    , var2string(tmpsum$Cmax       , nsig_e=2, nsig_f=2) ), 
+                    1, paste("Tmax: "                    , var2string(tmpsum$Tmax       , nsig_e=2, nsig_f=2) ), 
+                    1, paste("Halflife: "                , var2string(tmpsum$halflife   , nsig_e=2, nsig_f=2) ))
+          rctmp = c(1, paste("Vp  (observed):"           , var2string(tmpsum$Vp_obs     , nsig_e=2, nsig_f=2) ),
+                    1, paste("Vss (observed):"           , var2string(tmpsum$Vss_obs    , nsig_e=2, nsig_f=2) ),
+                    1, paste("Vss (predicted):"          , var2string(tmpsum$Vss_pred   , nsig_e=2, nsig_f=2) ), 
+                    1, paste("CL  (observed):"           , var2string(tmpsum$CL_obs     , nsig_e=2, nsig_f=2) ), 
+                    1, paste("CL  (predicted):"          , var2string(tmpsum$CL_pred    , nsig_e=2, nsig_f=2) ), 
+                    1, paste("AUC (0-last):"             , var2string(tmpsum$AUClast    , nsig_e=2, nsig_f=2) ), 
+                    1, paste("AUC (0-inf, predicted):"   , var2string(tmpsum$AUCinf_pred, nsig_e=2, nsig_f=2) ), 
+                    1, paste("AUC (0-inf, observed):"    , var2string(tmpsum$AUCinf_obs , nsig_e=2, nsig_f=2) ))
+
+
+          cfg = system_report_slide_two_col(cfg, rptname=rptname,
+                    title         = paste("Subject: ", sub, ",  Dose: ", dosenum, sep=""),
+                    content_type  = "list",
+                    left_content  = lctmp,
+                    right_content = rctmp)
+        
+        }
+
+        tmpsum = as.data.frame(tmpsum)
+        if(is.null(NCA_sum)){
+           NCA_sum = tmpsum
+        } else {
+           NCA_sum = rbind(tmpsum, NCA_sum)
+        }
+
+
+        # Overlaying the concentration values used
+        ptmp = ptmp + geom_point(data=NCA_CONCDS, aes(x=TIME, y=CONC), shape=1,           color='blue')
+        ptmp = ptmp +  geom_line(data=NCA_CONCDS, aes(x=TIME, y=CONC), linetype='dashed', color='blue')
+      }
+
+      # Adding PK plot here
+      if(rptenabled){
+         cfg = system_report_slide_content(cfg, rptname=rptname,
+                    title         = paste("Subject: ", sub, sep=""),
+                    content_type  = "ggplot",
+                    content       = ptmp)
+      }
+
+      grobs_sum[[sub]] = ptmp
+    }
+
+    # Sorting the NCA table by ID then Dose_Number
+    NCA_sum = NCA_sum[ with(NCA_sum, order(Dose_Number, ID)), ]
+
+    if(rptenabled){
+      tab1 = list()
+      tab1$table = NCA_sum[,c(1:5, 6:11) ]
+      tab1$merge_header = FALSE
+      tab1$header_top = list(
+                ID          = "Subject"   ,
+                Nobs        = "Number"    ,
+                Dose_Number = "Dose"      ,
+                Dose        = "Dose"      ,
+                Dose_CU     = "Dose"      ,
+                Cmax        = "Cmax"      ,
+                Tmax        = "Tmax"      , 
+                halflife    = "Halflife"  ,
+                Vp_obs      = "Vp"        ,
+                Vss_obs     = "Vss"       ,
+                Vss_pred    = "Vss"       )
+
+      tab1$header_middle = list(
+                ID          = ""          ,
+                Nobs        = "Obs"       ,
+                Dose_Number = "Number"    ,
+                Dose        = "Dataset"   ,
+                Dose_CU     = "Conc Units",
+                Cmax        = ""          ,
+                Tmax        = ""          , 
+                halflife    = ""          ,
+                Vp_obs      = "Observed"  ,
+                Vss_obs     = "Observed"  ,
+                Vss_pred    = "Predicted" )
+
+      tab2 = list()
+      tab2$table = NCA_sum[,c(1:5, 12:16) ]
+      tab2$merge_header = FALSE
+      tab2$header_top = list(
+                ID          = "Subject"   ,
+                Nobs        = "Number"    ,
+                Dose_Number = "Dose"      ,
+                Dose        = "Dose"      ,
+                Dose_CU     = "Dose"      ,
+                CL_obs      = "CL"        ,
+                CL_pred     = "CL"        ,
+                AUClast     = "AUC"       ,
+                AUCinf_pred = "AUC"       ,
+                AUCinf_obs  = "AUC"       )
+
+      tab2$header_middle = list(
+                ID          = ""          ,
+                Nobs        = "Obs"       ,
+                Dose_Number = "Number"    ,
+                Dose        = "Dataset"   ,
+                Dose_CU     = "Conc Units",
+                CL_obs      = "Observed"  ,
+                CL_pred     = "Predicted" ,
+                AUClast     = "Last"      ,
+                AUCinf_pred = "Inf (Pred)" ,
+                AUCinf_obs  = "Inf (Obs)" )
+
+      # Splitting the table across two slides
+      cfg = system_report_slide_content(cfg, rptname=rptname,
+                 title         = paste("NCA Summary"),
+                 content_type  = "flextable",
+                 content       = tab1)
+
+      cfg = system_report_slide_content(cfg, rptname=rptname,
+                 title         = paste("NCA Summary"),
+                 content_type  = "flextable",
+                 content       = tab2)
+    }
+
+
+    csv_file  = file.path("output",paste(analysis_name, "-nca_summary.csv" , sep=""))
+    data_file = file.path("output",paste(analysis_name, "-nca_data.RData" , sep=""))
+    write.csv(NCA_sum, file=csv_file, row.names=FALSE, quote=FALSE)
+    save(grobs_sum, NCA_sum, file=data_file)
+
+    cfg$nca[[analysis_name]]$grobs_sum = grobs_sum
+    cfg$nca[[analysis_name]]$NCA_sum   = NCA_sum
+    cfg$nca[[analysis_name]]$data_raw  = DS
+
+  } else {
+     vp(cfg, "system_nca_new()")
+     vp(cfg, "Errors were found see messages above for more information")
+  }
+
+
+cfg}
+#-------------------------------------------------------------------------
+#'@export 
+#'@title Initialize GLP study
+#'@description Creates a GLP study 
+#'
+#'@param cfg ubiquity system object
+#'@param study_title  String containing descriptive information about the study
+#'@param study_name   short name used to identify the study in other functions  (\code{"default"})
+#'@param rptname      short name used to identify the report to attach results to the study in other functions (\code{default})
+#'@return cfg ubiquity system object with the study initialized 
+system_glp_init   = function(cfg, study_title = 'Study Title', study_name='default', rptname  = 'default'){
+
+
+   if(ubiquity_name_check(study_name)$isgood){
+     # If a report name has been specified but the report 
+     # doesn't exist then we initialize it here:
+     if(!(rptname %in% names( cfg$reporting$reports))){
+       cfg = system_report_init(cfg, rptname=rptname)
+     }
+     
+     cfg = system_report_slide_title(cfg,
+           rptname=rptname,
+           title=study_title)
+     
+     # Now we initialize the title slide
+     
+     
+     cfg$glp[[study_name]]$rptname     = rptname
+     cfg$glp[[study_name]]$study_title = study_title
+   } else {
+     vp(cfg, "An invalid study name has been specified")
+     vp(cfg, ubiquity_name_check(study_name)$msg)
+     vp(cfg, "system_glp_init()")
+     vp(cfg, "Errors were found see messages above for more information")
+   }
+
+cfg}
+
+#-------------------------------------------------------------------------
+#'@export 
+#'@title Calculate the halflife of data
+#'@description  Determines the terminal halflife of a sequence of corresponding times and values with optional minimum and maximum times to censor data. 
+#'
+#'@param times - sequence of times
+#'@param values - corresponding sequence of values
+#'@param tmin - minimum time to include (\code{NULL})
+#'@param tmax - maximum time to include  (\code{NULL})
+#'@return List with the following names
+#' \itemize{
+#'   \item{thalf} Halflife in units of times above
+#'   \item{mod} Result of lm used to fit the log transformed data
+#'   \item{df} Dataframe with the data and predicted values at the time within tmin and tmax
+#' }
+calculate_halflife = function(times = NULL,
+                     values = NULL,
+                     tmin = NULL,
+                     tmax = NULL){
+
+
+  if(is.null(tmin)){
+    tmin = min(times)
+  }
+  
+  if(is.null(tmax)){
+    tmax = max(times)
+  }
+
+  #creating a data frame
+  tmpdf = data.frame(times    = times,
+                     values   = values,
+                     lnvalues = log(values))
+  
+
+  # Censoring the data to be between the min and max
+  tmpdf = tmpdf[tmpdf$times >= tmin & tmpdf$times <= tmax, ]
+
+  # performing the linear regression
+  mod = lm(data=tmpdf, formula(lnvalues~times))
+
+  # pulling out the slope and intercept:
+  intercept =  summary(mod)$coefficients[1,1]
+  slope     =  summary(mod)$coefficients[2,1]
+  k         = -slope
+
+  #
+  # C = C0*e^(-kt)
+  # 
+  # half life --> C - 0.5 C0
+  #
+  # 0.5 = e^(-kt)
+  #
+  # ln(1/2) = -kt
+  #
+  # t = ln(1/2)/(-k)
+  #
+  thalf   = log(1/2)/(-k)
+
+
+  lnvalues_pred = intercept + slope*tmpdf$times
+
+  values_pred    = exp(lnvalues_pred)
+
+  tmpdf = cbind(tmpdf, lnvalues_pred, values_pred)
+
+  res = list()
+
+  res$thalf = thalf
+  res$mod   = mod
+  res$df    = tmpdf
+  
+
+res}
+#-------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------
+#'@export 
+#'@title Save results from a GLP Study design
+#'@description Saves files associated with a GLP study. 
+#'
+#'@param cfg ubiquity system object
+#'@param study_name name of the study to save (\code{"default"})
+#'@param prefix optional string to prepend to files generated (\code{NULL})
+#'@param output_directory  path to save files to (\code{getwd()})
+#'@seealso \code{\link{system_glp_init}}, \code{\link{system_glp_scenario}}
+#'@return List with the following names
+#' \itemize{
+#'   \item{isgood} Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+#'   \item{files} List with names of the files exported and values containing the paths to the files
+#' }
+system_glp_save = function(cfg, 
+                     study_name       = "default",
+                     prefix           = NULL,
+                     output_directory = getwd()){
+  isgood = TRUE
+  res = list()
+
+  if(is.null(study_name)){
+    isgood = FALSE
+    vp(cfg, "No study_name specified")
+  } else if(is.null(cfg$glp[[study_name]])){
+    isgood = FALSE
+    vp(cfg, paste("The specified study_name '", study_name, "' does not exist"))
+  }
+
+  if(isgood){
+    # If no prefix has been specified then we use study_name
+    if(is.null(prefix)){
+      prefix=study_name 
+    }
+
+    # file names
+    ppt_file      = paste(prefix, "_report.pptx",    sep="")
+    sim_file      = paste(prefix, "_simulation.csv", sep="")
+    sum_file      = paste(prefix, "_summary.csv",    sep="")
+
+    ppt_file_full = file.path(output_directory, ppt_file)
+    sim_file_full = file.path(output_directory, sim_file)
+    sum_file_full = file.path(output_directory, sum_file)
+
+    vp(cfg, "Exporting GLP study")
+    vp(cfg, paste("  Study:            ", cfg$glp[[study_name]]$study_title))
+    vp(cfg, paste("  Output directory: ", cfg$glp[[study_name]]$study_title))
+
+    # Saving the report:
+    system_report_save(cfg, 
+       output_file = ppt_file_full,
+       rptname     = cfg$glp[[study_name]]$rptname)
+    res$files[[ppt_file]] = ppt_file_full
+
+    # Saving the simulation timecourse 
+    if(!is.null(cfg$glp[[study_name]]$simall)){
+      write.csv(file         = sim_file_full, 
+                quote        = FALSE, 
+                row.names    = FALSE,
+                cfg$glp[[study_name]]$simall)
+    res$files[[sim_file]] = sim_file_full
+    }
+
+    # Saving the simulation summary information 
+    if(!is.null(cfg$glp[[study_name]]$simsum)){
+      write.csv(file         = sum_file_full, 
+                quote        = FALSE, 
+                row.names    = FALSE,
+                cfg$glp[[study_name]]$simsum)
+    res$files[[sum_file]] = sum_file_full
+    }
+
+    
+  }
+
+  res$isgood = isgood
+
+res}
+#-------------------------------------------------------------------------
+
+#'@export 
+#'@title Design GLP Study For a Scenario 
+#'@description Identifies the top dose required in a GLP tox study in order to match human metrics (Cmax and AUCs) within a specified multiplier.
+#'  
+#' For a given set of human parameters the human doses required to hit the target Cmin and AUC (both or one) will be identified. The Cmax and AUC associated with the largest of those doses will be determined and the corresponding doses for a tox species (and provided parameters) will be determined for specific tox multipliers. 
+#'  
+#' Optionally, simulations can be be run by specifying doses for either/or the human or tox species. Sample times can also be specified to generate annotated figures and tables to be given to analysts to facilitate assay design. 
+#'
+#' The system file requires the following components:
+#'
+#'  - Output for the drug concentration
+#'  - Output for the cumulative AUC
+#'  - Bolus dosing defined in a specific compartment
+#'  - Timescale specified for the system timescale  (e.g. if the timescale is hours then you need \code{<TS> hours = 1.0})
+#'
+#'
+#'@param cfg ubiquity system object
+#'@param output_Conc model output specified with \code{<O>} containing the concentration associated with drug exposure.
+#'@param output_AUC  model output specified with \code{<O>} containing the cumulative exposure 
+#'@param units_Conc units of concentration (\code{''})
+#'@param units_AUC  units of AUC (\code{''})
+#'@param timescale  system timescale specified with \code{<TS>} used for AUC comparisons and plotting
+#'@param study_scenario  string containing a descriptive name for the tox study
+#'@param human_sim_times user-specified simulation output times for humans (same timescale as the system)
+#'@param study_name name of the study to append the scenario to set with \code{'system_glp_init()'} (\code{'default'}):
+#'  When a report is initialized using \code{\link{system_report_init}} the report name is 'default' unless otherwise specified. To disable reporting set this to  \code{NULL}, and to use a different report specify the name here.
+#'@param human_parameters list containing the human parameters 
+#'@param human_bolus string containing the dosing state for human doses (specified with \code{<B:?>}) 
+#'@param human_ndose number of human doses to simulate
+#'@param human_dose_interval dosing interval in humans (time units specified with \code{<B:?>})
+#'@param human_Cmin target Cmin in humans (corresponding to output_Conc above)
+#'@param human_AUC  target AUC  in humans (corresponding to output_AUC  above)
+#'@param human_sample_interval time interval in units specified by timescale above to evaluate the trough concentration and AUC (e.g c(1.99, 4.001) would consider the interval between 2 and 4)
+#'@param human_sim_doses  optional list of doses into \code{human_bolus} to simulate (see Details below)
+#'@param human_sim_sample optional list of sample times in units specified by timescale above to label on plots of simulated doses (the default \code{NULL} will disable labels)
+#'@param tox_species optional name of the tox species (\code{"Tox"})
+#'@param tox_sim_times user-specified simulation output times for the tox species (same timescale as the system)  
+#'@param tox_parameters list containing the parameters for the tox species
+#'@param tox_bolus string containing the dosing state for tox species doses (specified with \code{<B:?>})        
+#'@param tox_ndose number of tox doses to simulate
+#'@param tox_dose_interval dosing interval in the tox species (time units specified with \code{<B:?>})
+#'@param tox_Cmax_multiple for each target (Cmin and AUC) the dose in the tox species will be found to cover this multiple over the projected Cmax in humans (10) 
+#'@param tox_AUC_multiple for each target (Cmin and AUC) the dose in the tox species will be found to cover this multiple over the projected AUC in humans (10)
+#'@param tox_sample_interval interval to consider the AUC and Cmax for comparing the human prediction to the tox multiple
+#'@param tox_sim_doses  optional list of doses into \code{tox_bolus} to simulate (see Details below)
+#'@param tox_sim_samples  optional list of sample times in units specified by timescale above to label on plots of simulated doses (the default \code{NULL} will disable labels)  
+#'
+#'@details
+#'  Both \code{human_sim_doses} and \code{tox_sim_doses} are lists with names
+#'  corresponding to the label of the dose. Each element has an AMT and TIME
+#'  element which corresponds to the dosing times and amounts in the units 
+#'  specified with \code{<B:?>} in the system file.
+#'
+#'  For example if you wanted to simulate four weekly doses of 20 mg to a 70 kg 
+#'  person and the units of bolus doses were days and mg/kg for the times and 
+#'  amounts you would do the following:
+#'
+#'\preformatted{
+#'  human_sim_doses = list()
+#'  human_sim_doses[["20 mg QW"]]$TIME = c(     0,      7,     14,     21)
+#'  human_sim_doses[["20 mg QW"]]$AMT  = c(0.2857, 0.2857, 0.2857, 0.2857)
+#'}
+#'@return cfg ubiquity system object with the scenario added if successful
+system_glp_scenario = function(cfg,                                 
+                             output_Conc          = NULL,         output_AUC         = NULL,         timescale        = NULL,   
+                             units_Conc           = '',           units_AUC          = '',                            
+                             study_scenario       = "Tox Study",  human_sim_times    = NULL,         study_name       = 'default',
+                             human_parameters     = NULL,         human_bolus        = NULL,         human_ndose      = 1, 
+                             human_dose_interval  = 1,            human_Cmin         = NULL,         human_AUC        = NULL,
+                             human_sample_interval= NULL,         human_sim_doses    = NULL,         
+                             human_sim_samples    = NULL,
+                             tox_species          = 'Tox',        tox_sim_times      = NULL,
+                             tox_parameters       = NULL,         tox_bolus          = NULL,         tox_ndose        = 1, 
+                             tox_dose_interval    = 1,            tox_Cmax_multiple  = 10,           tox_AUC_multiple = 10,   
+                             tox_sample_interval  = NULL,         tox_sim_doses      = NULL,         
+                             tox_sim_samples      = NULL,
+                             annotate_plots       = TRUE){
+
+
+
+  isgood = TRUE
+
+
+  #
+  # checking the function inputs:
+  #
+  if(is.null(output_AUC)){
+    isgood = FALSE
+    vp(cfg, "You must specify a model output containing the AUC")
+  } else if(!(output_AUC %in% names(cfg$options$mi$outputs))){
+    isgood = FALSE
+    vp(cfg, paste("output_AUC = ", output_AUC, " does not exist.", sep=""))
+  }
+  if(is.null(output_Conc)){
+    isgood = FALSE
+    vp(cfg, "You must specify a model output containing the concentration")
+  } else if(!(output_Conc %in% names(cfg$options$mi$outputs))){
+    isgood = FALSE
+    vp(cfg, paste("output_Conc = ", output_Conc, " does not exist.", sep=""))
+  }
+  if(is.null(timescale)){
+    isgood = FALSE
+    vp(cfg, "You must specify a model timescale")
+  } else if(!(timescale %in% names(cfg$options$time_scales))){
+    isgood = FALSE
+    vp(cfg, paste("timescale   = ", timescale,   " does not exist.", sep=""))
+  }
+
+  # Dosing compartments
+
+  if(is.null(human_bolus)){
+    isgood = FALSE
+    vp(cfg, "You must specify a human dosing compartment")
+  } else if(!(human_bolus %in% names(cfg$options$inputs$bolus$species))){
+    isgood = FALSE
+    vp(cfg, paste('Check the specified value for human_bolus  ', sep=""))
+    vp(cfg, paste('Dosing into  "', human_bolus,   '" has not been defined. ', sep=""))
+  }
+
+  if(is.null(tox_bolus)){
+    isgood = FALSE
+    vp(cfg, "You must specify a tox dosing compartment")
+  } else if(!(tox_bolus %in% names(cfg$options$inputs$bolus$species))){
+    isgood = FALSE
+    vp(cfg, paste('Check the specified value for tox_bolus  ', sep=""))
+    vp(cfg, paste('Dosing into  "', tox_bolus,   '" has not been defined. ', sep=""))
+  }
+
+  #
+  # Check human_AUC and human_Cmin (make sure one is not null)
+  #
+  if(is.null(human_AUC) & is.null(human_Cmin)){
+    isgood = FALSE
+    vp(cfg, "You must specify at least one of the following:")
+    vp(cfg, "  human_AUC  = 1  # target exposure to achieve in humans")
+    vp(cfg, "  human_Cmin = 1  # target concentration to achieve in humans")
+  }
+
+  if(is.null(human_sample_interval)){
+    isgood = FALSE
+    vp(cfg, "To match a target concentration in humans you need ")
+    vp(cfg, "to define the interval to consider (timescale time units)")
+    vp(cfg, " e.g.  human_sample_interval = c(0,1)  ")
+  }
+
+  if(is.null(tox_sample_interval)){
+    isgood = FALSE
+    vp(cfg, "To compare the max predicted concentration and AUC in humans to the tox")
+    vp(cfg, "species you need to define the interval to consider (timescale time units)")
+    vp(cfg, " e.g.  tox_sample_interval = c(0,1)  ")
+  }
+
+
+  # Getting list of simulation outputs to include:
+  # Output the timescales
+  sim_cols = c(paste("ts.", names(cfg$options$time_scales), sep=""))
+  # Output concentration
+  sim_cols = c(sim_cols,  output_Conc)
+
+
+
+  # converting the dosing intervals from the units specified with <B> to the
+  # system timescale
+  eval(parse(text=paste('tox_dose_interval_TSsys = tox_dose_interval*', cfg$options$inputs$bolus$times$scale, sep = "")))
+  eval(parse(text=paste('human_dose_interval_TSsys = human_dose_interval*', cfg$options$inputs$bolus$times$scale, sep = "")))
+
+  human_sim_times_include = c(0,
+                              human_dose_interval_TSsys*(human_ndose+1),                      # including the end of the last dosing interval
+                              human_sample_interval/cfg$options$time_scales[[timescale]])     # including the sample 
+
+  tox_sim_times_include   = c(0, 
+                              tox_dose_interval_TSsys*(tox_ndose+1),                               # including the end of the last dosing interval
+                              tox_sample_interval/cfg$options$time_scales[[timescale]])       # including the Cmin interval
+
+ 
+  if(is.null(human_sim_times)){
+    # If no human simulation times were specified we use a smooth profile with
+    # the include values above
+    human_sim_times = sort(unique(c(linspace(min(human_sim_times_include), max(human_sim_times_include), 200), human_sim_times_include)))
+  } else {
+    # If they are included we add the include values abvoe
+    human_sim_times = sort(unique(c(human_sim_times, human_sim_times_include)))
+  }
+ 
+  if(is.null(tox_sim_times)){
+    # If no tox simulation times were specified we use a smooth profile with
+    # the include values above
+    tox_sim_times = sort(unique(c(linspace(min(tox_sim_times_include), max(tox_sim_times_include), 200), tox_sim_times_include)))
+  } else {
+    # If they are included we add the include values abvoe
+    tox_sim_times = sort(unique(c(tox_sim_times, tox_sim_times_include)))
+  }
+
+
+  # Converting the specified timescale units (e.g. "hours") in to the output
+  # column from the simulation (e.g. "ts.hours")
+  timescale_col = paste('ts.', timescale, sep="")
+
+  # If everything checked out above we start the analysis
+  if(isgood){
+    #------------------------------------------------------------------ 
+    # storing the ggplot objects to be returned to the user
+    PLTS = list()
+    # Default values for the human doses:
+    HT = list()
+    human_dose_BL   = 1      # Baseline used for calculations 
+    tox_dose_BL     = 1      #                               
+    HT$Cmin$dose    = NULL   # Dose to match Cmin target
+    HT$AUC$dose     = NULL   # Dose to match AUC target
+
+
+    TT = list()
+
+    # Dose times for human and tox scenarios:
+    human_dose_times  = 0:(human_ndose-1)*human_dose_interval
+    tox_dose_times    = 0:(tox_ndose-1)*tox_dose_interval
+
+    # Simulating the human baseline response
+    human_dose_values_BL = rep(human_dose_BL, human_ndose)
+    # Setting the human simulation times:
+    cfg =system_set_option(cfg, group  = "simulation", 
+                                option = "output_times", 
+                                human_sim_times)
+    cfg = system_zero_inputs(cfg) 
+    cfg = system_set_bolus(cfg, state   = human_bolus, 
+                                times   = human_dose_times, 
+                                values  = human_dose_values_BL)
+    som = run_simulation_ubiquity(human_parameters, cfg)
+
+    simout_human_BL = som$simout
+
+    #
+    # Finding the doses and running simulations for human targets:
+    #
+    if(!is.null(human_AUC)){
+      # Pulling out the rows corresponding to the AUC interval
+      human_AUC_rows_BL = simout_human_BL[human_sample_interval[1] <= simout_human_BL[[timescale_col]] & simout_human_BL[[timescale_col]] <= human_sample_interval[2] , ]
+      # Since the output_AUC should be a cumulative AUC we can just take the
+      # max-min over the interval to get the AUC:
+      human_AUC_BL      = max(human_AUC_rows_BL[[output_AUC]]) - min(human_AUC_rows_BL[[output_AUC]]) 
+      # Based on the BL AUC and the desired AUC we calculate out what the
+      # dose should be:
+      HT$AUC$dose            = human_dose_BL*human_AUC/human_AUC_BL 
+
+      # Now we simulate the system at the correct dose:
+      human_dose_values_AUC  = rep(HT$AUC$dose    , human_ndose)
+      cfg = system_zero_inputs(cfg) 
+      cfg = system_set_bolus(cfg, state   = human_bolus, 
+                                  times   = human_dose_times, 
+                                  values  = human_dose_values_AUC)
+      som = run_simulation_ubiquity(human_parameters, cfg)
+
+      # Storing the simulation with the correct dose
+      HT$AUC$simout     = som$simout
+      # Storing the rows over when the AUC is determined:
+      HT$AUC$simout_int = som$simout[human_sample_interval[1] <= som$simout[[timescale_col]] & som$simout[[timescale_col]] <= human_sample_interval[2] , ]
+      # Finding the Cmax, Cmin and AUC 
+      HT$AUC$Cmax       = max(som$simout[[output_Conc]])
+      HT$AUC$Tmax       = som$simout[som$simout[[output_Conc]] == HT$AUC$Cmax, ][[timescale_col]][1]
+      HT$AUC$Cmin       = min(HT$AUC$simout_int[[output_Conc]])
+      HT$AUC$Tmin       = som$simout[som$simout[[output_Conc]] == HT$AUC$Cmin, ][[timescale_col]][1]
+      HT$AUC$AUC_start  = min(HT$AUC$simout_int[[output_AUC]])
+      HT$AUC$AUC_stop   = max(HT$AUC$simout_int[[output_AUC]])
+      HT$AUC$TAUC_start = som$simout[som$simout[[output_AUC]] == HT$AUC$AUC_start, ][[timescale_col]][1]
+      HT$AUC$TAUC_stop  = som$simout[som$simout[[output_AUC]] == HT$AUC$AUC_stop , ][[timescale_col]][1]
+      HT$AUC$AUC        = HT$AUC$AUC_stop -  HT$AUC$AUC_start
+    }
+
+    if(!is.null(human_Cmin)){
+      # Pulling out the rows corresponding to the Cmin interval
+      human_Cmin_rows_BL = simout_human_BL[human_sample_interval[1] <= simout_human_BL[[timescale_col]] & simout_human_BL[[timescale_col]] <= human_sample_interval[2] , ]
+      # Finding the minimum over that interval
+      human_Cmin_BL   = min(human_Cmin_rows_BL[[output_Conc]])
+      # Based on the BL Cmin and the desired Cmin we calculate out what the
+      # dose should be:
+      HT$Cmin$dose           = human_dose_BL*human_Cmin/human_Cmin_BL 
+      # Now we simulate the system at the correct dose:
+      human_dose_values_Cmin = rep(HT$Cmin$dose,    human_ndose)
+      cfg = system_zero_inputs(cfg) 
+      cfg = system_set_bolus(cfg, state   = human_bolus, 
+                                  times   = human_dose_times, 
+                                  values  = human_dose_values_Cmin)
+      som = run_simulation_ubiquity(human_parameters, cfg)
+
+      # Storing the simulation with the correct dose
+      HT$Cmin$simout     = som$simout
+      # Storing the rows over when the Cmin is determined:
+      HT$Cmin$simout_int = som$simout[human_sample_interval[1] <= som$simout[[timescale_col]] & som$simout[[timescale_col]] <= human_sample_interval[2] , ]
+      # Finding the Cmax, Cmin and AUC 
+      HT$Cmin$Cmax       = max(som$simout[[output_Conc]])
+      HT$Cmin$Tmax       = som$simout[som$simout[[output_Conc]] == HT$Cmin$Cmax, ][[timescale_col]][1]
+      HT$Cmin$Cmin       = min(HT$Cmin$simout_int[[output_Conc]])
+      HT$Cmin$Tmin       = som$simout[som$simout[[output_Conc]] == HT$Cmin$Cmin, ][[timescale_col]][1]
+      HT$Cmin$AUC_start  = min(HT$Cmin$simout_int[[output_AUC]])
+      HT$Cmin$AUC_stop   = max(HT$Cmin$simout_int[[output_AUC]])
+      HT$Cmin$TAUC_start = som$simout[som$simout[[output_AUC]] == HT$Cmin$AUC_start, ][[timescale_col]][1]
+      HT$Cmin$TAUC_stop  = som$simout[som$simout[[output_AUC]] == HT$Cmin$AUC_stop , ][[timescale_col]][1]
+      HT$Cmin$AUC        = HT$Cmin$AUC_stop -  HT$Cmin$AUC_start
+
+    }
+
+
+
+    # Now we find the top human dose based on the metrics above:
+    # human_dose_max has the top human dose
+    for(TGT_tmp in names(HT)){
+      human_dose_max = 0
+      if(HT[[TGT_tmp]]$dose > human_dose_max){
+        human_dose_max = HT[[TGT_tmp]]$dose 
+        TGT = TGT_tmp
+      }
+    }
+    # TGT should contain the human target (Cmin or AUC) 
+    # that requires the largest human dose
+
+    TGT_Cmax = HT[[TGT]]$Cmax*tox_Cmax_multiple
+    TGT_AUC  = HT[[TGT]]$AUC *tox_AUC_multiple
+
+    # First we find the baseline response:
+    tox_dose_values_BL = rep(tox_dose_BL, tox_ndose)
+    cfg =system_set_option(cfg, group  = "simulation", 
+                                option = "output_times", 
+                                tox_sim_times)
+    cfg = system_zero_inputs(cfg) 
+    cfg = system_set_bolus(cfg, state   = tox_bolus, 
+                                times   = tox_dose_times, 
+                                values  = tox_dose_values_BL)
+    som = run_simulation_ubiquity(tox_parameters, cfg)
+
+    simout_tox_BL        = som$simout
+    simout_tox_BL_sample = simout_tox_BL[ tox_sample_interval[1] <= simout_tox_BL[[timescale_col]] & simout_tox_BL[[timescale_col]] <= tox_sample_interval[2] , ]
+
+    # PUllingout the metrics over the sampling intervals
+    tox_BL_AUC  = max(simout_tox_BL_sample[[output_AUC]]) - min(simout_tox_BL_sample[[output_AUC]])
+    tox_BL_Cmax = max(simout_tox_BL_sample[[output_Conc]]) 
+    # Now we determine the tox dose to match different metrics
+    tox_dose_Cmax          = tox_dose_BL*TGT_Cmax/tox_BL_Cmax
+    tox_dose_AUC           = tox_dose_BL*TGT_AUC /tox_BL_AUC
+    
+    # The tox dose should be the largest of these:
+    tox_dose = max(c(tox_dose_Cmax, tox_dose_AUC))
+
+    # simulating out the tox at the max tox dose
+    tox_dose_values = rep(tox_dose, tox_ndose)
+    cfg = system_set_bolus(cfg, state   = tox_bolus, 
+                                times   = tox_dose_times, 
+                                values  = tox_dose_values)
+    som = run_simulation_ubiquity(tox_parameters, cfg)
+
+
+    # Simulations for generating the figures
+    TT$simout     = som$simout
+    TT$simout_int = TT$simout[ tox_sample_interval[1] <= TT$simout[[timescale_col]] & TT$simout[[timescale_col]] <= tox_sample_interval[2] , ]
+    TT$Cmin       = min(TT$simout_int[[output_Conc]])
+    TT$Tmin       = TT$simout_int[TT$simout_int[[output_Conc]] == TT$Cmin, ][[timescale_col]][1]
+    TT$Cmax       = max(TT$simout_int[[output_Conc]])
+    TT$Tmax       = TT$simout_int[TT$simout_int[[output_Conc]] == TT$Cmax, ][[timescale_col]][1]
+    TT$AUC_start  = min(TT$simout_int[[output_AUC]])
+    TT$AUC_stop   = max(TT$simout_int[[output_AUC]])
+    TT$AUC        = TT$AUC_stop  - TT$AUC_start
+    TT$TAUC_start = TT$simout_int[TT$simout_int[[output_AUC]] == TT$AUC_start, ][[timescale_col]][1]
+    TT$TAUC_stop  = TT$simout_int[TT$simout_int[[output_AUC]] == TT$AUC_stop , ][[timescale_col]][1]
+
+
+    
+    #------------------------------------------------------------------ 
+    # Generating figures
+    # 
+    #   Human PK
+    p = ggplot() 
+    eval(parse(text=paste(" p = p + geom_line(data=HT[[TGT]]$simout, aes(x=", timescale_col, ",y=", output_Conc,"), color='blue')", sep="")))
+    if(units_Conc != ""){
+      p = p + ylab(paste('Concentration (', units_Conc,')', sep="")) 
+    } else {
+      p = p + ylab("Concentration")
+    }
+    p = p + xlab(paste('Time (', timescale,')', sep="")) 
+
+    p = gg_log10_yaxis(fo=p)
+    p = prepare_figure(fo=p, purpose="present")
+    # Labeling important points:
+    p = p + geom_vline(xintercept=human_sample_interval, linetype='dashed', color='gray')
+    PLTS$p_human_PK = p
+    if(annotate_plots){
+    
+      p=p+geom_point(aes(           
+                 x     =  HT[[TGT]]$Tmin,      
+                 y     =  HT[[TGT]]$Cmin), color="orange")
+      p=p+geom_point(aes(           
+                 x     =  HT[[TGT]]$Tmax,      
+                 y     =  HT[[TGT]]$Cmax), color="purple")
+      p = p + ggrepel::geom_label_repel(aes(
+                 x     =  HT[[TGT]]$Tmax, 
+                 y     =  HT[[TGT]]$Cmax, 
+                 label = paste("Cmax =", var2string(HT[[TGT]]$Cmax, nsig_e=1, nsig_f=2),  units_Conc)),
+              force         = 5,
+              box.padding   = 2.0, 
+             #point.padding = 0.5,
+              color="purple")
+    
+      p = p + ggrepel::geom_label_repel(aes(
+                 x     =  HT[[TGT]]$Tmin, 
+                 y     =  HT[[TGT]]$Cmin, 
+                 label = paste("Cmin =", var2string(HT[[TGT]]$Cmin, nsig_e=1, nsig_f=2),  units_Conc)),
+              force         = 5,
+              box.padding   = 2.0, 
+             #point.padding = 0.5,
+              color="orange")
+      PLTS$p_human_PK_annotate = p
+    } else {
+      PLTS$p_human_PK_annotate = NULL
+    }
+
+
+    #  
+    #   Tox PK
+    p = ggplot() 
+    eval(parse(text=paste(" p = p + geom_line(data=TT$simout, aes(x=", timescale_col, ",y=", output_Conc,"), color='blue')", sep="")))
+    if(units_Conc != ""){
+      p = p + ylab(paste('Concentration (', units_Conc,')', sep="")) 
+    } else {
+      p = p + ylab("Concentration")
+    }
+    p = p + xlab(paste('Time (', timescale,')', sep="")) 
+
+    p = gg_log10_yaxis(fo=p)
+    p = prepare_figure(fo=p, purpose="present")
+    # Labeling important points:
+    p = p + geom_vline(xintercept=tox_sample_interval, linetype='dashed', color='gray')
+    PLTS$p_tox_PK = p
+    if(annotate_plots){
+    
+      p=p+geom_point(aes(           
+                 x     =  TT$Tmin,      
+                 y     =  TT$Cmin), color="orange")
+      p=p+geom_point(aes(           
+                 x     =  TT$Tmax,      
+                 y     =  TT$Cmax), color="purple")
+      p = p + ggrepel::geom_label_repel(aes(
+                 x     =  TT$Tmax, 
+                 y     =  TT$Cmax, 
+                 label = paste("Cmax =", var2string(TT$Cmax, nsig_e=1, nsig_f=2),  units_Conc)),
+              force         = 5,
+              box.padding   = 2.0, 
+             #point.padding = 0.5,
+              color="purple")
+    
+      p = p + ggrepel::geom_label_repel(aes(
+                 x     =  TT$Tmin, 
+                 y     =  TT$Cmin, 
+                 label = paste("Cmin =", var2string(TT$Cmin, nsig_e=1, nsig_f=2),  units_Conc)),
+              force         = 5,
+              box.padding   = 2.0, 
+             #point.padding = 0.5,
+              color="orange")
+     PLTS$p_tox_PK_annotate = p
+    } else {
+     PLTS$p_tox_PK_annotate = NULL
+    }
+
+
+
+    #
+    # Human AUC
+    p = ggplot() 
+    eval(parse(text=paste(" p = p + geom_line(data=HT[[TGT]]$simout, aes(x=", timescale_col, ",y=", output_AUC,"), color='blue')", sep="")))
+    if(units_AUC != ""){
+      p = p + ylab(paste('Cumulative AUC (', units_AUC, ')', sep="")) 
+    } else {
+      p = p + ylab("Cumulative AUC")
+    }
+    p = p + xlab(paste('Time (', timescale,')', sep="")) 
+
+    p = gg_log10_yaxis(fo=p)
+    p = prepare_figure(fo=p, purpose="present")
+    # Labeling important points:
+    p = p + geom_vline(xintercept=human_sample_interval, linetype='dashed', color='gray')
+    PLTS$p_human_AUC = p
+    if(annotate_plots){
+      p=p+geom_point(aes(           
+                 x     =  HT[[TGT]]$TAUC_start, 
+                 y     =  HT[[TGT]]$AUC_start), color="orange")
+
+      p=p+geom_point(aes(           
+                 x     =  HT[[TGT]]$TAUC_stop,  
+                 y     =  HT[[TGT]]$AUC_stop ), color="purple")
+
+      p = p + ggrepel::geom_label_repel(aes(
+                 x     =  HT[[TGT]]$TAUC_start, 
+                 y     =  HT[[TGT]]$AUC_start, 
+                 label = paste("", var2string(HT[[TGT]]$AUC_start, nsig_e=1, nsig_f=2),  units_AUC )),
+              force         = 5,
+              box.padding   = 2.0 , 
+             #point.padding = 0.5, 
+              color="orange")
+
+      p = p + ggrepel::geom_label_repel(aes(
+                 x     =  HT[[TGT]]$TAUC_stop,  
+                 y     =  HT[[TGT]]$AUC_stop,  
+                 label = paste("", var2string(HT[[TGT]]$AUC_stop,  nsig_e=1, nsig_f=2),  units_AUC )),
+              force         = 5,
+              box.padding   = 2.0 , 
+             #point.padding = 0.5,
+              color="purple")
+
+    PLTS$p_human_AUC_annotate = p
+    } else {
+    PLTS$p_human_AUC_annotate = NULL }
+
+    #
+    # tox AUC
+    p = ggplot() 
+    eval(parse(text=paste(" p = p + geom_line(data=TT$simout, aes(x=", timescale_col, ",y=", output_AUC,"), color='blue')", sep="")))
+    if(units_AUC != ""){
+      p = p + ylab(paste('Cumulative AUC (', units_AUC, ')', sep="")) 
+    } else {
+      p = p + ylab("Cumulative AUC")}
+    p = p + xlab(paste('Time (', timescale,')', sep="")) 
+
+    p = gg_log10_yaxis(fo=p)
+    p = prepare_figure(fo=p, purpose="present")
+    # Labeling important points:
+    p = p + geom_vline(xintercept=tox_sample_interval, linetype='dashed', color='gray')
+    PLTS$p_tox_AUC = p
+    if(annotate_plots){
+      p=p+geom_point(aes(           
+                 x     =  TT$TAUC_start, 
+                 y     =  TT$AUC_start), color="orange")
+
+      p=p+geom_point(aes(           
+                 x     =  TT$TAUC_stop,  
+                 y     =  TT$AUC_stop ), color="purple")
+
+      p = p + ggrepel::geom_label_repel(aes(
+                 x     =  TT$TAUC_start, 
+                 y     =  TT$AUC_start, 
+                 label = paste("", var2string(TT$AUC_start, nsig_e=1, nsig_f=2),  units_AUC )),
+              force         = 5,
+              box.padding   = 2.0 , 
+             #point.padding = 0.5, 
+              color="orange")
+
+      p = p + ggrepel::geom_label_repel(aes(
+                 x     =  TT$TAUC_stop,  
+                 y     =  TT$AUC_stop,  
+                 label = paste("", var2string(TT$AUC_stop,  nsig_e=1, nsig_f=2),  units_AUC )),
+              force         = 5,
+              box.padding   = 2.0 , 
+             #point.padding = 0.5,
+              color="purple")
+
+      PLTS$p_tox_AUC_annotate = p
+    } else {
+      PLTS$p_tox_AUC_annotate = NULL }
+
+
+
+
+    #------------------------------------------------------------------ 
+    # Adding tox study report elements
+    hdpsum = c(1, "Human dose projections to match:")
+
+    # Test for each target and if it's not null we add a bullet for the dosing
+    # information related to that target:
+    if(!is.null(human_Cmin)){
+      hdpsum = c(hdpsum, 2, 
+         paste("Cmin ", var2string(human_Cmin, nsig_e=2, nsig_f=2), 
+         " ",
+         units_Conc, 
+         " (Dose:", 
+         var2string(HT$Cmin$dose, nsig_e=2, nsig_f=2),
+         " ",
+         cfg$options$inputs$bolus$species[[human_bolus]]$units ,
+         " every ",
+         human_dose_interval,
+         " ",
+         cfg$options$inputs$bolus$times$units, ")", sep=""))
+    }
+    if(!is.null(human_AUC)){
+      hdpsum = c(hdpsum, 2, 
+         paste("AUC ", var2string(human_AUC, nsig_e=2, nsig_f=2), 
+         " ",
+         units_AUC, 
+         " (Dose:", 
+         var2string(HT$AUC$dose, nsig_e=2, nsig_f=2),
+         " ",
+         cfg$options$inputs$bolus$species[[human_bolus]]$units ,
+         " every ",
+         human_dose_interval,
+         " ",
+         cfg$options$inputs$bolus$times$units, ")", sep=""))
+    }
+
+    # Strings containing the top dose information:
+    pres_human_max_dose_str = paste(
+         var2string(HT[[TGT]]$dose, nsig_e=2, nsig_f=2),
+         cfg$options$inputs$bolus$species[[human_bolus]]$units ,
+         " every ",
+         human_dose_interval,
+         cfg$options$inputs$bolus$times$units)
+
+    pres_tox_dose_str = paste(
+         var2string(tox_dose, nsig_e=2, nsig_f=2),
+         cfg$options$inputs$bolus$species[[tox_bolus]]$units ,
+         " every ",
+         tox_dose_interval,
+         cfg$options$inputs$bolus$times$units)
+
+
+
+    # Now we summarize the statistics for the top dose:
+    hdpsum = c(hdpsum, 1, paste("For a human dose of ", 
+           pres_human_max_dose_str, 
+           " the following are projected", sep=""))
+    hdpsum = c(hdpsum, 2, paste("Cmin =", var2string(HT[[TGT]]$Cmin, nsig_e=2, nsig_f=2), units_Conc))
+    hdpsum = c(hdpsum, 2, paste("Cmax =", var2string(HT[[TGT]]$Cmax, nsig_e=2, nsig_f=2), units_Conc))
+    hdpsum = c(hdpsum, 2, paste("AUC  =", var2string(HT[[TGT]]$AUC , nsig_e=2, nsig_f=2), units_AUC))
+
+    hdpsum = c(hdpsum, 1, paste("To satisfy margins of ", 
+                          toString(tox_Cmax_multiple),
+                          "times Cmax and",
+                          toString(tox_AUC_multiple),
+                          "times AUC a dose of",
+                          pres_tox_dose_str,
+                          "should have the following:"))
+    hdpsum = c(hdpsum, 2, paste("Cmax =", var2string(TT$Cmax, nsig_e=2, nsig_f=2), units_Conc))
+    hdpsum = c(hdpsum, 2, paste("AUC  =", var2string(TT$AUC , nsig_e=2, nsig_f=2), units_AUC))
+    hdpsum = c(hdpsum, 1, paste("The following slides so the predicted concentrations and exposures"))
+
+    cfg = system_report_slide_content(cfg,
+            rptname            = cfg$glp[[study_name]]$rptname,
+            title              = paste("GLP",tox_species, "Study Design"),
+            content_type       = "list",   
+            content            = hdpsum)
+
+    #------------------------------------------------------------------ 
+    # Plots of predictions based on top dose
+    cfg = system_report_slide_two_col(cfg,
+            rptname            = cfg$glp[[study_name]]$rptname,
+            title              = paste("Human Projections:", pres_human_max_dose_str),
+            left_content_type  = "ggplot",
+            left_content       = PLTS$p_human_PK,
+            right_content_type = "ggplot",
+            right_content      = PLTS$p_human_AUC)
+            
+    if(annotate_plots){
+      cfg = system_report_slide_two_col(cfg,
+              rptname            = cfg$glp[[study_name]]$rptname,
+              title              = paste("Human Projections:", pres_human_max_dose_str),
+              left_content_type  = "ggplot",
+              left_content       = PLTS$p_human_PK_annotate,
+              right_content_type = "ggplot",
+              right_content      = PLTS$p_human_AUC_annotate)
+    }
+
+    cfg = system_report_slide_two_col(cfg,
+            rptname            = cfg$glp[[study_name]]$rptname,
+            title              = paste(tox_species, "Projections:", pres_tox_dose_str),
+            left_content_type  = "ggplot",
+            left_content       = PLTS$p_tox_PK,
+            right_content_type = "ggplot",
+            right_content      = PLTS$p_tox_AUC)
+
+    if(annotate_plots){
+      cfg = system_report_slide_two_col(cfg,
+              rptname            = cfg$glp[[study_name]]$rptname,
+              title              = paste(tox_species, "Projections:", pres_tox_dose_str),
+              left_content_type  = "ggplot",
+              left_content       = PLTS$p_tox_PK_annotate,
+              right_content_type = "ggplot",
+              right_content      = PLTS$p_tox_AUC_annotate)
+    }
+    #------------------------------------------------------------------ 
+    # Running optional simulations
+    # These variables will store the simulation results
+    simall = NULL
+    simsum = NULL
+
+    # Summarizing the dosing information so we can run it for both species in
+    # one loop below. sim_all_doses contains the different scenarios we watn
+    # to run
+    sim_all_doses = NULL
+    if(!is.null(human_sim_doses)){
+       tmp_all_doses = data.frame(dose_str = names(human_sim_doses),
+                                  species  = "Human")
+       if(is.null(sim_all_doses)){
+         sim_all_doses = tmp_all_doses   
+       } else {
+         sim_all_doses = rbind( sim_all_doses, tmp_all_doses)  
+       }
+    }
+    if(!is.null(tox_sim_doses)){
+       tmp_all_doses = data.frame(dose_str = names(tox_sim_doses),
+                                  species  = tox_species)
+       if(is.null(sim_all_doses)){
+         sim_all_doses = tmp_all_doses   
+       } else {
+         sim_all_doses = rbind( sim_all_doses, tmp_all_doses)  
+       }
+    }
+
+    if(!is.null(sim_all_doses)){
+      #------------------------------------------------------------------ 
+      # Looping through the rows of sim_all_doses running one scenario after
+      # another
+      for(didx in 1:length(sim_all_doses[,1])){
+        scenario_dose_str    = sim_all_doses[didx,]$dose_str
+        scenario_species     = sim_all_doses[didx,]$species
+
+        # Setting species-specific parameters here:
+        if(scenario_species == "Human"){
+          scenario_bolus               = human_bolus
+          scenario_sim_times           = human_sim_times
+          scenario_dose_times          = human_sim_doses[[as.character(scenario_dose_str)]]$TIME
+          scenario_sim_dose            = human_sim_doses[[as.character(scenario_dose_str)]]$AMT
+          scenario_parameters          = human_parameters
+          scenario_sim_samples         = human_sim_samples
+          scenario_dose_interval       = human_dose_interval
+          scenario_dose_interval_TSsys = human_dose_interval_TSsys
+        } else if(scenario_species == tox_species){
+          scenario_bolus               = tox_bolus
+          scenario_sim_times           = tox_sim_times
+          scenario_dose_times          = tox_sim_doses[[as.character(scenario_dose_str)]]$TIME
+          scenario_sim_dose            = tox_sim_doses[[as.character(scenario_dose_str)]]$AMT
+          scenario_parameters          = tox_parameters
+          scenario_sim_samples         = tox_sim_samples
+          scenario_dose_interval       = tox_dose_interval
+          scenario_dose_interval_TSsys = tox_dose_interval_TSsys
+        }
+
+        # Simulating the scenario
+        cfg =system_set_option(cfg, group  = "simulation", 
+                                    option = "output_times", 
+                                    scenario_sim_times)
+        cfg = system_zero_inputs(cfg) 
+        cfg = system_set_bolus(cfg, state   = scenario_bolus, 
+                                    times   = scenario_dose_times, 
+                                    values  = scenario_sim_dose)
+        som_tmp = run_simulation_ubiquity(scenario_parameters, cfg)
+ 
+        # Storing the dose, species, etc
+        som_tmp$simout$study_scenario        = study_scenario
+        som_tmp$simout$glp_species           = scenario_species
+        som_tmp$simout$glp_dose_interval     = scenario_dose_interval
+        som_tmp$simout$glp_dose_interval_str = paste(scenario_dose_interval,  cfg$options$inputs$bolus$times$units)
+        som_tmp$simout$glp_dose_str          = scenario_dose_str
+
+        # Storing the simulated output in the summary table
+        if(is.null(simall)){
+          simall=som_tmp$simout
+        } else {
+          simall=rbind(simall, som_tmp$simout)
+        }
+
+        # If simulation samples have been requested then we do that
+        # The sequence scenario_sim_samples is a list of sample times relative to
+        # the nominal dosing time in the units specified by timescale
+        if(!is.null(scenario_sim_samples)){
+          for(dtidx in 1:length(scenario_dose_times)){
+            # Finding the beginning of the start of dosing interval in the
+            # system time units:
+            eval(parse(text=paste("DI_start = scenario_dose_times[dtidx]*", cfg$options$inputs$bolus$times$scale, sep = "")))
+            # Finding the time interval spanned by the dosing interval
+            if(dtidx == length(scenario_dose_times)){
+              DI_stop = max(som_tmp$simout$ts.time)
+            } else {
+              DI_stop = DI_start + scenario_dose_interval_TSsys
+            }
+        
+            # Calculating the sample times 
+            DI_sample_TSsys   = DI_start + scenario_sim_samples/cfg$options$time_scales[[timescale]]
+        
+            # Now I trim off any the user specified that extend beyond the
+            # dosing interval:
+            DI_sample_TSsys   = DI_sample_TSsys[DI_sample_TSsys < DI_stop]
+        
+            tmplist = list()
+            for(sim_col in sim_cols){
+              tmplist[[sim_col]] = approx(x=som_tmp$simout$ts.time, y=som_tmp$simout[[sim_col]], xout=DI_sample_TSsys)$y
+            }
+            tmpdf = as.data.frame(tmplist)
+            # Adding sorting columns
+            tmpdf$study_scenario  = study_scenario
+            tmpdf$dose_number     = dtidx
+            tmpdf$glp_species     = scenario_species
+            tmpdf$glp_dose_str    = som_tmp$simout$glp_dose_str[1]
+            tmpdf$label_str       = var2string(tmpdf[[output_Conc]],  nsig_f=2, nsig_e=2)
+        
+            if(is.null(simsum)){
+              simsum = tmpdf
+            } else {
+              simsum = rbind(simsum, tmpdf)
+            }
+          }
+        }
+      }
+
+      # 
+      #------------------------------------------------------------------ 
+      # Adding simulation study report elements for each species
+      for(species in c("Human", tox_species)){
+        # Pulling out the simulation, summary information, etc
+        # for the current species
+        species_simall = simall[simall$glp_species == species, ]
+        species_simsum = simsum[simsum$glp_species == species, ]
+        species_xlabel = paste("Time (", timescale, ")", sep="")
+
+        #Smallest value greate than zero:
+        species_Conc_lb = min(species_simall[species_simall[[output_Conc]] > 0,][[output_Conc]])
+        species_Conc_ub = max(species_simall[[output_Conc]])
+
+        if(units_Conc == ""){
+          species_ylabel = paste("Concentration (", output_Conc, ")", sep="")
+        } else {
+          species_ylabel = paste("Concentration (", units_Conc, ")", sep="")
+        }
+        if(species == "Human"){
+          species_sample_interval = human_sample_interval
+        }
+        if(species == tox_species){
+          species_sample_interval = tox_sample_interval
+        }
+         
+        # This checks to make sure we have simulations for this species
+        # if we don't then we just skip that species.
+        if(nrow(species_simall) > 0){
+          # For each species we add a figure with all of the PK profiles
+          p = ggplot()
+          # p = p + geom_line(data=species_simall, aes(x=ts.days,y=Cp_ng_ml, color=glp_dose_str))
+          eval(parse(text=paste(" p = p + geom_line(data=species_simall, aes(x=", timescale_col, ",y=", output_Conc,", color=glp_dose_str))", sep="")))
+          p = p + xlab(species_xlabel)
+          p = p + ylab(species_ylabel)
+          p = p + guides(color=guide_legend(title="Dose")) 
+          p = prepare_figure(fo=p, purpose="present")
+          p = gg_log10_yaxis(fo=p)
+          p = p + geom_vline(xintercept=species_sample_interval, linetype='dashed', color='gray')
+          if(!is.null(human_Cmin)){
+            p = p + geom_hline(yintercept=human_Cmin, linetype='dashed', color='grey')
+          }
+        
+          PLTS$sims[[species]]$all_doses = p
+
+          # adding a slide with the plot containing all of the dose levels for
+          # the species
+          cfg = system_report_slide_content(cfg,
+                  rptname            = cfg$glp[[study_name]]$rptname,
+                  title              = paste(species, "dosing every", species_simall$glp_dose_interval_str[1]),
+                  content_type       = "ggplot",   
+                  content            = PLTS$sims[[species]]$all_doses)
+
+
+
+          # If annotate_plots is true and sample times have been specified for the
+          # current species, we plot each dose level separately with labels
+          if(annotate_plots & nrow(species_simsum) > 0){
+            for(glp_dose_str in unique(species_simall$glp_dose_str)){
+
+              # Creating temporary datasets for the simulation and summary:
+              tmp_simall = species_simall[species_simall$glp_dose_str == glp_dose_str, ] 
+              tmp_simsum = species_simsum[species_simsum$glp_dose_str == glp_dose_str, ]
+
+             ## Stripping out zero values 
+             #if(min(tmp_simall[[output_Conc]]) <= 0){
+             #  tmp_simall = tmp_simall[tmp_simall$ts.time >=  min(tmp_simsum$ts.time),]
+             #}
+              # Plotting PK 
+              p = ggplot()   
+              eval(parse(text=paste(" p = p + geom_line(data=tmp_simall, aes(x=", timescale_col, ",y=", output_Conc,"), color='blue')", sep="")))
+
+              eval(parse(text=paste(" p = p + ggrepel::geom_text_repel(data=tmp_simsum, aes(x=", timescale_col, ",y=", output_Conc,", label=label_str), color='orange')", sep="")))
+              eval(parse(text=paste(" p = p +               geom_point(data=tmp_simsum, aes(x=", timescale_col, ",y=", output_Conc,"),                  color='orange')", sep="")))
+              #p = p + ggrepel::geom_text_repel(aes(x=res$time, y=res$conc, label=label_str)) }
+              # Overlaying labels
+              p = p + xlab(species_xlabel)
+              p = p + ylab(species_ylabel)
+              p = prepare_figure(fo=p, purpose="present")
+              p = gg_log10_yaxis(fo=p, ylim_min=species_Conc_lb, ylim_max=species_Conc_ub)
+              # Storing the plot
+              PLTS$sims[[species]][[glp_dose_str]] = p
+              cfg = system_report_slide_content(cfg,
+                      rptname            = cfg$glp[[study_name]]$rptname,
+                      title              = paste(species, "dosing", glp_dose_str, "every", species_simall$glp_dose_interval_str[1]),
+                      content_type       = "ggplot",   
+                      content            = PLTS$sims[[species]][[glp_dose_str]])
+            }
+          }
+        }
+
+      }
+      # End of plotting and reporting simulations
+      #------------------------------------------------------------------ 
+    }
+    # End of study design
+    #------------------------------------------------------------------ 
+
+    # Saving the simulation and summary data frames
+    if(is.null(cfg$glp[[study_name]]$simall)){
+      cfg$glp[[study_name]]$simall  = simall
+    } else {
+      cfg$glp[[study_name]]$simall  = rbind(cfg$glp[[study_name]]$simall, simall)
+    }
+    if(is.null(cfg$glp[[study_name]]$simsum)){
+      cfg$glp[[study_name]]$simsum  = simsum
+    } else {
+      cfg$glp[[study_name]]$simsum  = rbind(cfg$glp[[study_name]]$simsum, simsum)
+    }
+
+    # saving the ggplot objects 
+    cfg$glp[[study_name]][[study_scenario]] = PLTS
+
+  } else {
+    vp(cfg, "system_glp_scenario()")
+    vp(cfg, "Errors were found see messages above for more information")
+  }
+
+
+cfg }
 #-------------------------------------------------------------------------
