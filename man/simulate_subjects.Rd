@@ -4,7 +4,8 @@
 \alias{simulate_subjects}
 \title{Run Population Simulations}
 \usage{
-simulate_subjects(parameters, cfg, progress_message = "Simulating Subjects:")
+simulate_subjects(parameters, cfg,
+  progress_message = "Simulating Subjects:")
 }
 \arguments{
 \item{parameters}{list containing the typical value of parameters}

@@ -5,9 +5,9 @@
 \title{Define Cohorts from NONMEM Input File}
 \usage{
 system_define_cohorts_nm(cfg, DS = "DSNAME", col_ID = "ID",
-  col_CMT = "CMT", col_DV = "DV", col_TIME = "TIME", col_AMT = "AMT",
-  col_RATE = "RATE", col_EVID = "EVID", col_GROUP = NULL, filter = NULL,
-  INPUTS = NULL, OBS = NULL)
+  col_CMT = "CMT", col_DV = "DV", col_TIME = "TIME",
+  col_AMT = "AMT", col_RATE = "RATE", col_EVID = "EVID",
+  col_GROUP = NULL, filter = NULL, INPUTS = NULL, OBS = NULL)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

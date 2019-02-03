@@ -4,7 +4,8 @@
 \alias{system_report_save}
 \title{Save Report to File}
 \usage{
-system_report_save(cfg, rptname = "default", output_file = "myreport.pptx")
+system_report_save(cfg, rptname = "default",
+  output_file = "myreport.pptx")
 }
 \arguments{
 \item{cfg}{ubiquity system object}

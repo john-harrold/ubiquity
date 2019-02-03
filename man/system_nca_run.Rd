@@ -4,30 +4,49 @@
 \alias{system_nca_run}
 \title{Automatic NCA}
 \usage{
-system_nca_run(cfg, DSNAME = "PKDS", dscale = 1, ssby = list(id = c(1, 2,
-  3), dose_number = c(1, 2)), obs = list(time = "TIME", conc = "DV", dose =
-  "AMT", id = "ID", dsinc = NULL))
+system_nca_run(cfg, DSNAME = "PKDS", dscale = 1, NCA_min = 4,
+  rptname = "default", analysis_name = "analysis", rescorr = TRUE,
+  dsfilter = NULL, dsmap = list(TIME = "TIME", NTIME = "NTIME", CONC =
+  "DV", DOSE = "AMT", ID = "ID", DOSENUM = NULL), dsinc = NULL)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
 
 \item{DSNAME}{name of dataset loaded with (\code{\link{system_load_data}})}
 
-\item{dscale}{factor to multiply the dose to get it into the same units as concentration:
+\item{dscale}{factor to multiply the dose to get it into the same units as concentration (default 1):
 if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscale = 1e6}}
 
-\item{ssby}{list specifying how to subset the data, with list names being
-column names from the dataset and values being those used for subsetting (note
-every combination will be considered when performing NCA:
-        If your dataset specifies the dose number (\code{dose_number}) for subjects and you want to perform NCA on doses 1 and 5 for subjects (\code{id}) 2, 8 and 120 then ssby would look like:
+\item{NCA_min}{minimum number of points required to perform NCA for a given subset (default 4)}
+
+\item{rptname}{name of report to append results to (default 'default')}
+
+\item{analysis_name}{string containing the name of the analysis (default 'analysis') to archive to files and reference results later}
+
+\item{rescorr}{Boolean variable to correct for residual drug in a multiple dose setting (default \code{TRUE}): If there is an observation before the first observation of a given subset, that concentration will subtracted from the values of the subset}
+
+\item{dsfilter}{list of names corresponding to the column names in the dataset and values are a sequence indicating values to keep (default \code{NULL}. Multiple names are and-ed together. For example the following would keep all of the records where dose is 1, 2, or 5 and the dose_number is 1
 \preformatted{
- ssby = list(id=c(2,8,120),  dose_number=c(1,5))
+ dsfilter = list(dose=c(1,2,5), dose_number = c(1))
 }}
 
-\item{obs}{list with names specifying the time, concentration, dose, and id columns to use when performing NCA}
+\item{dsmap}{list with names specifying the time (TIME), nominal time since last dose (NTIME), concentration (CONC), dose (DOSE), and id (ID) columns to use when performing NCA}
 
 \item{dsinc}{character vector of columns from the dataset to include in the output summary: These should be constant for the combinations specified in \code{ssby}}
+
+\item{ssby}{sequence specifying how to subset the data to provide unique identifier for the different timeseries in the dataset (default \code{NULL} treats entire dataset as a single individual 
+ For example if you want to perform NCA for each subject (specified by the column id in the dataset) and each dose (specfieid by "DOSE_NUMBER" in the dataset).
+\preformatted{
+ ssby = c("ID", "DOSE_NUMBER")
+}}
+}
+\value{
+cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:
+\itemize{
+    \item{output/{analysis_name}-nca_summary.csv} NCA summary 
+    \item{output/{analysis_name}-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
+}
 }
 \description{
-Performs NCA in an automated fashion subsetting the data using muleiple criteria
+Performs NCA in an automated fashion
 }

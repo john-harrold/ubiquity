@@ -4,7 +4,8 @@
 \alias{system_plot_cohorts}
 \title{Plot Estimation Results}
 \usage{
-system_plot_cohorts(erp, plot_opts = c(), cfg, prefix = "analysis")
+system_plot_cohorts(erp, plot_opts = c(), cfg,
+  analysis_name = "analysis", archive_results = TRUE, prefix = NULL)
 }
 \arguments{
 \item{erp}{output from \code{system_simulate_estimation_results}}
@@ -13,7 +14,11 @@ system_plot_cohorts(erp, plot_opts = c(), cfg, prefix = "analysis")
 
 \item{cfg}{ubiquity system object}
 
-\item{prefix}{string of text to be prepended to the figures generated}
+\item{analysis_name}{string containing the name of the analysis}
+
+\item{archive_results}{boolean variable to control whether results will be archived}
+
+\item{prefix}{depreciated input mapped to analysis_name}
 }
 \value{
 List of plot outputs containing two elements \code{timecourse} and
@@ -48,6 +53,10 @@ It is also possible to control the \code{height} and \code{width} of the time co
  \item \code{plot_opts$op$width  = 10}  
  \item \code{plot_opts$op$height = 8.0} 
  }
+
+To control the figures that are generated you can set the purpose to either "print", "present" (default) or "shiny".
+
+ \code{plot_opts$purpose = "present"}
 }
 \seealso{
 The estimation vignette (\code{vignette("Estimation", package = "ubiquity")})

@@ -25,7 +25,17 @@ system_check_steady_state(cfg, parameters = NULL, zero_rates = TRUE,
 \item{derivative_time}{time to evaluate derivatives to identify deviations, set to \code{NULL} to skip derivative evaluation}
 }
 \value{
-list with name \code{steady_state} (boolean indicating weather the system was at steady state) and \code{states} a vector of states that have steady state offset.
+List with the following names
+\itemize{
+\item \code{steady_state} Boolean indicating weather the system was at steady state
+\item \code{states_derivative} Derivatives that had values greater than the \code{derivative_tol}
+\item \code{states_simulation} States that had values greater than the \code{offset_tol}
+\item \code{som} Simulated output 
+\item \code{derivatives} Derivatives
+\item \code{states_derivative_NA_NaN} States that had derivatives that evaluated as either NA or NaN
+\item \code{states_simulation_NA_NaN} States with simulation values that had either NA or NaN
+\item \code{derivative_tc} Data frame with the timecourse of states where the derivative was found to be greater than tolerance (states_derivative)
+}
 }
 \description{
 Takes the ubiquity system object and other optional inputs to verify the system is running at steady state. This also provides information that can be helpful in debugging systems not running at steady state.
