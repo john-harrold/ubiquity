@@ -1,0 +1,126 @@
+#
+# Units:
+#                
+#   mass          [=] nmoles
+#   volume        [=] L 
+#   concentration [=] nM
+#   time          [=] hours
+#                
+# Parameters for NHP parameters were taken from:
+#                
+# Betts A, Keunecke A, van Steeg TJ, et al. Linear pharmacokinetic parameters
+# for monoclonal antibodies are similar within a species and across different
+# pharmacological targets: A comparison between human, cynomolgus monkey and
+# hFcRn Tg32 transgenic mouse using a population-modeling approach. MAbs.
+# 2018;10(5):751-764.
+#     
+# Human estimates for absorption was taken from:
+#     
+# Dirks, N.L. & Meibohm, B. Clin Pharmacokinet (2010) 49: 633. https://doi.org/10.2165/11535960-000000000-00000               
+#                
+# The population estimate was 0.217/day or 0.00904/hour
+#                
+#                
+#                
+
+
+#-------------#
+# Parameters  #
+#-------------#
+#
+#   name         value           lower  upper  units    editable grouping
+#                                bound  bound
+<P> BW           3.0             eps    Inf    kg        yes     System
+<P> BW_R         3.0             eps    Inf    kg        no      System
+<P> MW         145.0             eps    Inf    kDa       yes     System
+<P> CL           0.00015         eps    Inf    L/hr/kg   yes     System 
+<P> Q            0000029         eps    Inf    L/hr/kg   yes     System 
+<P> Vp           0.04589         eps    Inf    L/kg      yes     System 
+<P> Vt           0.03114         eps    Inf    L/kg      yes     System 
+<P> ka           0.10            eps    Inf    1/hr      yes     System 
+<P> Fb           0.74            eps    Inf    1/hr      yes     System 
+
+<PSET:default>   NHP
+<PSET:human>     Human
+<PSET:human:BW>  70 
+<PSET:human:ka>  0.00904       
+<PSET:human:Fb>  1.0
+
+# Scaling the clearances:
+<As> CL_AL = CL*BW_R*SIMINT_POWER[BW/BW_R][0.75]/BW
+<As>  Q_AL =  Q*BW_R*SIMINT_POWER[BW/BW_R][0.75]/BW
+
+<As> kel  = CL_AL/Vp
+<As> kpt  = Q_AL/Vp
+<As> ktp  = Q_AL/Vt
+
+<As> Beta_hr = 0.5*(kpt + ktp + kel - SIMINT_POWER[SIMINT_POWER[kpt + ktp + kel][2.0] - 4.0*ktp*kel][0.5])
+<As> Thalf_days = SIMINT_LOGN[2.0]/Beta_hr/24.0
+
+#--------------------#
+# Dosing information #
+#--------------------#
+#
+#  Dosing times in   weeks ==> days
+#  dosing magnitude in mpk ==> nM
+#
+#  Basis: 70 kg human
+#         mAb with MW of 150 KDA
+#
+#    mg   1e6 ng     1nmoles               1           1e3 nmoles
+#  X -- x ------- x -----------------  x ------ = X * ------------
+#    kg   1 mg       MW (kDa)*1e3  ng    Vp (L)       MW(kDa) Vp(L)
+#
+#
+#
+# Bolus Events
+# times/events  state   values               scale    units
+<B:times>;              [  0 ];            24;     days 
+<B:events>;      Cp ;   [  0 ];     1e3/MW/Vp;    mg/kg     
+<B:events>;      At ;   [  0 ];        1e3/MW;    mg/kg     
+
+
+
+
+#------------------#
+# Rate Information #
+#------------------#
+
+#---------------------------------------------------------------------------#
+# PK
+<ODE:At> -ka*At
+<ODE:Cp>  ka*Fb*At/Vp
+Ct; Vt; ktp <C> Cp; Vp; kpt
+           <S:Cp>    kel*Cp
+
+#---------------------------------------------------------------------------#
+
+#----------#
+# Outputs  #
+#----------#
+# Convert ng/ml to nM
+#
+#    ng   1000 ml        nmoles
+#  X -- x ------- x --------------- = X/MW (KDA)
+#    ml    1L       MW (KDA)*1000 ng
+# 
+# Convert from nM to ng/ml:
+#
+# X nM  ===> X*MW(KDA) ng/ml
+#
+<O> Cp_nM      = Cp
+<O> Cp_ngml    = Cp*MW
+
+#---------#
+# Options #
+#---------#
+
+# specify different time scales
+<TS:hours> 1.0
+<TS:days>  1/24
+<TS:weeks> 1/24/7
+
+# output times 
+<OPT:output_times> SIMINT_SEQ[0][2*7*24][10]
+# default time scale
+<OPT:TS>  days

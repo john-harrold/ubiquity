@@ -71,7 +71,7 @@
 # #-----------------------------#
 
 <ODE:At> -ka*At           
-<ODE:Cp>  ka*At*fb - kel*Cp + Dinf/Vp
+<ODE:Cp>  ka*At*fb/Vp - kel*Cp + Dinf/Vp
 
 
 # #---------#

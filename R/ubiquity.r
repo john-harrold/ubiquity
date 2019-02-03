@@ -5933,11 +5933,11 @@ for(output in levels(erp$pred$OUTPUT)){
 
 
   fname_pdf = sprintf('output%s%s_timecourse_%s.pdf', .Platform$file.sep, analysis_name, output )
-  ggsave(fname_pdf, plot=p, device=pdf(), height=def$dim$tc$height, width=def$dim$tc$width)
+  ggsave(fname_pdf, plot=p, device="pdf", height=def$dim$tc$height, width=def$dim$tc$width)
   vp(cfg, sprintf('Figure written: %s', fname_pdf))
 
   fname_png = sprintf('output%s%s_timecourse_%s.png', .Platform$file.sep, analysis_name, output )
-  ggsave(fname_png, plot=p, device=pdf(), height=def$dim$tc$height, width=def$dim$tc$width)
+  ggsave(fname_png, plot=p, device="png", height=def$dim$tc$height, width=def$dim$tc$width)
   vp(cfg, sprintf('Figure written: %s', fname_png))
 
   # storing the plot object to be returned to the user

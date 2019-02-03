@@ -74,8 +74,8 @@
 # #-----------------------------#
 
 <ODE:At> -ka*At           
-<ODE:Cp>  ka*At*fb - CL/Vp*Cp -Q*(Cp-Ct)/Vp  + Dinf/Vp
-<ODE:Ct>                      +Q*(Cp-Ct)/Vt
+<ODE:Cp>  ka*At*fb/Vp - CL/Vp*Cp -Q*(Cp-Ct)/Vp  + Dinf/Vp
+<ODE:Ct>                         +Q*(Cp-Ct)/Vt
 
 
 # #---------#

@@ -163,7 +163,7 @@ som = run_simulation_ubiquity(parameters, cfg)
 # Reporting
 # cfg = system_report_init(cfg)
 # 
-# system_report_slide_title(cfg,
+# cfg = system_report_slide_title(cfg,
 #         title                  = "Presentation Title",      
 #         sub_title              = "Sub title")
 # 
