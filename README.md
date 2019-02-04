@@ -17,4 +17,4 @@ For more information on specific tasks see the vignettes:
 * Inline generation of PowerPoint reports: ``vignette("Reporting", package = "ubiquity")``
 
 ### Note
-To build systems in R it is necessary that you have a Perl interpreter installed and that it is in your search path. Most Unix systems will have Perl installed and there are many free distributions for windows. For testing [Strawberry Perl](http://strawberryperl.com) is used. 
+To build systems in R it is necessary that you have a Perl interpreter installed and that it is in your search path. Most Unix systems will have Perl installed and there are many free distributions for windows. For testing [Strawberry Perl](http://strawberryperl.com/) is used. 

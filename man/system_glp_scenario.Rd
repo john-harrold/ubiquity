@@ -53,6 +53,8 @@ When a report is initialized using \code{\link{system_report_init}} the report n
 
 \item{human_sim_doses}{optional list of doses into \code{human_bolus} to simulate (see Details below)}
 
+\item{human_sim_samples}{optional list of sample times in units specified by timescale above to label on plots of simulated doses (the default \code{NULL} will disable labels)}
+
 \item{tox_species}{optional name of the tox species (\code{"Tox"})}
 
 \item{tox_sim_times}{user-specified simulation output times for the tox species (same timescale as the system)}
@@ -75,7 +77,7 @@ When a report is initialized using \code{\link{system_report_init}} the report n
 
 \item{tox_sim_samples}{optional list of sample times in units specified by timescale above to label on plots of simulated doses (the default \code{NULL} will disable labels)}
 
-\item{human_sim_sample}{optional list of sample times in units specified by timescale above to label on plots of simulated doses (the default \code{NULL} will disable labels)}
+\item{annotate_plots}{Boolean switch to indicate if \code{human_sim_samples} and \code{tox_sim_samples} should be labeled on  their respective plots (\code{TRUE})}
 }
 \value{
 cfg ubiquity system object with the scenario added if successful

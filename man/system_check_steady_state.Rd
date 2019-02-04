@@ -12,6 +12,8 @@ system_check_steady_state(cfg, parameters = NULL, zero_rates = TRUE,
 \arguments{
 \item{cfg}{ubiquity system object}
 
+\item{parameters}{optional set of parameters (\code{NULL}) to check at steady state (if set to \code{NULL} then the parameters for the currently selected parameter set will be used)}
+
 \item{zero_rates}{Boolean value to control removing all rate inputs (\code{TRUE})}
 
 \item{zero_bolus}{Boolean value to control removing all bolus inputs (\code{TRUE})}

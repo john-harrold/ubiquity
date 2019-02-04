@@ -32,13 +32,7 @@ if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscal
 
 \item{dsmap}{list with names specifying the time (TIME), nominal time since last dose (NTIME), concentration (CONC), dose (DOSE), and id (ID) columns to use when performing NCA}
 
-\item{dsinc}{character vector of columns from the dataset to include in the output summary: These should be constant for the combinations specified in \code{ssby}}
-
-\item{ssby}{sequence specifying how to subset the data to provide unique identifier for the different timeseries in the dataset (default \code{NULL} treats entire dataset as a single individual 
- For example if you want to perform NCA for each subject (specified by the column id in the dataset) and each dose (specfieid by "DOSE_NUMBER" in the dataset).
-\preformatted{
- ssby = c("ID", "DOSE_NUMBER")
-}}
+\item{dsinc}{character vector of columns from the dataset to include in the output summary.}
 }
 \value{
 cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:

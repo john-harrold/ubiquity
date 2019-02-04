@@ -30,6 +30,7 @@ Imports:
    rmarkdown,     
    rhandsontable,
    rstudioapi,
+   stats,
    shiny
 Suggests:
    GA,
@@ -37,6 +38,8 @@ Suggests:
    gridExtra,
    gridGraphics,
    webshot,
-   testthat
+   testthat,
+   PKNCA,
+   ggrepel
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1

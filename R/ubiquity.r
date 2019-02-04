@@ -6015,11 +6015,11 @@ for(output in levels(erp$pred$OUTPUT)){
   eval(parse(text=sprintf('p = p + scale_colour_manual(values=c(%s))', color_string)))
 
   fname_pdf = sprintf('output%s%s_obs_pred_%s.pdf', .Platform$file.sep, analysis_name, output )
-  ggsave(fname_pdf, plot=p, device=pdf(), height=def$dim$op$height, width=def$dim$op$width)
+  ggsave(fname_pdf, plot=p, device="pdf", height=def$dim$op$height, width=def$dim$op$width)
   vp(cfg, sprintf('Figure written: %s', fname_pdf))
 
   fname_png = sprintf('output%s%s_obs_pred_%s.png', .Platform$file.sep, analysis_name, output )
-  ggsave(fname_png, plot=p, device=png(), height=def$dim$op$height, width=def$dim$op$width)
+  ggsave(fname_png, plot=p, device="png", height=def$dim$op$height, width=def$dim$op$width)
   vp(cfg, sprintf('Figure written: %s', fname_png))
 
 
@@ -6756,6 +6756,7 @@ res}
 #'@description Takes the ubiquity system object and other optional inputs to verify the system is running at steady state. This also provides information that can be helpful in debugging systems not running at steady state. 
 #'
 #'@param cfg ubiquity system object    
+#'@param parameters optional set of parameters (\code{NULL}) to check at steady state (if set to \code{NULL} then the parameters for the currently selected parameter set will be used)
 #'@param zero_rates Boolean value to control removing all rate inputs (\code{TRUE})
 #'@param zero_bolus Boolean value to control removing all bolus inputs (\code{TRUE})
 #'@param output_times sequence of output times to simulate for offset determination (\code{seq(0,100,1)})
@@ -6824,11 +6825,11 @@ system_check_steady_state  <- function(cfg,
   # Calculating the derivatives
   if(!is.null(derivative_time)){
     # First we calculate the initial conditions
-    SIMINT_IC = system_IC(cfg, parameters)
+    SIMINT_IC = eval(parse(text="system_IC(cfg, parameters)")) 
 
     # Next we evaluate the derivative at that 
     # initial condition and the specified time
-    SIMINT_DER = system_DYDT(derivative_time, SIMINT_IC, cfg)
+    SIMINT_DER = eval(parse(text="system_DYDT(derivative_time, SIMINT_IC, cfg)"))
     vp(cfg, sprintf(' First we analyze the derivatives, values of the ODEs, at time %s',var2string(derivative_time) ))
     vp(cfg, sprintf(' with a derivative_tol = %.3e', derivative_tol))
     vp(cfg, sprintf(' '))
@@ -9006,6 +9007,8 @@ system_report_estimation = function (cfg,
       if(file.exists(fname_estimate)){
         vp(cfg, paste("Loading estimation results from file:", fname_estimate))
         # Loads the variable pe and pest
+        pe   = NULL
+        pest = NULL
         load(fname_estimate)
         #
         # Adding a slide with the parameter estimates:
@@ -9039,6 +9042,7 @@ system_report_estimation = function (cfg,
       if(file.exists(fname_grobs)){
         vp(cfg, paste("Loading the figures from file:", fname_grobs))
         # Loads the variable pr
+        grobs = NULL
         load(fname_grobs)
         # Looping through each output and creating a slide for the timecourse
         # and the obs vs pred figures
@@ -9373,19 +9377,13 @@ res}
 #'@param rescorr  Boolean variable to correct for residual drug in a multiple dose setting (default \code{TRUE}): If there is an observation before the first observation of a given subset, that concentration will subtracted from the values of the subset
 #'@param dscale factor to multiply the dose to get it into the same units as concentration (default 1):
 #' if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscale = 1e6}
-#'@param ssby sequence specifying how to subset the data to provide unique identifier for the different timeseries in the dataset (default \code{NULL} treats entire dataset as a single individual 
-#'  For example if you want to perform NCA for each subject (specified by the column id in the dataset) and each dose (specfieid by "DOSE_NUMBER" in the dataset).
-#'\preformatted{
-#'  ssby = c("ID", "DOSE_NUMBER")
-#'}
-#'
 #'@param dsfilter list of names corresponding to the column names in the dataset and values are a sequence indicating values to keep (default \code{NULL}. Multiple names are and-ed together. For example the following would keep all of the records where dose is 1, 2, or 5 and the dose_number is 1
 #'\preformatted{
 #'  dsfilter = list(dose=c(1,2,5), dose_number = c(1))
 #'}
 #'
 #'@param dsmap list with names specifying the time (TIME), nominal time since last dose (NTIME), concentration (CONC), dose (DOSE), and id (ID) columns to use when performing NCA
-#'@param dsinc character vector of columns from the dataset to include in the output summary: These should be constant for the combinations specified in \code{ssby}
+#'@param dsinc character vector of columns from the dataset to include in the output summary.
 #'@return cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:
 #' \itemize{
 #'     \item{output/{analysis_name}-nca_summary.csv} NCA summary 
@@ -9683,8 +9681,8 @@ system_nca_run = function(cfg,
 
 
         # Overlaying the concentration values used
-        ptmp = ptmp + geom_point(data=NCA_CONCDS, aes(x=TIME, y=CONC), shape=1,           color='blue')
-        ptmp = ptmp +  geom_line(data=NCA_CONCDS, aes(x=TIME, y=CONC), linetype='dashed', color='blue')
+        ptmp = eval(parse(text="ptmp + geom_point(data=NCA_CONCDS, aes(x=TIME, y=CONC), shape=1,           color='blue')"))
+        ptmp = eval(parse(text="ptmp +  geom_line(data=NCA_CONCDS, aes(x=TIME, y=CONC), linetype='dashed', color='blue')"))
       }
 
       # Adding PK plot here
@@ -9864,7 +9862,7 @@ calculate_halflife = function(times = NULL,
   tmpdf = tmpdf[tmpdf$times >= tmin & tmpdf$times <= tmax, ]
 
   # performing the linear regression
-  mod = lm(data=tmpdf, formula(lnvalues~times))
+  mod = stats::lm(data=tmpdf, stats::formula(lnvalues~times))
 
   # pulling out the slope and intercept:
   intercept =  summary(mod)$coefficients[1,1]
@@ -10016,7 +10014,7 @@ res}
 #'@param human_AUC  target AUC  in humans (corresponding to output_AUC  above)
 #'@param human_sample_interval time interval in units specified by timescale above to evaluate the trough concentration and AUC (e.g c(1.99, 4.001) would consider the interval between 2 and 4)
 #'@param human_sim_doses  optional list of doses into \code{human_bolus} to simulate (see Details below)
-#'@param human_sim_sample optional list of sample times in units specified by timescale above to label on plots of simulated doses (the default \code{NULL} will disable labels)
+#'@param human_sim_samples optional list of sample times in units specified by timescale above to label on plots of simulated doses (the default \code{NULL} will disable labels)
 #'@param tox_species optional name of the tox species (\code{"Tox"})
 #'@param tox_sim_times user-specified simulation output times for the tox species (same timescale as the system)  
 #'@param tox_parameters list containing the parameters for the tox species
@@ -10028,6 +10026,7 @@ res}
 #'@param tox_sample_interval interval to consider the AUC and Cmax for comparing the human prediction to the tox multiple
 #'@param tox_sim_doses  optional list of doses into \code{tox_bolus} to simulate (see Details below)
 #'@param tox_sim_samples  optional list of sample times in units specified by timescale above to label on plots of simulated doses (the default \code{NULL} will disable labels)  
+#'@param annotate_plots Boolean switch to indicate if \code{human_sim_samples} and \code{tox_sim_samples} should be labeled on  their respective plots (\code{TRUE})
 #'
 #'@details
 #'  Both \code{human_sim_doses} and \code{tox_sim_doses} are lists with names
@@ -10145,8 +10144,8 @@ system_glp_scenario = function(cfg,
 
   # converting the dosing intervals from the units specified with <B> to the
   # system timescale
-  eval(parse(text=paste('tox_dose_interval_TSsys = tox_dose_interval*', cfg$options$inputs$bolus$times$scale, sep = "")))
-  eval(parse(text=paste('human_dose_interval_TSsys = human_dose_interval*', cfg$options$inputs$bolus$times$scale, sep = "")))
+  tox_dose_interval_TSsys   = eval(parse(text=paste('tox_dose_interval*', cfg$options$inputs$bolus$times$scale, sep = "")))
+  human_dose_interval_TSsys = eval(parse(text=paste('human_dose_interval*', cfg$options$inputs$bolus$times$scale, sep = "")))
 
   human_sim_times_include = c(0,
                               human_dose_interval_TSsys*(human_ndose+1),                      # including the end of the last dosing interval
@@ -10743,7 +10742,7 @@ system_glp_scenario = function(cfg,
           for(dtidx in 1:length(scenario_dose_times)){
             # Finding the beginning of the start of dosing interval in the
             # system time units:
-            eval(parse(text=paste("DI_start = scenario_dose_times[dtidx]*", cfg$options$inputs$bolus$times$scale, sep = "")))
+            DI_start = eval(parse(text=paste("scenario_dose_times[dtidx]*", cfg$options$inputs$bolus$times$scale, sep = "")))
             # Finding the time interval spanned by the dosing interval
             if(dtidx == length(scenario_dose_times)){
               DI_stop = max(som_tmp$simout$ts.time)
@@ -10760,7 +10759,7 @@ system_glp_scenario = function(cfg,
         
             tmplist = list()
             for(sim_col in sim_cols){
-              tmplist[[sim_col]] = approx(x=som_tmp$simout$ts.time, y=som_tmp$simout[[sim_col]], xout=DI_sample_TSsys)$y
+              tmplist[[sim_col]] = stats::approx(x=som_tmp$simout$ts.time, y=som_tmp$simout[[sim_col]], xout=DI_sample_TSsys)$y
             }
             tmpdf = as.data.frame(tmplist)
             # Adding sorting columns
