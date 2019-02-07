@@ -5387,6 +5387,8 @@ system_estimate_parameters <- function(cfg,
                                        analysis_name   = "my_analysis", 
                                        archive_results = TRUE){
 
+  fname_estimate = sprintf('output%s%s.RData', .Platform$file.sep, analysis_name) 
+
   if((flowctl == "estimate") | (flowctl == "previous estimate as guess")){
     # Checking the analysis_name
     name_check = ubiquity_name_check(analysis_name)
@@ -5398,7 +5400,6 @@ system_estimate_parameters <- function(cfg,
       vp(cfg, sprintf('Instead Using: %s', analysis_name))
       }
   
-    fname_estimate = sprintf('output%s%s.RData', .Platform$file.sep, analysis_name) 
     #loading the previous estimate and setting that as a guess
     if(flowctl == "previous estimate as guess"){
       vp(cfg, paste("Loading the previous solution from:", fname_estimate))
@@ -8248,9 +8249,7 @@ system_report_save = function (cfg,
   if(cfg$reporting$enabled){
     if(rptname %in% names(cfg$reporting$reports)){
       print(cfg$reporting$reports[[rptname]]$report, output_file)
-      vp(cfg, "--------------------------------")
       vp(cfg, sprintf("Report saved to: %s", output_file))
-      vp(cfg, "--------------------------------")
     } else {
       vp(cfg, sprintf("system_report_save()"))
       vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
@@ -8287,7 +8286,6 @@ if(is.null(template)){
   }
 }
 
-vp(cfg, "--------------------------------")
   if(system_req("officer")){
     cfg$reporting$enabled = TRUE
     # Checking to see if the template file exists
@@ -8305,7 +8303,7 @@ vp(cfg, "--------------------------------")
         # Storing the original template location and creating the empty report
         cfg$reporting$reports[[rptname]]$template = template
         cfg$reporting$reports[[rptname]]$report   = read_pptx(path=template)
-        vp(cfg, sprintf("Report initialized:"))
+        vp(cfg, sprintf("Report initialized..."))
         vp(cfg, sprintf("Name:     %s", rptname))
         vp(cfg, sprintf("Template: %s", template))
       } else {
@@ -8327,7 +8325,6 @@ vp(cfg, "--------------------------------")
   if(!isgood){
     vp(cfg, "system_report_init()")
     vp(cfg, sprintf("Report >%s< initialization failed.", rptname)) }
-vp(cfg, "--------------------------------")
 return(cfg)
 }
 # /system_report_init 
@@ -9383,10 +9380,12 @@ res}
 #'}
 #'
 #'@param dsmap list with names specifying the time (TIME), nominal time since last dose (NTIME), concentration (CONC), dose (DOSE), and id (ID) columns to use when performing NCA
+#'@param digits number of significant digits to report (\code{3}), set to \code{NULL} to disable rounding
 #'@param dsinc character vector of columns from the dataset to include in the output summary.
 #'@return cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:
 #' \itemize{
 #'     \item{output/{analysis_name}-nca_summary.csv} NCA summary 
+#'     \item{output/{analysis_name}-pknca_summary.csv} Raw output from PKNCA with subject and dose number columns appended 
 #'     \item{output/{analysis_name}-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
 #' }
 system_nca_run = function(cfg, 
@@ -9398,6 +9397,7 @@ system_nca_run = function(cfg,
                           rescorr       = TRUE,
                           dsfilter      = NULL,
                           dsmap         = list(TIME="TIME", NTIME="NTIME", CONC="DV", DOSE="AMT", ID="ID", DOSENUM=NULL),
+                          digits        = 3,
                           dsinc         = NULL){
 
   ncares = list()
@@ -9487,6 +9487,16 @@ system_nca_run = function(cfg,
     }
   }
 
+  # checking the concentrations to make sure they are all greater than zero
+  if(isgood){
+    if(any(DS[[dsmap$CONC]] <=0)){
+      vp(cfg, paste("Error: After filtering the data set some of the"))
+      vp(cfg, paste("       concentration values are less than or equal to zero"))
+      isgood=FALSE
+    }
+  
+  }
+
   # calculating the dose in the same mass units as concentration
   if(isgood){
     DS$SI_DOSE = DS[, dsmap$DOSE]*dscale
@@ -9502,10 +9512,12 @@ system_nca_run = function(cfg,
     }
   }
 
+
   #---------------------------------------
   
   # these will store the summary information:
-  NCA_sum   = NULL
+  NCA_sum       = NULL
+  PKNCA_raw_all = NULL
   grobs_sum = list()
 
   # If everything checks out we'll go through and perform NCA on the
@@ -9557,6 +9569,15 @@ system_nca_run = function(cfg,
         # This will hold the NCA summary information for the current subject
         # subset
         tmpsum = NULL  
+
+        if(is.null(digits)){
+          Cmax            = max(SUBDS_DN[[dsmap$CONC]])
+          Tmax            = min(SUBDS_DN[SUBDS_DN[[dsmap$CONC]] == tmpsum$Cmax, ][[dsmap$TIME]])
+        
+        } else {
+          Cmax            = signif(max(SUBDS_DN[[dsmap$CONC]]), digits)
+          Tmax            = signif(min(SUBDS_DN[SUBDS_DN[[dsmap$CONC]] == tmpsum$Cmax, ][[dsmap$TIME]]), digits)
+        }
         
         # Getting the Cmax and Tmax the min() below selects the first time
         # that tmax is observed if there are multiple occurances of the tmax
@@ -9565,8 +9586,8 @@ system_nca_run = function(cfg,
         tmpsum$Dose_Number     = dosenum
         tmpsum$Dose            = SUBDS_DN[[dsmap$DOSE]][1]
         tmpsum$Dose_CU         = SUBDS_DN$SI_DOSE[1]
-        tmpsum$Cmax            = max(SUBDS_DN[[dsmap$CONC]])
-        tmpsum$Tmax            = min(SUBDS_DN[SUBDS_DN[[dsmap$CONC]] == tmpsum$Cmax, ][[dsmap$TIME]])
+        tmpsum$Cmax            = Cmax
+        tmpsum$Tmax            = Tmax 
         tmpsum$halflife        = -1
         tmpsum$Vp_obs          = -1
         tmpsum$Vss_obs         = -1
@@ -9610,6 +9631,8 @@ system_nca_run = function(cfg,
           #           Corrected first observed conc
           Vp_obs = SUBDS_DN$SI_DOSE[1]/(SUBDS_DN[[dsmap$CONC]][1] - PREDOSE_CONC)
 
+          time_start = min(NCA_CONCDS$NTIME) 
+          time_stop  = max(NCA_CONCDS$NTIME)
           # Removing negative concentration values that may result from the
           # residual correction
           NCA_CONCDS = NCA_CONCDS[NCA_CONCDS$CONC > 0, ]
@@ -9618,8 +9641,8 @@ system_nca_run = function(cfg,
           NCA.dose = PKNCA::PKNCAdose(NCA_DOSEDS, DOSE~NTIME|ID)
           NCA.data = PKNCA::PKNCAdata(data.conc = NCA.conc,
                                       data.dose = NCA.dose,
-                                      intervals = data.frame(start       = min(NCA_CONCDS$NTIME),
-                                                             end         = max(NCA_CONCDS$NTIME),
+                                      intervals = data.frame(start       = time_start,
+                                                             end         = time_stop,
                                                              half.life   = TRUE,
                                                              aucall      = TRUE,
                                                              auclast     = TRUE,
@@ -9632,6 +9655,12 @@ system_nca_run = function(cfg,
                                                              aucinf.obs  = TRUE))
           NCA.res =  PKNCA::pk.nca(NCA.data)
 
+
+          # Rounding the NCA results:
+          if(~is.null(digits)){
+            NCA.res$result$PPORRES =  signif(NCA.res$result$PPORRES, digits)
+          }
+
           tmpsum$halflife      =  NCA.res$result[NCA.res$result$PPTESTCD == "half.life",   ]$PPORRES
           tmpsum$Vp_obs        =  Vp_obs
           tmpsum$Vss_obs       =  NCA.res$result[NCA.res$result$PPTESTCD == "vss.obs",     ]$PPORRES
@@ -9641,6 +9670,17 @@ system_nca_run = function(cfg,
           tmpsum$AUClast       =  NCA.res$result[NCA.res$result$PPTESTCD == "auclast",     ]$PPORRES
           tmpsum$AUCinf_pred   =  NCA.res$result[NCA.res$result$PPTESTCD == "aucinf.pred", ]$PPORRES
           tmpsum$AUCinf_obs    =  NCA.res$result[NCA.res$result$PPTESTCD == "aucinf.obs",  ]$PPORRES
+
+          # Storing the raw results
+          PKNCA_raw_tmp         = NCA.res$result
+          PKNCA_raw_tmp$sub     = sub
+          PKNCA_raw_tmp$dosenum = dosenum
+
+          if(is.null(PKNCA_raw_all)){
+             PKNCA_raw_all = PKNCA_raw_tmp
+          } else {
+             PKNCA_raw_all = rbind(PKNCA_raw_all,  PKNCA_raw_tmp)
+          }
         } else {
           vp(cfg, "    Skipping this subject/dose combination")
         }
@@ -9648,12 +9688,13 @@ system_nca_run = function(cfg,
 
         # Adding a summary slide for the current dose
         if(rptenabled){
-          lctmp = c(1, paste("Number of observations:"   , var2string(tmpsum$Nobs       , nsig_e=2, nsig_f=2) ),
+          lctmp = c(1, paste("Number of observations:"   , var2string(tmpsum$Nobs       , nsig_e=2, nsig_f=0) ),
                     1, paste("Dose: "                    , var2string(tmpsum$Dose       , nsig_e=2, nsig_f=2) ), 
                     1, paste("Dose concentration units: ", var2string(tmpsum$Dose_CU    , nsig_e=2, nsig_f=2) ), 
                     1, paste("Cmax: "                    , var2string(tmpsum$Cmax       , nsig_e=2, nsig_f=2) ), 
                     1, paste("Tmax: "                    , var2string(tmpsum$Tmax       , nsig_e=2, nsig_f=2) ), 
-                    1, paste("Halflife: "                , var2string(tmpsum$halflife   , nsig_e=2, nsig_f=2) ))
+                    1, paste("Halflife: "                , var2string(tmpsum$halflife   , nsig_e=2, nsig_f=2) ),
+                    1, paste("Time interval: "           , toString(time_start), '-', toString(time_stop))) 
           rctmp = c(1, paste("Vp  (observed):"           , var2string(tmpsum$Vp_obs     , nsig_e=2, nsig_f=2) ),
                     1, paste("Vss (observed):"           , var2string(tmpsum$Vss_obs    , nsig_e=2, nsig_f=2) ),
                     1, paste("Vss (predicted):"          , var2string(tmpsum$Vss_pred   , nsig_e=2, nsig_f=2) ), 
@@ -9703,58 +9744,58 @@ system_nca_run = function(cfg,
       tab1 = list()
       tab1$table = NCA_sum[,c(1:5, 6:11) ]
       tab1$merge_header = FALSE
-      tab1$header_top = list(
-                ID          = "Subject"   ,
-                Nobs        = "Number"    ,
-                Dose_Number = "Dose"      ,
-                Dose        = "Dose"      ,
-                Dose_CU     = "Dose"      ,
-                Cmax        = "Cmax"      ,
-                Tmax        = "Tmax"      , 
-                halflife    = "Halflife"  ,
-                Vp_obs      = "Vp"        ,
-                Vss_obs     = "Vss"       ,
-                Vss_pred    = "Vss"       )
-
-      tab1$header_middle = list(
-                ID          = ""          ,
-                Nobs        = "Obs"       ,
-                Dose_Number = "Number"    ,
-                Dose        = "Dataset"   ,
-                Dose_CU     = "Conc Units",
-                Cmax        = ""          ,
-                Tmax        = ""          , 
-                halflife    = ""          ,
-                Vp_obs      = "Observed"  ,
-                Vss_obs     = "Observed"  ,
-                Vss_pred    = "Predicted" )
+    # tab1$header_top = list(
+    #           ID          = "Subject"   ,
+    #           Nobs        = "Number"    ,
+    #           Dose_Number = "Dose"      ,
+    #           Dose        = "Dose"      ,
+    #           Dose_CU     = "Dose"      ,
+    #           Cmax        = "Cmax"      ,
+    #           Tmax        = "Tmax"      , 
+    #           halflife    = "Halflife"  ,
+    #           Vp_obs      = "Vp"        ,
+    #           Vss_obs     = "Vss"       ,
+    #           Vss_pred    = "Vss"       )
+    #
+    # tab1$header_middle = list(
+    #           ID          = ""          ,
+    #           Nobs        = "Obs"       ,
+    #           Dose_Number = "Number"    ,
+    #           Dose        = "Dataset"   ,
+    #           Dose_CU     = "Conc Units",
+    #           Cmax        = ""          ,
+    #           Tmax        = ""          , 
+    #           halflife    = ""          ,
+    #           Vp_obs      = "Observed"  ,
+    #           Vss_obs     = "Observed"  ,
+    #           Vss_pred    = "Predicted" )
 
       tab2 = list()
       tab2$table = NCA_sum[,c(1:5, 12:16) ]
       tab2$merge_header = FALSE
-      tab2$header_top = list(
-                ID          = "Subject"   ,
-                Nobs        = "Number"    ,
-                Dose_Number = "Dose"      ,
-                Dose        = "Dose"      ,
-                Dose_CU     = "Dose"      ,
-                CL_obs      = "CL"        ,
-                CL_pred     = "CL"        ,
-                AUClast     = "AUC"       ,
-                AUCinf_pred = "AUC"       ,
-                AUCinf_obs  = "AUC"       )
-
-      tab2$header_middle = list(
-                ID          = ""          ,
-                Nobs        = "Obs"       ,
-                Dose_Number = "Number"    ,
-                Dose        = "Dataset"   ,
-                Dose_CU     = "Conc Units",
-                CL_obs      = "Observed"  ,
-                CL_pred     = "Predicted" ,
-                AUClast     = "Last"      ,
-                AUCinf_pred = "Inf (Pred)" ,
-                AUCinf_obs  = "Inf (Obs)" )
+    # tab2$header_top = list(
+    #           ID          = "Subject"   ,
+    #           Nobs        = "Number"    ,
+    #           Dose_Number = "Dose"      ,
+    #           Dose        = "Dose"      ,
+    #           Dose_CU     = "Dose"      ,
+    #           CL_obs      = "CL"        ,
+    #           CL_pred     = "CL"        ,
+    #           AUClast     = "AUC"       ,
+    #           AUCinf_pred = "AUC"       ,
+    #           AUCinf_obs  = "AUC"       )
+    #
+    # tab2$header_middle = list(
+    #           ID          = ""          ,
+    #           Nobs        = "Obs"       ,
+    #           Dose_Number = "Number"    ,
+    #           Dose        = "Dataset"   ,
+    #           Dose_CU     = "Conc Units",
+    #           CL_obs      = "Observed"  ,
+    #           CL_pred     = "Predicted" ,
+    #           AUClast     = "Last"      ,
+    #           AUCinf_pred = "Inf (Pred)" ,
+    #           AUCinf_obs  = "Inf (Obs)" )
 
       # Splitting the table across two slides
       cfg = system_report_slide_content(cfg, rptname=rptname,
@@ -9769,17 +9810,25 @@ system_nca_run = function(cfg,
     }
 
 
-    csv_file  = file.path("output",paste(analysis_name, "-nca_summary.csv" , sep=""))
-    data_file = file.path("output",paste(analysis_name, "-nca_data.RData" , sep=""))
-    write.csv(NCA_sum, file=csv_file, row.names=FALSE, quote=FALSE)
+    pkncaraw_file  = file.path("output",paste(analysis_name, "-pknca_raw.csv" , sep=""))
+    csv_file       = file.path("output",paste(analysis_name, "-nca_summary.csv" , sep=""))
+    data_file      = file.path("output",paste(analysis_name, "-nca_data.RData" , sep=""))
+    write.csv(NCA_sum,       file=csv_file,      row.names=FALSE, quote=FALSE)
+    write.csv(PKNCA_raw_all, file=pkncaraw_file, row.names=FALSE, quote=FALSE)
     save(grobs_sum, NCA_sum, file=data_file)
 
-    cfg$nca[[analysis_name]]$grobs_sum = grobs_sum
-    cfg$nca[[analysis_name]]$NCA_sum   = NCA_sum
-    cfg$nca[[analysis_name]]$data_raw  = DS
+    cfg$nca[[analysis_name]]$grobs_sum     = grobs_sum
+    cfg$nca[[analysis_name]]$NCA_sum       = NCA_sum
+    cfg$nca[[analysis_name]]$data_raw      = DS
+    cfg$nca[[analysis_name]]$PKNCA_raw     = PKNCA_raw_all
+
+    vp(cfg, paste("NCA results for ", analysis_name, " written to", sep=""))
+    vp(cfg, paste(" --> ", csv_file,      sep=""))
+    vp(cfg, paste(" --> ", data_file,     sep=""))
+    vp(cfg, paste(" --> ", pkncaraw_file, sep=""))
 
   } else {
-     vp(cfg, "system_nca_new()")
+     vp(cfg, "system_nca_run()")
      vp(cfg, "Errors were found see messages above for more information")
   }
 
