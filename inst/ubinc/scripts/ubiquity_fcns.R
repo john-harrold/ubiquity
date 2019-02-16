@@ -8270,60 +8270,84 @@ system_report_save = function (cfg,
 #'@param cfg ubiquity system object    
 #'@param template path to template file (\code{NULL} will load the default ubiquity template)
 #'@param rptname report name 
-#'@param rpttype type of report to create, can be either \code{"PowerPoint"} (default) or \code{"Word"}
+#'@param rpttype type of report to create, can be either \code{NULL}, \code{"PowerPoint"} or \code{"Word"}
 #'@param meta list containing metadata identifying relevant indices for slide layouts
+#'
+#'@details 
+#'   Either the rpttype can be specified or the template. If a report type is
+#'   specified the internal ubiquity template for that type will be used. If
+#'   the user specifies a template, the type will be determined from the file
+#'   extension. If both values are null the report type will default to 
+#'   "PowerPoint" internally. 
 #'
 #'@seealso Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 system_report_init = function (cfg,
                                template = NULL,
                                rptname  = "default",
-                               rpttype  = "PowerPoint",
+                               rpttype  = NULL,
                                meta     = NULL){
 
 isgood = TRUE
 
 # Allowed types of reports
-rpttypes = c("PowerPoint", "Word")
-if(!(rpttype %in% rpttypes)){
-  isgood = FALSE
-  vp(cfg, paste("error: Invalid report type: >", rpttype, "<", sep=""))
-  vp(cfg, paste("       Allowed types are: ", paste(rpttypes, collapse=", "), sep=""))
+rpttypes     = c("PowerPoint", "Word")
+rptextension = c("docx" ,"pptx")
+
+# If they are both NULL we default to PowerPoint
+if(is.null(template) & is.null(rpttype)){
+  rpttype = "PowerPoint"
 }
 
-if(isgood & is.null(template)){
- if( cfg$options$misc$distribution == "package"){
-   if(rpttype == "PowerPoint"){
-     template = system.file("ubinc", "templates", "report.pptx", package="ubiquity")
-   } else if(rpttype == "Word"){
-     template = system.file("ubinc", "templates", "report.docx", package="ubiquity")
-   } 
-  } else{
-   if(rpttype == "PowerPoint"){
-     template = file.path("library", "templates", "report.pptx") 
-   } else if(rpttype == "Word"){
-     template = file.path("library", "templates", "report.docx") 
-   } 
+# The user specified both
+if(!is.null(template) & !is.null(rpttype)){
+  isgood = FALSE
+  vp(cfg, "Error: You can specify either rpttype or template but not both")
+} 
+
+# the user specified the rpttype
+if(!is.null(rpttype) & is.null(template)){
+  use_rpttype = rpttype
+  if(!(rpttype %in% rpttypes)){
+    isgood = FALSE
+    vp(cfg, paste("Error: Invalid report type: >", rpttype, "<", sep=""))
+    vp(cfg, paste("       Allowed types are: ", paste(rpttypes, collapse=", "), sep=""))
+  }else{
+    if( cfg$options$misc$distribution == "package"){
+      if(rpttype == "PowerPoint"){
+        use_template = system.file("ubinc", "templates", "report.pptx", package="ubiquity")
+      } else if(rpttype == "Word"){
+        use_template = system.file("ubinc", "templates", "report.docx", package="ubiquity")
+      } 
+     }else{
+       if(rpttype == "PowerPoint"){
+         use_template = file.path("library", "templates", "report.pptx") 
+       } else if(rpttype == "Word"){
+         use_template = file.path("library", "templates", "report.docx") 
+       } 
+    }
   }
 }
 
-if(rpttype == "Word" & !grepl(pattern="docx$", template)){
-  isgood = FALSE
-  vp(cfg, "Error: Word report selected but the template")
-  vp(cfg, "       does not have the correct extension (docx):")
-  vp(cfg, template)
+# the user specified the template
+if(is.null(rpttype) & !is.null(template)){
+  use_template = template
+  if(grepl(pattern="pptx$", template)){
+    use_rpttype = "PowerPoint"
+  } else if(grepl(pattern="docx$", template)){
+    use_rpttype = "Word"
+  } else {
+    isgood=FALSE
+    vp(cfg, "Error: The specified template has an incorrect file extension")
+    vp(cfg, "       it should be either .doc or .pptx")
+  }
 }
-if(rpttype == "PowerPoint" & !grepl(pattern="pptx$", template)){
-  isgood = FALSE
-  vp(cfg, "Error: PowerPoint report selected but the template")
-  vp(cfg, "       does not have the correct extension (pptx):")
-  vp(cfg, template)
-}
+
 
 if(isgood){
   if(system_req("officer")){
     cfg$reporting$enabled = TRUE
     # Checking to see if the template file exists
-    if(file.exists(template)){
+    if(file.exists(use_template)){
       # if no meta data has been specified then we pull the default meta data,
       # otherwise we store the meta data provided
       name_check = ubiquity_name_check(rptname)
@@ -8335,21 +8359,21 @@ if(isgood){
           cfg$reporting$reports[[rptname]]$meta  = meta
         }
         # Storing the report type
-        cfg$reporting$reports[[rptname]]$rpttype = rpttype
+        cfg$reporting$reports[[rptname]]$rpttype = use_rpttype
         # Storing the original template location and creating the empty report
-        cfg$reporting$reports[[rptname]]$template = template
+        cfg$reporting$reports[[rptname]]$template = use_template
 
         # Reading in the template depending on the report type
-        if(rpttype == "PowerPoint"){
-          cfg$reporting$reports[[rptname]]$report   = read_pptx(path=template) }
-        if(rpttype == "Word"){
-          cfg$reporting$reports[[rptname]]$report   = read_docx(path=template) }
+        if(use_rpttype == "PowerPoint"){
+          cfg$reporting$reports[[rptname]]$report   = read_pptx(path=use_template) }
+        if(use_rpttype == "Word"){
+          cfg$reporting$reports[[rptname]]$report   = read_docx(path=use_template) }
 
         vp(cfg, "")
         vp(cfg, sprintf("Report initialized..."))
         vp(cfg, sprintf("  Name:     %s", rptname))
-        vp(cfg, sprintf("  Type:     %s", rpttype))
-        vp(cfg, sprintf("  Template: %s", template))
+        vp(cfg, sprintf("  Type:     %s", use_rpttype))
+        vp(cfg, sprintf("  Template: %s", use_template))
       } else {
         isgood = FALSE
         vp(cfg, sprintf('Error: report name >%s< is invalid', rptname))
@@ -8357,10 +8381,11 @@ if(isgood){
     
     } else {
       isgood = FALSE
-      vp(cfg, sprintf("Unable to find template file >%s<. ", template))
+      vp(cfg, sprintf("Unable to find template file >%s<. ", use_template))
     }
   
   } else {
+    isgood = FALSE
     vp(cfg, "Reporting is done through the 'officer' package. Unable to load ")
     vp(cfg, "this package. Reporting will be disabled.")
     cfg$reporting$enabled = FALSE
