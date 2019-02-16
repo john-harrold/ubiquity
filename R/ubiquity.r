@@ -8249,6 +8249,7 @@ system_report_save = function (cfg,
   if(cfg$reporting$enabled){
     if(rptname %in% names(cfg$reporting$reports)){
       print(cfg$reporting$reports[[rptname]]$report, output_file)
+      vp(cfg, "")
       vp(cfg, sprintf("Report saved to: %s", output_file))
     } else {
       vp(cfg, sprintf("system_report_save()"))
@@ -8276,13 +8277,31 @@ system_report_init = function (cfg,
                                template = NULL,
                                rptname  = "default",
                                meta     = NULL){
+
+rpttype = "PowerPoint"
+
+
+
+
 isgood = TRUE
 
-if(is.null(template)){
+# Allowed types of reports
+rpttypes = c("PowerPoint", "Word")
+if(!(rpttype %in% rpttypes)){
+  isgood = FALSE
+  vp(cfg, paste("error: Invalid report type: >", rpttype, "<", sep=""))
+  vp(cfg, paste("       Allowed types are: ", paste(rpttypes, collapse=", "), sep=""))
+}
+
+if(isgood & is.null(template)){
  if( cfg$options$misc$distribution == "package"){
-   template = system.file("ubinc", "templates", "report.pptx", package="ubiquity")
+   if(rpttype == "PowerPoint"){
+     template = system.file("ubinc", "templates", "report.pptx", package="ubiquity")
+   }
   } else{
-   template = file.path("library", "templates", "report.pptx") 
+   if(rpttype == "PowerPoint"){
+     template = file.path("library", "templates", "report.pptx") 
+   }
   }
 }
 
@@ -8294,18 +8313,21 @@ if(is.null(template)){
       # otherwise we store the meta data provided
       name_check = ubiquity_name_check(rptname)
 
-      if(name_check$isgood){
+      if(name_check$isgood & isgood){
         if(is.null(meta)){
           cfg$reporting$reports[[rptname]]$meta  = cfg$reporting$meta
         } else {
           cfg$reporting$reports[[rptname]]$meta  = meta
         }
+        # Storing the report type
+        cfg$reporting$reports[[rptname]]$rpttype = rpttype
         # Storing the original template location and creating the empty report
         cfg$reporting$reports[[rptname]]$template = template
         cfg$reporting$reports[[rptname]]$report   = read_pptx(path=template)
+        vp(cfg, "")
         vp(cfg, sprintf("Report initialized..."))
-        vp(cfg, sprintf("Name:     %s", rptname))
-        vp(cfg, sprintf("Template: %s", template))
+        vp(cfg, sprintf("  Name:     %s", rptname))
+        vp(cfg, sprintf("  Template: %s", template))
       } else {
         isgood = FALSE
         vp(cfg, sprintf('Error: report name >%s< is invalid', rptname))
@@ -8363,57 +8385,68 @@ system_report_slide_content = function (cfg,
                                rptname                = "default",
                                content_type           = 'text', 
                                content                = 'Text'){
-
-  # We only process this if reporting is enabled
+  #Checking user input:
+  isgood = TRUE
   if(cfg$reporting$enabled){
-    # checking to make sure the user has initialized the report
     if(rptname %in% names(cfg$reporting$reports)){
-      # Pulling out the meta data for the report template
-      meta = cfg$reporting$reports[[rptname]]$meta 
-
-      # Pulling out the report to make it easier to deal with
-      tmprpt  = cfg$reporting$reports[[rptname]]$report
-
-      # Adding the slide
-      if(content_type %in% c("text", "imagefile", "ggplot", "table", "flextable")){
-        tmprpt = add_slide(x      = tmprpt, 
-                           layout = meta$content$layout$general,
-                           master = meta$content$master$general)
-        body_index      = meta$content$indices$content_body
-        sub_title_index = meta$content$indices$content_sub_title
+      if( "PowerPoint" != cfg$reporting$reports[[rptname]]$rpttype){
+        isgood = FALSE
+        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
       }
-      else if(content_type == "list"){
-        tmprpt = add_slide(x      = tmprpt, 
-                           layout = meta$content$layout$list,
-                           master = meta$content$master$list)
-        body_index      = meta$content$indices$list_body
-        sub_title_index = meta$content$indices$list_sub_title
-      }
-
-      # Adding Slide title/subtitle information
-      if(!is.null(title)){
-        tmprpt = ph_with_text(x=tmprpt, type='title', str=title) } 
-      if(!is.null(sub_title_index) & !is.null(sub_title)){
-        tmprpt = ph_with_text(x=tmprpt, type='body', index=sub_title_index, str=sub_title) } 
-
-      # Adding the content
-      type   = "body"
-      tmprpt = system_report_ph_content(cfg          = cfg,          
-                                        rpt          = tmprpt, 
-                                        content_type = content_type, 
-                                        content      = content, 
-                                        type         = type,         
-                                        index        = body_index)
-  
-      # Putting the report back into cfg
-      cfg$reporting$reports[[rptname]]$report = tmprpt
     } else {
-      vp(cfg, sprintf("system_report_slide_content_col() "))
-      vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
-      vp(cfg, sprintf("       Slide not added"               ))
+      isgood = FALSE
+      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
     }
-  
+  } else {
+    isgood = FALSE
+    vp(cfg, "Error: Reporting not enabled")
   }
+
+  if(isgood){
+    # Pulling out the meta data for the report template
+    meta = cfg$reporting$reports[[rptname]]$meta 
+
+    # Pulling out the report to make it easier to deal with
+    tmprpt  = cfg$reporting$reports[[rptname]]$report
+
+    # Adding the slide
+    if(content_type %in% c("text", "imagefile", "ggplot", "table", "flextable")){
+      tmprpt = add_slide(x      = tmprpt, 
+                         layout = meta$content$layout$general,
+                         master = meta$content$master$general)
+      body_index      = meta$content$indices$content_body
+      sub_title_index = meta$content$indices$content_sub_title
+    }
+    else if(content_type == "list"){
+      tmprpt = add_slide(x      = tmprpt, 
+                         layout = meta$content$layout$list,
+                         master = meta$content$master$list)
+      body_index      = meta$content$indices$list_body
+      sub_title_index = meta$content$indices$list_sub_title
+    }
+
+    # Adding Slide title/subtitle information
+    if(!is.null(title)){
+      tmprpt = ph_with_text(x=tmprpt, type='title', str=title) } 
+    if(!is.null(sub_title_index) & !is.null(sub_title)){
+      tmprpt = ph_with_text(x=tmprpt, type='body', index=sub_title_index, str=sub_title) } 
+
+    # Adding the content
+    type   = "body"
+    tmprpt = system_report_ph_content(cfg          = cfg,          
+                                      rpt          = tmprpt, 
+                                      content_type = content_type, 
+                                      content      = content, 
+                                      type         = type,         
+                                      index        = body_index)
+  
+    # Putting the report back into cfg
+    cfg$reporting$reports[[rptname]]$report = tmprpt
+  } else {
+    vp(cfg, "system_report_slide_content() ")
+    vp(cfg, "Unable to add slide, see above for details")
+  }
+  
 return(cfg)}
 #/system_report_slide_content
 # -------------------------------------------------------------------------
@@ -8474,133 +8507,146 @@ system_report_slide_two_col = function (cfg,
                                right_content_header        =  NULL,
                                right_content_header_type   = 'text'){
 
-  # Making sure reporting is enabled
+  #Checking user input:
+  isgood = TRUE
   if(cfg$reporting$enabled){
-    # checking to make sure the user has initialized the report
     if(rptname %in% names(cfg$reporting$reports)){
-      # Pulling out the meta data for the report template
-      meta = cfg$reporting$reports[[rptname]]$meta 
-      # Pulling out the report to make it easier to deal with
-      tmprpt  = cfg$reporting$reports[[rptname]]$report
-
-      #-------------------------------------------------------
-      #  here we initialize the correct slide and 
-      #  define the indices
-      #
-      if(content_type %in% c('text')){
-        if(is.null(left_content_header) & is.null(right_content_header)){
-          # Text without headers
-          tmprpt = add_slide(x      = tmprpt, 
-                             layout = meta$two_col$layout$text,
-                             master = meta$two_col$master$text)
-
-          left_index         = meta$two_col$indices$text_left
-          right_index        = meta$two_col$indices$text_right
-          left_title_index   = NULL
-          right_title_index  = NULL
-          sub_title_index    = meta$two_col$indices$text_sub_title
-        } else {
-          # Text with headers
-          tmprpt = add_slide(x      = tmprpt, 
-                             layout = meta$two_col$layout$text_head,
-                             master = meta$two_col$master$text_head)
-
-          left_index         = meta$two_col$indices$text_head_left
-          right_index        = meta$two_col$indices$text_head_right
-          left_title_index   = meta$two_col$indices$text_head_left_title
-          right_title_index  = meta$two_col$indices$text_head_right_title
-          sub_title_index    = meta$two_col$indices$text_head_sub_title
-        }
-      }else if(content_type %in% c('list')){
-        if(is.null(left_content_header) & is.null(right_content_header)){
-          # List without headers
-          tmprpt = add_slide(x      = tmprpt, 
-                             layout = meta$two_col$layout$list,
-                             master = meta$two_col$master$list)
-
-          left_index         = meta$two_col$indices$list_left
-          right_index        = meta$two_col$indices$list_right
-          left_title_index   = NULL
-          right_title_index  = NULL
-          sub_title_index    = meta$two_col$indices$list_sub_title
-        
-        } else {
-          # List with headers
-          tmprpt = add_slide(x      = tmprpt, 
-                             layout = meta$two_col$layout$list_head,
-                             master = meta$two_col$master$list_head)
-
-          left_index         = meta$two_col$indices$list_head_left
-          right_index        = meta$two_col$indices$list_head_right
-          left_title_index   = meta$two_col$indices$list_head_left_title
-          right_title_index  = meta$two_col$indices$list_head_right_title
-          sub_title_index    = meta$two_col$indices$list_head_sub_title
-        }
+      if( "PowerPoint" != cfg$reporting$reports[[rptname]]$rpttype){
+        isgood = FALSE
+        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
       }
-
-      # If the content type hasn't been set then they inheret 
-      # the content type of the main slide
-      if(is.null(left_content_type)){
-        left_content_type = content_type }
-      if(is.null(right_content_type)){
-        right_content_type = content_type }
-      #-------------------------------------------------------
-
-      # Adding Slide title/subtitle information
-      if(!is.null(title)){
-        tmprpt = ph_with_text(x=tmprpt, type='title', str=title) } 
-      if(!is.null(sub_title_index) & !is.null(sub_title)){
-        tmprpt = ph_with_text(x=tmprpt, type='body', index=sub_title_index, str=sub_title) } 
-
-
-      #
-      # Creating the headers
-      #
-      if(!is.null(left_content_header)){
-        tmprpt = system_report_ph_content(cfg          = cfg,          
-                                          rpt          = tmprpt, 
-                                          content_type = left_content_header_type, 
-                                          content      = left_content_header, 
-                                          type         = "body",         
-                                          index        = left_title_index)
-      }
-      if(!is.null(right_content_header)){
-        tmprpt = system_report_ph_content(cfg          = cfg,          
-                                          rpt          = tmprpt, 
-                                          content_type = right_content_header_type, 
-                                          content      = right_content_header, 
-                                          type         = "body",         
-                                          index        = right_title_index)
-      }
-
-      #
-      # Creating the main content
-      #
-      if(!is.null(left_content)){
-        tmprpt = system_report_ph_content(cfg          = cfg,          
-                                          rpt          = tmprpt, 
-                                          content_type = left_content_type, 
-                                          content      = left_content, 
-                                          type         = "body",         
-                                          index        = left_index)
-      }
-      if(!is.null(right_content)){
-        tmprpt = system_report_ph_content(cfg          = cfg,          
-                                          rpt          = tmprpt, 
-                                          content_type = right_content_type, 
-                                          content      = right_content, 
-                                          type         = "body",         
-                                          index        = right_index)
-      }
-
-
-      # Putting the report back into cfg
-      cfg$reporting$reports[[rptname]]$report = tmprpt
     } else {
-      vp(cfg, sprintf("system_report_slide_two_col() "))
-      vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
-      vp(cfg, sprintf("       Slide not added"               ))
+      isgood = FALSE
+      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
     }
+  } else {
+    isgood = FALSE
+    vp(cfg, "Error: Reporting not enabled")
+  }
+
+
+  if(isgood){
+    # Pulling out the meta data for the report template
+    meta = cfg$reporting$reports[[rptname]]$meta 
+    # Pulling out the report to make it easier to deal with
+    tmprpt  = cfg$reporting$reports[[rptname]]$report
+
+    #-------------------------------------------------------
+    #  here we initialize the correct slide and 
+    #  define the indices
+    #
+    if(content_type %in% c('text')){
+      if(is.null(left_content_header) & is.null(right_content_header)){
+        # Text without headers
+        tmprpt = add_slide(x      = tmprpt, 
+                           layout = meta$two_col$layout$text,
+                           master = meta$two_col$master$text)
+
+        left_index         = meta$two_col$indices$text_left
+        right_index        = meta$two_col$indices$text_right
+        left_title_index   = NULL
+        right_title_index  = NULL
+        sub_title_index    = meta$two_col$indices$text_sub_title
+      } else {
+        # Text with headers
+        tmprpt = add_slide(x      = tmprpt, 
+                           layout = meta$two_col$layout$text_head,
+                           master = meta$two_col$master$text_head)
+
+        left_index         = meta$two_col$indices$text_head_left
+        right_index        = meta$two_col$indices$text_head_right
+        left_title_index   = meta$two_col$indices$text_head_left_title
+        right_title_index  = meta$two_col$indices$text_head_right_title
+        sub_title_index    = meta$two_col$indices$text_head_sub_title
+      }
+    }else if(content_type %in% c('list')){
+      if(is.null(left_content_header) & is.null(right_content_header)){
+        # List without headers
+        tmprpt = add_slide(x      = tmprpt, 
+                           layout = meta$two_col$layout$list,
+                           master = meta$two_col$master$list)
+
+        left_index         = meta$two_col$indices$list_left
+        right_index        = meta$two_col$indices$list_right
+        left_title_index   = NULL
+        right_title_index  = NULL
+        sub_title_index    = meta$two_col$indices$list_sub_title
+      
+      } else {
+        # List with headers
+        tmprpt = add_slide(x      = tmprpt, 
+                           layout = meta$two_col$layout$list_head,
+                           master = meta$two_col$master$list_head)
+
+        left_index         = meta$two_col$indices$list_head_left
+        right_index        = meta$two_col$indices$list_head_right
+        left_title_index   = meta$two_col$indices$list_head_left_title
+        right_title_index  = meta$two_col$indices$list_head_right_title
+        sub_title_index    = meta$two_col$indices$list_head_sub_title
+      }
+    }
+
+    # If the content type hasn't been set then they inheret 
+    # the content type of the main slide
+    if(is.null(left_content_type)){
+      left_content_type = content_type }
+    if(is.null(right_content_type)){
+      right_content_type = content_type }
+    #-------------------------------------------------------
+
+    # Adding Slide title/subtitle information
+    if(!is.null(title)){
+      tmprpt = ph_with_text(x=tmprpt, type='title', str=title) } 
+    if(!is.null(sub_title_index) & !is.null(sub_title)){
+      tmprpt = ph_with_text(x=tmprpt, type='body', index=sub_title_index, str=sub_title) } 
+
+
+    #
+    # Creating the headers
+    #
+    if(!is.null(left_content_header)){
+      tmprpt = system_report_ph_content(cfg          = cfg,          
+                                        rpt          = tmprpt, 
+                                        content_type = left_content_header_type, 
+                                        content      = left_content_header, 
+                                        type         = "body",         
+                                        index        = left_title_index)
+    }
+    if(!is.null(right_content_header)){
+      tmprpt = system_report_ph_content(cfg          = cfg,          
+                                        rpt          = tmprpt, 
+                                        content_type = right_content_header_type, 
+                                        content      = right_content_header, 
+                                        type         = "body",         
+                                        index        = right_title_index)
+    }
+
+    #
+    # Creating the main content
+    #
+    if(!is.null(left_content)){
+      tmprpt = system_report_ph_content(cfg          = cfg,          
+                                        rpt          = tmprpt, 
+                                        content_type = left_content_type, 
+                                        content      = left_content, 
+                                        type         = "body",         
+                                        index        = left_index)
+    }
+    if(!is.null(right_content)){
+      tmprpt = system_report_ph_content(cfg          = cfg,          
+                                        rpt          = tmprpt, 
+                                        content_type = right_content_type, 
+                                        content      = right_content, 
+                                        type         = "body",         
+                                        index        = right_index)
+    }
+
+
+    # Putting the report back into cfg
+    cfg$reporting$reports[[rptname]]$report = tmprpt
+  } else {
+    vp(cfg, "system_report_slide_two_col() ")
+    vp(cfg, "Unable to add slide, see above for details")
   }
 
 
@@ -8632,56 +8678,63 @@ system_report_slide_section = function (cfg,
                                sub_title              = NULL, 
                                rptname                = "default"){
 
+  #Checking user input:
   isgood = TRUE
-  # We only process this if reporting is enabled
   if(cfg$reporting$enabled){
-    # checking to make sure the user has initialized the report
     if(rptname %in% names(cfg$reporting$reports)){
-      # Pulling out the meta data for the report template
-      meta = cfg$reporting$reports[[rptname]]$meta 
-      # Pulling out the report to make it easier to deal with
-      tmprpt  = cfg$reporting$reports[[rptname]]$report
-
-      # Adding the title slide
-      tmprpt = add_slide(x      = tmprpt, 
-                         layout = meta$section$layout$general,
-                         master = meta$section$master$general)
-
-
-      # Adding Slide title/subtitle information
-      if(!is.null(title)){
-        if(meta$section$type$title == "ctrTitle"){
-          tmprpt = ph_with_text(x=tmprpt, type='ctrTitle', str=title) 
-         } else if (meta$section$type$title == "body" & !is.null(meta$section$indices$title)) {
-          tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$section$indices$title, str=title) 
-         } else {
-           isgood = FALSE
-         }
-       } 
-      if(!is.null(sub_title)){
-        if(meta$section$type$sub_title == "subTitle"){
-          tmprpt = ph_with_text(x=tmprpt, type="subTitle", str=sub_title) 
-         } else if (meta$section$type$sub_title == "body" & !is.null(meta$section$indices$sub_title)) {
-          tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$section$indices$sub_title, str=sub_title) 
-         } else {
-           isgood = FALSE
-         }
-       }
-
-      # Putting the report back into cfg
-      cfg$reporting$reports[[rptname]]$report = tmprpt
+      if( "PowerPoint" != cfg$reporting$reports[[rptname]]$rpttype){
+        isgood = FALSE
+        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
+      }
     } else {
       isgood = FALSE
+      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
     }
+  } else {
+    isgood = FALSE
+    vp(cfg, "Error: Reporting not enabled")
   }
+
+  if(isgood){
+    # Pulling out the meta data for the report template
+    meta = cfg$reporting$reports[[rptname]]$meta 
+    # Pulling out the report to make it easier to deal with
+    tmprpt  = cfg$reporting$reports[[rptname]]$report
+
+    # Adding the title slide
+    tmprpt = add_slide(x      = tmprpt, 
+                       layout = meta$section$layout$general,
+                       master = meta$section$master$general)
+
+
+    # Adding Slide title/subtitle information
+    if(!is.null(title)){
+      if(meta$section$type$title == "ctrTitle"){
+        tmprpt = ph_with_text(x=tmprpt, type='ctrTitle', str=title) 
+       } else if (meta$section$type$title == "body" & !is.null(meta$section$indices$title)) {
+        tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$section$indices$title, str=title) 
+       } else {
+         isgood = FALSE
+       }
+     } 
+    if(!is.null(sub_title)){
+      if(meta$section$type$sub_title == "subTitle"){
+        tmprpt = ph_with_text(x=tmprpt, type="subTitle", str=sub_title) 
+       } else if (meta$section$type$sub_title == "body" & !is.null(meta$section$indices$sub_title)) {
+        tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$section$indices$sub_title, str=sub_title) 
+       } else {
+         isgood = FALSE
+       }
+     }
+
+    # Putting the report back into cfg
+    cfg$reporting$reports[[rptname]]$report = tmprpt
+  } 
 
   if(!isgood){
-    vp(cfg, sprintf("system_report_slide_section  () "))
-    vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
-    vp(cfg, sprintf("       Slide not added"               ))
-  
+    vp(cfg, "system_report_slide_section() ")
+    vp(cfg, "Unable to add slide, see above for details")
   }
-
 
 return(cfg)}
 #/system_report_slide_section
@@ -8710,45 +8763,58 @@ system_report_slide_title   = function (cfg,
                                sub_title              = NULL, 
                                rptname                = "default"){
 
-  # We only process this if reporting is enabled
+  #Checking user input:
+  isgood = TRUE
   if(cfg$reporting$enabled){
-    # checking to make sure the user has initialized the report
     if(rptname %in% names(cfg$reporting$reports)){
-      # Pulling out the meta data for the report template
-      meta = cfg$reporting$reports[[rptname]]$meta 
-      # Pulling out the report to make it easier to deal with
-      tmprpt  = cfg$reporting$reports[[rptname]]$report
+      if( "PowerPoint" != cfg$reporting$reports[[rptname]]$rpttype){
+        isgood = FALSE
+        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
+      }
+    } else {
+      isgood = FALSE
+      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
+    }
+  } else {
+    isgood = FALSE
+    vp(cfg, "Error: Reporting not enabled")
+  }
 
-      # Adding the title slide
-      tmprpt = add_slide(x      = tmprpt, 
-                         layout = meta$title$layout$general,
-                         master = meta$title$master$general)
+  if(isgood){
+    # Pulling out the meta data for the report template
+    meta = cfg$reporting$reports[[rptname]]$meta 
+    # Pulling out the report to make it easier to deal with
+    tmprpt  = cfg$reporting$reports[[rptname]]$report
 
-      # Adding Slide title/subtitle information
-      if(meta$title$type$title == "ctrTitle"){
-        tmprpt = ph_with_text(x=tmprpt, type="ctrTitle", str=title) 
-       } else if (meta$title$type$title == "body" & !is.null(meta$title$indices$title)) {
-        tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$title$indices$title, str=title) 
+    # Adding the title slide
+    tmprpt = add_slide(x      = tmprpt, 
+                       layout = meta$title$layout$general,
+                       master = meta$title$master$general)
+
+    # Adding Slide title/subtitle information
+    if(meta$title$type$title == "ctrTitle"){
+      tmprpt = ph_with_text(x=tmprpt, type="ctrTitle", str=title) 
+     } else if (meta$title$type$title == "body" & !is.null(meta$title$indices$title)) {
+      tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$title$indices$title, str=title) 
+     } else {
+       isgood = FALSE
+     }
+    if(!is.null(sub_title)){
+      if(meta$title$type$sub_title == "subTitle"){
+        tmprpt = ph_with_text(x=tmprpt, type="subTitle", str=sub_title) 
+       } else if (meta$title$type$sub_title == "body" & !is.null(meta$title$indices$sub_title)) {
+        tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$title$indices$sub_title, str=sub_title) 
        } else {
          isgood = FALSE
        }
-      if(!is.null(sub_title)){
-        if(meta$title$type$sub_title == "subTitle"){
-          tmprpt = ph_with_text(x=tmprpt, type="subTitle", str=sub_title) 
-         } else if (meta$title$type$sub_title == "body" & !is.null(meta$title$indices$sub_title)) {
-          tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$title$indices$sub_title, str=sub_title) 
-         } else {
-           isgood = FALSE
-         }
-       }
+     }
 
-      # Putting the report back into cfg
-      cfg$reporting$reports[[rptname]]$report = tmprpt
-    } else {
-      vp(cfg, sprintf("system_report_slide_title  () "))
-      vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
-      vp(cfg, sprintf("       Slide not added"               ))
-    }
+    # Putting the report back into cfg
+    cfg$reporting$reports[[rptname]]$report = tmprpt
+  } else {
+    vp(cfg, "system_report_slide_title() ")
+    vp(cfg, "Unable to add slide, see above for details")
+
   }
 
 
@@ -8987,17 +9053,34 @@ system_report_estimation = function (cfg,
                                rptname        = "default",
                                analysis_name  = NULL){
   isgood = TRUE
+  rpttypes = c("PowerPoint")
+
   if(is.null(analysis_name)){
    isgood = FALSE
    vp(" No analysis_name was specified")
   }
 
-
   if(rptname %in% names(cfg$reporting$reports)){
-    if(isgood){
-      vp(cfg, paste("Generating estimation report for:", analysis_name))
-      vp(cfg, paste("Appending to report:", rptname))
+    rpttype = cfg$reporting$reports[[rptname]]$rpttype
+    if(!(rpttype %in% rpttypes)){
+      isgood = FALSE
+      vp(cfg, paste("Estimation reporting does not support this format >", rpttype, ">", sep=""))
+    }
+  } else {
+    isgood = FALSE
+    vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
+    vp(cfg, sprintf("       Estimation report not generated"))
+  }
 
+  if(isgood){
+
+    # Powerpoint Reporting
+    if("PowerPoint" == rpttype){
+      vp(cfg, "")
+      vp(cfg, paste("Appending estimation results to report"))
+      vp(cfg, paste("  Report:   ", rptname,            sep=""))
+      vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
+    
       # File names where the estimation results should be stored:
       fname_estimate = file.path("output", paste(analysis_name, ".RData",    sep=""))
       fname_grobs    = file.path("output", paste(analysis_name, "_pr.RData", sep=""))
@@ -9018,7 +9101,7 @@ system_report_estimation = function (cfg,
           petab = petab[1:(nrow(petab)-1),1:(ncol(petab)-1)]
           # Removing the guess column
           petab = petab[,c(1,3:ncol(petab))]
-
+    
           ptab       = list()
           ptab$table = petab
           ptab$header_top = list(pname    = "Parameter", 
@@ -9057,12 +9140,7 @@ system_report_estimation = function (cfg,
       } else {
         vp(cfg, paste("Unable to load the figures from file:", fname_grobs))
       }
-
     }
-  } else {
-    isgood = FALSE
-    vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
-    vp(cfg, sprintf("       Estimation report not generated"))
   }
 
   if(!isgood){
@@ -9368,11 +9446,10 @@ res}
 #'
 #'@param cfg ubiquity system object
 #'@param DSNAME name of dataset loaded with (\code{\link{system_load_data}})
-#'@param NCA_min minimum number of points required to perform NCA for a given subset (default 4)
-#'@param rptname name of report to append results to (default 'default')
+#'@param NCA_min minimum number of points required to perform NCA for a given subset (default \code{4})
 #'@param analysis_name string containing the name of the analysis (default 'analysis') to archive to files and reference results later
 #'@param rescorr  Boolean variable to correct for residual drug in a multiple dose setting (default \code{TRUE}): If there is an observation before the first observation of a given subset, that concentration will subtracted from the values of the subset
-#'@param dscale factor to multiply the dose to get it into the same units as concentration (default 1):
+#'@param dscale factor to multiply the dose to get it into the same units as concentration (default \code{1}):
 #' if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscale = 1e6}
 #'@param dsfilter list of names corresponding to the column names in the dataset and values are a sequence indicating values to keep (default \code{NULL}. Multiple names are and-ed together. For example the following would keep all of the records where dose is 1, 2, or 5 and the dose_number is 1
 #'\preformatted{
@@ -9382,7 +9459,7 @@ res}
 #'@param dsmap list with names specifying the time (TIME), nominal time since last dose (NTIME), concentration (CONC), dose (DOSE), and id (ID) columns to use when performing NCA
 #'@param digits number of significant digits to report (\code{3}), set to \code{NULL} to disable rounding
 #'@param dsinc character vector of columns from the dataset to include in the output summary.
-#'@return cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:
+#'@return cfg ubiquity system object with the NCA results and if the analysis name is specified:
 #' \itemize{
 #'     \item{output/{analysis_name}-nca_summary.csv} NCA summary 
 #'     \item{output/{analysis_name}-pknca_summary.csv} Raw output from PKNCA with subject and dose number columns appended 
@@ -9392,7 +9469,6 @@ system_nca_run = function(cfg,
                           DSNAME        = "PKDS", 
                           dscale        = 1,
                           NCA_min       = 4,
-                          rptname       = "default",
                           analysis_name = "analysis",
                           rescorr       = TRUE,
                           dsfilter      = NULL,
@@ -9400,9 +9476,13 @@ system_nca_run = function(cfg,
                           digits        = 3,
                           dsinc         = NULL){
 
-  ncares = list()
-  ncasum = list()
-  scenres = list()
+ # JMH dont think these are necessary
+ #  ncares = list()
+ #  ncasum = list()
+ #  scenres = list()
+  
+  # stores the report objects
+  rptobjs = list()
   isgood = TRUE
 
   system_req("PKNCA")
@@ -9417,15 +9497,6 @@ system_nca_run = function(cfg,
   }
 
 
-  if((rptname %in% names(cfg$reporting$reports))){
-    rptenabled = TRUE
-  } else {
-    rptenabled = FALSE
-    vp(cfg, paste("The report >", rptname, "has not been defined, and reporting will not be available.", sep=""))
-    vp(cfg, paste("Initiialize the report to enable this feature: ", sep=""))
-    vp(cfg, paste("cfg = system_report_init(cfg, rptname='", rptname, "')", sep=""))
-  }
-  
   if(DSNAME %in% names(cfg$data)){
     DS = cfg$data[[DSNAME]]$values
     # If a filter has been specified then we apply it to the dataset
@@ -9532,6 +9603,7 @@ system_nca_run = function(cfg,
     for(sub in subs){
       # This is the entire dataset for the subject
       SUBDS = DS[DS[[dsmap$ID]] == sub,]
+      sub_str = paste("sub_", sub, sep="")
 
       # Figure with summary info for the subject
       ptmp = ggplot()
@@ -9545,6 +9617,7 @@ system_nca_run = function(cfg,
       dosenum_all = unique(SUBDS$SI_DOSENUM)
       for(dosenum in dosenum_all){
         # this is subject's data for the given subset
+        dosenum_str = paste("dose_", dosenum, sep="")
         SUBDS_DN = SUBDS[SUBDS$SI_DOSENUM == dosenum, ]
 
 
@@ -9629,7 +9702,11 @@ system_nca_run = function(cfg,
           #                Dose in conc units
           # Vp_obs = ------------------------------
           #           Corrected first observed conc
-          Vp_obs = SUBDS_DN$SI_DOSE[1]/(SUBDS_DN[[dsmap$CONC]][1] - PREDOSE_CONC)
+          if(is.null(digits)){
+            Vp_obs = SUBDS_DN$SI_DOSE[1]/(SUBDS_DN[[dsmap$CONC]][1] - PREDOSE_CONC)
+          } else {
+            Vp_obs = signif(SUBDS_DN$SI_DOSE[1]/(SUBDS_DN[[dsmap$CONC]][1] - PREDOSE_CONC), digits)
+          }
 
           time_start = min(NCA_CONCDS$NTIME) 
           time_stop  = max(NCA_CONCDS$NTIME)
@@ -9657,7 +9734,7 @@ system_nca_run = function(cfg,
 
 
           # Rounding the NCA results:
-          if(~is.null(digits)){
+          if(!is.null(digits)){
             NCA.res$result$PPORRES =  signif(NCA.res$result$PPORRES, digits)
           }
 
@@ -9686,32 +9763,29 @@ system_nca_run = function(cfg,
         }
 
 
-        # Adding a summary slide for the current dose
-        if(rptenabled){
-          lctmp = c(1, paste("Number of observations:"   , var2string(tmpsum$Nobs       , nsig_e=2, nsig_f=0) ),
-                    1, paste("Dose: "                    , var2string(tmpsum$Dose       , nsig_e=2, nsig_f=2) ), 
-                    1, paste("Dose concentration units: ", var2string(tmpsum$Dose_CU    , nsig_e=2, nsig_f=2) ), 
-                    1, paste("Cmax: "                    , var2string(tmpsum$Cmax       , nsig_e=2, nsig_f=2) ), 
-                    1, paste("Tmax: "                    , var2string(tmpsum$Tmax       , nsig_e=2, nsig_f=2) ), 
-                    1, paste("Halflife: "                , var2string(tmpsum$halflife   , nsig_e=2, nsig_f=2) ),
-                    1, paste("Time interval: "           , toString(time_start), '-', toString(time_stop))) 
-          rctmp = c(1, paste("Vp  (observed):"           , var2string(tmpsum$Vp_obs     , nsig_e=2, nsig_f=2) ),
-                    1, paste("Vss (observed):"           , var2string(tmpsum$Vss_obs    , nsig_e=2, nsig_f=2) ),
-                    1, paste("Vss (predicted):"          , var2string(tmpsum$Vss_pred   , nsig_e=2, nsig_f=2) ), 
-                    1, paste("CL  (observed):"           , var2string(tmpsum$CL_obs     , nsig_e=2, nsig_f=2) ), 
-                    1, paste("CL  (predicted):"          , var2string(tmpsum$CL_pred    , nsig_e=2, nsig_f=2) ), 
-                    1, paste("AUC (0-last):"             , var2string(tmpsum$AUClast    , nsig_e=2, nsig_f=2) ), 
-                    1, paste("AUC (0-inf, predicted):"   , var2string(tmpsum$AUCinf_pred, nsig_e=2, nsig_f=2) ), 
-                    1, paste("AUC (0-inf, observed):"    , var2string(tmpsum$AUCinf_obs , nsig_e=2, nsig_f=2) ))
-
-
-          cfg = system_report_slide_two_col(cfg, rptname=rptname,
-                    title         = paste("Subject: ", sub, ",  Dose: ", dosenum, sep=""),
-                    content_type  = "list",
-                    left_content  = lctmp,
-                    right_content = rctmp)
+        # Summarizing everything for the current subject/dose to be used in
+        # report generation later
+        lctmp = c(1, paste("Number of observations:"   , var2string(tmpsum$Nobs       , nsig_e=2, nsig_f=0) ),
+                  1, paste("Dose: "                    , var2string(tmpsum$Dose       , nsig_e=2, nsig_f=2) ), 
+                  1, paste("Dose concentration units: ", var2string(tmpsum$Dose_CU    , nsig_e=2, nsig_f=2) ), 
+                  1, paste("Cmax: "                    , var2string(tmpsum$Cmax       , nsig_e=2, nsig_f=2) ), 
+                  1, paste("Tmax: "                    , var2string(tmpsum$Tmax       , nsig_e=2, nsig_f=2) ), 
+                  1, paste("Halflife: "                , var2string(tmpsum$halflife   , nsig_e=2, nsig_f=2) ),
+                  1, paste("Time interval: "           , toString(time_start), '-', toString(time_stop))) 
+        rctmp = c(1, paste("Vp  (observed):"           , var2string(tmpsum$Vp_obs     , nsig_e=2, nsig_f=2) ),
+                  1, paste("Vss (observed):"           , var2string(tmpsum$Vss_obs    , nsig_e=2, nsig_f=2) ),
+                  1, paste("Vss (predicted):"          , var2string(tmpsum$Vss_pred   , nsig_e=2, nsig_f=2) ), 
+                  1, paste("CL  (observed):"           , var2string(tmpsum$CL_obs     , nsig_e=2, nsig_f=2) ), 
+                  1, paste("CL  (predicted):"          , var2string(tmpsum$CL_pred    , nsig_e=2, nsig_f=2) ), 
+                  1, paste("AUC (0-last):"             , var2string(tmpsum$AUClast    , nsig_e=2, nsig_f=2) ), 
+                  1, paste("AUC (0-inf, predicted):"   , var2string(tmpsum$AUCinf_pred, nsig_e=2, nsig_f=2) ), 
+                  1, paste("AUC (0-inf, observed):"    , var2string(tmpsum$AUCinf_obs , nsig_e=2, nsig_f=2) ))
         
-        }
+        # storing the actual values to be used in the reporting
+        rptobjs[[sub_str]][[dosenum_str]]$dosenum = dosenum
+        rptobjs[[sub_str]][[dosenum_str]]$sub     = sub    
+        rptobjs[[sub_str]][[dosenum_str]]$lc = lctmp
+        rptobjs[[sub_str]][[dosenum_str]]$rc = rctmp
 
         tmpsum = as.data.frame(tmpsum)
         if(is.null(NCA_sum)){
@@ -9727,88 +9801,11 @@ system_nca_run = function(cfg,
       }
 
       # Adding PK plot here
-      if(rptenabled){
-         cfg = system_report_slide_content(cfg, rptname=rptname,
-                    title         = paste("Subject: ", sub, sep=""),
-                    content_type  = "ggplot",
-                    content       = ptmp)
-      }
-
-      grobs_sum[[sub]] = ptmp
+      grobs_sum[[sub_str]] = ptmp
     }
 
     # Sorting the NCA table by ID then Dose_Number
     NCA_sum = NCA_sum[ with(NCA_sum, order(Dose_Number, ID)), ]
-
-    if(rptenabled){
-      tab1 = list()
-      tab1$table = NCA_sum[,c(1:5, 6:11) ]
-      tab1$merge_header = FALSE
-    # tab1$header_top = list(
-    #           ID          = "Subject"   ,
-    #           Nobs        = "Number"    ,
-    #           Dose_Number = "Dose"      ,
-    #           Dose        = "Dose"      ,
-    #           Dose_CU     = "Dose"      ,
-    #           Cmax        = "Cmax"      ,
-    #           Tmax        = "Tmax"      , 
-    #           halflife    = "Halflife"  ,
-    #           Vp_obs      = "Vp"        ,
-    #           Vss_obs     = "Vss"       ,
-    #           Vss_pred    = "Vss"       )
-    #
-    # tab1$header_middle = list(
-    #           ID          = ""          ,
-    #           Nobs        = "Obs"       ,
-    #           Dose_Number = "Number"    ,
-    #           Dose        = "Dataset"   ,
-    #           Dose_CU     = "Conc Units",
-    #           Cmax        = ""          ,
-    #           Tmax        = ""          , 
-    #           halflife    = ""          ,
-    #           Vp_obs      = "Observed"  ,
-    #           Vss_obs     = "Observed"  ,
-    #           Vss_pred    = "Predicted" )
-
-      tab2 = list()
-      tab2$table = NCA_sum[,c(1:5, 12:16) ]
-      tab2$merge_header = FALSE
-    # tab2$header_top = list(
-    #           ID          = "Subject"   ,
-    #           Nobs        = "Number"    ,
-    #           Dose_Number = "Dose"      ,
-    #           Dose        = "Dose"      ,
-    #           Dose_CU     = "Dose"      ,
-    #           CL_obs      = "CL"        ,
-    #           CL_pred     = "CL"        ,
-    #           AUClast     = "AUC"       ,
-    #           AUCinf_pred = "AUC"       ,
-    #           AUCinf_obs  = "AUC"       )
-    #
-    # tab2$header_middle = list(
-    #           ID          = ""          ,
-    #           Nobs        = "Obs"       ,
-    #           Dose_Number = "Number"    ,
-    #           Dose        = "Dataset"   ,
-    #           Dose_CU     = "Conc Units",
-    #           CL_obs      = "Observed"  ,
-    #           CL_pred     = "Predicted" ,
-    #           AUClast     = "Last"      ,
-    #           AUCinf_pred = "Inf (Pred)" ,
-    #           AUCinf_obs  = "Inf (Obs)" )
-
-      # Splitting the table across two slides
-      cfg = system_report_slide_content(cfg, rptname=rptname,
-                 title         = paste("NCA Summary"),
-                 content_type  = "flextable",
-                 content       = tab1)
-
-      cfg = system_report_slide_content(cfg, rptname=rptname,
-                 title         = paste("NCA Summary"),
-                 content_type  = "flextable",
-                 content       = tab2)
-    }
-
 
     pkncaraw_file  = file.path("output",paste(analysis_name, "-pknca_raw.csv" , sep=""))
     csv_file       = file.path("output",paste(analysis_name, "-nca_summary.csv" , sep=""))
@@ -9821,11 +9818,13 @@ system_nca_run = function(cfg,
     cfg$nca[[analysis_name]]$NCA_sum       = NCA_sum
     cfg$nca[[analysis_name]]$data_raw      = DS
     cfg$nca[[analysis_name]]$PKNCA_raw     = PKNCA_raw_all
+    cfg$nca[[analysis_name]]$rptobjs       = rptobjs      
 
+    vp(cfg, "")
     vp(cfg, paste("NCA results for ", analysis_name, " written to", sep=""))
-    vp(cfg, paste(" --> ", csv_file,      sep=""))
-    vp(cfg, paste(" --> ", data_file,     sep=""))
-    vp(cfg, paste(" --> ", pkncaraw_file, sep=""))
+    vp(cfg, paste("  Summary output:   ", csv_file,      sep=""))
+    vp(cfg, paste("  R objects:        ", data_file,     sep=""))
+    vp(cfg, paste("  PKNCA raw output: ", pkncaraw_file, sep=""))
 
   } else {
      vp(cfg, "system_nca_run()")
@@ -9834,6 +9833,152 @@ system_nca_run = function(cfg,
 
 
 cfg}
+
+
+#-------------------------------------------------------------------------
+#'@export 
+#'@title Report NCA   
+#'@description Appends the results of NCA to a report
+#'
+#'@param cfg ubiquity system object
+#'@param analysis_name string containing the name of the analysis (default \code{'analysis'}) to archive to files and reference results later
+#'@param rptname name of report to append results to (default \code{'default'})
+#'@param table_headers Boolean variable to add descriptive headers to output tables (default \code{TRUE})
+#'@return cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:
+system_report_nca = function(cfg, 
+                          rptname       = "default",
+                          analysis_name = "analysis",
+                          table_headers = TRUE){
+  # Supported report types
+  rpttypes = c("PowerPoint")
+  isgood = TRUE
+
+  if(rptname %in% names(cfg$reporting$reports)){
+    rpttype = cfg$reporting$reports[[rptname]]$rpttype
+    if(!(rpttype %in% rpttypes)){
+      isgood = FALSE
+      vp(cfg, paste("NCA reporting does not support this format >", rpttype, ">", sep=""))
+    }
+  } else {
+    isgood = FALSE
+    vp(cfg, paste("The report >", rptname, "< has not been defined.", sep=""))
+    vp(cfg, paste("Initialize the report to use report generation: ", sep=""))
+    vp(cfg, paste("cfg = system_report_init(cfg, rptname='", rptname, "')", sep=""))
+  }
+
+  if((analysis_name %in% names(cfg$nca))& isgood){
+    vp(cfg, "")
+    vp(cfg, "Appending NCA results to report")
+    vp(cfg, paste("  Report:   ", rptname,      sep=""))
+    vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
+  } else {
+    isgood = FALSE
+    vp(cfg, paste("The NCA analysis >", analysis_name, "< was not found", sep=""))
+  }
+
+  if(isgood){
+    # Defining the elements to be used locally
+    rptobjs   =  cfg$nca[[analysis_name]]$rptobjs
+    grobs_sum =  cfg$nca[[analysis_name]]$grobs_sum
+    NCA_sum   =  cfg$nca[[analysis_name]]$NCA_sum
+
+    # Creating subject level slides for each dose and a summary plot
+    for(sub_str in names(rptobjs)){
+      for(dosenum_str in names(rptobjs[[sub_str]])){
+        dosenum = rptobjs[[sub_str]][[dosenum_str]]$dosenum
+        sub     = rptobjs[[sub_str]][[dosenum_str]]$sub
+        cfg = system_report_slide_two_col(cfg, rptname=rptname,
+                  title         = paste("Subject: ", sub, ",  Dose: ", dosenum, sep=""),
+                  content_type  = "list",
+                  left_content  = rptobjs[[sub_str]][[dosenum_str]]$lc,
+                  right_content = rptobjs[[sub_str]][[dosenum_str]]$rc)
+      }
+      cfg = system_report_slide_content(cfg, rptname=rptname,
+                title         = paste("Subject: ", sub, sep=""),
+                content_type  = "ggplot",
+                content       = grobs_sum[[sub_str]])
+    }
+
+    # Summary tables
+    tab1 = list()
+    tab1$table = NCA_sum[,c(1:5, 6:11) ]
+    if(table_headers){
+      tab1$merge_header = FALSE
+      tab1$header_top = list(
+                ID          = "Subject"   ,
+                Nobs        = "Number"    ,
+                Dose_Number = "Dose"      ,
+                Dose        = "Dose"      ,
+                Dose_CU     = "Dose"      ,
+                Cmax        = "Cmax"      ,
+                Tmax        = "Tmax"      , 
+                halflife    = "Halflife"  ,
+                Vp_obs      = "Vp"        ,
+                Vss_obs     = "Vss"       ,
+                Vss_pred    = "Vss"       )
+      
+      tab1$header_middle = list(
+                ID          = ""          ,
+                Nobs        = "Obs"       ,
+                Dose_Number = "Number"    ,
+                Dose        = "Dataset"   ,
+                Dose_CU     = "Conc Units",
+                Cmax        = ""          ,
+                Tmax        = ""          , 
+                halflife    = ""          ,
+                Vp_obs      = "Observed"  ,
+                Vss_obs     = "Observed"  ,
+                Vss_pred    = "Predicted" )
+    }
+ 
+    tab2 = list()
+    tab2$table = NCA_sum[,c(1:5, 12:16) ]
+    if(table_headers){
+      tab2$merge_header = FALSE
+      tab2$header_top = list(
+                ID          = "Subject"   ,
+                Nobs        = "Number"    ,
+                Dose_Number = "Dose"      ,
+                Dose        = "Dose"      ,
+                Dose_CU     = "Dose"      ,
+                CL_obs      = "CL"        ,
+                CL_pred     = "CL"        ,
+                AUClast     = "AUC"       ,
+                AUCinf_pred = "AUC"       ,
+                AUCinf_obs  = "AUC"       )
+      
+      tab2$header_middle = list(
+                ID          = ""          ,
+                Nobs        = "Obs"       ,
+                Dose_Number = "Number"    ,
+                Dose        = "Dataset"   ,
+                Dose_CU     = "Conc Units",
+                CL_obs      = "Observed"  ,
+                CL_pred     = "Predicted" ,
+                AUClast     = "Last"      ,
+                AUCinf_pred = "Inf (Pred)" ,
+                AUCinf_obs  = "Inf (Obs)" )
+    }
+ 
+    # Splitting the table across two slides
+    cfg = system_report_slide_content(cfg, rptname=rptname,
+               title         = paste("NCA Summary"),
+               content_type  = "flextable",
+               content       = tab1)
+
+    cfg = system_report_slide_content(cfg, rptname=rptname,
+               title         = paste("NCA Summary"),
+               content_type  = "flextable",
+               content       = tab2)
+ 
+  } else {
+     vp(cfg, "system_report_nca()")
+     vp(cfg, "Errors were found see messages above for more information")
+  }
+  
+cfg}
+
+
 #-------------------------------------------------------------------------
 #'@export 
 #'@title Initialize GLP study
@@ -9842,27 +9987,15 @@ cfg}
 #'@param cfg ubiquity system object
 #'@param study_title  String containing descriptive information about the study
 #'@param study_name   short name used to identify the study in other functions  (\code{"default"})
-#'@param rptname      short name used to identify the report to attach results to the study in other functions (\code{default})
 #'@return cfg ubiquity system object with the study initialized 
-system_glp_init   = function(cfg, study_title = 'Study Title', study_name='default', rptname  = 'default'){
+system_glp_init   = function(cfg, study_title = 'Study Title', study_name='default'){
 
 
    if(ubiquity_name_check(study_name)$isgood){
      # If a report name has been specified but the report 
      # doesn't exist then we initialize it here:
-     if(!(rptname %in% names( cfg$reporting$reports))){
-       cfg = system_report_init(cfg, rptname=rptname)
-     }
-     
-     cfg = system_report_slide_title(cfg,
-           rptname=rptname,
-           title=study_title)
-     
-     # Now we initialize the title slide
-     
-     
-     cfg$glp[[study_name]]$rptname     = rptname
      cfg$glp[[study_name]]$study_title = study_title
+     cfg$glp[[study_name]]$scenarios   = list()
    } else {
      vp(cfg, "An invalid study name has been specified")
      vp(cfg, ubiquity_name_check(study_name)$msg)
@@ -9871,6 +10004,151 @@ system_glp_init   = function(cfg, study_title = 'Study Title', study_name='defau
    }
 
 cfg}
+
+#-------------------------------------------------------------------------
+#'@export 
+#'@title Report GLP Study  
+#'@description Append GLP study information a report
+#'
+#'@param cfg ubiquity system object
+#'@param study_title  String containing descriptive information about the study
+#'@param study_name   short name used to identify the study in other functions  (\code{"default"})
+#'@param rptname      short name used to identify the report to attach results to the study in other functions (\code{"default"})
+#'@return cfg ubiquity system object with the study report information added
+system_report_glp   = function(cfg, study_title = 'Study Title', study_name='default', rptname  = 'default'){
+
+
+  isgood = TRUE 
+
+  # Supported report types
+  rpttypes = c("PowerPoint")
+  rpttype = NULL
+
+  if((rptname %in% names( cfg$reporting$reports))){
+    rpttype = cfg$reporting$reports[[rptname]]$rpttype
+    if(!(rpttype %in% rpttypes)){
+      isgood = FALSE
+      vp(cfg, paste("GLP Study Design reporting does not support this format >", rpttype, ">", sep=""))
+    }
+  }else{
+    isgood = FALSE
+    vp(cfg, paste("The report >", rptname, "< has not been defined.", sep=""))
+    vp(cfg, paste("Initialize the report to use report generation: ", sep=""))
+    vp(cfg, paste("cfg = system_report_init(cfg, rptname='", rptname, "')", sep=""))
+  }
+
+  if(!(study_name %in% names(cfg$glp))){
+    isgood = FALSE
+    vp(cfg, paste("The glp study >", study_name, "< has not been defined.", sep=""))
+    vp(cfg, paste("You need to first Initialize the study: ", sep=""))
+    vp(cfg, paste("cfg = system_glp_init(cfg, study_name='", study_name, "')", sep=""))
+    vp(cfg, paste("Then you must add a scenario using system_glp_scenario().", sep=""))
+  }
+
+  if(isgood){
+    # Appending to PowerPoint reports
+    if("PowerPoint" == rpttype){
+      vp(cfg, "")
+      vp(cfg, "Appending GLP Tox design to report")
+      vp(cfg, paste("  Report:   ", rptname,      sep=""))
+      vp(cfg, paste("  Study:    ", study_name,   sep=""))
+      # We loop through each scenario and process them:
+      for(scenario in names(cfg$glp[[study_name]]$scenarios)){
+        vp(cfg, paste("  Scenario: ", scenario,   sep=""))
+
+        # Pulling out the current scenario:
+        SCEN = cfg$glp[[study_name]]$scenarios[[scenario]]
+      
+        # Adding a section for the current scenario:
+        cfg = system_report_slide_section(cfg, rptname=rptname, title=scenario)
+      
+        # Summary slide for the scenario
+        cfg = system_report_slide_content(cfg,
+                rptname            = rptname,
+                title              = paste("GLP", SCEN$elements$tox_species, "Study Design"),
+                content_type       = "list",   
+                content            = SCEN$hdpsum)
+
+
+        #-------------------------------------------
+        # Human PK and AUC slides for the top dose:
+        cfg = system_report_slide_two_col(cfg,
+                rptname            = rptname,
+                title              = paste("Human Projections:", SCEN$elements$pres_human_max_dose_str),
+                left_content_type  = "ggplot",
+                left_content       = SCEN$human_PK$figure,
+                right_content_type = "ggplot",
+                right_content      = SCEN$human_AUC$figure)
+        if(!is.null(SCEN$human_PK$figure_annotated)){
+          cfg = system_report_slide_two_col(cfg,
+                  rptname            = rptname,
+                  title              = paste("Human Projections:", SCEN$elements$pres_human_max_dose_str),
+                  left_content_type  = "ggplot",
+                  left_content       = SCEN$human_PK$figure_annotated,
+                  right_content_type = "ggplot",
+                  right_content      = SCEN$human_AUC$figure_annotated)
+        }
+        #-------------------------------------------
+
+        #-------------------------------------------
+        # Tox PK and AUC slides to cover top dose with margins
+        cfg = system_report_slide_two_col(cfg,
+                rptname            = rptname,
+                title              = paste(SCEN$elements$tox_species, "Projections:", SCEN$elements$pres_tox_dose_str),
+                left_content_type  = "ggplot",
+                left_content       = SCEN$tox_PK$figure,
+                right_content_type = "ggplot",
+                right_content      = SCEN$tox_AUC$figure)
+     
+        if(!is.null(SCEN$tox_PK$figure_annotated)){
+          cfg = system_report_slide_two_col(cfg,
+                  rptname            = rptname,
+                  title              = paste(SCEN$elements$tox_species, "Projections:", SCEN$elements$pres_tox_dose_str),
+                  left_content_type  = "ggplot",
+                  left_content       = SCEN$tox_PK$figure_annotated,
+                  right_content_type = "ggplot",
+                  right_content      = SCEN$tox_AUC$figure_annotated)
+        }
+        #-------------------------------------------
+
+      
+        #-------------------------------------------
+        # Lastly we append the simulations to the report:
+        # Looping through each species
+        for(species in names(SCEN$sims)){
+          # All of the doses on the same plot
+          if(!is.null(SCEN$sims[[species]]$all_doses)){
+            cfg = system_report_slide_content(cfg,
+                    rptname            = rptname,
+                    title              = paste(species, "dosing every",  SCEN$sims[[species]]$all_doses$elements$glp_dose_interval_str),
+                    content_type       = "ggplot",   
+                    content            = SCEN$sims[[species]]$all_doses$figure)
+          }
+    
+          # Adding plots for individual doses
+          for(glp_dose_str in names(SCEN$sims[[species]]$individual)){
+            if(!is.null(SCEN$sims[[species]]$individual[[glp_dose_str]]$figure)){
+             cfg = system_report_slide_content(cfg,
+                     rptname            = rptname,
+                     title              = paste(species, "dosing", glp_dose_str, "every", SCEN$sims[[species]]$all_doses$elements$glp_dose_interval_str),
+                     content_type       = "ggplot",   
+                     content            = SCEN$sims[[species]]$individual[[glp_dose_str]]$figure)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if(!isgood){
+    vp(cfg, ubiquity_name_check(study_name)$msg)
+    vp(cfg, "system_report_glp()")
+    vp(cfg, "Errors were found see messages above for more information")
+  }
+  
+
+cfg}
+
 
 #-------------------------------------------------------------------------
 #'@export 
@@ -9955,7 +10233,8 @@ res}
 #'
 #'@param cfg ubiquity system object
 #'@param study_name name of the study to save (\code{"default"})
-#'@param prefix optional string to prepend to files generated (\code{NULL})
+#'@param rptname      short name used to identify the report to attach results to the study in other functions (\code{default})
+#'@param prefix optional string to prepend to files generated (default value of \code{NULL} will use \code{study_name})
 #'@param output_directory  path to save files to (\code{getwd()})
 #'@seealso \code{\link{system_glp_init}}, \code{\link{system_glp_scenario}}
 #'@return List with the following names
@@ -9965,6 +10244,7 @@ res}
 #' }
 system_glp_save = function(cfg, 
                      study_name       = "default",
+                     rptname          = "default",
                      prefix           = NULL,
                      output_directory = getwd()){
   isgood = TRUE
@@ -9993,6 +10273,7 @@ system_glp_save = function(cfg,
     sim_file_full = file.path(output_directory, sim_file)
     sum_file_full = file.path(output_directory, sum_file)
 
+    vp(cfg, "")
     vp(cfg, "Exporting GLP study")
     vp(cfg, paste("  Study:            ", cfg$glp[[study_name]]$study_title))
     vp(cfg, paste("  Output directory: ", cfg$glp[[study_name]]$study_title))
@@ -10000,7 +10281,7 @@ system_glp_save = function(cfg,
     # Saving the report:
     system_report_save(cfg, 
        output_file = ppt_file_full,
-       rptname     = cfg$glp[[study_name]]$rptname)
+       rptname     = rptname)
     res$files[[ppt_file]] = ppt_file_full
 
     # Saving the simulation timecourse 
@@ -10182,6 +10463,12 @@ system_glp_scenario = function(cfg,
     vp(cfg, " e.g.  tox_sample_interval = c(0,1)  ")
   }
 
+  if( study_scenario %in% names(cfg$glp[[study_name]]$scenarios)){
+    isgood = FALSE
+    vp(cfg, paste("The study_scenario >", study_scenario, "< already exists.", sep=""))
+    vp(cfg, paste("Specify a different value for this scenario"))
+  }
+
 
   # Getting list of simulation outputs to include:
   # Output the timescales
@@ -10232,7 +10519,8 @@ system_glp_scenario = function(cfg,
   if(isgood){
     #------------------------------------------------------------------ 
     # storing the ggplot objects to be returned to the user
-    PLTS = list()
+    # JMH remove: 
+    SCEN     = list()
     # Default values for the human doses:
     HT = list()
     human_dose_BL   = 1      # Baseline used for calculations 
@@ -10412,7 +10700,7 @@ system_glp_scenario = function(cfg,
     p = prepare_figure(fo=p, purpose="present")
     # Labeling important points:
     p = p + geom_vline(xintercept=human_sample_interval, linetype='dashed', color='gray')
-    PLTS$p_human_PK = p
+    SCEN$human_PK$figure = p
     if(annotate_plots){
     
       p=p+geom_point(aes(           
@@ -10438,9 +10726,9 @@ system_glp_scenario = function(cfg,
               box.padding   = 2.0, 
              #point.padding = 0.5,
               color="orange")
-      PLTS$p_human_PK_annotate = p
+      SCEN$human_PK$figure_annotated = p
     } else {
-      PLTS$p_human_PK_annotate = NULL
+      SCEN$human_PK$figure_annotated = NULL
     }
 
 
@@ -10459,7 +10747,7 @@ system_glp_scenario = function(cfg,
     p = prepare_figure(fo=p, purpose="present")
     # Labeling important points:
     p = p + geom_vline(xintercept=tox_sample_interval, linetype='dashed', color='gray')
-    PLTS$p_tox_PK = p
+    SCEN$tox_PK$figure = p
     if(annotate_plots){
     
       p=p+geom_point(aes(           
@@ -10485,9 +10773,9 @@ system_glp_scenario = function(cfg,
               box.padding   = 2.0, 
              #point.padding = 0.5,
               color="orange")
-     PLTS$p_tox_PK_annotate = p
+     SCEN$tox_PK$figure_annotated = p
     } else {
-     PLTS$p_tox_PK_annotate = NULL
+     SCEN$tox_PK$figure_annotated = NULL
     }
 
 
@@ -10507,7 +10795,7 @@ system_glp_scenario = function(cfg,
     p = prepare_figure(fo=p, purpose="present")
     # Labeling important points:
     p = p + geom_vline(xintercept=human_sample_interval, linetype='dashed', color='gray')
-    PLTS$p_human_AUC = p
+    SCEN$human_AUC$figure = p
     if(annotate_plots){
       p=p+geom_point(aes(           
                  x     =  HT[[TGT]]$TAUC_start, 
@@ -10535,9 +10823,10 @@ system_glp_scenario = function(cfg,
              #point.padding = 0.5,
               color="purple")
 
-    PLTS$p_human_AUC_annotate = p
+      SCEN$human_AUC$figure_annotated = p
     } else {
-    PLTS$p_human_AUC_annotate = NULL }
+      SCEN$human_AUC$figure_annotated = NULL
+    }
 
     #
     # tox AUC
@@ -10553,7 +10842,7 @@ system_glp_scenario = function(cfg,
     p = prepare_figure(fo=p, purpose="present")
     # Labeling important points:
     p = p + geom_vline(xintercept=tox_sample_interval, linetype='dashed', color='gray')
-    PLTS$p_tox_AUC = p
+    SCEN$tox_AUC$figure = p
     if(annotate_plots){
       p=p+geom_point(aes(           
                  x     =  TT$TAUC_start, 
@@ -10581,11 +10870,9 @@ system_glp_scenario = function(cfg,
              #point.padding = 0.5,
               color="purple")
 
-      PLTS$p_tox_AUC_annotate = p
+      SCEN$tox_AUC$figure_annotated = p
     } else {
-      PLTS$p_tox_AUC_annotate = NULL }
-
-
+      SCEN$tox_AUC$figure_annotated = NULL }
 
 
     #------------------------------------------------------------------ 
@@ -10638,7 +10925,9 @@ system_glp_scenario = function(cfg,
          tox_dose_interval,
          cfg$options$inputs$bolus$times$units)
 
-
+    # Saving title/caption information for figures 
+    SCEN$human_title            = paste("Human Projections:", pres_human_max_dose_str)
+    SCEN$tox_title              = paste(tox_species, "Projections:", pres_tox_dose_str)
 
     # Now we summarize the statistics for the top dose:
     hdpsum = c(hdpsum, 1, paste("For a human dose of ", 
@@ -10659,49 +10948,10 @@ system_glp_scenario = function(cfg,
     hdpsum = c(hdpsum, 2, paste("AUC  =", var2string(TT$AUC , nsig_e=2, nsig_f=2), units_AUC))
     hdpsum = c(hdpsum, 1, paste("The following slides so the predicted concentrations and exposures"))
 
-    cfg = system_report_slide_content(cfg,
-            rptname            = cfg$glp[[study_name]]$rptname,
-            title              = paste("GLP",tox_species, "Study Design"),
-            content_type       = "list",   
-            content            = hdpsum)
 
-    #------------------------------------------------------------------ 
-    # Plots of predictions based on top dose
-    cfg = system_report_slide_two_col(cfg,
-            rptname            = cfg$glp[[study_name]]$rptname,
-            title              = paste("Human Projections:", pres_human_max_dose_str),
-            left_content_type  = "ggplot",
-            left_content       = PLTS$p_human_PK,
-            right_content_type = "ggplot",
-            right_content      = PLTS$p_human_AUC)
-            
-    if(annotate_plots){
-      cfg = system_report_slide_two_col(cfg,
-              rptname            = cfg$glp[[study_name]]$rptname,
-              title              = paste("Human Projections:", pres_human_max_dose_str),
-              left_content_type  = "ggplot",
-              left_content       = PLTS$p_human_PK_annotate,
-              right_content_type = "ggplot",
-              right_content      = PLTS$p_human_AUC_annotate)
-    }
+    # Saving the summary information. 
+    SCEN$hdpsum = hdpsum
 
-    cfg = system_report_slide_two_col(cfg,
-            rptname            = cfg$glp[[study_name]]$rptname,
-            title              = paste(tox_species, "Projections:", pres_tox_dose_str),
-            left_content_type  = "ggplot",
-            left_content       = PLTS$p_tox_PK,
-            right_content_type = "ggplot",
-            right_content      = PLTS$p_tox_AUC)
-
-    if(annotate_plots){
-      cfg = system_report_slide_two_col(cfg,
-              rptname            = cfg$glp[[study_name]]$rptname,
-              title              = paste(tox_species, "Projections:", pres_tox_dose_str),
-              left_content_type  = "ggplot",
-              left_content       = PLTS$p_tox_PK_annotate,
-              right_content_type = "ggplot",
-              right_content      = PLTS$p_tox_AUC_annotate)
-    }
     #------------------------------------------------------------------ 
     # Running optional simulations
     # These variables will store the simulation results
@@ -10870,17 +11120,12 @@ system_glp_scenario = function(cfg,
             p = p + geom_hline(yintercept=human_Cmin, linetype='dashed', color='grey')
           }
         
-          PLTS$sims[[species]]$all_doses = p
-
-          # adding a slide with the plot containing all of the dose levels for
-          # the species
-          cfg = system_report_slide_content(cfg,
-                  rptname            = cfg$glp[[study_name]]$rptname,
-                  title              = paste(species, "dosing every", species_simall$glp_dose_interval_str[1]),
-                  content_type       = "ggplot",   
-                  content            = PLTS$sims[[species]]$all_doses)
-
-
+          #
+          # Saving the summary plot and descriptive elements
+          # containing all of the dose levels for the species
+          #
+          SCEN$sims[[species]]$all_doses$figure                         = p
+          SCEN$sims[[species]]$all_doses$elements$glp_dose_interval_str = species_simall$glp_dose_interval_str[1]
 
           # If annotate_plots is true and sample times have been specified for the
           # current species, we plot each dose level separately with labels
@@ -10901,19 +11146,13 @@ system_glp_scenario = function(cfg,
 
               eval(parse(text=paste(" p = p + ggrepel::geom_text_repel(data=tmp_simsum, aes(x=", timescale_col, ",y=", output_Conc,", label=label_str), color='orange')", sep="")))
               eval(parse(text=paste(" p = p +               geom_point(data=tmp_simsum, aes(x=", timescale_col, ",y=", output_Conc,"),                  color='orange')", sep="")))
-              #p = p + ggrepel::geom_text_repel(aes(x=res$time, y=res$conc, label=label_str)) }
               # Overlaying labels
               p = p + xlab(species_xlabel)
               p = p + ylab(species_ylabel)
               p = prepare_figure(fo=p, purpose="present")
               p = gg_log10_yaxis(fo=p, ylim_min=species_Conc_lb, ylim_max=species_Conc_ub)
               # Storing the plot
-              PLTS$sims[[species]][[glp_dose_str]] = p
-              cfg = system_report_slide_content(cfg,
-                      rptname            = cfg$glp[[study_name]]$rptname,
-                      title              = paste(species, "dosing", glp_dose_str, "every", species_simall$glp_dose_interval_str[1]),
-                      content_type       = "ggplot",   
-                      content            = PLTS$sims[[species]][[glp_dose_str]])
+              SCEN$sims[[species]]$individual[[glp_dose_str]]$figure = p
             }
           }
         }
@@ -10925,7 +11164,7 @@ system_glp_scenario = function(cfg,
     # End of study design
     #------------------------------------------------------------------ 
 
-    # Saving the simulation and summary data frames
+    # Saving the simulation and summary data frames 
     if(is.null(cfg$glp[[study_name]]$simall)){
       cfg$glp[[study_name]]$simall  = simall
     } else {
@@ -10937,8 +11176,13 @@ system_glp_scenario = function(cfg,
       cfg$glp[[study_name]]$simsum  = rbind(cfg$glp[[study_name]]$simsum, simsum)
     }
 
+    # preserving components of the scenario
+    SCEN$elements$tox_species              =  tox_species
+    SCEN$elements$pres_human_max_dose_str  =  pres_human_max_dose_str
+    SCEN$elements$pres_tox_dose_str        =  pres_tox_dose_str
+                                            
     # saving the ggplot objects 
-    cfg$glp[[study_name]][[study_scenario]] = PLTS
+    cfg$glp[[study_name]]$scenarios[[study_scenario]] = SCEN
 
   } else {
     vp(cfg, "system_glp_scenario()")

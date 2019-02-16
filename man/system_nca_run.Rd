@@ -7,7 +7,8 @@
 system_nca_run(cfg, DSNAME = "PKDS", dscale = 1, NCA_min = 4,
   rptname = "default", analysis_name = "analysis", rescorr = TRUE,
   dsfilter = NULL, dsmap = list(TIME = "TIME", NTIME = "NTIME", CONC =
-  "DV", DOSE = "AMT", ID = "ID", DOSENUM = NULL), dsinc = NULL)
+  "DV", DOSE = "AMT", ID = "ID", DOSENUM = NULL), digits = 3,
+  dsinc = NULL)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
@@ -32,12 +33,15 @@ if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscal
 
 \item{dsmap}{list with names specifying the time (TIME), nominal time since last dose (NTIME), concentration (CONC), dose (DOSE), and id (ID) columns to use when performing NCA}
 
+\item{digits}{number of significant digits to report (\code{3}), set to \code{NULL} to disable rounding}
+
 \item{dsinc}{character vector of columns from the dataset to include in the output summary.}
 }
 \value{
 cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:
 \itemize{
     \item{output/{analysis_name}-nca_summary.csv} NCA summary 
+    \item{output/{analysis_name}-pknca_summary.csv} Raw output from PKNCA with subject and dose number columns appended 
     \item{output/{analysis_name}-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
 }
 }

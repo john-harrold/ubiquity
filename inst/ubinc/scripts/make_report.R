@@ -27,6 +27,7 @@ cfg = system_fetch_cfg()
 #
 cfg = system_report_init(cfg)
 
+
 #
 #  use system_report_view_layout to get the 
 #
