@@ -8270,12 +8270,14 @@ system_report_save = function (cfg,
 #'@param cfg ubiquity system object    
 #'@param template path to template file (\code{NULL} will load the default ubiquity template)
 #'@param rptname report name 
+#'@param rpttype type of report to create, can be either \code{"PowerPoint"} (default) or \code{"Word"}
 #'@param meta list containing metadata identifying relevant indices for slide layouts
 #'
 #'@seealso Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 system_report_init = function (cfg,
                                template = NULL,
                                rptname  = "default",
+                               rpttype  = "PowerPoint",
                                meta     = NULL){
 
 rpttype = "PowerPoint"
@@ -8297,14 +8299,32 @@ if(isgood & is.null(template)){
  if( cfg$options$misc$distribution == "package"){
    if(rpttype == "PowerPoint"){
      template = system.file("ubinc", "templates", "report.pptx", package="ubiquity")
-   }
+   } else if(rpttype == "Word"){
+     template = system.file("ubinc", "templates", "report.docx", package="ubiquity")
+   } 
   } else{
    if(rpttype == "PowerPoint"){
      template = file.path("library", "templates", "report.pptx") 
-   }
+   } else if(rpttype == "Word"){
+     template = file.path("library", "templates", "report.docx") 
+   } 
   }
 }
 
+if(rpttype == "Word" & !grepl(pattern="docx$", template)){
+  isgood = FALSE
+  vp(cfg, "Error: Word report selected but the template")
+  vp(cfg, "       does not have the correct extension (docx):")
+  vp(cfg, template)
+}
+if(rpttype == "PowerPoint" & !grepl(pattern="pptx$", template)){
+  isgood = FALSE
+  vp(cfg, "Error: PowerPoint report selected but the template")
+  vp(cfg, "       does not have the correct extension (pptx):")
+  vp(cfg, template)
+}
+
+if(isgood){
   if(system_req("officer")){
     cfg$reporting$enabled = TRUE
     # Checking to see if the template file exists
@@ -8343,6 +8363,7 @@ if(isgood & is.null(template)){
     vp(cfg, "this package. Reporting will be disabled.")
     cfg$reporting$enabled = FALSE
   }
+} 
 
   if(!isgood){
     vp(cfg, "system_report_init()")
