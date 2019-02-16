@@ -276,9 +276,9 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
                           "nm_data.csv"                                             )
          write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
       } else if(section=="Reporting") {
-         sources      = c(file.path(src_dir, "make_report.R"), 
+         sources      = c(file.path(src_dir, "make_report_PowerPoint.R"), 
                           file.path(sys_dir, "system-mab_pk.txt"))
-         destinations = c("make_report.R", "system.txt")
+         destinations = c("make_report_PowerPoint.R", "system.txt")
          write_file   = c(TRUE, TRUE)
       } else if(section=="Titration") {
          sources      = c(file.path(src_dir, "analysis_repeat_dosing.r"                     ),
@@ -8343,10 +8343,17 @@ if(isgood){
         cfg$reporting$reports[[rptname]]$rpttype = rpttype
         # Storing the original template location and creating the empty report
         cfg$reporting$reports[[rptname]]$template = template
-        cfg$reporting$reports[[rptname]]$report   = read_pptx(path=template)
+
+        # Reading in the template depending on the report type
+        if(rpttype == "PowerPoint"){
+          cfg$reporting$reports[[rptname]]$report   = read_pptx(path=template) }
+        if(rpttype == "Word"){
+          cfg$reporting$reports[[rptname]]$report   = read_docx(path=template) }
+
         vp(cfg, "")
         vp(cfg, sprintf("Report initialized..."))
         vp(cfg, sprintf("  Name:     %s", rptname))
+        vp(cfg, sprintf("  Type:     %s", rpttype))
         vp(cfg, sprintf("  Template: %s", template))
       } else {
         isgood = FALSE

@@ -45,7 +45,7 @@ fr = workshop_fetch(section="Reporting", overwrite=TRUE)
 
 This should create the folloing script
 
-* ``make_report.R`` Generates a PowerPoint presentation from an R script
+* ``make_report_PowerPoint.R`` Generates a PowerPoint presentation from an R script
 
 ## Creating a report
 
