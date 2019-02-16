@@ -8280,11 +8280,6 @@ system_report_init = function (cfg,
                                rpttype  = "PowerPoint",
                                meta     = NULL){
 
-rpttype = "PowerPoint"
-
-
-
-
 isgood = TRUE
 
 # Allowed types of reports
