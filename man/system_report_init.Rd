@@ -5,7 +5,7 @@
 \title{Initialize a New officer Report}
 \usage{
 system_report_init(cfg, template = NULL, rptname = "default",
-  meta = NULL)
+  rpttype = NULL, meta = NULL)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
@@ -14,12 +14,21 @@ system_report_init(cfg, template = NULL, rptname = "default",
 
 \item{rptname}{report name}
 
+\item{rpttype}{type of report to create, can be either \code{NULL}, \code{"PowerPoint"} or \code{"Word"}}
+
 \item{meta}{list containing metadata identifying relevant indices for slide layouts}
 }
 \description{
 Creates a new officer report based either on the ubiquity
 template or one specified by the user. Once created, slides can then be
 added.
+}
+\details{
+Either the rpttype can be specified or the template. If a report type is
+  specified the internal ubiquity template for that type will be used. If
+  the user specifies a template, the type will be determined from the file
+  extension. If both values are null the report type will default to 
+  "PowerPoint" internally.
 }
 \seealso{
 Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})

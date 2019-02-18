@@ -161,6 +161,8 @@ som = run_simulation_ubiquity(parameters, cfg)
 
 # -------------------------------------------------------------------------
 # Reporting
+#
+# Powerpoint
 # cfg = system_report_init(cfg)
 # 
 # cfg = system_report_slide_title(cfg,

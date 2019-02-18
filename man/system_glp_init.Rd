@@ -5,7 +5,7 @@
 \title{Initialize GLP study}
 \usage{
 system_glp_init(cfg, study_title = "Study Title",
-  study_name = "default", rptname = "default")
+  study_name = "default")
 }
 \arguments{
 \item{cfg}{ubiquity system object}
@@ -13,8 +13,6 @@ system_glp_init(cfg, study_title = "Study Title",
 \item{study_title}{String containing descriptive information about the study}
 
 \item{study_name}{short name used to identify the study in other functions  (\code{"default"})}
-
-\item{rptname}{short name used to identify the report to attach results to the study in other functions (\code{default})}
 }
 \value{
 cfg ubiquity system object with the study initialized

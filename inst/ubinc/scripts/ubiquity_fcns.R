@@ -8109,55 +8109,65 @@ system_report_view_layout = function(cfg,
                                      rptname     = "default",
                                      output_file = "layout.pptx"){
 
-# New document from the template
-ppt = read_pptx(cfg$reporting$reports[[rptname]]$template)
 
-# Pulling out all of the layouts stored in the template
-lay_sum = layout_summary(ppt)
+if(cfg$reporting$reports[[rptname]]$rpttype  == "PowerPoint"){
+  # New document from the template
+  ppt = read_pptx(cfg$reporting$reports[[rptname]]$template)
+  
+  # Pulling out all of the layouts stored in the template
+  lay_sum = layout_summary(ppt)
+  
+  # Looping through each layout
+  for(lidx in 1:length(lay_sum[,1])){
+  
+     # Pulling out the layout properties
+     layout = lay_sum[lidx, 1]
+     master = lay_sum[lidx, 2]
+     lp = layout_properties ( x = ppt, layout = layout, master = master)
+  
+     # Adding a slide for the current layout
+     ppt =  add_slide(x=ppt, layout = layout, master = master) 
+  
+     # Blank slides have nothing
+     if(length(lp[,1] > 0)){
+  
+       # Now we go through each placholder
+       for(pidx in 1:length(lp[,1])){
+  
+          # If it's a text placeholder "body" or "title" we add text indicating
+          # the type and index. If it's title we put the layout and master
+          # information in there as well.
+          if(lp[pidx, ]$type == "body"){
+            textstr = sprintf('type="body", index =%d', pidx)
+            ppt =ph_with_text(x=ppt, type="body", index=pidx, str=textstr)  
+          } 
+          if(lp[pidx, ]$type %in% c("title", "ctrTitle", "subTitle")){
+            textstr = sprintf('layout ="%s", master = "%s", type="%s", index =%d', layout, master, lp[pidx, ]$type,  pidx)
+            ppt =ph_with_text(x=ppt, type=lp[pidx, ]$type, str=textstr)  
+          }
+       }
+     } 
+  }
+  
+   # If an output file name has been specified we dump that here
+   if(!is.null(output_file)){
+    print(ppt, output_file)
+    vp(cfg, "--------------------------------")
+    vp(cfg, sprintf("Generating annotated layout for a report template"))
+    vp(cfg, sprintf("Name:             %s", rptname))
+    vp(cfg, sprintf("Template:         %s", cfg$reporting$reports[[rptname]]$template))
+    vp(cfg, sprintf("Annotated layout: %s", output_file))
+    vp(cfg, "--------------------------------")
+  
+   }
+} else {
 
-# Looping through each layout
-for(lidx in 1:length(lay_sum[,1])){
-
-   # Pulling out the layout properties
-   layout = lay_sum[lidx, 1]
-   master = lay_sum[lidx, 2]
-   lp = layout_properties ( x = ppt, layout = layout, master = master)
-
-   # Adding a slide for the current layout
-   ppt =  add_slide(x=ppt, layout = layout, master = master) 
-
-   # Blank slides have nothing
-   if(length(lp[,1] > 0)){
-
-     # Now we go through each placholder
-     for(pidx in 1:length(lp[,1])){
-
-        # If it's a text placeholder "body" or "title" we add text indicating
-        # the type and index. If it's title we put the layout and master
-        # information in there as well.
-        if(lp[pidx, ]$type == "body"){
-          textstr = sprintf('type="body", index =%d', pidx)
-          ppt =ph_with_text(x=ppt, type="body", index=pidx, str=textstr)  
-        } 
-        if(lp[pidx, ]$type %in% c("title", "ctrTitle", "subTitle")){
-          textstr = sprintf('layout ="%s", master = "%s", type="%s", index =%d', layout, master, lp[pidx, ]$type,  pidx)
-          ppt =ph_with_text(x=ppt, type=lp[pidx, ]$type, str=textstr)  
-        }
-     }
-   } 
+  ppt = NULL
+  vp(cfg, paste("Error: the report >",rptname,"< a ", cfg$reporting$reports[[rptname]]$rpttype, " document",  sep=""))
+  vp(cfg, paste("       must be a PowerPoint document to generate the layout.",  sep=""))
+  vp(cfg, "system_report_view_layout()")
+  vp(cfg, "Layout not generated.")
 }
-
- # If an output file name has been specified we dump that here
- if(!is.null(output_file)){
-  print(ppt, output_file)
-  vp(cfg, "--------------------------------")
-  vp(cfg, sprintf("Generating annotated layout for a report template"))
-  vp(cfg, sprintf("Name:             %s", rptname))
-  vp(cfg, sprintf("Template:         %s", cfg$reporting$reports[[rptname]]$template))
-  vp(cfg, sprintf("Annotated layout: %s", output_file))
-  vp(cfg, "--------------------------------")
-
- }
 return(ppt)}
 # /system_report_view_layout
 # -------------------------------------------------------------------------
@@ -8241,20 +8251,115 @@ return(cfg)}
 #'
 #'@param cfg ubiquity system object    
 #'@param rptname report name initialized with \code{system_report_init}
-#'@param output_file name of file to place the report
+#'@param output_file name of file to save the report to
+#'
+#'@details If you don't specify an output file it will save the report either
+#'report.pptx or report.docx (depending on the type of report) in the current
+#'directory.
+#'
 #'@seealso \code{\link{system_report_init}}
 system_report_save = function (cfg,
                                rptname     = "default",
-                               output_file = "myreport.pptx"){
+                               output_file = NULL){
+
+  isgood = TRUE
+  
   if(cfg$reporting$enabled){
     if(rptname %in% names(cfg$reporting$reports)){
-      print(cfg$reporting$reports[[rptname]]$report, output_file)
-      vp(cfg, "")
-      vp(cfg, sprintf("Report saved to: %s", output_file))
+      # saving to report.pptx or report.doc
+      if(is.null(output_file)){
+        if(cfg$reporting$reports[[rptname]]$rpttype == "Word"){
+          use_output_file = "report.docx"
+        }
+        if(cfg$reporting$reports[[rptname]]$rpttype == "PowerPoint"){
+          use_output_file = "report.pptx"
+        }
+      } else {
+        use_output_file = output_file
+        # comparing the extension with the report type
+        if(cfg$reporting$reports[[rptname]]$rpttype == "PowerPoint"){
+          if(!grepl(pattern="pptx$", output_file)){
+            isgood = FALSE
+            vp(cfg, paste("Error: The report >", rptname,"< is a PowerPoint report", sep = ""))
+            vp(cfg, paste("       but the output file >", output_file, "<", sep = ""))
+            vp(cfg, paste("       has the wroing extension should be '.pptx'", sep = ""))
+          }
+        }
+        if(cfg$reporting$reports[[rptname]]$rpttype == "Word"){
+          if(!grepl(pattern="docx$", output_file)){
+            isgood = FALSE
+            vp(cfg, paste("Error: The report >", rptname,"< is a Word report", sep = ""))
+            vp(cfg, paste("       but the output file >", output_file, "<", sep = ""))
+            vp(cfg, paste("       has the wroing extension should be '.docx'", sep = ""))
+          }
+        }
+      
+      }
     } else {
-      vp(cfg, sprintf("system_report_save()"))
-      vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
+      isgood = FALSE
+      vp(cfg, sprintf("Error: The report >%s< was not found", rptname))
     }
+  } 
+
+  # Applying place holders
+  if(isgood & cfg$reporting$reports[[rptname]]$rpttype == "Word"){
+    if("ph_content" %in% names(cfg$reporting$reports[[rptname]]$meta)){
+      # Pulling out the report to make it easier to deal with
+      tmprpt  = cfg$reporting$reports[[rptname]]$report
+      # Looping through each placeholder
+      for(phn in names(cfg$reporting$reports[[rptname]]$meta$ph_content)){
+        # Here we pull out the value (phv) and locatio (phl) of each
+        # placeholder:
+        pht = paste("<",phn,">", sep="") 
+        phv = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$content
+        phl = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$location
+        if(phl == "body"){
+          tmprpt = body_replace_all_text(
+               old_value      = pht, 
+               new_value      = phv ,
+               fixed          = TRUE,
+               only_at_cursor = FALSE,
+               warn           = FALSE,
+               x              = tmprpt
+               )
+        }
+        if(phl == "header"){
+          tmprpt = headers_replace_all_text(
+               old_value      = pht,
+               new_value      = phv ,
+               fixed          = TRUE,
+               only_at_cursor = FALSE,
+               warn           = FALSE,
+               x              = tmprpt
+               )
+        }
+        if(phl == "footer"){
+          tmprpt = footers_replace_all_text(
+               old_value      = pht, 
+               new_value      = phv ,
+               fixed          = TRUE,
+               only_at_cursor = FALSE,
+               warn           = FALSE,
+               x              = tmprpt
+               )
+        }
+      }
+
+      # Putting the report back into cfg
+      cfg$reporting$reports[[rptname]]$report = tmprpt
+    }
+  }
+  
+  if(isgood){
+    print(cfg$reporting$reports[[rptname]]$report, use_output_file)
+    vp(cfg, "")
+    vp(cfg, sprintf("Report saved to: %s", use_output_file))
+  }
+
+
+  if(!isgood){
+    vp(cfg, sprintf("system_report_save()"))
+    vp(cfg, sprintf("Report >%s< not saved.", rptname)) 
   }
 }
 # /system_report_save 
@@ -8338,7 +8443,7 @@ if(is.null(rpttype) & !is.null(template)){
   } else {
     isgood=FALSE
     vp(cfg, "Error: The specified template has an incorrect file extension")
-    vp(cfg, "       it should be either .doc or .pptx")
+    vp(cfg, "       it should be either .docx or .pptx")
   }
 }
 
@@ -8354,7 +8459,11 @@ if(isgood){
 
       if(name_check$isgood & isgood){
         if(is.null(meta)){
-          cfg$reporting$reports[[rptname]]$meta  = cfg$reporting$meta
+          if(use_rpttype == "PowerPoint"){
+            cfg$reporting$reports[[rptname]]$meta  = cfg$reporting$meta_pptx }
+          if(use_rpttype == "Word"){
+            cfg$reporting$reports[[rptname]]$meta  = cfg$reporting$meta_docx }
+          }
         } else {
           cfg$reporting$reports[[rptname]]$meta  = meta
         }
@@ -8384,13 +8493,12 @@ if(isgood){
       vp(cfg, sprintf("Unable to find template file >%s<. ", use_template))
     }
   
-  } else {
-    isgood = FALSE
-    vp(cfg, "Reporting is done through the 'officer' package. Unable to load ")
-    vp(cfg, "this package. Reporting will be disabled.")
-    cfg$reporting$enabled = FALSE
-  }
-} 
+} else {
+  isgood = FALSE
+  vp(cfg, "Reporting is done through the 'officer' package. Unable to load ")
+  vp(cfg, "this package. Reporting will be disabled.")
+  cfg$reporting$enabled = FALSE
+}
 
   if(!isgood){
     vp(cfg, "system_report_init()")
@@ -9086,6 +9194,80 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
 
 return(rpt)}
 # /system_report_ph_content
+# -------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+# system_report_doc_set_ph
+#'@export
+#'@title Sets Placeholder Content for Word Document Report
+#'@description Adds or updates content to be substituted for placeholders in the specified report.  
+#'
+#' For example if you have <HEADER_LEFT> in the header of your document and you wanted to
+#' replace it with the text "Upper left" you would do the following:
+#'
+#' \code{
+#'   cfg = system_report_doc_set_ph(cfg, 
+#'         phcontent  = "Upper Left" ,
+#'         phname     = "HEADER_LEFT", 
+#'         phlocation = "header")}
+#'
+#' Notice the \code{phname} just has \code{HEADER_LEFT} and leaves off the \code{<>}
+#'
+#'@param cfg ubiquity system object    
+#'@param rptname   report name initialized with \code{system_report_init}
+#'@param phname   name of the placeholder
+#'@param phcontent content to be replaced
+#'@param phlocation location of the placeholder: \code{"body"} (default), \code{"header"}, or \code{"footer"}
+#'
+#'@return cfg ubiquity system object with the placeholder content set
+system_report_doc_set_ph = function(cfg, rptname="default", phname=NULL, phcontent=NULL, phlocation="body"){
+
+  #Checking user input:
+  isgood = TRUE
+  # allowed locations
+
+  locations = c("body", "header", "footer")
+  if(cfg$reporting$enabled){
+    if(rptname %in% names(cfg$reporting$reports)){
+      if( "Word" != cfg$reporting$reports[[rptname]]$rpttype){
+        isgood = FALSE
+        vp(cfg, paste("Error: Trying to add Word content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
+      }
+    } else {
+      isgood = FALSE
+      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
+    }
+  } else {
+    isgood = FALSE
+    vp(cfg, "Error: Reporting not enabled")
+  }
+
+  if(is.null(phname)){
+    isgood = FALSE
+    vp(cfg, "Error: The phname must be specified")
+  }
+  if(is.null(phcontent)){
+    isgood = FALSE
+    vp(cfg, "Error: The phtext must be specified")
+  }
+
+  if(!(phlocation %in% locations)){
+    isgood = FALSE
+    vp(cfg, paste("Error: The phlocation must be one of: ", paste(locations, collapse=", "), sep=""))
+  }
+
+  if(isgood){
+     cfg$reporting$reports[[rptname]]$meta$phcontent[[phname]]$location = phlocation
+     cfg$reporting$reports[[rptname]]$meta$phcontent[[phname]]$content  = phcontent
+  } 
+  
+  if(!isgood){
+    vp(cfg, "system_report_doc_set_ph() ")
+    vp(cfg, "Unable to add slide, see above for details")
+  }
+
+cfg}
+# /system_report_doc_set_ph
 # -------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------

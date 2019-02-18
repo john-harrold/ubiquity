@@ -5,22 +5,19 @@
 \title{Automatic NCA}
 \usage{
 system_nca_run(cfg, DSNAME = "PKDS", dscale = 1, NCA_min = 4,
-  rptname = "default", analysis_name = "analysis", rescorr = TRUE,
-  dsfilter = NULL, dsmap = list(TIME = "TIME", NTIME = "NTIME", CONC =
-  "DV", DOSE = "AMT", ID = "ID", DOSENUM = NULL), digits = 3,
-  dsinc = NULL)
+  analysis_name = "analysis", rescorr = TRUE, dsfilter = NULL,
+  dsmap = list(TIME = "TIME", NTIME = "NTIME", CONC = "DV", DOSE = "AMT",
+  ID = "ID", DOSENUM = NULL), digits = 3, dsinc = NULL)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
 
 \item{DSNAME}{name of dataset loaded with (\code{\link{system_load_data}})}
 
-\item{dscale}{factor to multiply the dose to get it into the same units as concentration (default 1):
+\item{dscale}{factor to multiply the dose to get it into the same units as concentration (default \code{1}):
 if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscale = 1e6}}
 
-\item{NCA_min}{minimum number of points required to perform NCA for a given subset (default 4)}
-
-\item{rptname}{name of report to append results to (default 'default')}
+\item{NCA_min}{minimum number of points required to perform NCA for a given subset (default \code{4})}
 
 \item{analysis_name}{string containing the name of the analysis (default 'analysis') to archive to files and reference results later}
 
@@ -38,7 +35,7 @@ if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscal
 \item{dsinc}{character vector of columns from the dataset to include in the output summary.}
 }
 \value{
-cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:
+cfg ubiquity system object with the NCA results and if the analysis name is specified:
 \itemize{
     \item{output/{analysis_name}-nca_summary.csv} NCA summary 
     \item{output/{analysis_name}-pknca_summary.csv} Raw output from PKNCA with subject and dose number columns appended 

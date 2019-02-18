@@ -128,76 +128,86 @@ cfg$estimation$options$control                = list(trace=TRUE,
                                                      REPORT=10)
 
 #--------------------------------------------------------------------
-# default reporting options
+# default reporting options for powerpoint
 # 
 # Set sub_title fields to NULL if they do not exist in the template
 #
 # this is the information the title slide
-cfg$reporting$meta$title$layout$general                   = "title_slide"
-cfg$reporting$meta$title$master$general                   = "Office Theme"             
-cfg$reporting$meta$title$type$title                       = 'ctrTitle'
-cfg$reporting$meta$title$type$sub_title                   = 'subTitle'
-cfg$reporting$meta$title$indices$title                    = NULL
-cfg$reporting$meta$title$indices$sub_title                = NULL
+cfg$reporting$meta_pptx$title$layout$general                   = "title_slide"
+cfg$reporting$meta_pptx$title$master$general                   = "Office Theme"             
+cfg$reporting$meta_pptx$title$type$title                       = 'ctrTitle'
+cfg$reporting$meta_pptx$title$type$sub_title                   = 'subTitle'
+cfg$reporting$meta_pptx$title$indices$title                    = NULL
+cfg$reporting$meta_pptx$title$indices$sub_title                = NULL
 
 # this is the information the title slide
-cfg$reporting$meta$section$layout$general                 = "section_slide"
-cfg$reporting$meta$section$master$general                 = "Office Theme"             
-cfg$reporting$meta$section$type$title                     = 'ctrTitle'
-cfg$reporting$meta$section$type$sub_title                 = 'subTitle'
-cfg$reporting$meta$section$indices$title                  = NULL
-cfg$reporting$meta$section$indices$sub_title              = NULL
+cfg$reporting$meta_pptx$section$layout$general                 = "section_slide"
+cfg$reporting$meta_pptx$section$master$general                 = "Office Theme"             
+cfg$reporting$meta_pptx$section$type$title                     = 'ctrTitle'
+cfg$reporting$meta_pptx$section$type$sub_title                 = 'subTitle'
+cfg$reporting$meta_pptx$section$indices$title                  = NULL
+cfg$reporting$meta_pptx$section$indices$sub_title              = NULL
 
 # these contain the mapping information for content in the template
 # units = inches, height = 5.09, width = 9.45
 # List content
-cfg$reporting$meta$content$layout$list                    = "content_list"
-cfg$reporting$meta$content$master$list                    = "Office Theme"             
-cfg$reporting$meta$content$indices$list_body              = 2
-cfg$reporting$meta$content$indices$list_sub_title         = 4 
+cfg$reporting$meta_pptx$content$layout$list                    = "content_list"
+cfg$reporting$meta_pptx$content$master$list                    = "Office Theme"             
+cfg$reporting$meta_pptx$content$indices$list_body              = 2
+cfg$reporting$meta_pptx$content$indices$list_sub_title         = 4 
 
 # Text content
-cfg$reporting$meta$content$layout$general                 = "content_text"   
-cfg$reporting$meta$content$master$general                 = "Office Theme"             
-cfg$reporting$meta$content$indices$content_body           = 1 
-cfg$reporting$meta$content$indices$content_sub_title      = 4 
+cfg$reporting$meta_pptx$content$layout$general                 = "content_text"   
+cfg$reporting$meta_pptx$content$master$general                 = "Office Theme"             
+cfg$reporting$meta_pptx$content$indices$content_body           = 1 
+cfg$reporting$meta_pptx$content$indices$content_sub_title      = 4 
 
 # Two column slide options
 # Each place holder has dimensions of:
 # units = inches, height = 5.08, width = 4.65
 # No headers with text
-cfg$reporting$meta$two_col$layout$text                    = "two_content_text"
-cfg$reporting$meta$two_col$master$text                    = "Office Theme"             
-cfg$reporting$meta$two_col$indices$text_sub_title         = 4 
-cfg$reporting$meta$two_col$indices$text_left              = 5 
-cfg$reporting$meta$two_col$indices$text_right             = 3 
+cfg$reporting$meta_pptx$two_col$layout$text                    = "two_content_text"
+cfg$reporting$meta_pptx$two_col$master$text                    = "Office Theme"             
+cfg$reporting$meta_pptx$two_col$indices$text_sub_title         = 4 
+cfg$reporting$meta_pptx$two_col$indices$text_left              = 5 
+cfg$reporting$meta_pptx$two_col$indices$text_right             = 3 
 
 # No headers with lists
-cfg$reporting$meta$two_col$layout$list                    = "two_content_list"
-cfg$reporting$meta$two_col$master$list                    = "Office Theme"             
-cfg$reporting$meta$two_col$indices$list_sub_title         = 1 
-cfg$reporting$meta$two_col$indices$list_left              = 5 
-cfg$reporting$meta$two_col$indices$list_right             = 4 
+cfg$reporting$meta_pptx$two_col$layout$list                    = "two_content_list"
+cfg$reporting$meta_pptx$two_col$master$list                    = "Office Theme"             
+cfg$reporting$meta_pptx$two_col$indices$list_sub_title         = 1 
+cfg$reporting$meta_pptx$two_col$indices$list_left              = 5 
+cfg$reporting$meta_pptx$two_col$indices$list_right             = 4 
 
 # Headers with text
 # Each place holder has dimensions of:
 # units = inches, height = 4.41, width = 4.65
-cfg$reporting$meta$two_col$layout$text_head               = "two_content_header_text"
-cfg$reporting$meta$two_col$master$text_head               = "Office Theme"             
-cfg$reporting$meta$two_col$indices$text_head_sub_title    = 3
-cfg$reporting$meta$two_col$indices$text_head_left_title   = 4 
-cfg$reporting$meta$two_col$indices$text_head_left         = 6 
-cfg$reporting$meta$two_col$indices$text_head_right_title  = 7 
-cfg$reporting$meta$two_col$indices$text_head_right        = 2 
+cfg$reporting$meta_pptx$two_col$layout$text_head               = "two_content_header_text"
+cfg$reporting$meta_pptx$two_col$master$text_head               = "Office Theme"             
+cfg$reporting$meta_pptx$two_col$indices$text_head_sub_title    = 3
+cfg$reporting$meta_pptx$two_col$indices$text_head_left_title   = 4 
+cfg$reporting$meta_pptx$two_col$indices$text_head_left         = 6 
+cfg$reporting$meta_pptx$two_col$indices$text_head_right_title  = 7 
+cfg$reporting$meta_pptx$two_col$indices$text_head_right        = 2 
 
 # Headers with text
-cfg$reporting$meta$two_col$layout$list_head               = "two_content_header_list"
-cfg$reporting$meta$two_col$master$list_head               = "Office Theme"             
-cfg$reporting$meta$two_col$indices$list_head_sub_title    = 6
-cfg$reporting$meta$two_col$indices$list_head_left_title   = 2 
-cfg$reporting$meta$two_col$indices$list_head_left         = 3 
-cfg$reporting$meta$two_col$indices$list_head_right_title  = 5 
-cfg$reporting$meta$two_col$indices$list_head_right        = 1 
+cfg$reporting$meta_pptx$two_col$layout$list_head               = "two_content_header_list"
+cfg$reporting$meta_pptx$two_col$master$list_head               = "Office Theme"             
+cfg$reporting$meta_pptx$two_col$indices$list_head_sub_title    = 6
+cfg$reporting$meta_pptx$two_col$indices$list_head_left_title   = 2 
+cfg$reporting$meta_pptx$two_col$indices$list_head_left         = 3 
+cfg$reporting$meta_pptx$two_col$indices$list_head_right_title  = 5 
+cfg$reporting$meta_pptx$two_col$indices$list_head_right        = 1 
+
+#--------------------------------------------------------------------
+# default reporting options for Word
+cfg$reporting$meta_docx$ph_content$HEADER_LEFT$location  = "header"
+cfg$reporting$meta_docx$ph_content$HEADER_LEFT$content   = ""
+cfg$reporting$meta_docx$ph_content$HEADER_RIGHT$location = "header"
+cfg$reporting$meta_docx$ph_content$HEADER_RIGHT$content  = ""
+cfg$reporting$meta_docx$ph_content$FOOTER_LEFT$location  = "footer"
+cfg$reporting$meta_docx$ph_content$FOOTER_LEFT$content   = ""
+
 
 #--------------------------------------------------------------------
 

@@ -4,18 +4,22 @@
 \alias{system_report_save}
 \title{Save Report to File}
 \usage{
-system_report_save(cfg, rptname = "default",
-  output_file = "myreport.pptx")
+system_report_save(cfg, rptname = "default", output_file = NULL)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
 
 \item{rptname}{report name initialized with \code{system_report_init}}
 
-\item{output_file}{name of file to place the report}
+\item{output_file}{name of file to save the report to}
 }
 \description{
 Save the contents of \code{rptname} to the file \code{output_file}
+}
+\details{
+If you don't specify an output file it will save the report either
+report.pptx or report.docx (depending on the type of report) in the current
+directory.
 }
 \seealso{
 \code{\link{system_report_init}}
