@@ -207,6 +207,15 @@ cfg$reporting$meta_docx$ph_content$HEADER_RIGHT$location = "header"
 cfg$reporting$meta_docx$ph_content$HEADER_RIGHT$content  = ""
 cfg$reporting$meta_docx$ph_content$FOOTER_LEFT$location  = "footer"
 cfg$reporting$meta_docx$ph_content$FOOTER_LEFT$content   = ""
+cfg$reporting$meta_docx$styles$Normal                    = "Normal"
+cfg$reporting$meta_docx$styles$Default                   = "Default"
+cfg$reporting$meta_docx$styles$Title                     = "Title" 
+cfg$reporting$meta_docx$styles$Caption_Figure            = "Caption" 
+cfg$reporting$meta_docx$styles$Caption_Table             = "Caption" 
+cfg$reporting$meta_docx$styles$Heading_1                 = "Heading 1"
+cfg$reporting$meta_docx$styles$Heading_2                 = "Heading 2"
+cfg$reporting$meta_docx$styles$Heading_3                 = "Heading 3"
+
 
 
 #--------------------------------------------------------------------

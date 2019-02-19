@@ -6954,7 +6954,7 @@ res}
 #'@description Takes a ggplot object and alters the line thicknesses and makes
 #' other cosmetic changes to make it more appropriate for exporting. 
 #'
-#'@param purpose either \code{"present"}, \code{"print"} or \code{"shiny"}
+#'@param purpose either \code{"present"} (default), \code{"print"} or \code{"shiny"}
 #'@param fo ggplot figure object
 #'@param y_tick_minor Boolean value to control grid lines
 #'@param y_tick_major Boolean value to control grid lines
@@ -6962,7 +6962,7 @@ res}
 #'@param x_tick_major Boolean value to control grid lines
 #'
 #'@return ggplot object 
-prepare_figure = function(purpose, fo,
+prepare_figure = function(purpose="present", fo,
                           y_tick_minor = FALSE,
                           y_tick_major = FALSE,
                           x_tick_minor = FALSE,
@@ -8447,57 +8447,58 @@ if(is.null(rpttype) & !is.null(template)){
   }
 }
 
-
-if(isgood){
-  if(system_req("officer")){
-    cfg$reporting$enabled = TRUE
-    # Checking to see if the template file exists
-    if(file.exists(use_template)){
-      # if no meta data has been specified then we pull the default meta data,
-      # otherwise we store the meta data provided
-      name_check = ubiquity_name_check(rptname)
-
-      if(name_check$isgood & isgood){
-        if(is.null(meta)){
-          if(use_rpttype == "PowerPoint"){
-            cfg$reporting$reports[[rptname]]$meta  = cfg$reporting$meta_pptx }
-          if(use_rpttype == "Word"){
-            cfg$reporting$reports[[rptname]]$meta  = cfg$reporting$meta_docx }
-          }
-        } else {
-          cfg$reporting$reports[[rptname]]$meta  = meta
-        }
-        # Storing the report type
-        cfg$reporting$reports[[rptname]]$rpttype = use_rpttype
-        # Storing the original template location and creating the empty report
-        cfg$reporting$reports[[rptname]]$template = use_template
-
-        # Reading in the template depending on the report type
-        if(use_rpttype == "PowerPoint"){
-          cfg$reporting$reports[[rptname]]$report   = read_pptx(path=use_template) }
-        if(use_rpttype == "Word"){
-          cfg$reporting$reports[[rptname]]$report   = read_docx(path=use_template) }
-
-        vp(cfg, "")
-        vp(cfg, sprintf("Report initialized..."))
-        vp(cfg, sprintf("  Name:     %s", rptname))
-        vp(cfg, sprintf("  Type:     %s", use_rpttype))
-        vp(cfg, sprintf("  Template: %s", use_template))
-      } else {
-        isgood = FALSE
-        vp(cfg, sprintf('Error: report name >%s< is invalid', rptname))
-      }
-    
-    } else {
-      isgood = FALSE
-      vp(cfg, sprintf("Unable to find template file >%s<. ", use_template))
-    }
-  
-} else {
+if(!system_req("officer")){
   isgood = FALSE
   vp(cfg, "Reporting is done through the 'officer' package. Unable to load ")
   vp(cfg, "this package. Reporting will be disabled.")
   cfg$reporting$enabled = FALSE
+}
+
+if(isgood){
+  cfg$reporting$enabled = TRUE
+  # Checking to see if the template file exists
+  if(file.exists(use_template)){
+    # if no meta data has been specified then we pull the default meta data,
+    # otherwise we store the meta data provided
+    name_check = ubiquity_name_check(rptname)
+    if(name_check$isgood & isgood){
+      # Sorting out the meta data. If the user didn't specify this
+      # information then we pull the reporting defaults:
+      if(is.null(meta)){
+        if(use_rpttype == "PowerPoint"){
+          cfg$reporting$reports[[rptname]]$meta  = cfg$reporting$meta_pptx }
+        if(use_rpttype == "Word"){
+          cfg$reporting$reports[[rptname]]$meta  = cfg$reporting$meta_docx }
+      } else {
+        # Here we use the user specified values
+        cfg$reporting$reports[[rptname]]$meta  = meta 
+      }
+      # Storing the report type
+      cfg$reporting$reports[[rptname]]$rpttype = use_rpttype
+      # Storing the original template location and creating the empty report
+      cfg$reporting$reports[[rptname]]$template = use_template
+     
+      # Reading in the template depending on the report type
+      if(use_rpttype == "PowerPoint"){
+        cfg$reporting$reports[[rptname]]$report   = read_pptx(path=use_template) }
+      if(use_rpttype == "Word"){
+        cfg$reporting$reports[[rptname]]$report   = read_docx(path=use_template) }
+     
+      vp(cfg, "")
+      vp(cfg, sprintf("Report initialized..."))
+      vp(cfg, sprintf("  Name:     %s", rptname))
+      vp(cfg, sprintf("  Type:     %s", use_rpttype))
+      vp(cfg, sprintf("  Template: %s", use_template))
+    } else {
+      isgood = FALSE
+      vp(cfg, sprintf('Error: report name >%s< is invalid', rptname))
+    }
+  
+  } else {
+    isgood = FALSE
+    vp(cfg, sprintf("Unable to find template file >%s<. ", use_template))
+  }
+  
 }
 
   if(!isgood){
