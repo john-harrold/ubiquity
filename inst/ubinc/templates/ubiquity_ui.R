@@ -1,9 +1,14 @@
 rm(list=ls())
 library(shiny)
 
+if(file.exists("REBUILD")){
+   source("ubiquity_app.R")
+   file.remove("REBUILD")
+}
+
 #---------------------------------------------------------------------------
 # Loading the system information
-load(file=sprintf("%s%stransient%srgui%sgui_state.RData", getwd(), .Platform$file.sep , .Platform$file.sep , .Platform$file.sep )) 
+load(file=file.path(getwd(), "transient", "rgui","gui_state.RData"))
 #---------------------------------------------------------------------------
 
 

@@ -609,6 +609,15 @@ my $cfg;
                                do          => 'exact' ,
                                int         => 'exact' ,
                                struct      => 'exact' ,
+                               PI          => 'exact' ,
+                               PI_2        => 'exact' ,
+                               PI_4        => 'exact' ,
+                               SQRTPI      => 'exact' ,
+                               SQRT2       => 'exact' ,
+                               SQRT1_2     => 'exact' ,
+                               E           => 'exact' ,
+                               LOG2E       => 'exact' ,
+                               LOG10E      => 'exact' ,
                                _Packed     => 'exact' ,
                                double      => 'exact' 
                               }
@@ -4889,17 +4898,27 @@ sub parse_bolus_inputs
     # we've found the time(s) of the 
     # bolus events
     if($line=~ m/<B:times>/){
-       $cfg->{bolus_inputs}->{times}->{values} = $chunks[1]; 
-       $cfg->{bolus_inputs}->{times}->{scale}  = $chunks[2]; 
-       $cfg->{bolus_inputs}->{times}->{units}  = $chunks[3];
+      $cfg->{bolus_inputs}->{times}->{values} = $chunks[1]; 
+      $cfg->{bolus_inputs}->{times}->{scale}  = $chunks[2]; 
+      $cfg->{bolus_inputs}->{times}->{units}  = $chunks[3];
+
+      # removing commas
+      $cfg->{bolus_inputs}->{times}->{values} =~ s#,# #g;
+      # stripping out extra spaces
+      $cfg->{bolus_inputs}->{times}->{values} =~ s#\s+# #g;
     }
 
 
     if($line=~ m#<B:events>#){
-        my $state = $chunks[1];
-          $cfg->{bolus_inputs}->{entries}->{$state}->{values} = $chunks[2];
-          $cfg->{bolus_inputs}->{entries}->{$state}->{scale}  = $chunks[3];
-          $cfg->{bolus_inputs}->{entries}->{$state}->{units}  = $chunks[4];
+      my $state = $chunks[1];
+      $cfg->{bolus_inputs}->{entries}->{$state}->{values} = $chunks[2];
+      $cfg->{bolus_inputs}->{entries}->{$state}->{scale}  = $chunks[3];
+      $cfg->{bolus_inputs}->{entries}->{$state}->{units}  = $chunks[4];
+
+      # removing commas
+      $cfg->{bolus_inputs}->{entries}->{$state}->{values} =~ s#,# #g;
+      # stripping out extra spaces
+      $cfg->{bolus_inputs}->{entries}->{$state}->{values} =~ s#\s+# #g;
     }
 
     return $cfg;
@@ -4917,13 +4936,11 @@ sub parse_interindivudal_varability
     # pull it out and reduce the line to a normal iiv 
     # call
     if($line=~ m#^<IIVSET#){
-     #print Dumper $line;
       $IIV_SET      = $line;
       $IIV_SET      =~ s#<IIVSET:(\S+?):.*#$1#g; 
       $line         =~ s#SET:$IIV_SET##g; 
     }
     if($line=~ m#^<IIVCORSET#){
-     #print Dumper $line;
       $IIV_SET      = $line;
       $IIV_SET      =~ s#<IIVCORSET:(\S+?):.*#$1#g; 
       $line         =~ s#SET:$IIV_SET##g; 
@@ -5037,7 +5054,11 @@ sub parse_input_covariate
       $cfg->{covariates}->{$input_name}->{cv_type}    = 'linear';
       $cfg->{covariates}->{$input_name}->{$data_type}->{units}   = $chunks[3];
       $cfg->{covariates}->{$input_name}->{parameter_sets}->{default}->{$data_type} = $chunks[2];
-      $cfg->{covariates}->{$input_name}->{parameter_sets}->{default}->{$data_type} = $chunks[2];
+
+      # removing commas
+      $cfg->{covariates}->{$input_name}->{parameter_sets}->{default}->{$data_type} =~ s#,# #g;
+      # stripping out extra spaces
+      $cfg->{covariates}->{$input_name}->{parameter_sets}->{default}->{$data_type} =~ s#\s+# #g;
     }
     # different covariate for a specific parameter set 
     elsif(($line=~ m#\s*<CVSET:\S+:\S+>.*#) and 
@@ -5048,6 +5069,10 @@ sub parse_input_covariate
       $pset_name  =~ s/\s*<CVSET:(\S+):\S+>.*/$1/;
       $data_type = $chunks[1];
       $cfg->{covariates}->{$input_name}->{parameter_sets}->{$pset_name}->{$data_type} = $chunks[2];
+      # removing commas
+      $cfg->{covariates}->{$input_name}->{parameter_sets}->{$pset_name}->{$data_type} =~ s#,# #g;
+      # stripping out extra spaces
+      $cfg->{covariates}->{$input_name}->{parameter_sets}->{$pset_name}->{$data_type} =~ s#\s+# #g;
     }
     elsif(($line=~ m#\s*<CVTYPE:\S+>#) ){
       $input_name = $chunks[0];
@@ -5083,6 +5108,11 @@ sub parse_input_rate
       $cfg->{input_rates}->{$rate_name}->{$data_type}->{values} = $chunks[2];
       $cfg->{input_rates}->{$rate_name}->{$data_type}->{scale}  = $chunks[3];
       $cfg->{input_rates}->{$rate_name}->{$data_type}->{units}  = $chunks[4];
+
+      # removing commas
+      $cfg->{input_rates}->{$rate_name}->{$data_type}->{values} =~ s#,# #g;
+      # stripping out extra spaces
+      $cfg->{input_rates}->{$rate_name}->{$data_type}->{values}=~ s#\s+# #g;
     }
     else{
       &mywarn("Unable to process the following infusion");

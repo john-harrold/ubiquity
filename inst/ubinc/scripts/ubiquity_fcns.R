@@ -39,7 +39,7 @@ build_system <- function(system_file    = "system.txt",
                          distribution   = "automatic",
                          perlcmd        = "perl",
                          verbose        =  TRUE,
-                         debug          =  FALSE){
+                         debug          =  TRUE){
 
 
  
@@ -167,8 +167,6 @@ if(file.exists(system_file)){
     setwd(temp_directory)
     # Compling the C file
     output =  system('R CMD SHLIB r_ode_model.c', intern=TRUE) #, ignore.stderr=!debug)
-    if(debug == TRUE){
-      cat(output)}
     if("status" %in% names(attributes(output))){
       if(verbose == TRUE){
         cat("#> Failed: Unable to compile C file\n") }
@@ -179,14 +177,19 @@ if(file.exists(system_file)){
         cat("#> Loading the shared C library\n") }
       dyn.load(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))
     }
+    if(debug == TRUE){
+      cat(paste(output, collapse = "\n"))
+      cat("\n")
+      cat("#> See above for more details\n")
+      }
     # Returning to the working directory
     setwd(mywd)
   
   
     if(verbose == TRUE){
       cat('#> System built, to fetch a new template use the following commands:\n')
-      cat('#>   system_fetch_template(cfg, template = "Simulation")\n')
-      cat('#>   system_fetch_template(cfg, template = "Estimation")\n')
+      cat('#>   fr = system_fetch_template(cfg, template = "Simulation")\n')
+      cat('#>   fr = system_fetch_template(cfg, template = "Estimation")\n')
     }
   }else{
     if(verbose == TRUE){
@@ -8093,82 +8096,150 @@ result}
 # -------------------------------------------------------------------------
 # system_report_view_layout
 #'@export
-#'@title Generate Annotated Layout for pptx Template
+#'@title Generate Annotated Layout for report templates
 #'@description Elements of slide masters are identified by indices of the
-#' different of these elements. As PowerPoint masters are created the indices can
-#' be difficult to predict. This function will create a layout file identifying
-#' all of the elements of each slide master. 
+#' different of these elements. As PowerPoint masters are created the indices 
+#' can be difficult to predict. Word documents are identified by style names. 
+#' This function will create a layout file identifying all of the elements of 
+#' each slide master for a PowerPoint template or each paragraph and table 
+#' style for a Word template.
 #'
 #'@param cfg ubiquity system object    
 #'@param rptname report name initialized with \code{system_report_init}
-#'@param output_file name of file to place the annotated layout information, set to \code{NULL} to suppress file generation
+#'@param output_file name of file to place the annotated layout information, set to \code{NULL} and it will generate a file named layout with the appropriate extension
 #'
-#'@return officer pptx object with the layout of the template annotated,
+#'@return officer object with the layout of the template annotated,
 #'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 system_report_view_layout = function(cfg,
                                      rptname     = "default",
-                                     output_file = "layout.pptx"){
+                                     output_file = NULL){
 
-
-if(cfg$reporting$reports[[rptname]]$rpttype  == "PowerPoint"){
-  # New document from the template
-  ppt = read_pptx(cfg$reporting$reports[[rptname]]$template)
-  
-  # Pulling out all of the layouts stored in the template
-  lay_sum = layout_summary(ppt)
-  
-  # Looping through each layout
-  for(lidx in 1:length(lay_sum[,1])){
-  
-     # Pulling out the layout properties
-     layout = lay_sum[lidx, 1]
-     master = lay_sum[lidx, 2]
-     lp = layout_properties ( x = ppt, layout = layout, master = master)
-  
-     # Adding a slide for the current layout
-     ppt =  add_slide(x=ppt, layout = layout, master = master) 
-  
-     # Blank slides have nothing
-     if(length(lp[,1] > 0)){
-  
-       # Now we go through each placholder
-       for(pidx in 1:length(lp[,1])){
-  
-          # If it's a text placeholder "body" or "title" we add text indicating
-          # the type and index. If it's title we put the layout and master
-          # information in there as well.
-          if(lp[pidx, ]$type == "body"){
-            textstr = sprintf('type="body", index =%d', pidx)
-            ppt =ph_with_text(x=ppt, type="body", index=pidx, str=textstr)  
-          } 
-          if(lp[pidx, ]$type %in% c("title", "ctrTitle", "subTitle")){
-            textstr = sprintf('layout ="%s", master = "%s", type="%s", index =%d', layout, master, lp[pidx, ]$type,  pidx)
-            ppt =ph_with_text(x=ppt, type=lp[pidx, ]$type, str=textstr)  
-          }
-       }
-     } 
+isgood = TRUE
+if(cfg$reporting$enabled){
+  if(!(rptname %in% names(cfg$reporting$reports))){
+    isgood = FALSE
+    vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
   }
-  
-   # If an output file name has been specified we dump that here
-   if(!is.null(output_file)){
-    print(ppt, output_file)
-    vp(cfg, "--------------------------------")
-    vp(cfg, sprintf("Generating annotated layout for a report template"))
-    vp(cfg, sprintf("Name:             %s", rptname))
-    vp(cfg, sprintf("Template:         %s", cfg$reporting$reports[[rptname]]$template))
-    vp(cfg, sprintf("Annotated layout: %s", output_file))
-    vp(cfg, "--------------------------------")
-  
-   }
 } else {
+  isgood = FALSE
+  vp(cfg, "Error: Reporting not enabled")
+}
 
-  ppt = NULL
-  vp(cfg, paste("Error: the report >",rptname,"< a ", cfg$reporting$reports[[rptname]]$rpttype, " document",  sep=""))
-  vp(cfg, paste("       must be a PowerPoint document to generate the layout.",  sep=""))
+if(isgood){
+  # No output was specified so we use layout + the correct file extension
+  if(is.null(output_file)){
+    if(cfg$reporting$reports[[rptname]]$rpttype  == "PowerPoint"){
+      output_file = "layout.pptx"
+    } else if (cfg$reporting$reports[[rptname]]$rpttype  == "Word"){
+      output_file = "layout.docx"}
+  } else {
+    # Now we test to make sure the extension matches the type
+    if(cfg$reporting$reports[[rptname]]$rpttype == "PowerPoint"){
+      if(!grepl(pattern="pptx$", output_file)){
+        isgood = FALSE
+        vp(cfg, paste("Error: The report >", rptname,"< is a PowerPoint report", sep = ""))
+        vp(cfg, paste("       but the output file >", output_file, "<", sep = ""))
+        vp(cfg, paste("       has the wroing extension should be '.pptx'", sep = ""))
+      }
+    }
+    if(cfg$reporting$reports[[rptname]]$rpttype == "Word"){
+      if(!grepl(pattern="docx$", output_file)){
+        isgood = FALSE
+        vp(cfg, paste("Error: The report >", rptname,"< is a Word report", sep = ""))
+        vp(cfg, paste("       but the output file >", output_file, "<", sep = ""))
+        vp(cfg, paste("       has the wroing extension should be '.docx'", sep = ""))
+      }
+    }
+  }
+}
+
+if(isgood){
+
+  # Dumping PowerPoint layout
+  if(cfg$reporting$reports[[rptname]]$rpttype  == "PowerPoint"){
+    # New document from the template
+    rpt = read_pptx(cfg$reporting$reports[[rptname]]$template)
+    
+    # Pulling out all of the layouts stored in the template
+    lay_sum = layout_summary(rpt)
+    
+    # Looping through each layout
+    for(lidx in 1:length(lay_sum[,1])){
+    
+       # Pulling out the layout properties
+       layout = lay_sum[lidx, 1]
+       master = lay_sum[lidx, 2]
+       lp = layout_properties ( x = rpt, layout = layout, master = master)
+    
+       # Adding a slide for the current layout
+       rpt =  add_slide(x=rpt, layout = layout, master = master) 
+    
+       # Blank slides have nothing
+       if(length(lp[,1] > 0)){
+    
+         # Now we go through each placholder
+         for(pidx in 1:length(lp[,1])){
+    
+            # If it's a text placeholder "body" or "title" we add text indicating
+            # the type and index. If it's title we put the layout and master
+            # information in there as well.
+            if(lp[pidx, ]$type == "body"){
+              textstr = sprintf('type="body", index =%d', pidx)
+              rpt =ph_with_text(x=rpt, type="body", index=pidx, str=textstr)  
+            } 
+            if(lp[pidx, ]$type %in% c("title", "ctrTitle", "subTitle")){
+              textstr = sprintf('layout ="%s", master = "%s", type="%s", index =%d', layout, master, lp[pidx, ]$type,  pidx)
+              rpt =ph_with_text(x=rpt, type=lp[pidx, ]$type, str=textstr)  
+            }
+         }
+       } 
+    }
+  } 
+
+  # Dumping Word layout
+  if(cfg$reporting$reports[[rptname]]$rpttype  == "Word"){
+    rpt = read_docx(cfg$reporting$reports[[rptname]]$template)
+    
+    tab_example = data.frame( Number = c(1,2,3,4),
+                              Text   = "Here")
+    # Pulling out the different styles
+    lay_sum = styles_info(rpt)
+    
+    # Looping through each layout
+    for(lidx in 1:length(lay_sum[,1])){
+      style_type   = lay_sum[lidx, ]$style_type
+      style_id     = lay_sum[lidx, ]$style_id
+      style_name   = lay_sum[lidx, ]$style_name
+    
+      # Paragraph styles
+      if(style_type %in% c("paragraph")){
+        str = paste("style_name: ", style_name)
+        rpt = body_add_par(x=rpt, value=str, style=style_name)
+      }
+    
+      # Table styles
+      if(style_type %in% c("table")){
+        rpt = body_add_table(x=rpt, value=tab_example, style = style_name)
+      }
+    }
+  }
+
+  print(rpt, output_file)
+  vp(cfg, "--------------------------------")
+  vp(cfg, sprintf("Generating annotated layout for a report template"))
+  vp(cfg, sprintf("Name:             %s", rptname))
+  vp(cfg, sprintf("Template:         %s", cfg$reporting$reports[[rptname]]$template))
+  vp(cfg, sprintf("Annotated layout: %s", output_file))
+  vp(cfg, "--------------------------------")
+}
+
+
+if(!isgood){
+  rpt = NULL
   vp(cfg, "system_report_view_layout()")
   vp(cfg, "Layout not generated.")
-}
-return(ppt)}
+  }
+return(rpt)}
 # /system_report_view_layout
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
@@ -9163,7 +9234,9 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
               for(hname in names(header)){
                 shstr = sprintf('%s, %s="%s"', shstr, hname, header[[hname]])
               }
-              shstr = sprintf('%s, top=FALSE)', shstr)
+              # The top=FALSE seems to be breaking things
+              #shstr = sprintf('%s, top=FALSE)', shstr)
+              shstr = sprintf('%s)', shstr)
               eval(parse(text=shstr))
             }
           }
@@ -10507,7 +10580,7 @@ system_glp_save = function(cfg,
     vp(cfg, "")
     vp(cfg, "Exporting GLP study")
     vp(cfg, paste("  Study:            ", cfg$glp[[study_name]]$study_title))
-    vp(cfg, paste("  Output directory: ", cfg$glp[[study_name]]$study_title))
+    vp(cfg, paste("  Output directory: ", output_directory))
 
     # Saving the report:
     system_report_save(cfg, 

@@ -71,13 +71,13 @@
 #        1 mg      MW (KDA) * 1000    V(L)
 #
 # Bolus Events
-# times/events state   values             scale   units
-<B:times>;           [  0.0 7 14 ];          1;   day
-<B:events>;   At;    [400.0 0 0  ];     1e3/MW;   mg     
-<B:events>;   Cc;    [  0.0 0 0  ];  1e3/MW/Vc;   mg     
+# times/events state   values              scale    units
+<B:times>;           [  0.0, 7, 14 ];          1;   day
+<B:events>;   At;    [400.0, 0, 0  ];     1e3/MW;   mg     
+<B:events>;   Cc;    [  0.0, 0, 0  ];  1e3/MW/Vc;   mg     
 
-<R:Dinf>;    times;     [0  30];     1/60/24;           min 
-<R:Dinf>;    levels;    [0   0];       60*24*1e3/MW;    mg/min
+<R:Dinf>;    times;     [0, 30];     1/60/24;           min 
+<R:Dinf>;    levels;    [0,  0];       60*24*1e3/MW;    mg/min
 
 # ODEs
 <ODE:At> -ka*At
@@ -107,5 +107,6 @@
 # General Options:
 # specify different time scales
 <TS:days>  1
+<TS:hours> 24
 <TS:weeks> 1/7
 <TS:months> 1/7/4

@@ -3,6 +3,11 @@ rm(list=ls())
 require(shiny)
 require(shinydashboard)
 
+if(file.exists("REBUILD")){
+   source("ubiquity_app.R")
+   file.remove("REBUILD")
+}
+
 #---------------------------------------------------------------------------
 # Loading the system information
 load(file=file.path(getwd(), "transient", "rgui","gui_state.RData"))

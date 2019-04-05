@@ -5,7 +5,7 @@
 output: html_document
 ---
 
-```{r setup, include=FALSE, results=FALSE}
+```{r setup, include=FALSE, results=FALSE, warning=FALSE, echo=FALSE}
 library(knitr)
 knitr::opts_chunk$set(echo = FALSE)
 ```

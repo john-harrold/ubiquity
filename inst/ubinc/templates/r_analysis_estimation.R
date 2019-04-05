@@ -5,15 +5,15 @@ options(show.error.locations = TRUE)
 
 # If we cannot load the ubiquity package we try the stand alone distribution
 if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
-{source(file.path('library', 'r_general', 'ubiquity.R')) }
+{source(file.path("library", "r_general", "ubiquity.R")) }
 
 # -------------------------------------------------------------------------
 
-# flowctl       = 'plot previous estimate'
-# flowctl       = 'previous estimate as guess'
-# flowctl       = 'estimate'
-  flowctl       = 'plot guess'
-analysis_name   = 'ANAME'
+# flowctl       = "plot previous estimate"
+# flowctl       = "previous estimate as guess"
+# flowctl       = "estimate"
+  flowctl       = "plot guess"
+analysis_name   = "ANAME"
 archive_results = TRUE 
 
 # For documentation explaining how to modify the commands below
@@ -34,7 +34,7 @@ cfg = system_log_init(cfg)
 # cfg = system_select_set(cfg, "default")
 
 # # To fix parameters, simply specify only those you want to estimate here:
-# pnames = c('PNAME1', 'PNAME2')
+# pnames = c("PNAME1", "PNAME2")
 # cfg = system_select_set(cfg, "default", pnames)
  
 # Change initial guess for parameter PNAME to VALUE. The lower bound (lb) and
@@ -165,22 +165,22 @@ cfg = system_clear_cohorts(cfg)
 # those that don't exist for the given cohort. Covariates should be specified
 # to overwrite the default covariate values
 cohort = c()
-cohort$name                                 = 'CHNAME'
+cohort$name                                 = "CHNAME"
 cohort$cf$COLNAME                           = c()
 cohort$cf$COLNAME                           = c()
-cohort$dataset                              = 'DSNAME'
+cohort$dataset                              = "DSNAME"
 
 <BOLUS><INFUSION_RATES><COVARIATES>
 cohort$outputs$ONAME$of$COLNAME             = c()
 cohort$outputs$ONAME$of$COLNAME             = c()
 
-cohort$outputs$ONAME$obs$time               = 'TIMECOL' 
-cohort$outputs$ONAME$obs$value              = 'OBSCOL'
+cohort$outputs$ONAME$obs$time               = "TIMECOL" 
+cohort$outputs$ONAME$obs$value              = "OBSCOL"
 cohort$outputs$ONAME$obs$missing            = -1
-cohort$outputs$ONAME$model$time             = 'TS'        
-cohort$outputs$ONAME$model$value            = 'MODOUTPUT'
-cohort$outputs$ONAME$model$variance         = 'PRED^2'
-cohort$outputs$ONAME$options$marker_color   = 'black'
+cohort$outputs$ONAME$model$time             = "TS"        
+cohort$outputs$ONAME$model$value            = "MODOUTPUT"
+cohort$outputs$ONAME$model$variance         = "PRED^2"
+cohort$outputs$ONAME$options$marker_color   = "black"
 cohort$outputs$ONAME$options$marker_shape   = 16
 cohort$outputs$ONAME$options$marker_line    = 1 
 
@@ -205,13 +205,13 @@ cfg = system_define_cohort(cfg, cohort)
 #  INPUTMAP = list()
 #  INPUTMAP$bolus$SPECIES$CMT_NUM            =  1
 #  INPUTMAP$infusion_rates$RATE$CMT_NUM      =  1
-#  INPUTMAP$covariates$CVNAME$col_COV        = 'CNAME'
+#  INPUTMAP$covariates$CVNAME$col_COV        = "CNAME"
 #
 # Outputs
 #  OBSMAP = list()
-#  OBSMAP$ONAME=list(variance     = 'PRED^2',
+#  OBSMAP$ONAME=list(variance     = "PRED^2",
 #                    CMT          =  1,
-#                    output       = '<O>',
+#                    output       = "<O>",
 #                    missing      =  NULL )
 #
 #  cfg = system_define_cohorts_nm(cfg        =  cfg, 
@@ -232,17 +232,17 @@ cfg = system_define_cohort(cfg, cohort)
 #  col_EVID  - evid (0 - observation, 1 dose)
 #  col_GROUP - used to group subjects for plotting purposes. For example if
 #              the cohorts were grouped by dose and the column DOSE contained
-#              this information, then this will be set to 'DOSE'.
+#              this information, then this will be set to "DOSE".
 # 
 #  cfg = system_define_cohorts_nm( cfg       = cfg, 
-#                                  DS        = 'DSNAME',
-#                                  col_ID    = 'ID',
-#                                  col_CMT   = 'CMT',
-#                                  col_DV    = 'DV',
-#                                  col_TIME  = 'TIME',
-#                                  col_AMT   = 'AMT',
-#                                  col_RATE  = 'RATE',
-#                                  col_EVID  = 'EVID',
+#                                  DS        = "DSNAME",
+#                                  col_ID    = "ID",
+#                                  col_CMT   = "CMT",
+#                                  col_DV    = "DV",
+#                                  col_TIME  = "TIME",
+#                                  col_AMT   = "AMT",
+#                                  col_RATE  = "RATE",
+#                                  col_EVID  = "EVID",
 #                                  col_GROUP =  NULL,  
 #                                  filter    =  filter,
 #                                  INPUTS    =  INPUTMAP,
@@ -278,11 +278,11 @@ plot_opts = c()
 # To customize the figures
 # Replace ONAME with the specific outputs defined in the cohorts above. Then
 # change the values
-# plot_opts$outputs$ONAME$yscale   = 'linear' # 'linear' or 'log'
+# plot_opts$outputs$ONAME$yscale   = "linear" # "linear" or "log"
 # plot_opts$outputs$ONAME$ylim     = c(0,1)   # NULL
 # plot_opts$outputs$ONAME$xlim     = c(0,1)   # NULL
-# plot_opts$outputs$ONAME$ylabel   = ''       # output ONAME
-# plot_opts$outputs$ONAME$xlabel   = ''       # cohort time units
+# plot_opts$outputs$ONAME$ylabel   = ""       # output ONAME
+# plot_opts$outputs$ONAME$xlabel   = ""       # cohort time units
 # plot_opts$tc$width               = 10       # width  of timecourse plot
 # plot_opts$tc$height              = 5.5      # height of timecourse plot
 # plot_opts$op$width               = 10       # width  of observed vs predicted

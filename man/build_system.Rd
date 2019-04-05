@@ -5,7 +5,7 @@
 \title{Building The System}
 \usage{
 build_system(system_file = "system.txt", distribution = "automatic",
-  perlcmd = "perl", verbose = TRUE, debug = FALSE)
+  perlcmd = "perl", verbose = TRUE, debug = TRUE)
 }
 \arguments{
 \item{system_file}{name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt')}

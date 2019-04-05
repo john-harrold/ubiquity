@@ -37,7 +37,7 @@ Each of these scripts build on the previous one to demonstrate different feature
 
 ![Model structure of parent/metabolite model](system-estimation_example.png){width=100%}
 
-Using ``system_new`` you can copy this template file into the current directory and build the system:
+Using ``system_new`` (use ``?system_new`` to see a list of the available system file examples) you can copy this template file into the current directory and build the system:
 
 ```{r results="hide", message=FALSE}
 library(ubiquity)

@@ -575,7 +575,7 @@ It is important to include a default ``ELSE`` condition:
 
 ### Constructing a piece-wise continuous function/parameter
 
-To see an example use the following command:
+To see an example use the following command (use ``?system_new`` to see a list of the available system file examples):
 
 ``system_new(system_file="pwc", file_name="system-pwc.txt")``
 

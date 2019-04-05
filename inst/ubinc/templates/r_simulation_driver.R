@@ -5,7 +5,7 @@ options(show.error.locations = TRUE)
 
 # If we cannot load the ubiquity package we try the stand alone distribution
 if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
-{source(file.path('library', 'r_general', 'ubiquity.R')) }
+{source(file.path("library", "r_general", "ubiquity.R")) }
 
 # For documentation explaining how to modify the commands below
 # See the "R Workflow" section at the link below:
@@ -20,7 +20,7 @@ cfg = system_select_set(cfg, "default")
 # fetching the parameter values
 parameters = system_fetch_parameters(cfg)
 
-# The previous statement sets 'parameters' to the values 
+# The previous statement sets "parameters" to the values 
 # in the currently selected parameter set. To overwrite 
 # a specific parameter uncomment the following statement 
 # and replace PNAME with the name of the parameter 
@@ -48,7 +48,7 @@ cfg=system_set_option(cfg, group  = "simulation",
                            seq(0,100,1))
 # By default, important times will be included in the simulation output
 # e.g., bolus times, sampling before and after rate switches, etc.
-# uncomment to only evalutate at the output times specified above
+# uncomment to only evaluate at the output times specified above
 # cfg=system_set_option(cfg, group  = "simulation", 
 #                            option = "include_important_output_times", 
 #                            value  = "no")
@@ -74,14 +74,14 @@ som = run_simulation_ubiquity(parameters, cfg)
 # p = gg_log10_yaxis(p)
 # 
 # # This pretties up the default figure layout for ggplot
-# p = prepare_figure('present', p)              
+# p = prepare_figure("present", p)              
 #
 # # Dump the figure to a file:
-# png(file.path('output', 'simulation.png'), width=20,  height=14, units="cm", res=300)
+# png(file.path("output", "simulation.png"), width=20,  height=14, units="cm", res=300)
 # print(p)
 # dev.off()
 # 
-# ggsave(plot=p, units='cm', width=20, height=14, filename=file.path('output', 'simulation.png'))
+# ggsave(plot=p, units="cm", width=20, height=14, filename=file.path("output", "simulation.png"))
 # 
 # 
 # # To combine figures you can use gridExtra
@@ -108,7 +108,7 @@ som = run_simulation_ubiquity(parameters, cfg)
 # cfg = system_set_option(cfg, group="stochastic", option="seed",    value=8675309)
 # cfg = system_set_option(cfg, group="stochastic", option="ponly",   value=FALSE)
 # cfg = system_set_option(cfg, group="stochastic", option="states",  value=list())
-# cfg = system_set_option(cfg, group="stochastic", option="outputs", value=c('OP1', 'OP2'))
+# cfg = system_set_option(cfg, group="stochastic", option="outputs", value=c("OP1", "OP2"))
 #
 # # To pull subject parameters and covariates from a file first
 # # Load the file then tell simulate_subjects to use that file
@@ -140,18 +140,18 @@ som = run_simulation_ubiquity(parameters, cfg)
 # #         OUTPUT with a named output  (i.e. Cp)
 #
 # p = ggplot() 
-# p = p + geom_ribbon(data=som$tcsummary, aes(x=ts.TS, ymin=o.OUTPUT.lb_ci, ymax=o.OUTPUT.ub_ci), fill='cadetblue1', alpha=0.6)
-# p = p + geom_line(  data=som$tcsummary, aes(x=ts.TS, y=o.OUTPUT.median, color='OUTPUT'), linetype='solid', size=0.9) 
-# p = p + xlab('Time (TS)')                     
-# p = p + ylab('Output')                        
-# p = prepare_figure('present', p)              
+# p = p + geom_ribbon(data=som$tcsummary, aes(x=ts.TS, ymin=o.OUTPUT.lb_ci, ymax=o.OUTPUT.ub_ci), fill="cadetblue1", alpha=0.6)
+# p = p + geom_line(  data=som$tcsummary, aes(x=ts.TS, y=o.OUTPUT.median, color="OUTPUT"), linetype="solid", size=0.9) 
+# p = p + xlab("Time (TS)")                     
+# p = p + ylab("Output")                        
+# p = prepare_figure("present", p)              
 # # Plot customizaton
 # p = p + scale_colour_manual(values=c("OUTPUT"="darkblue"))   # manually specifying colors
 # p = p + guides(color=guide_legend(title="Color Title"))      # Alter legend title
 # p = p + theme(legend.title = element_blank())                # Remove all legend titles
 # p = p + guides(linetype = FALSE)                             # Remove just the linetype legend
 # p = p + theme(legend.position="none")                        # Remove all legends
-# p = p + theme(legend.position = 'bottom')                    # Set the legend location
+# p = p + theme(legend.position = "bottom")                    # Set the legend location
 # p = p + theme(legend.position = c(0.8, 0.2))                 # Manually  specify legend position
 #
 # print(p)
