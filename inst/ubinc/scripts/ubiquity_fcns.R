@@ -7392,15 +7392,31 @@ ubiquity_name_check = function(test_name){
 #'
 #'@param a initial number
 #'@param b final number  
-#'@param n number of elements 
+#'@param n number of elements  (integer >= 2)
 #'
 #'@return vector of numbers from \code{a} to \code{b} with
 #'\code{n} linearly spaced apart
 #'@examples
 #' linspace(0,100, 20)
 linspace = function(a, b, n=100){
+   isgood = TRUE
+   
+   if(!is.integer(n)){
+     isgood = FALSE }
+
+   if(n < 2){
+     isgood = FALSE }
+
+   if(!isgood){
+     cat("#> linspace error:\n")
+     cat("#> n should be a positive integer >= 2 \n")
+     cat("#> defaulting to 100\n")
+     n = 100
+   }
+
    step = (b-a)/(n-1)
    return(seq(a,b,step))
+
 }
 
 #'@export
@@ -7410,7 +7426,7 @@ linspace = function(a, b, n=100){
 #'
 #'@param a initial number
 #'@param b final number  
-#'@param n number of elements 
+#'@param n number of elements  (integer >=2)
 #'
 #'@return vector of numbers from \code{a} to \code{b} with
 #'\code{n} logarythmically (base 10) spaced apart
@@ -7418,6 +7434,21 @@ linspace = function(a, b, n=100){
 #'@examples
 #' logspace(-2, 3,20)
 logspace = function(a, b, n=100){
+   isgood = TRUE
+
+   if(!is.integer(n)){
+     isgood = FALSE }
+
+   if(n < 2){
+     isgood = FALSE }
+
+   if(!isgood){
+     cat("#> logspace error:\n")
+     cat("#> n should be a positive integer >= 2 \n")
+     cat("#> defaulting to 100\n")
+     n = 100
+   }
+
    step = (b-a)/(n-1)
    linseq = seq(a,b,step)
    return(10^linseq)
