@@ -169,7 +169,16 @@ if(file.exists(system_file)){
     output =  system('R CMD SHLIB r_ode_model.c', intern=TRUE) #, ignore.stderr=!debug)
     if("status" %in% names(attributes(output))){
       if(verbose == TRUE){
-        cat("#> Failed: Unable to compile C file\n") }
+        if(debug == TRUE){
+          for(line in output){
+            cat(paste("#>   DEBUG:", line, "\n", sep=" "))
+          }
+        }
+        cat("#> Failed: Unable to compile C file\n") 
+        if(debug == TRUE){
+          cat("#> See above for more details\n")
+        }
+      }
       CFILE = FALSE
     }else{
       # Loading the shared library
@@ -177,11 +186,6 @@ if(file.exists(system_file)){
         cat("#> Loading the shared C library\n") }
       dyn.load(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))
     }
-    if(debug == TRUE){
-      cat(paste(output, collapse = "\n"))
-      cat("\n")
-      cat("#> See above for more details\n")
-      }
     # Returning to the working directory
     setwd(mywd)
   
@@ -5408,8 +5412,23 @@ system_estimate_parameters <- function(cfg,
       vp(cfg, paste("Loading the previous solution from:", fname_estimate))
       load(file=fname_estimate)
       vp(cfg, "Setting initial guess to previous solution")
+      isgood_previous = TRUE
       for(pname in names(cfg$estimation$parameters$guess)){
-        cfg = system_set_guess(cfg, pname=pname, value=pest[[pname]]) }
+        if(pname  %in% names(pest)){
+          cfg = system_set_guess(cfg, pname=pname, value=pest[[pname]]) 
+        } else {
+          isgood_previous = FALSE
+          vp(cfg, paste("   Parameter", pname, "was not found in the previous estimate"))
+        }
+      }
+      if(!isgood_previous){
+        vp(cfg, "   Some parameters were not specified in the previous estimate")
+        vp(cfg, "   (see above). This can happen if you add parameters to be    ")
+        vp(cfg, "   estimated. For those that were found, the previous estimate")
+        vp(cfg, "   will be used. For the others the default values will be used instead.")
+        vp(cfg, "   system_estimate_parameters()")
+        vp(cfg, "")
+      }
     }
 
     # performing the estimation
@@ -5455,6 +5474,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       vp(cfg,'------------------------------------------')
       vp(cfg,'Starting Estimation ')
       vp(cfg, sprintf('Parmaeters:          %s', paste(names(cfg$estimation$mi), collapse=", ")))
+      vp(cfg, sprintf('Objective Function:  %s', cfg$estimation$objective_type))
       vp(cfg, sprintf('Optimizer:           %s', cfg$estimation$options$optimizer))
       vp(cfg, sprintf('Method:              %s', cfg$estimation$options$method))
       vp(cfg, sprintf('Observation Detials: %s', cfg$estimation$options$observation_function))
@@ -7400,6 +7420,8 @@ ubiquity_name_check = function(test_name){
 #' linspace(0,100, 20)
 linspace = function(a, b, n=100){
    isgood = TRUE
+
+   n = as.integer(n)
    
    if(!is.integer(n)){
      isgood = FALSE }
@@ -7435,6 +7457,8 @@ linspace = function(a, b, n=100){
 #' logspace(-2, 3,20)
 logspace = function(a, b, n=100){
    isgood = TRUE
+
+   n = as.integer(n)
 
    if(!is.integer(n)){
      isgood = FALSE }

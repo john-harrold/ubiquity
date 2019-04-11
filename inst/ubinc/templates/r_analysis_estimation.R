@@ -151,7 +151,7 @@ cfg = system_clear_cohorts(cfg)
 #
 # help system_define_cohort
 #
-# It is necessary to replace the following compontents:
+# It is necessary to replace the following components: 
 #
 # CHNAME    - cohort name
 # COLNAME   - column name in dataset
