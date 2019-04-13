@@ -5604,11 +5604,9 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
 
    files = NULL
    pest$statistics_est = NULL
-   vp(cfg, "-----------------------------------")
-   vp(cfg, "Calculating solution statistics. Be")
-   vp(cfg, "patient this can take a while when ")
-   vp(cfg, "there are many parameters          ")
-   vp(cfg, "-----------------------------------")
+   vp(cfg,'------------------------------------------')
+   vp(cfg, "Calculating solution statistics. Be patient this")
+   vp(cfg, "can take a while when there are many parameters.")
 
    tCcode = '
       # Generating the solution statistics and writing the results to a file
@@ -5623,11 +5621,22 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
    tcres = tryCatch(
     { 
       eval(parse(text=tCcode))
+      vp(cfg,'------------------------------------------')
     "success"},
       error = function(e) {
-        vp(cfg, "Solution statistics calculation failed")
-        vp(cfg, "This can happen when you have a parameter")
-        vp(cfg, "set that makes the system stiff.")
+        vp(cfg, "")
+        vp(cfg, "Solution statistics calculation failed. This can happen ")
+        vp(cfg, "when you have a parameter set that makes the system stiff,")
+        vp(cfg, "or when the parameters are not uniquely identifiable.")
+        vp(cfg, "")
+        vp(cfg, "This is the output from the failed attempt:")
+        for(ename in names(e)){
+          vp(cfg, paste("   DEBUG:", ename, "->",  toString(e[[ename]]), sep=" "))
+        }
+        vp(cfg, "")
+        vp(cfg, "You can run this manually using the following command:")
+        vp(cfg, "ss =  solution_statistics(pest, cfg)")
+        vp(cfg,'------------------------------------------')
         vp(cfg, "The final parameter estimates are:")
     "error"})
 
