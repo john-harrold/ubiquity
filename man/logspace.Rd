@@ -11,7 +11,7 @@ logspace(a, b, n = 100)
 
 \item{b}{final number}
 
-\item{n}{number of elements}
+\item{n}{number of elements  (integer >=2)}
 }
 \value{
 vector of numbers from \code{a} to \code{b} with

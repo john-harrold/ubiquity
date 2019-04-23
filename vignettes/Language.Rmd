@@ -199,19 +199,19 @@ It may be more convenient to write out chemical reactions rather than differenti
 Where the stoichiometric coefficients, beginning with ``CR`` and ``CP`` above, in brackets only need to be specified if they are not one. The reaction order will be assumed to be equal to the stoichiometric coefficient of the reactant. For a more specific example Consider decomposition of hydrogen peroxide into water and oxygen:
 
 
-$$ H_2O_2 \xrightarrow{k_{deg}} H_20 + \frac{1}{2}O_2 $$
+$$ H_2O_2 \xrightarrow{k_{deg}} H_2O + \frac{1}{2}O_2 $$
 
 In the system format this would be written in the following manner:
 
 ~~~
-H2O2 =kdeg=> H20 + [1/2]O2
+H2O2 =kdeg=> H2O + [1/2]O2
 ~~~
 
 And this will be translated in to the following differential equations:
 
 ~~~
 <ODE:H2O2>   - kdeg*H2O2 
-<ODE:H20>      kdeg*H2O2 
+<ODE:H2O>      kdeg*H2O2 
 <ODE:O2>   0.5*kdeg*H2O2 
 ~~~
 
