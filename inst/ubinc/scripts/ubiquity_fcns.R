@@ -2245,7 +2245,6 @@ toc <- function()
   type <- get(".type", envir=baseenv())
   toc <- proc.time()[type]
   tic <- get(".tic", envir=baseenv())
-  print(toc - tic)
   invisible(toc)
 
   return(toc-tic)
@@ -4862,7 +4861,7 @@ for(SIMINT_cv_name in names(SIMINT_cfg$options$inputs$covariates)){
 
 # creating the bolus inputs
 SIMINT_eventdata = eval(parse(text="system_prepare_inputs(SIMINT_cfg, SIMINT_parameters, SIMINT_force_times)"))
- 
+
 # adding sample times around the bolus times to the important times
 SIMINT_important_times =   c(sample_around(SIMINT_eventdata$time, SIMINT_simulation_options$output_times), SIMINT_important_times)
  
@@ -5214,8 +5213,7 @@ calculate_objective_ga  <- function(pvect, cfg){
 #'@export 
 #'@title Calculates the Value of the Specified Objective Function 
 #'@description For a given set of system parameters the objective function
-#' will be calculated based on defined cohorts and variance models the
-#' objective function value will be calculated.
+#' will be calculated based on defined cohorts and variance models.
 #'
 #'@keywords internal
 #'
@@ -5323,7 +5321,10 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
       value = value + length(yobs)*log(2*pi)/2
     }
 
-    value = value*objmult '
+    if(objmult > 1){
+      value = abs(value)*objmult
+    }
+    '
 
  
   # this code attempts to calculate the objective function value:
@@ -5511,6 +5512,9 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       if(file.exists(file.path("output","parameters_est.csv"))){file.remove(file.path("output","parameters_est.csv"))}
 
 
+
+      tic()
+
       #
       # We perform the estimation depending on the optimizer selected 
       #
@@ -5568,8 +5572,21 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
 
       }
 
+      elapsed = toc()
+
+      if(elapsed < 120){
+        elapsed_time = var2string(elapsed, nsig_f=2, nsig_e=2)   
+        elapsed_units= 'seconds'
+      } else if(elapsed < 3600){
+        elapsed_time = var2string(elapsed/60, nsig_f=2, nsig_e=2) 
+        elapsed_units= 'minutes'
+      } else {
+        elapsed_time = var2string(elapsed/60/60, nsig_f=2, nsig_e=2)
+        elapsed_units= 'hours'
+      }
+
       
-      vp(cfg,'Estimation Complete ')
+      vp(cfg, paste("Estimation Complete (", elapsed_time, " ", elapsed_units, ")", sep=""))
       vp(cfg,'------------------------------------------')
 
 
@@ -5723,7 +5740,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
         if(cfg$parameters$matrix$ptype[pindex] == 'variance'){
           pstr =  '<VP> '
         } else{
-          pstr =  '<P> '
+          pstr =  '<P>  '
         }
 
         pstr = sprintf('%s %s', pstr, pad_string(pname, maxlength=20, location="end"))
@@ -9645,8 +9662,8 @@ tvals = unique(tvals)
 # calculating the total simulation time 
 # and using that as a basis for simulations
 tlength = abs(max(ot) - min(ot))
-tsample = c()
-delta   = 1e-8*tlength
+tsample = tvals #c()
+delta   = 1e-6*tlength
 ffollow = 0.10 # percent to follow effects of event
 nfollow = 40   # number of sample times
 vfollow = seq(0, tlength*ffollow, tlength*ffollow/nfollow)

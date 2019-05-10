@@ -101,7 +101,7 @@ cfg = system_report_slide_content(cfg,
        content_type = "ggplot", 
        content      = p)
 
-cfg = system_report_slide_title(cfg,
+cfg = system_report_slide_section(cfg,
        title     = "Information in Two Column",      
        sub_title = "Text, pictures and bullets")
 

@@ -21,7 +21,6 @@ value, if it is \code{FALSE} it will return a list with an element
 }
 \description{
 For a given set of system parameters the objective function
-will be calculated based on defined cohorts and variance models the
-objective function value will be calculated.
+will be calculated based on defined cohorts and variance models.
 }
 \keyword{internal}

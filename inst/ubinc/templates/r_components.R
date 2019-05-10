@@ -153,14 +153,14 @@ cfg$reporting$meta_pptx$section$indices$sub_title              = NULL
 # List content
 cfg$reporting$meta_pptx$content$layout$list                    = "content_list"
 cfg$reporting$meta_pptx$content$master$list                    = "Office Theme"             
-cfg$reporting$meta_pptx$content$indices$list_body              = 2
-cfg$reporting$meta_pptx$content$indices$list_sub_title         = 4 
+cfg$reporting$meta_pptx$content$indices$list_sub_title         = 2 
+cfg$reporting$meta_pptx$content$indices$list_body              = 3
 
 # Text content
 cfg$reporting$meta_pptx$content$layout$general                 = "content_text"   
 cfg$reporting$meta_pptx$content$master$general                 = "Office Theme"             
-cfg$reporting$meta_pptx$content$indices$content_body           = 1 
-cfg$reporting$meta_pptx$content$indices$content_sub_title      = 4 
+cfg$reporting$meta_pptx$content$indices$content_body           = 2 
+cfg$reporting$meta_pptx$content$indices$content_sub_title      = 3 
 
 # Two column slide options
 # Each place holder has dimensions of:
@@ -168,15 +168,15 @@ cfg$reporting$meta_pptx$content$indices$content_sub_title      = 4
 # No headers with text
 cfg$reporting$meta_pptx$two_col$layout$text                    = "two_content_text"
 cfg$reporting$meta_pptx$two_col$master$text                    = "Office Theme"             
-cfg$reporting$meta_pptx$two_col$indices$text_sub_title         = 4 
-cfg$reporting$meta_pptx$two_col$indices$text_left              = 5 
-cfg$reporting$meta_pptx$two_col$indices$text_right             = 3 
+cfg$reporting$meta_pptx$two_col$indices$text_sub_title         = 2 
+cfg$reporting$meta_pptx$two_col$indices$text_left              = 3 
+cfg$reporting$meta_pptx$two_col$indices$text_right             = 1 
 
 # No headers with lists
 cfg$reporting$meta_pptx$two_col$layout$list                    = "two_content_list"
 cfg$reporting$meta_pptx$two_col$master$list                    = "Office Theme"             
 cfg$reporting$meta_pptx$two_col$indices$list_sub_title         = 1 
-cfg$reporting$meta_pptx$two_col$indices$list_left              = 5 
+cfg$reporting$meta_pptx$two_col$indices$list_left              = 3 
 cfg$reporting$meta_pptx$two_col$indices$list_right             = 4 
 
 # Headers with text
@@ -184,20 +184,20 @@ cfg$reporting$meta_pptx$two_col$indices$list_right             = 4
 # units = inches, height = 4.41, width = 4.65
 cfg$reporting$meta_pptx$two_col$layout$text_head               = "two_content_header_text"
 cfg$reporting$meta_pptx$two_col$master$text_head               = "Office Theme"             
-cfg$reporting$meta_pptx$two_col$indices$text_head_sub_title    = 3
-cfg$reporting$meta_pptx$two_col$indices$text_head_left_title   = 4 
-cfg$reporting$meta_pptx$two_col$indices$text_head_left         = 6 
-cfg$reporting$meta_pptx$two_col$indices$text_head_right_title  = 7 
-cfg$reporting$meta_pptx$two_col$indices$text_head_right        = 2 
+cfg$reporting$meta_pptx$two_col$indices$text_head_sub_title    = 6
+cfg$reporting$meta_pptx$two_col$indices$text_head_left_title   = 1 
+cfg$reporting$meta_pptx$two_col$indices$text_head_left         = 3 
+cfg$reporting$meta_pptx$two_col$indices$text_head_right_title  = 2 
+cfg$reporting$meta_pptx$two_col$indices$text_head_right        = 4 
 
 # Headers with text
 cfg$reporting$meta_pptx$two_col$layout$list_head               = "two_content_header_list"
 cfg$reporting$meta_pptx$two_col$master$list_head               = "Office Theme"             
-cfg$reporting$meta_pptx$two_col$indices$list_head_sub_title    = 6
-cfg$reporting$meta_pptx$two_col$indices$list_head_left_title   = 2 
-cfg$reporting$meta_pptx$two_col$indices$list_head_left         = 3 
-cfg$reporting$meta_pptx$two_col$indices$list_head_right_title  = 5 
-cfg$reporting$meta_pptx$two_col$indices$list_head_right        = 1 
+cfg$reporting$meta_pptx$two_col$indices$list_head_sub_title    = 1
+cfg$reporting$meta_pptx$two_col$indices$list_head_left_title   = 6 
+cfg$reporting$meta_pptx$two_col$indices$list_head_left         = 5 
+cfg$reporting$meta_pptx$two_col$indices$list_head_right_title  = 4 
+cfg$reporting$meta_pptx$two_col$indices$list_head_right        = 3 
 
 #--------------------------------------------------------------------
 # default reporting options for Word
