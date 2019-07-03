@@ -4,15 +4,17 @@
 \alias{system_nca_run}
 \title{Automatic NCA}
 \usage{
-system_nca_run(cfg, DSNAME = "PKDS", dscale = 1, NCA_min = 4,
-  analysis_name = "analysis", rescorr = TRUE, dsfilter = NULL,
-  dsmap = list(TIME = "TIME", NTIME = "NTIME", CONC = "DV", DOSE = "AMT",
-  ID = "ID", DOSENUM = NULL), digits = 3, dsinc = NULL)
+system_nca_run(cfg, dsname = "PKDS", dscale = 1, NCA_min = 4,
+  analysis_name = "analysis", dsfilter = NULL, extrap_C0 = TRUE,
+  extrap_N = 2, sparse = FALSE, dsmap = list(TIME = "TIME", NTIME =
+  "NTIME", CONC = "CONC", DOSE = "DOSE", ID = "ID", ROUTE = "ROUTE",
+  DOSENUM = NULL, BACKEXTRAP = NULL, SPARSEGROUP = NULL), digits = 3,
+  dsinc = NULL)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{DSNAME}{name of dataset loaded with (\code{\link{system_load_data}})}
+\item{dsname}{name of dataset loaded with (\code{\link{system_load_data}})}
 
 \item{dscale}{factor to multiply the dose to get it into the same units as concentration (default \code{1}):
 if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscale = 1e6}}
@@ -21,18 +23,37 @@ if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscal
 
 \item{analysis_name}{string containing the name of the analysis (default 'analysis') to archive to files and reference results later}
 
-\item{rescorr}{Boolean variable to correct for residual drug in a multiple dose setting (default \code{TRUE}): If there is an observation before the first observation of a given subset, that concentration will subtracted from the values of the subset}
-
 \item{dsfilter}{list of names corresponding to the column names in the dataset and values are a sequence indicating values to keep (default \code{NULL}. Multiple names are and-ed together. For example the following would keep all of the records where dose is 1, 2, or 5 and the dose_number is 1
 \preformatted{
  dsfilter = list(dose=c(1,2,5), dose_number = c(1))
 }}
 
-\item{dsmap}{list with names specifying the time (TIME), nominal time since last dose (NTIME), concentration (CONC), dose (DOSE), and id (ID) columns to use when performing NCA}
+\item{extrap_C0}{Boolean variable to enable automatic determination of initial drug concentration if no value is specified; the rules used by WinNonlin will be used: 
+\itemize{
+  \item If the route is \code{"iv infusion"} or \code{"extra-vascular"} and the data is single dose data, then a concentration of zero will be used. If repeat dosing is used, the minimum value from the previous dosing interval will be used.
+  \item If the route is \code{"iv bolus"} then log-linear regression of the number of observations specified by \code{extrap_N} will be used. If the slope of these points is positive the first positive observation will be used as an estimate of C0
+}}
 
-\item{digits}{number of significant digits to report (\code{3}), set to \code{NULL} to disable rounding}
+\item{extrap_N}{number of points to use for back extrapolation (default \code{2}); this number can be overwritten for each subject using the \code{BACKEXTRAP} column in the dataset}
 
-\item{dsinc}{character vector of columns from the dataset to include in the output summary.}
+\item{sparse}{Boolean variable used to indicate data used sparse sampling and the analysis should use the average at each time point (the \code{SPARSEGROUP} column must be specified in the \code{dsmap} below)}
+
+\item{dsmap}{list with names specifying the columns in the dataset:
+\itemize{
+ \item \code{TIME}        Time since the first dose; required, \code{"TIME"} (default)
+ \item \code{NTIME}       Nominal time since last dose; required \code{"NTIME"} (default)
+ \item \code{CONC}        Concentration data; required \code{"CONC"} (default)
+ \item \code{DOSE}        Dose given; required (\code{"DOSE"} (default)
+ \item \code{ID}          Subject ID; required (\code{"ID"} (default)
+ \item \code{ROUTE}       Route of administration; required \code{"ROUTE"} (default), can be either \code{"iv bolus"}, \code{"iv infusion"} or \code{"extra-vascular"} 
+ \item \code{DOSENUM}     Numeric dose (starting at 1) used for grouping multiple dose data; optional, \code{NULL} (default) for single dose data)
+ \item \code{BACKEXTRAP}  Specifying the number of points to use to extrapolate the initial concentration for "iv bolus" dosing; optoinal f \code{NULL} (default) will use the value defined in \code{extrap_N} (note this value must be <= NCA_min)
+ \item \code{SPARSEGROUP} Column containing a unique value grouping cohorts for pooling data. Needed when \code{sparse} is set to \code{TRUE}; optional, \code{NULL} (default)
+}}
+
+\item{digits}{number of significant digits to report \code{3} (default), set to \code{NULL} to disable rounding}
+
+\item{dsinc}{(NOT CURRENTLY IMPLEMENTED) optional character vector of columns from the dataset to include in the output summary (default \code{NULL})}
 }
 \value{
 cfg ubiquity system object with the NCA results and if the analysis name is specified:

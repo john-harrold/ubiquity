@@ -19,5 +19,5 @@ With the ubiquity package this function can be used to fetch
 sections of the workshop.
 }
 \details{
-Valid sections are "Simulation", "Estimation", "Titration" and "Reporting"
+Valid sections are "Simulation", "Estimation", "Titration" "Reporting", and "NCA"
 }

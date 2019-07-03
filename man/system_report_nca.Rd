@@ -5,7 +5,7 @@
 \title{Report NCA}
 \usage{
 system_report_nca(cfg, rptname = "default", analysis_name = "analysis",
-  table_headers = TRUE)
+  rows_max = 10, table_headers = TRUE)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
@@ -13,6 +13,8 @@ system_report_nca(cfg, rptname = "default", analysis_name = "analysis",
 \item{rptname}{name of report to append results to (default \code{'default'})}
 
 \item{analysis_name}{string containing the name of the analysis (default \code{'analysis'}) to archive to files and reference results later}
+
+\item{rows_max}{maximum number of rows per slide when generating tabular data}
 
 \item{table_headers}{Boolean variable to add descriptive headers to output tables (default \code{TRUE})}
 }

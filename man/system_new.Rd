@@ -31,6 +31,7 @@ Copy a blank template (\code{system_file="template"}) file to the working direct
   \item \code{"pbpk"} - PBPK model of mAb disposition in mice from Shah 2012 
   \item \code{"tmdd"} - Model of antibody with target-mediated drug disposition
   \item \code{"pwc"} - Example showing how to make if/then or piece-wise continuous variables  
+  \item \code{"empty"} - Minimal system file used to perform other analyses (e.g, NCA)
 }
 }
 \examples{

@@ -26,15 +26,16 @@ This function provides a method to make local copies of these templates.
 The template argument can have the following values
 
 \itemize{
- \item{"Simulation"} produces \code{analysis_simulate.R}: R-Script named  with placeholders used to run simulations
- \item{"Estimation"} produces \code{analysis_estimate.R}: R-Script named  with placeholders used to perform naive-pooled parameter estimation
- \item{"ShinyApp"} produces  \code{ubiquity_app.R}, \code{server.R} and \code{ui.R}: files needed to run the model through a Shiny App either locally or on a Shiny Server
- \item{"Model Diagram"} produces \code{system.svg}: SVG template for producing a model diagram (Goto \url{https://inkscape.org} for a free SVG editor)
+ \item{"Simulation"}       produces \code{analysis_simulate.R}: R-Script named  with placeholders used to run simulations
+ \item{"Estimation"}       produces \code{analysis_estimate.R}: R-Script named  with placeholders used to perform naive-pooled parameter estimation
+ \item{"NCA"}              produces \code{analysis_nca.R}: R-Script to perform non-compartmental analysis (NCA) and report out the results
+ \item{"ShinyApp"}         produces \code{ubiquity_app.R}, \code{server.R} and \code{ui.R}: files needed to run the model through a Shiny App either locally or on a Shiny Server
+ \item{"Model Diagram"}    produces \code{system.svg}: SVG template for producing a model diagram (Goto \url{https://inkscape.org} for a free SVG editor)
  \item{"Shiny Rmd Report"} produces \code{system_report.Rmd} and \code{test_system_report.R}: R-Markdown file used to generate report tabs for the Shiny App and a script to test it
- \item{"myOrg"} produces \code{myOrg.R}: R-Script for defining functions used within your organization
- \item{"mrgsolve"} produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
+ \item{"myOrg"}            produces \code{myOrg.R}: R-Script for defining functions used within your organization
+ \item{"mrgsolve"}         produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
  \item{"Berkeley Madonna"} produces \code{system_berkeley_madonna.txt}: text file with the model and the currently selected parameter set in Berkeley Madonna format
- \item{"Adapt"} produces \code{system_adapt.for} and \code{system_adapt.prm}: Fortran and parameter files for the currently selected parameter set in Adapt fothe currently selected parameter set in Adapt format.
+ \item{"Adapt"}            produces \code{system_adapt.for} and \code{system_adapt.prm}: Fortran and parameter files for the currently selected parameter set in Adapt format.
 }
 }
 \examples{

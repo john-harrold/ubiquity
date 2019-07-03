@@ -30,5 +30,5 @@ Creates a report slide with a title and single large area of content
 For information on the format of content, see \code{\link{system_report_ph_content}}.
 }
 \seealso{
-\code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
+\code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity list containing content to add")})
 }

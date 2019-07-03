@@ -4,19 +4,19 @@
 \alias{system_report_doc_set_ph}
 \title{Sets Placeholder Content for Word Document Report}
 \usage{
-system_report_doc_set_ph(cfg, rptname = "default", phname = NULL,
-  phcontent = NULL, phlocation = "body")
+system_report_doc_set_ph(cfg, rptname = "default", ph_name = NULL,
+  ph_content = NULL, ph_location = "body")
 }
 \arguments{
 \item{cfg}{ubiquity system object}
 
 \item{rptname}{report name initialized with \code{system_report_init}}
 
-\item{phname}{name of the placeholder}
+\item{ph_name}{name of the placeholder}
 
-\item{phcontent}{content to be replaced}
+\item{ph_content}{content to be replaced}
 
-\item{phlocation}{location of the placeholder: \code{"body"} (default), \code{"header"}, or \code{"footer"}}
+\item{ph_location}{location of the placeholder: \code{"body"} (default), \code{"header"}, or \code{"footer"}}
 }
 \value{
 cfg ubiquity system object with the placeholder content set
@@ -29,9 +29,9 @@ replace it with the text "Upper left" you would do the following:
 
 \code{
   cfg = system_report_doc_set_ph(cfg, 
-        phcontent  = "Upper Left" ,
-        phname     = "HEADER_LEFT", 
-        phlocation = "header")}
+        ph_content  = "Upper Left" ,
+        ph_name     = "HEADER_LEFT", 
+        ph_location = "header")}
 
-Notice the \code{phname} just has \code{HEADER_LEFT} and leaves off the \code{<>}
+Notice the \code{ph_name} just has \code{HEADER_LEFT} and leaves off the \code{<>}
 }

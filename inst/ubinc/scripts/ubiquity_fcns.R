@@ -108,6 +108,13 @@ options(warn=-1)
 
 cfg = list()
 
+# If we cannot find a system file we create an empty one 
+if(!file.exists(system_file)){
+  cat(sprintf('#> Unable to find system file >%s<\n',system_file))
+  cat(sprintf('#> Creating an empty template\n'))
+  sys_new_res = system_new(system_file="template", file_name=system_file)
+}
+
 if(file.exists(system_file)){
   if(verbose == TRUE){
     cat(sprintf("#> Building the system:    %s \n", system_file))
@@ -218,9 +225,7 @@ if(file.exists(system_file)){
   } 
   
   } else {
-    if(verbose == TRUE){
-      cat(sprintf('#> Unable to find system file >%s<\n',system_file))
-    }
+  cat(sprintf('#> Still unable to find system file >%s<\n',system_file))
   }
 # turning warnings back on
 options(warn=0)
@@ -234,12 +239,12 @@ return(cfg)}
 #'
 #'@param section Name of the section of workshop to retrieve 
 #'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
-#'@details Valid sections are "Simulation", "Estimation", "Titration" and "Reporting"
+#'@details Valid sections are "Simulation", "Estimation", "Titration" "Reporting", and "NCA"
 #'
 #'@return list
 workshop_fetch <- function(section="Simulation", overwrite=FALSE){
   res = list()
-  allowed = c("Simulation", "Estimation", "Titration", "Reporting", "Testing")
+  allowed = c("Simulation", "Estimation", "Titration", "Reporting", "Testing", "NCA")
 
   isgood = TRUE
   # This function only works if we're using the package
@@ -307,6 +312,25 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
          sources      = c(file.path(src_dir, "workshop_test.R"))
          destinations = c("workshop_test.R")
          write_file   = c(TRUE)
+      } else if(section=="NCA") {
+         sources      = c(file.path(src_dir, "analysis_nca_md.R"            ),
+                          file.path(src_dir, "analysis_nca_sd.R"            ),
+                          file.path(src_dir, "analysis_nca_sparse.R"        ),
+                          file.path(src_dir, "nca_generate_data.R"          ),
+                          file.path(sys_dir, "system-mab_pk.txt"            ),
+                          file.path(csv_dir, "pk_all_md.csv"                ),
+                          file.path(csv_dir, "pk_all_sd.csv"                ),
+                          file.path(csv_dir, "pk_sparse_sd.csv"))
+         destinations = c("analysis_nca_md.R"      ,                        
+                          "analysis_nca_sd.R"      ,                        
+                          "analysis_nca_sparse.R"  ,                        
+                          "nca_generate_data.R"    ,                        
+                          "system-mab_pk.txt"      ,
+                          "pk_all_md.csv"          ,
+                          "pk_all_sd.csv"          ,
+                          "pk_sparse_sd.csv")
+         write_file   = rep(TRUE, length(sources))
+
       }
 
       # if overwrite ifs FALSE we check each of the destination files to see if
@@ -368,6 +392,7 @@ return(res)}
 #'   \item \code{"pbpk"} - PBPK model of mAb disposition in mice from Shah 2012 
 #'   \item \code{"tmdd"} - Model of antibody with target-mediated drug disposition
 #'   \item \code{"pwc"} - Example showing how to make if/then or piece-wise continuous variables  
+#'   \item \code{"empty"} - Minimal system file used to perform other analyses (e.g, NCA)
 #' }
 #'
 #'@param file_name name of the new file to create   
@@ -390,7 +415,7 @@ system_new  <- function(file_name="system.txt", system_file="template", overwrit
 
  allowed = c("template",      "mab_pk",         "pbpk",          "pwc", 
              "tmdd",          "adapt",          "one_cmt_micro", "one_cmt_macro",  
-             "two_cmt_micro", "two_cmt_macro")
+             "two_cmt_micro", "two_cmt_macro",  "empty")
 
  isgood = FALSE
 
@@ -447,15 +472,16 @@ isgood}
 #'@details The template argument can have the following values
 #'
 #' \itemize{
-#'  \item{"Simulation"} produces \code{analysis_simulate.R}: R-Script named  with placeholders used to run simulations
-#'  \item{"Estimation"} produces \code{analysis_estimate.R}: R-Script named  with placeholders used to perform naive-pooled parameter estimation
-#'  \item{"ShinyApp"} produces  \code{ubiquity_app.R}, \code{server.R} and \code{ui.R}: files needed to run the model through a Shiny App either locally or on a Shiny Server
-#'  \item{"Model Diagram"} produces \code{system.svg}: SVG template for producing a model diagram (Goto \url{https://inkscape.org} for a free SVG editor)
+#'  \item{"Simulation"}       produces \code{analysis_simulate.R}: R-Script named  with placeholders used to run simulations
+#'  \item{"Estimation"}       produces \code{analysis_estimate.R}: R-Script named  with placeholders used to perform naive-pooled parameter estimation
+#'  \item{"NCA"}              produces \code{analysis_nca.R}: R-Script to perform non-compartmental analysis (NCA) and report out the results
+#'  \item{"ShinyApp"}         produces \code{ubiquity_app.R}, \code{server.R} and \code{ui.R}: files needed to run the model through a Shiny App either locally or on a Shiny Server
+#'  \item{"Model Diagram"}    produces \code{system.svg}: SVG template for producing a model diagram (Goto \url{https://inkscape.org} for a free SVG editor)
 #'  \item{"Shiny Rmd Report"} produces \code{system_report.Rmd} and \code{test_system_report.R}: R-Markdown file used to generate report tabs for the Shiny App and a script to test it
-#'  \item{"myOrg"} produces \code{myOrg.R}: R-Script for defining functions used within your organization
-#'  \item{"mrgsolve"} produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
+#'  \item{"myOrg"}            produces \code{myOrg.R}: R-Script for defining functions used within your organization
+#'  \item{"mrgsolve"}         produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
 #'  \item{"Berkeley Madonna"} produces \code{system_berkeley_madonna.txt}: text file with the model and the currently selected parameter set in Berkeley Madonna format
-#'  \item{"Adapt"} produces \code{system_adapt.for} and \code{system_adapt.prm}: Fortran and parameter files for the currently selected parameter set in Adapt fothe currently selected parameter set in Adapt format.
+#'  \item{"Adapt"}            produces \code{system_adapt.for} and \code{system_adapt.prm}: Fortran and parameter files for the currently selected parameter set in Adapt format.
 #'}
 #'
 #'@examples
@@ -466,6 +492,7 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
  # These are the allowed templates:
  allowed = c("Simulation", "Estimation", 
              "ShinyApp",   "Shiny Rmd Report",
+             "NCA", 
              "mrgsolve",   "Berkeley Madonna", 
              "Adapt",      "myOrg", 
              "Model Diagram")
@@ -501,6 +528,11 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
    if(template == "Estimation"){
      sources      = c(file.path(temp_directory, "auto_analysis_estimation.R"))
      destinations = c("analysis_estimate.R")
+     write_file   = c(TRUE)
+   }
+   if(template == "NCA"){
+     sources      = c(file.path(template_dir, "r_nca.R"))
+     destinations = c("analysis_nca.R")
      write_file   = c(TRUE)
    }
    if(template == "ShinyApp"){
@@ -7892,7 +7924,7 @@ cr = system_nm_check_ds(cfg       =  cfg,
               cohort$outputs[[output]]$options$marker_shape   = colmap[[SUB_GRP_STR]]$shape
             } else {
               vp(cfg, sprintf('Warning: Grouping column >%s< for subject >%s< has more', col_GROUP, sidstr))
-              vp(cfg, sprintf('         than one value. Groping was not applied for this subject'))
+              vp(cfg, sprintf('         than one value. Grouping was not applied for this subject'))
             }
              
           }
@@ -8474,7 +8506,7 @@ system_report_save = function (cfg,
     }
   } 
 
-  # Applying place holders
+  # Applying place holders for Word templates
   if(isgood & cfg$reporting$reports[[rptname]]$rpttype == "Word"){
     if("ph_content" %in% names(cfg$reporting$reports[[rptname]]$meta)){
       # Pulling out the report to make it easier to deal with
@@ -8483,7 +8515,7 @@ system_report_save = function (cfg,
       for(phn in names(cfg$reporting$reports[[rptname]]$meta$ph_content)){
         # Here we pull out the value (phv) and locatio (phl) of each
         # placeholder:
-        pht = paste("<",phn,">", sep="") 
+        pht = paste("U__",phn,"__U", sep="") 
         phv = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$content
         phl = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$location
         if(phl == "body"){
@@ -8708,7 +8740,7 @@ return(cfg)
 #'@details 
 #'  For information on the format of content, see \code{\link{system_report_ph_content}}.
 #'
-#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
+#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity list containing content to add")})
 system_report_slide_content = function (cfg,
                                title                  = "Title",      
                                sub_title              = NULL, 
@@ -9254,7 +9286,6 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
     }
     else if(content_type == "list"){
       mcontent = matrix(data = content, ncol=2, byrow=TRUE)
-
       
       # Initializing the placeholder
       rpt   = ph_empty(x=rpt, type=type, index=index)
@@ -9371,6 +9402,107 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
 return(rpt)}
 # /system_report_ph_content
 # -------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# system_report_doc_add_content
+#'@export
+#'@title Add to  Body of a Word Document Report
+#'@description Adds content to the body of a word document
+#'
+#' For example if you have <HEADER_LEFT> in the header of your document and you wanted to
+#' replace it with the text "Upper left" you would do the following:
+#'
+#' \code{
+#'   cfg = system_report_doc_set_ph(cfg, 
+#'         ph_content  = "Upper Left" ,
+#'         ph_name     = "HEADER_LEFT", 
+#'         ph_location = "header")}
+#'
+#' Notice the \code{ph_name} just has \code{HEADER_LEFT} and leaves off the \code{<>}
+#'
+#'@param cfg ubiquity system object    
+#'@param rptname        report name initialized with \code{system_report_init}
+#'@param content_type   name of the placeholder
+#'@param content        list containing content to add 
+#'
+#' For each content type listed below the following content is expected:
+#'
+#' \itemize{
+#'  \item \code{"text"} text string of information
+#'  \item \code{"list"} vector of paired values (indent level and text), eg.  c(1, "Main Bullet", 2 "Sub Bullet")
+#'  \item \code{"imagefile"} image from a file
+#'   \itemize{
+#'      \item \code{image} string containing path to image file
+#'      \item \code{caption} Text containing the caption of the image
+#'    }
+#'  \item \code{"ggplot"} ggplot object, eg. p = ggplot() + ....
+#'   \itemize{
+#'      \item \code{image} ggplot object
+#'      \item \code{caption} Text containing the caption of the image
+#'    }
+#'  \item \code{"table"} list containing the table content and other options with the following elements (defaults in parenthesis):
+#'   \itemize{
+#'      \item \code{table} Data frame containing the tabular data
+#'      \item \code{caption} Text containing the caption of the table 
+#'      \item \code{header} Boolean variable to control displaying the header (\code{TRUE})
+#'      \item \code{first_row} Boolean variable to indicate that the first row contains header information (\code{TRUE})
+#'    }
+#'}
+#'@return cfg ubiquity system object with the content added to the body
+system_report_doc_add_content = function(cfg, rptname="default", content_type=NULL, content=NULL){
+
+  isgood = TRUE
+
+
+  # Checking things
+  if(cfg$reporting$enabled){
+    if(rptname %in% names(cfg$reporting$reports)){
+      if( "Word" != cfg$reporting$reports[[rptname]]$rpttype){
+        isgood = FALSE
+        vp(cfg, paste("Error: Trying to add Word content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
+      }
+    } else {
+      isgood = FALSE
+      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
+    }
+  } else {
+    isgood = FALSE
+    vp(cfg, "Error: Reporting not enabled")
+  }
+
+  # Making sure both the content and content type were defined
+  if(is.null(content) | is.null(content_type)){
+    isgood = FALSE
+    vp(cfg, "Either the content or the content_type was not specified")
+  } else {
+    # Checking the content type
+    if(!(content_type %in% c("text", "list", "imagefile", "ggplot", "table"))){
+      vp(cfg, paste("the content type >", content_type, "< is not supported",sep=""))
+      isgood = FALSE
+    } else{
+      # Checking to make sure the image file exists
+      if(content_type == "imagefile"){
+        if(!file.exists(imagefile)){
+          vp(cfg, paste("the imagefile >", imagefile, "< does not exist",sep=""))
+          isgood = FALSE
+        }
+      }
+    }
+  }
+
+  # If all the checks have passed we add the content
+  if(isgood){
+    
+  
+  }
+  
+
+  if(!isgood){
+    vp(cfg, "system_report_doc_add_content() ")
+    vp(cfg, "Unable to add content to document, see above for details")
+  }
+  
+}
+# -------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------
 # system_report_doc_set_ph
@@ -9383,20 +9515,20 @@ return(rpt)}
 #'
 #' \code{
 #'   cfg = system_report_doc_set_ph(cfg, 
-#'         phcontent  = "Upper Left" ,
-#'         phname     = "HEADER_LEFT", 
-#'         phlocation = "header")}
+#'         ph_content  = "Upper Left" ,
+#'         ph_name     = "HEADER_LEFT", 
+#'         ph_location = "header")}
 #'
-#' Notice the \code{phname} just has \code{HEADER_LEFT} and leaves off the \code{<>}
+#' Notice the \code{ph_name} just has \code{HEADER_LEFT} and leaves off the \code{<>}
 #'
 #'@param cfg ubiquity system object    
 #'@param rptname   report name initialized with \code{system_report_init}
-#'@param phname   name of the placeholder
-#'@param phcontent content to be replaced
-#'@param phlocation location of the placeholder: \code{"body"} (default), \code{"header"}, or \code{"footer"}
+#'@param ph_name   name of the placeholder
+#'@param ph_content content to be replaced
+#'@param ph_location location of the placeholder: \code{"body"} (default), \code{"header"}, or \code{"footer"}
 #'
 #'@return cfg ubiquity system object with the placeholder content set
-system_report_doc_set_ph = function(cfg, rptname="default", phname=NULL, phcontent=NULL, phlocation="body"){
+system_report_doc_set_ph = function(cfg, rptname="default", ph_name=NULL, ph_content=NULL, ph_location="body"){
 
   #Checking user input:
   isgood = TRUE
@@ -9418,23 +9550,23 @@ system_report_doc_set_ph = function(cfg, rptname="default", phname=NULL, phconte
     vp(cfg, "Error: Reporting not enabled")
   }
 
-  if(is.null(phname)){
+  if(is.null(ph_name)){
     isgood = FALSE
-    vp(cfg, "Error: The phname must be specified")
+    vp(cfg, "Error: The ph_name must be specified")
   }
-  if(is.null(phcontent)){
+  if(is.null(ph_content)){
     isgood = FALSE
     vp(cfg, "Error: The phtext must be specified")
   }
 
-  if(!(phlocation %in% locations)){
+  if(!(ph_location %in% locations)){
     isgood = FALSE
-    vp(cfg, paste("Error: The phlocation must be one of: ", paste(locations, collapse=", "), sep=""))
+    vp(cfg, paste("Error: The ph_location must be one of: ", paste(locations, collapse=", "), sep=""))
   }
 
   if(isgood){
-     cfg$reporting$reports[[rptname]]$meta$phcontent[[phname]]$location = phlocation
-     cfg$reporting$reports[[rptname]]$meta$phcontent[[phname]]$content  = phcontent
+     cfg$reporting$reports[[rptname]]$meta$ph_content[[ph_name]]$location = ph_location
+     cfg$reporting$reports[[rptname]]$meta$ph_content[[ph_name]]$content  = ph_content
   } 
   
   if(!isgood){
@@ -9702,10 +9834,9 @@ all(res_pkgs)}
 #'@param verbose enable verbose messaging   
 #'
 #'@return List fn result of all packages 
-system_check_requirements <- function(checklist = list(perl    = list(check   = TRUE, 
-                                                         perlcmd = "perl"),
-                                          C       = list(check   = TRUE)), 
-                       verbose   = TRUE){
+system_check_requirements <- function(checklist = list(perl    = list(check   = TRUE, perlcmd = "perl"),
+                                                       C       = list(check   = TRUE)), 
+                                                  verbose   = TRUE){
 
   res = list()
 
@@ -9851,20 +9982,36 @@ res}
 #'@description Performs NCA in an automated fashion 
 #'
 #'@param cfg ubiquity system object
-#'@param DSNAME name of dataset loaded with (\code{\link{system_load_data}})
+#'@param dsname name of dataset loaded with (\code{\link{system_load_data}})
 #'@param NCA_min minimum number of points required to perform NCA for a given subset (default \code{4})
 #'@param analysis_name string containing the name of the analysis (default 'analysis') to archive to files and reference results later
-#'@param rescorr  Boolean variable to correct for residual drug in a multiple dose setting (default \code{TRUE}): If there is an observation before the first observation of a given subset, that concentration will subtracted from the values of the subset
-#'@param dscale factor to multiply the dose to get it into the same units as concentration (default \code{1}):
-#' if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscale = 1e6}
 #'@param dsfilter list of names corresponding to the column names in the dataset and values are a sequence indicating values to keep (default \code{NULL}. Multiple names are and-ed together. For example the following would keep all of the records where dose is 1, 2, or 5 and the dose_number is 1
 #'\preformatted{
 #'  dsfilter = list(dose=c(1,2,5), dose_number = c(1))
 #'}
-#'
-#'@param dsmap list with names specifying the time (TIME), nominal time since last dose (NTIME), concentration (CONC), dose (DOSE), and id (ID) columns to use when performing NCA
-#'@param digits number of significant digits to report (\code{3}), set to \code{NULL} to disable rounding
-#'@param dsinc character vector of columns from the dataset to include in the output summary.
+#'@param extrap_C0 Boolean variable to enable automatic determination of initial drug concentration if no value is specified; the rules used by WinNonlin will be used: 
+#' \itemize{
+#'   \item If the route is \code{"iv infusion"} or \code{"extra-vascular"} and the data is single dose data, then a concentration of zero will be used. If repeat dosing is used, the minimum value from the previous dosing interval will be used.
+#'   \item If the route is \code{"iv bolus"} then log-linear regression of the number of observations specified by \code{extrap_N} will be used. If the slope of these points is positive the first positive observation will be used as an estimate of C0
+#'}
+#'@param extrap_N number of points to use for back extrapolation (default \code{2}); this number can be overwritten for each subject using the \code{BACKEXTRAP} column in the dataset
+#'@param sparse   Boolean variable used to indicate data used sparse sampling and the analysis should use the average at each time point (the \code{SPARSEGROUP} column must be specified in the \code{dsmap} below)
+#'@param dscale factor to multiply the dose to get it into the same units as concentration (default \code{1}):
+#' if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscale = 1e6}
+#'@param dsmap list with names specifying the columns in the dataset:
+#' \itemize{
+#'  \item \code{TIME}        Time since the first dose; required, \code{"TIME"} (default)
+#'  \item \code{NTIME}       Nominal time since last dose; required \code{"NTIME"} (default)
+#'  \item \code{CONC}        Concentration data; required \code{"CONC"} (default)
+#'  \item \code{DOSE}        Dose given; required (\code{"DOSE"} (default)
+#'  \item \code{ID}          Subject ID; required (\code{"ID"} (default)
+#'  \item \code{ROUTE}       Route of administration; required \code{"ROUTE"} (default), can be either \code{"iv bolus"}, \code{"iv infusion"} or \code{"extra-vascular"} 
+#'  \item \code{DOSENUM}     Numeric dose (starting at 1) used for grouping multiple dose data; optional, \code{NULL} (default) for single dose data)
+#'  \item \code{BACKEXTRAP}  Specifying the number of points to use to extrapolate the initial concentration for "iv bolus" dosing; optoinal f \code{NULL} (default) will use the value defined in \code{extrap_N} (note this value must be <= NCA_min)
+#'  \item \code{SPARSEGROUP} Column containing a unique value grouping cohorts for pooling data. Needed when \code{sparse} is set to \code{TRUE}; optional, \code{NULL} (default)
+#' }
+#'@param digits number of significant digits to report \code{3} (default), set to \code{NULL} to disable rounding
+#'@param dsinc (NOT CURRENTLY IMPLEMENTED) optional character vector of columns from the dataset to include in the output summary (default \code{NULL})
 #'@return cfg ubiquity system object with the NCA results and if the analysis name is specified:
 #' \itemize{
 #'     \item{output/{analysis_name}-nca_summary.csv} NCA summary 
@@ -9872,15 +10019,25 @@ res}
 #'     \item{output/{analysis_name}-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
 #' }
 system_nca_run = function(cfg, 
-                          DSNAME        = "PKDS", 
-                          dscale        = 1,
-                          NCA_min       = 4,
-                          analysis_name = "analysis",
-                          rescorr       = TRUE,
-                          dsfilter      = NULL,
-                          dsmap         = list(TIME="TIME", NTIME="NTIME", CONC="DV", DOSE="AMT", ID="ID", DOSENUM=NULL),
-                          digits        = 3,
-                          dsinc         = NULL){
+                          dsname            = "PKDS", 
+                          dscale            = 1,
+                          NCA_min           = 4,
+                          analysis_name     = "analysis",
+                          dsfilter          = NULL,
+                          extrap_C0         = TRUE,
+                          extrap_N          = 2,
+                          sparse            = FALSE,
+                          dsmap             = list(TIME        = "TIME", 
+                                                   NTIME       = "NTIME", 
+                                                   CONC        = "CONC", 
+                                                   DOSE        = "DOSE", 
+                                                   ID          = "ID", 
+                                                   ROUTE       = "ROUTE", 
+                                                   DOSENUM     = NULL, 
+                                                   BACKEXTRAP  = NULL,
+                                                   SPARSEGROUP = NULL),
+                          digits            = 3,
+                          dsinc             = NULL){
 
  # JMH dont think these are necessary
  #  ncares = list()
@@ -9903,8 +10060,8 @@ system_nca_run = function(cfg,
   }
 
 
-  if(DSNAME %in% names(cfg$data)){
-    DS = cfg$data[[DSNAME]]$values
+  if(dsname %in% names(cfg$data)){
+    DS = cfg$data[[dsname]]$values
     # If a filter has been specified then we apply it to the dataset
     if(!is.null(dsfilter)){
       # First we make sure the column names exist
@@ -9923,18 +10080,18 @@ system_nca_run = function(cfg,
     }
   } else {
     isgood = FALSE
-    vp(cfg, paste("Error: Dataset >", DSNAME, "< was not found use system_load_data() to create this dataset", sep=""))
+    vp(cfg, paste("Error: Dataset >", dsname, "< was not found use system_load_data() to create this dataset", sep=""))
   }
 
   # Now we check the dataset to make sure there are records. This catches
   # issues in the dataset itself or potential problems with applying filters
   if(nrow(DS) <1){
     isgood = FALSE
-    vp(cfg, paste("Error: Dataset >", DSNAME, "< is empty", sep=""))
+    vp(cfg, paste("Error: Dataset >", dsname, "< is empty", sep=""))
     vp(cfg, paste("Check the orignal dataset or the filters that were specified", sep=""))
   }
 
-  # Creating the sub setting column
+  # Creating the subsetting column
   if(is.null(dsmap$DOSENUM)){
     DS$SI_DOSENUM = 1
   } else {
@@ -9947,15 +10104,64 @@ system_nca_run = function(cfg,
 
   }
 
+  # Adding columns to account for normal vs sparse analysis
+  if(sparse){
+    if(is.null(dsmap$SPARSEGROUP)){
+      isgood = FALSE
+      vp(cfg, paste("Error: The sparse option is set to >TRUE< but no grouping column was specified in the dsmap.", sep=""))
+    } else {
+      # Initializing the internal ID and concentration columns
+      DS$SI_ID   = -1
+      DS$SI_CONC = -1
+
+      # Now populating those internal ID and concentration columns
+      SI_ID = 1
+      for(SPARSEGROUP in unique(DS[[dsmap$SPARSEGROUP]])){
+        # Storing the ID for the sparse group
+        DS[DS[[dsmap$SPARSEGROUP]] == SPARSEGROUP, ]$SI_ID = SI_ID
+
+        # Averaging the concentrations for this group at each time point.
+        for(TIME_AVE in unique( DS[DS[[dsmap$SPARSEGROUP]] == SPARSEGROUP, ][[dsmap$TIME]])){
+          DS[DS[[dsmap$SPARSEGROUP]] == SPARSEGROUP &DS[[dsmap$TIME]]== TIME_AVE, ]$SI_CONC = 
+                  mean(DS[DS[[dsmap$SPARSEGROUP]] == SPARSEGROUP & DS[[dsmap$TIME]]== TIME_AVE, ][[dsmap$CONC]])
+        }
+        SI_ID = SI_ID + 1
+      }
+    }
+  } else {
+    # For a normal subject by subject analysis these 
+    # columns remain the same:
+    DS$SI_ID   = DS[[dsmap$ID]]
+    DS$SI_CONC = DS[[dsmap$CONC]]
+  }
+
+  # Checking extrapolation information
+  if(!is.null(dsmap$BACKEXTRAP)){
+    if(dsmap$BACKEXTRAP %in% names(DS)){
+      if(is.integer(DS[[dsmap$BACKEXTRAP]])){
+        if(max(DS[[dsmap$BACKEXTRAP]]) > NCA_min){
+          isgood = FALSE
+          vp(cfg, paste("Error: Values in BACKEXTRAP column >", dsmap$BACKEXTRAP, "< should be <= NCA_min >", NCA_min, "<", sep=""))
+        } 
+      } else {
+        isgood = FALSE
+        vp(cfg, paste("Error: BACKEXTRAP column >", dsmap$BACKEXTRAP, "< should contain only integers", sep=""))
+      }
+    } else {
+      isgood = FALSE
+      vp(cfg, paste("Error: BACKEXTRAP column >", dsmap$BACKEXTRAP, "< was not found in the provided dataset", sep=""))
+    }
+  }
+
   # Checking the obs information
-  dscols = c("TIME", "NTIME", "CONC", "DOSE", "ID")
+  dscols = c("TIME", "NTIME", "CONC", "DOSE", "ROUTE", "ID")
   for(cn in dscols){
     # Checking to see if correct names were specified in obs
     if(cn %in% names(dsmap)){
       # Now making sure they exist in the dataset
       if(!(dsmap[[cn]] %in% names(DS))){
         isgood = FALSE
-        vp(cfg, paste("Error: Dataset column ", dsmap[[cn]], " was not found in the dataset ",DSNAME, sep=""))
+        vp(cfg, paste("Error: Dataset column ", dsmap[[cn]], " was not found in the dataset ",dsname, sep=""))
       }
     } else {
       isgood = FALSE
@@ -9964,14 +10170,27 @@ system_nca_run = function(cfg,
     }
   }
 
-  # checking the concentrations to make sure they are all greater than zero
   if(isgood){
+    # checking the concentrations to make sure they are all greater than zero
     if(any(DS[[dsmap$CONC]] <=0)){
       vp(cfg, paste("Error: After filtering the data set some of the"))
       vp(cfg, paste("       concentration values are less than or equal to zero"))
       isgood=FALSE
     }
-  
+
+    # Allowed routes:
+    ROUTES_GOOD = c("iv infusion", "extra-vascular", "iv bolus")
+
+    # Route in the dataset:
+    ROUTES_DS   =  unique(DS$ROUTE)
+
+    # If there are routes that are not in ROUTES_GOOD we throw an error:
+    if(length(setdiff(ROUTES_DS, ROUTES_GOOD)) > 0){
+      vp(cfg, paste("Error: the following routes are not allowed:",  paste(setdiff(ROUTES_DS, ROUTES_GOOD), collapse = ", ")))
+      vp(cfg, paste("       should be either",  paste(ROUTES_GOOD, collapse = ", ")))
+      isgood=FALSE
+    
+    }
   }
 
   # calculating the dose in the same mass units as concentration
@@ -10000,31 +10219,72 @@ system_nca_run = function(cfg,
   # If everything checks out we'll go through and perform NCA on the
   # individuals
   if(isgood){
+    # Sorting the dataset first by the subject (ID) and then by the time (TIME)
+    eval(parse(text=paste("DS = DS[with(DS, order(SI_ID, ", dsmap$ID, ",", dsmap$TIME,")),]", sep="")))
+
+    # Setting text based on the analysis type
+    if(sparse){
+      ID_label = "Group"
+    } else {
+      ID_label = "Subject"
+    }
+
+    # Storing these strings to be used in reporting:
+    cfg$nca[[analysis_name]]$text$ID_label = ID_label
+    
     # Looping through each subject ID
-    subs  = unique(DS[[dsmap$ID]])
+    subs  = unique(DS$SI_ID)
 
     # Getting the uppoer and lower bounds on the whole dataset
     ylim_min = min(DS[[dsmap$CONC]])
     ylim_max = max(DS[[dsmap$CONC]])
     for(sub in subs){
       # This is the entire dataset for the subject
-      SUBDS = DS[DS[[dsmap$ID]] == sub,]
+      SUBDS = DS[DS$SI_ID == sub,]
       sub_str = paste("sub_", sub, sep="")
 
-      # Figure with summary info for the subject
+
+      # Figure with full time course for the subject/group
       ptmp = ggplot()
-      eval(parse(text=paste("ptmp = ptmp +  geom_line(data=SUBDS, aes(x=",dsmap$TIME,", y=", dsmap$CONC,")            )", sep="")))
-      eval(parse(text=paste("ptmp = ptmp + geom_point(data=SUBDS, aes(x=",dsmap$TIME,", y=", dsmap$CONC,"),  shape=16 )", sep="")))
+      if(sparse){
+        eval(parse(text=paste("ptmp = ptmp + geom_point(data=SUBDS, aes(x=",dsmap$TIME,", y=", dsmap$CONC,"),  shape=16, color='grey' )", sep="")))
+      } else {
+        eval(parse(text=paste("ptmp = ptmp +  geom_line(data=SUBDS, aes(x=",dsmap$TIME,", y=", dsmap$CONC,", group=",dsmap$ID, ")           , color='grey' )", sep="")))
+        eval(parse(text=paste("ptmp = ptmp + geom_point(data=SUBDS, aes(x=",dsmap$TIME,", y=", dsmap$CONC,"),  shape=16, color='grey' )", sep="")))
+      }
 
       ptmp = prepare_figure(fo=ptmp, purpose="present")
       ptmp = gg_log10_yaxis(fo=ptmp, ylim_max=ylim_max, ylim_min=ylim_min)
 
       # Next we process each of the doses   
       dosenum_all = unique(SUBDS$SI_DOSENUM)
+      #
+      # JMH adding sparse stuff here:
+      #
       for(dosenum in dosenum_all){
-        # this is subject's data for the given subset
+        # this is subject or group data for the given dose number
         dosenum_str = paste("dose_", dosenum, sep="")
-        SUBDS_DN = SUBDS[SUBDS$SI_DOSENUM == dosenum, ]
+
+        # This contains all of the rows for the current dose number
+        TMP_SS_DN  = SUBDS[SUBDS$SI_DOSENUM == dosenum, ]
+
+        # If this is a sparse sampling analysis we remove redundant time
+        # points so we have one concentration per time point for the current
+        # dose number
+        if(sparse){
+          SUBDS_DN = NULL
+          # For each unique time we pull of the first row
+          for(TIME in sort(unique(TMP_SS_DN[[dsmap$TIME]]))){
+            if(is.null(SUBDS_DN)){
+              SUBDS_DN = TMP_SS_DN[TMP_SS_DN[[dsmap$TIME]] == TIME, ][1,]
+            } else {
+              SUBDS_DN = rbind(SUBDS_DN, TMP_SS_DN[TMP_SS_DN[[dsmap$TIME]] == TIME, ][1,])
+            }
+          }
+        } else {
+          # Otherwise we just use all of the rows:
+          SUBDS_DN = TMP_SS_DN
+        }
 
 
         # By default we process the current subject/dose combination
@@ -10034,14 +10294,14 @@ system_nca_run = function(cfg,
         # Checking to make sure dose is unique
         if(length(unique(SUBDS_DN[[dsmap$DOSE]]))>1){
           PROC_SUBDN = FALSE
-          vp(cfg, paste("Subject: >", sub, "< Dose ", dosenum, " had more than 1 value in the dose column",sep=""))
+          vp(cfg, paste(ID_label, ": >", sub, "< Dose ", dosenum, " had more than 1 value in the dose column",sep=""))
           vp(cfg, paste("    Dose column >", dsmap$DOSE, "< has values: ", paste(unique(SUBDS_DN[[dsmap$DOSE]]), collapse=", "), sep=""))
         }
 
         # Make sure there are enough observations:
         if(nrow(SUBDS_DN) < NCA_min){
           PROC_SUBDN = FALSE
-          vp(cfg, paste("Subject: >", sub, "< Dose ", dosenum, " had less than ", NCA_min, " observations (NCA_min)",sep=""))
+          vp(cfg, paste(ID_label, ": >", sub, "< Dose ", dosenum, " had less than ", NCA_min, " observations (NCA_min)",sep=""))
         }
 
 
@@ -10049,13 +10309,78 @@ system_nca_run = function(cfg,
         # subset
         tmpsum = NULL  
 
-        if(is.null(digits)){
-          Cmax            = max(SUBDS_DN[[dsmap$CONC]])
-          Tmax            = min(SUBDS_DN[SUBDS_DN[[dsmap$CONC]] == tmpsum$Cmax, ][[dsmap$TIME]])
+        # Tmax and Cmax are taken directly from the dataset
+        Cmax            = max(SUBDS_DN$SI_CONC)
+        Tmax            = min(SUBDS_DN[SUBDS_DN$SI_CONC == Cmax, ][[dsmap$NTIME]])
+        if(!is.null(digits)){
+          Cmax            = signif(Cmax, digits)
+          Tmax            = signif(Tmax, digits)
+        } 
+
+        # Calculating the predose conc to subtract from the concentration
+        # By default it's zero:
+        PREDOSE_CONC = 0.0
+        # first we look for observations with time values before the first
+        # observation of the current subset
+        if(any(SUBDS[[dsmap$TIME]] < min(SUBDS_DN[[dsmap$TIME]]))){
+          # This gets the subject dataset leading up to the current subset
+          PREDOSEDS = SUBDS[SUBDS[[dsmap$TIME]] < min(SUBDS_DN[[dsmap$TIME]]), ]
+          # Now we pluck off the last value:
+          PREDOSE_CONC = PREDOSEDS[nrow(PREDOSEDS), ]$SI_CONC
+        }
+
+
+        # The nominal time of this point will be 0, but in a multiple dose
+        # setting the clock time will be different:
+        C0_NTIME = 0
+        C0_TIME  = SUBDS_DN[[dsmap$TIME]][1] - SUBDS_DN[[dsmap$NTIME]][1]
+        BACKEXTRAP_NTIME = NULL
+        BACKEXTRAP_TIME  = NULL
+        BACKEXTRAP_CONC  = NULL
         
+        # Extrapolating C0 if extrapolation has been selected and the first
+        # nominal time is not zero
+        if(extrap_C0 & SUBDS_DN[[dsmap$NTIME]][1] != 0){
+          # pulling out the route for the subject:
+          ROUTE = SUBDS_DN[[dsmap$ROUTE]][1]
+
+          if(ROUTE %in% c("iv bolus")){
+            if(is.null(dsmap$BACKEXTRAP)){
+              BACKEXTRAP_N     = extrap_N
+            } else {
+              # Using subjects-specific number of points to extrapolate
+              BACKEXTRAP_N     = SUBDS_DN[[dsmap$BACKEXTRAP]][1]
+            }
+            # Time, nominal time and concentrations sequences used for
+            # extrapolation
+            BACKEXTRAP_NTIME = SUBDS_DN[[dsmap$NTIME]][1:BACKEXTRAP_N]
+            BACKEXTRAP_TIME  = SUBDS_DN[[dsmap$TIME]] [1:BACKEXTRAP_N]
+            BACKEXTRAP_CONC  = SUBDS_DN$SI_CONC       [1:BACKEXTRAP_N]
+
+
+            # This does least squares fitting of the ln of the concentration
+            # data:
+            BACKEXTRAP_TH    = calculate_halflife(BACKEXTRAP_NTIME, BACKEXTRAP_CONC)
+
+            # Pulling out the slope and intercept:
+            BACKEXTRAP_SLOPE     = BACKEXTRAP_TH$mod$coefficients[2]
+            BACKEXTRAP_INTERCEPT = BACKEXTRAP_TH$mod$coefficients[1]
+
+            if(BACKEXTRAP_SLOPE < 0){
+              # Because we're using nominal time to perform the regression the
+              # intercept is the natural log of the C0:
+              C0 = exp(BACKEXTRAP_INTERCEPT)
+            } else {
+              C0 = BACKEXTRAP_CONC[1]
+            }
+          }
+          if(ROUTE %in% c("iv infusion", "extra-vascular")){
+            # Here we set the C0 value to the PREDOSE_CONC calculated above:
+            C0 = PREDOSE_CONC
+          }
         } else {
-          Cmax            = signif(max(SUBDS_DN[[dsmap$CONC]]), digits)
-          Tmax            = signif(min(SUBDS_DN[SUBDS_DN[[dsmap$CONC]] == tmpsum$Cmax, ][[dsmap$TIME]]), digits)
+          # Otherwise we return -1 for C0 
+          C0 = -1
         }
         
         # Getting the Cmax and Tmax the min() below selects the first time
@@ -10071,6 +10396,7 @@ system_nca_run = function(cfg,
         tmpsum$Vp_obs          = -1
         tmpsum$Vss_obs         = -1
         tmpsum$Vss_pred        = -1
+        tmpsum$C0              = C0  
         tmpsum$CL_obs          = -1
         tmpsum$CL_pred         = -1
         tmpsum$AUClast         = -1
@@ -10078,28 +10404,22 @@ system_nca_run = function(cfg,
         tmpsum$AUCinf_obs      = -1
 
         if(PROC_SUBDN){
-          # Calculating the predose conc to subtract from the concentration
-          # By default it's zero:
-          PREDOSE_CONC = 0.0
-          # If rescorr is selected we look for residual observations before the
-          # first observation of the given subset
-          if(rescorr){
-            # first we look for observations with time values before the first
-            # observation of the current subset
-            if(any(SUBDS[[dsmap$TIME]] < min(SUBDS_DN[[dsmap$TIME]]))){
-              # This gets the subject dataset leading up to the current subset
-              PREDOSEDS = SUBDS[SUBDS[[dsmap$TIME]] < min(SUBDS_DN[[dsmap$TIME]]), ]
-              # Now we pluck off the last value:
-              PREDOSE_CONC = PREDOSEDS[nrow(PREDOSEDS), ][[dsmap$CONC]]
-            }
-          }
-        
           # Creating data frames for NCA
-          NCA_CONCDS = data.frame(NTIME =   SUBDS_DN[[dsmap$NTIME]],
-                                  TIME  =   SUBDS_DN[[dsmap$TIME]],
-                                  CONC  = c(SUBDS_DN[[dsmap$CONC]] - PREDOSE_CONC),
-                                  ID    = sub)
-          NCA_DOSEDS = data.frame(NTIME  =   min(NCA_CONCDS$NTIME),
+          if(extrap_C0){
+            # If we have extrapolation selected we add the first time point to
+            # the NCA dataset:
+            NCA_CONCDS = data.frame(NTIME =   c(C0_NTIME, SUBDS_DN[[dsmap$NTIME]]),
+                                    TIME  =   c(C0_TIME,  SUBDS_DN[[dsmap$TIME]]),
+                                    CONC  =   c(C0,       SUBDS_DN$SI_CONC),
+                                    ID    = sub)
+          } else {
+            # Otherwise we just use the data from the dataframe:
+            NCA_CONCDS = data.frame(NTIME =   SUBDS_DN[[dsmap$NTIME]],
+                                    TIME  =   SUBDS_DN[[dsmap$TIME]],
+                                    CONC  =   SUBDS_DN$SI_CONC,
+                                    ID    = sub)
+          }
+          NCA_DOSEDS = data.frame(NTIME =   min(NCA_CONCDS$NTIME),
                                   DOSE  = SUBDS_DN$SI_DOSE[1],
                                   ID    = sub)
 
@@ -10109,16 +10429,16 @@ system_nca_run = function(cfg,
           # Vp_obs = ------------------------------
           #           Corrected first observed conc
           if(is.null(digits)){
-            Vp_obs = SUBDS_DN$SI_DOSE[1]/(SUBDS_DN[[dsmap$CONC]][1] - PREDOSE_CONC)
+            Vp_obs = SUBDS_DN$SI_DOSE[1]/(SUBDS_DN$SI_CONC[1])
           } else {
-            Vp_obs = signif(SUBDS_DN$SI_DOSE[1]/(SUBDS_DN[[dsmap$CONC]][1] - PREDOSE_CONC), digits)
+            Vp_obs = signif(SUBDS_DN$SI_DOSE[1]/(SUBDS_DN$SI_CONC[1]), digits)
           }
 
           time_start = min(NCA_CONCDS$NTIME) 
           time_stop  = max(NCA_CONCDS$NTIME)
           # Removing negative concentration values that may result from the
           # residual correction
-          NCA_CONCDS = NCA_CONCDS[NCA_CONCDS$CONC > 0, ]
+          #NCA_CONCDS = NCA_CONCDS[NCA_CONCDS$CONC > 0, ]
 
           NCA.conc = PKNCA::PKNCAconc(NCA_CONCDS, CONC~NTIME|ID)
           NCA.dose = PKNCA::PKNCAdose(NCA_DOSEDS, DOSE~NTIME|ID)
@@ -10137,7 +10457,6 @@ system_nca_run = function(cfg,
                                                              aucinf.pred = TRUE,
                                                              aucinf.obs  = TRUE))
           NCA.res =  PKNCA::pk.nca(NCA.data)
-
 
           # Rounding the NCA results:
           if(!is.null(digits)){
@@ -10164,46 +10483,65 @@ system_nca_run = function(cfg,
           } else {
              PKNCA_raw_all = rbind(PKNCA_raw_all,  PKNCA_raw_tmp)
           }
+
+          # Summarizing everything for the current subject/dose to be used in
+          # report generation later
+          lctmp = c(1, paste("Number of observations:"   , var2string(tmpsum$Nobs       , nsig_e=2, nsig_f=0) ),
+                    1, paste("Dose: "                    , var2string(tmpsum$Dose       , nsig_e=2, nsig_f=2) ), 
+                    1, paste("Dose concentration units: ", var2string(tmpsum$Dose_CU    , nsig_e=2, nsig_f=2) ), 
+                    1, paste("Cmax: "                    , var2string(tmpsum$Cmax       , nsig_e=2, nsig_f=2) ), 
+                    1, paste("C0: "                      , var2string(tmpsum$C0         , nsig_e=2, nsig_f=2) ), 
+                    1, paste("Tmax: "                    , var2string(tmpsum$Tmax       , nsig_e=2, nsig_f=2) ), 
+                    1, paste("Halflife: "                , var2string(tmpsum$halflife   , nsig_e=2, nsig_f=2) ),
+                    1, paste("Time interval: "           , toString(time_start), '-', toString(time_stop))) 
+          rctmp = c(1, paste("Vp  (observed):"           , var2string(tmpsum$Vp_obs     , nsig_e=2, nsig_f=2) ),
+                    1, paste("Vss (observed):"           , var2string(tmpsum$Vss_obs    , nsig_e=2, nsig_f=2) ),
+                    1, paste("Vss (predicted):"          , var2string(tmpsum$Vss_pred   , nsig_e=2, nsig_f=2) ), 
+                    1, paste("CL  (observed):"           , var2string(tmpsum$CL_obs     , nsig_e=2, nsig_f=2) ), 
+                    1, paste("CL  (predicted):"          , var2string(tmpsum$CL_pred    , nsig_e=2, nsig_f=2) ), 
+                    1, paste("AUC (0-last):"             , var2string(tmpsum$AUClast    , nsig_e=2, nsig_f=2) ), 
+                    1, paste("AUC (0-inf, predicted):"   , var2string(tmpsum$AUCinf_pred, nsig_e=2, nsig_f=2) ), 
+                    1, paste("AUC (0-inf, observed):"    , var2string(tmpsum$AUCinf_obs , nsig_e=2, nsig_f=2) ))
+          
+          # storing the actual values to be used in the reporting
+          rptobjs[[sub_str]][[dosenum_str]]$dosenum = dosenum
+          rptobjs[[sub_str]][[dosenum_str]]$sub     = sub    
+          rptobjs[[sub_str]][[dosenum_str]]$lc = lctmp
+          rptobjs[[sub_str]][[dosenum_str]]$rc = rctmp
+          
+          tmpsum = as.data.frame(tmpsum)
+          if(is.null(NCA_sum)){
+             NCA_sum = tmpsum
+          } else {
+             NCA_sum = rbind(tmpsum, NCA_sum)
+          }
+          
+          
+          # Overlaying the concentration values used
+          ptmp = eval(parse(text="ptmp + geom_point(data=NCA_CONCDS, aes(x=TIME, y=CONC), shape=1,           color='green')"))
+          ptmp = eval(parse(text="ptmp +  geom_line(data=NCA_CONCDS, aes(x=TIME, y=CONC), linetype='dashed', color='green')"))
+
+          # Adding extrapolation information
+          if(extrap_C0){
+            # Showing extrapolation points and line:
+            if(!is.null(BACKEXTRAP_TIME) & !is.null(BACKEXTRAP_CONC)){
+              BACKEXTRAP_DF  = data.frame(TIME=c(C0_TIME, BACKEXTRAP_TIME), CONC=c(C0, BACKEXTRAP_CONC))
+              ptmp = eval(parse(text="ptmp + geom_point(data=BACKEXTRAP_DF, aes(x=TIME, y=CONC), shape   =1,      , color='orange')"))
+              ptmp = eval(parse(text="ptmp +  geom_line(data=BACKEXTRAP_DF, aes(x=TIME, y=CONC), linetype='dotted', color='orange')"))
+            } 
+
+            # Showing C0 with a solid point
+            BACKEXTRAP_DF  = data.frame(TIME=c(C0_TIME), CONC=c(C0))
+            ptmp = eval(parse(text="ptmp + geom_point(data=BACKEXTRAP_DF, aes(x=TIME, y=CONC), shape   =16,      , color='orange')"))
+          
+          }
+
+
+
+
         } else {
           vp(cfg, "    Skipping this subject/dose combination")
         }
-
-
-        # Summarizing everything for the current subject/dose to be used in
-        # report generation later
-        lctmp = c(1, paste("Number of observations:"   , var2string(tmpsum$Nobs       , nsig_e=2, nsig_f=0) ),
-                  1, paste("Dose: "                    , var2string(tmpsum$Dose       , nsig_e=2, nsig_f=2) ), 
-                  1, paste("Dose concentration units: ", var2string(tmpsum$Dose_CU    , nsig_e=2, nsig_f=2) ), 
-                  1, paste("Cmax: "                    , var2string(tmpsum$Cmax       , nsig_e=2, nsig_f=2) ), 
-                  1, paste("Tmax: "                    , var2string(tmpsum$Tmax       , nsig_e=2, nsig_f=2) ), 
-                  1, paste("Halflife: "                , var2string(tmpsum$halflife   , nsig_e=2, nsig_f=2) ),
-                  1, paste("Time interval: "           , toString(time_start), '-', toString(time_stop))) 
-        rctmp = c(1, paste("Vp  (observed):"           , var2string(tmpsum$Vp_obs     , nsig_e=2, nsig_f=2) ),
-                  1, paste("Vss (observed):"           , var2string(tmpsum$Vss_obs    , nsig_e=2, nsig_f=2) ),
-                  1, paste("Vss (predicted):"          , var2string(tmpsum$Vss_pred   , nsig_e=2, nsig_f=2) ), 
-                  1, paste("CL  (observed):"           , var2string(tmpsum$CL_obs     , nsig_e=2, nsig_f=2) ), 
-                  1, paste("CL  (predicted):"          , var2string(tmpsum$CL_pred    , nsig_e=2, nsig_f=2) ), 
-                  1, paste("AUC (0-last):"             , var2string(tmpsum$AUClast    , nsig_e=2, nsig_f=2) ), 
-                  1, paste("AUC (0-inf, predicted):"   , var2string(tmpsum$AUCinf_pred, nsig_e=2, nsig_f=2) ), 
-                  1, paste("AUC (0-inf, observed):"    , var2string(tmpsum$AUCinf_obs , nsig_e=2, nsig_f=2) ))
-        
-        # storing the actual values to be used in the reporting
-        rptobjs[[sub_str]][[dosenum_str]]$dosenum = dosenum
-        rptobjs[[sub_str]][[dosenum_str]]$sub     = sub    
-        rptobjs[[sub_str]][[dosenum_str]]$lc = lctmp
-        rptobjs[[sub_str]][[dosenum_str]]$rc = rctmp
-
-        tmpsum = as.data.frame(tmpsum)
-        if(is.null(NCA_sum)){
-           NCA_sum = tmpsum
-        } else {
-           NCA_sum = rbind(tmpsum, NCA_sum)
-        }
-
-
-        # Overlaying the concentration values used
-        ptmp = eval(parse(text="ptmp + geom_point(data=NCA_CONCDS, aes(x=TIME, y=CONC), shape=1,           color='blue')"))
-        ptmp = eval(parse(text="ptmp +  geom_line(data=NCA_CONCDS, aes(x=TIME, y=CONC), linetype='dashed', color='blue')"))
       }
 
       # Adding PK plot here
@@ -10247,13 +10585,15 @@ cfg}
 #'@description Appends the results of NCA to a report
 #'
 #'@param cfg ubiquity system object
-#'@param analysis_name string containing the name of the analysis (default \code{'analysis'}) to archive to files and reference results later
 #'@param rptname name of report to append results to (default \code{'default'})
+#'@param analysis_name string containing the name of the analysis (default \code{'analysis'}) to archive to files and reference results later
+#'@param rows_max maximum number of rows per slide when generating tabular data
 #'@param table_headers Boolean variable to add descriptive headers to output tables (default \code{TRUE})
 #'@return cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:
 system_report_nca = function(cfg, 
                           rptname       = "default",
                           analysis_name = "analysis",
+                          rows_max      = 10,
                           table_headers = TRUE){
   # Supported report types
   rpttypes = c("PowerPoint")
@@ -10287,6 +10627,7 @@ system_report_nca = function(cfg,
     rptobjs   =  cfg$nca[[analysis_name]]$rptobjs
     grobs_sum =  cfg$nca[[analysis_name]]$grobs_sum
     NCA_sum   =  cfg$nca[[analysis_name]]$NCA_sum
+    ID_label  =  cfg$nca[[analysis_name]]$text$ID_label
 
     # Creating subject level slides for each dose and a summary plot
     for(sub_str in names(rptobjs)){
@@ -10294,88 +10635,118 @@ system_report_nca = function(cfg,
         dosenum = rptobjs[[sub_str]][[dosenum_str]]$dosenum
         sub     = rptobjs[[sub_str]][[dosenum_str]]$sub
         cfg = system_report_slide_two_col(cfg, rptname=rptname,
-                  title         = paste("Subject: ", sub, ",  Dose: ", dosenum, sep=""),
+                  title         = paste(ID_label,": ", sub, ",  Dose: ", dosenum, sep=""),
                   content_type  = "list",
                   left_content  = rptobjs[[sub_str]][[dosenum_str]]$lc,
                   right_content = rptobjs[[sub_str]][[dosenum_str]]$rc)
       }
       cfg = system_report_slide_content(cfg, rptname=rptname,
-                title         = paste("Subject: ", sub, sep=""),
+                title         = paste(ID_label,": ", sub, sep=""),
                 content_type  = "ggplot",
                 content       = grobs_sum[[sub_str]])
     }
 
-    # Summary tables
-    tab1 = list()
-    tab1$table = NCA_sum[,c(1:5, 6:11) ]
-    if(table_headers){
-      tab1$merge_header = FALSE
-      tab1$header_top = list(
-                ID          = "Subject"   ,
-                Nobs        = "Number"    ,
-                Dose_Number = "Dose"      ,
-                Dose        = "Dose"      ,
-                Dose_CU     = "Dose"      ,
-                Cmax        = "Cmax"      ,
-                Tmax        = "Tmax"      , 
-                halflife    = "Halflife"  ,
-                Vp_obs      = "Vp"        ,
-                Vss_obs     = "Vss"       ,
-                Vss_pred    = "Vss"       )
-      
-      tab1$header_middle = list(
-                ID          = ""          ,
-                Nobs        = "Obs"       ,
-                Dose_Number = "Number"    ,
-                Dose        = "Dataset"   ,
-                Dose_CU     = "Conc Units",
-                Cmax        = ""          ,
-                Tmax        = ""          , 
-                halflife    = ""          ,
-                Vp_obs      = "Observed"  ,
-                Vss_obs     = "Observed"  ,
-                Vss_pred    = "Predicted" )
-    }
- 
-    tab2 = list()
-    tab2$table = NCA_sum[,c(1:5, 12:16) ]
-    if(table_headers){
-      tab2$merge_header = FALSE
-      tab2$header_top = list(
-                ID          = "Subject"   ,
-                Nobs        = "Number"    ,
-                Dose_Number = "Dose"      ,
-                Dose        = "Dose"      ,
-                Dose_CU     = "Dose"      ,
-                CL_obs      = "CL"        ,
-                CL_pred     = "CL"        ,
-                AUClast     = "AUC"       ,
-                AUCinf_pred = "AUC"       ,
-                AUCinf_obs  = "AUC"       )
-      
-      tab2$header_middle = list(
-                ID          = ""          ,
-                Nobs        = "Obs"       ,
-                Dose_Number = "Number"    ,
-                Dose        = "Dataset"   ,
-                Dose_CU     = "Conc Units",
-                CL_obs      = "Observed"  ,
-                CL_pred     = "Predicted" ,
-                AUClast     = "Last"      ,
-                AUCinf_pred = "Inf (Pred)" ,
-                AUCinf_obs  = "Inf (Obs)" )
-    }
- 
-    # Splitting the table across two slides
-    cfg = system_report_slide_content(cfg, rptname=rptname,
-               title         = paste("NCA Summary"),
-               content_type  = "flextable",
-               content       = tab1)
 
-    cfg = system_report_slide_content(cfg, rptname=rptname,
-               title         = paste("NCA Summary"),
-               content_type  = "flextable",
-               content       = tab2)
+    # Cleaning up the summary level information
+    NCA_sum$Dose_Number =  as.factor(NCA_sum$Dose_Number)
+    NCA_sum$Dose_CU     = var2string(NCA_sum$Dose_CU    , nsig_e=2, nsig_f=2)
+    NCA_sum$Cmax        = var2string(NCA_sum$Cmax       , nsig_e=2, nsig_f=2)
+    NCA_sum$halflife    = var2string(NCA_sum$halflife   , nsig_e=2, nsig_f=2)
+    NCA_sum$Vp_obs      = var2string(NCA_sum$Vp_obs     , nsig_e=2, nsig_f=2)
+    NCA_sum$Vss_obs     = var2string(NCA_sum$Vss_obs    , nsig_e=2, nsig_f=2)
+    NCA_sum$Vss_pred    = var2string(NCA_sum$Vss_pred   , nsig_e=2, nsig_f=2)
+    NCA_sum$CL_obs      = var2string(NCA_sum$CL_obs     , nsig_e=2, nsig_f=2)
+    NCA_sum$CL_pred     = var2string(NCA_sum$CL_pred    , nsig_e=2, nsig_f=2)
+    NCA_sum$AUClast     = var2string(NCA_sum$AUClast    , nsig_e=2, nsig_f=2)
+    NCA_sum$AUCinf_pred = var2string(NCA_sum$AUCinf_pred, nsig_e=2, nsig_f=2)
+    NCA_sum$AUCinf_obs  = var2string(NCA_sum$AUCinf_obs , nsig_e=2, nsig_f=2)
+
+    # Stepping through the results 
+    offset = 0
+    while(offset < nrow(NCA_sum)){
+      # Determing the rows to report in this iteration
+      rstop = offset+rows_max
+      if(nrow(NCA_sum) < rstop){
+        rstop = nrow(NCA_sum) }
+      row_report = c((offset+1):rstop)
+
+      # Stepping the offset:
+      offset = offset+rows_max
+
+      # Summary tables
+      tab1 = list()
+      tab1$table = NCA_sum[row_report,c(1:5, 6:11) ]
+      if(table_headers){
+        tab1$merge_header = FALSE
+        tab1$header_top = list(
+                  ID          = ID_label    , 
+                  Nobs        = "N"         ,
+                  Dose_Number = "Dose"      ,
+                  Dose        = "Dose"      ,
+                  Dose_CU     = "Dose"      ,
+                  Cmax        = "Cmax"      ,
+                  Tmax        = "Tmax"      , 
+                  halflife    = "Halflife"  ,
+                  Vp_obs      = "Vp"        ,
+                  Vss_obs     = "Vss"       ,
+                  Vss_pred    = "Vss"       )
+        
+        tab1$header_middle = list(
+                  ID          = ""          ,
+                  Nobs        = "Obs"       ,
+                  Dose_Number = "Number"    ,
+                  Dose        = "Dataset"   ,
+                  Dose_CU     = "Conc Units",
+                  Cmax        = ""          ,
+                  Tmax        = ""          , 
+                  halflife    = ""          ,
+                  Vp_obs      = "Observed"  ,
+                  Vss_obs     = "Observed"  ,
+                  Vss_pred    = "Predicted" )
+      }
+      
+      tab2 = list()
+      tab2$table = NCA_sum[row_report,c(1:5, 12:17) ]
+      if(table_headers){
+        tab2$merge_header = FALSE
+        tab2$header_top = list(
+                  ID          = ID_label    ,
+                  Nobs        = "N"         ,
+                  Dose_Number = "Dose"      ,
+                  Dose        = "Dose"      ,
+                  Dose_CU     = "Dose"      ,
+                  C0          = "C0"        ,
+                  CL_obs      = "CL"        ,
+                  CL_pred     = "CL"        ,
+                  AUClast     = "AUC"       ,
+                  AUCinf_pred = "AUC"       ,
+                  AUCinf_obs  = "AUC"       )
+        
+        tab2$header_middle = list(
+                  ID          = ""          ,
+                  Nobs        = "Obs"       ,
+                  Dose_Number = "Number"    ,
+                  Dose        = "Dataset"   ,
+                  Dose_CU     = "Conc Units",
+                  C0          = "Extrap"    , 
+                  CL_obs      = "Obs"       ,
+                  CL_pred     = "Pred"      ,
+                  AUClast     = "Last"      ,
+                  AUCinf_pred = "Inf(Pred)" ,
+                  AUCinf_obs  = "Inf(Obs)" )
+      }
+      
+      # Splitting the table across two slides
+      cfg = system_report_slide_content(cfg, rptname=rptname,
+                 title         = paste("NCA Summary"),
+                 content_type  = "flextable",
+                 content       = tab1)
+      
+      cfg = system_report_slide_content(cfg, rptname=rptname,
+                 title         = paste("NCA Summary"),
+                 content_type  = "flextable",
+                 content       = tab2)
+    }
  
   } else {
      vp(cfg, "system_report_nca()")

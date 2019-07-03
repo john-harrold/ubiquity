@@ -130,6 +130,7 @@
 # ODEs
 # ----
 # <ODE:state> right hand side
+<ODE:TMP> 0.0
 
 # Tissue Distribution
 # -------------------
@@ -154,6 +155,7 @@
 # Outputs that begin with QC will not be displayed in the GUI
 #
 # <O> outputname  = right hand side
+<O> TMP_OBS     = 0.0
 
 # #------------#
 # | Estimation |
