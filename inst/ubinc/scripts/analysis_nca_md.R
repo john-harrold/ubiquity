@@ -35,6 +35,9 @@ cfg = system_nca_run(cfg, dsname        = "PKDATA",
 # Creating an empty PowerPoint report
 cfg = system_report_init(cfg)
 
+# Giving the report a title slide
+cfg = system_report_slide_title(cfg, title = "NCA of Multiple Dose PK")
+
 # Appending the NCA results to the report
 cfg = system_report_nca(cfg, analysis_name = "pk_multiple_dose")
 

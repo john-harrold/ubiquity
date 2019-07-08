@@ -38,14 +38,14 @@ if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscal
 
 \item{sparse}{Boolean variable used to indicate data used sparse sampling and the analysis should use the average at each time point (the \code{SPARSEGROUP} column must be specified in the \code{dsmap} below)}
 
-\item{dsmap}{list with names specifying the columns in the dataset:
+\item{dsmap}{list with names specifying the columns in the dataset (* required): 
 \itemize{
- \item \code{TIME}        Time since the first dose; required, \code{"TIME"} (default)
- \item \code{NTIME}       Nominal time since last dose; required \code{"NTIME"} (default)
- \item \code{CONC}        Concentration data; required \code{"CONC"} (default)
- \item \code{DOSE}        Dose given; required (\code{"DOSE"} (default)
- \item \code{ID}          Subject ID; required (\code{"ID"} (default)
- \item \code{ROUTE}       Route of administration; required \code{"ROUTE"} (default), can be either \code{"iv bolus"}, \code{"iv infusion"} or \code{"extra-vascular"} 
+ \item \code{TIME}*       Time since the first dose; \code{"TIME"} (default)
+ \item \code{NTIME}*      Nominal time since last dose;  \code{"NTIME"} (default)
+ \item \code{CONC}*       Concentration data;  \code{"CONC"} (default)
+ \item \code{DOSE}*       Dose given;  (\code{"DOSE"} (default)
+ \item \code{ID}*         Subject ID;  (\code{"ID"} (default)
+ \item \code{ROUTE}*      Route of administration;  \code{"ROUTE"} (default), can be either \code{"iv bolus"}, \code{"iv infusion"} or \code{"extra-vascular"} 
  \item \code{DOSENUM}     Numeric dose (starting at 1) used for grouping multiple dose data; optional, \code{NULL} (default) for single dose data)
  \item \code{BACKEXTRAP}  Specifying the number of points to use to extrapolate the initial concentration for "iv bolus" dosing; optoinal f \code{NULL} (default) will use the value defined in \code{extrap_N} (note this value must be <= NCA_min)
  \item \code{SPARSEGROUP} Column containing a unique value grouping cohorts for pooling data. Needed when \code{sparse} is set to \code{TRUE}; optional, \code{NULL} (default)

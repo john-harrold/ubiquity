@@ -29,7 +29,7 @@ library(ubiquity)
 fr = workshop_fetch(section="Simulation", overwrite=TRUE)
 ```
 
-This should create the folloing scripts:
+This should create the following scripts:
 
 * ``analysis_single.r`` Simulating the response for a single indiviudal
 * ``analysis_multiple.r`` Mote Carlo simulations using IIV

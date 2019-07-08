@@ -9998,14 +9998,14 @@ res}
 #'@param sparse   Boolean variable used to indicate data used sparse sampling and the analysis should use the average at each time point (the \code{SPARSEGROUP} column must be specified in the \code{dsmap} below)
 #'@param dscale factor to multiply the dose to get it into the same units as concentration (default \code{1}):
 #' if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscale = 1e6}
-#'@param dsmap list with names specifying the columns in the dataset:
+#'@param dsmap list with names specifying the columns in the dataset (* required): 
 #' \itemize{
-#'  \item \code{TIME}        Time since the first dose; required, \code{"TIME"} (default)
-#'  \item \code{NTIME}       Nominal time since last dose; required \code{"NTIME"} (default)
-#'  \item \code{CONC}        Concentration data; required \code{"CONC"} (default)
-#'  \item \code{DOSE}        Dose given; required (\code{"DOSE"} (default)
-#'  \item \code{ID}          Subject ID; required (\code{"ID"} (default)
-#'  \item \code{ROUTE}       Route of administration; required \code{"ROUTE"} (default), can be either \code{"iv bolus"}, \code{"iv infusion"} or \code{"extra-vascular"} 
+#'  \item \code{TIME}*       Time since the first dose; \code{"TIME"} (default)
+#'  \item \code{NTIME}*      Nominal time since last dose;  \code{"NTIME"} (default)
+#'  \item \code{CONC}*       Concentration data;  \code{"CONC"} (default)
+#'  \item \code{DOSE}*       Dose given;  (\code{"DOSE"} (default)
+#'  \item \code{ID}*         Subject ID;  (\code{"ID"} (default)
+#'  \item \code{ROUTE}*      Route of administration;  \code{"ROUTE"} (default), can be either \code{"iv bolus"}, \code{"iv infusion"} or \code{"extra-vascular"} 
 #'  \item \code{DOSENUM}     Numeric dose (starting at 1) used for grouping multiple dose data; optional, \code{NULL} (default) for single dose data)
 #'  \item \code{BACKEXTRAP}  Specifying the number of points to use to extrapolate the initial concentration for "iv bolus" dosing; optoinal f \code{NULL} (default) will use the value defined in \code{extrap_N} (note this value must be <= NCA_min)
 #'  \item \code{SPARSEGROUP} Column containing a unique value grouping cohorts for pooling data. Needed when \code{sparse} is set to \code{TRUE}; optional, \code{NULL} (default)
@@ -10290,6 +10290,9 @@ system_nca_run = function(cfg,
         # By default we process the current subject/dose combination
         PROC_SUBDN = TRUE
 
+        # pulling out the route for the subject/group
+        ROUTE = SUBDS_DN[[dsmap$ROUTE]][1]
+
         # But we check a few things first:
         # Checking to make sure dose is unique
         if(length(unique(SUBDS_DN[[dsmap$DOSE]]))>1){
@@ -10341,8 +10344,6 @@ system_nca_run = function(cfg,
         # Extrapolating C0 if extrapolation has been selected and the first
         # nominal time is not zero
         if(extrap_C0 & SUBDS_DN[[dsmap$NTIME]][1] != 0){
-          # pulling out the route for the subject:
-          ROUTE = SUBDS_DN[[dsmap$ROUTE]][1]
 
           if(ROUTE %in% c("iv bolus")){
             if(is.null(dsmap$BACKEXTRAP)){
@@ -10428,10 +10429,14 @@ system_nca_run = function(cfg,
           #                Dose in conc units
           # Vp_obs = ------------------------------
           #           Corrected first observed conc
-          if(is.null(digits)){
-            Vp_obs = SUBDS_DN$SI_DOSE[1]/(SUBDS_DN$SI_CONC[1])
+          if(ROUTE %in% c("iv bolus")){
+            if(is.null(digits)){
+              Vp_obs = SUBDS_DN$SI_DOSE[1]/(SUBDS_DN$SI_CONC[1])
+            } else {
+              Vp_obs = signif(SUBDS_DN$SI_DOSE[1]/(SUBDS_DN$SI_CONC[1]), digits)
+            }
           } else {
-            Vp_obs = signif(SUBDS_DN$SI_DOSE[1]/(SUBDS_DN$SI_CONC[1]), digits)
+            Vp_obs = -1
           }
 
           time_start = min(NCA_CONCDS$NTIME) 

@@ -4,9 +4,8 @@ graphics.off()
 options(show.error.locations = TRUE)
 
 # If we cannot load the ubiquity package we try the stand alone distribution
-#if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
-#{source(file.path("library", "r_general", "ubiquity.R")) }
-source(file.path("library", "r_general", "ubiquity.R")) 
+if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
+{source(file.path("library", "r_general", "ubiquity.R")) }
 
 # -------------------------------------------------------------------------
 # Use system_new(system_file="empty") to create a minimal system file
@@ -35,6 +34,9 @@ cfg = system_nca_run(cfg, dsname        = "PKDATA",
 
 # Creating an empty PowerPoint report
 cfg = system_report_init(cfg)
+
+# Giving the report a title slide
+cfg = system_report_slide_title(cfg, title = "NCA of Sparsely Sampled PK")
 
 # Appending the NCA results to the report
 cfg = system_report_nca(cfg, analysis_name = "pk_sparse")

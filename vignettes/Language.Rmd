@@ -146,7 +146,7 @@ The order isn’t important and the IIV terms can be reversed
 
 ### IIV and parameter sets ``<IIVSET:?>?`` \& ``<IIVCORSET:?>?``
 
-By default all parameter sets will have inter individual variability specified using the ``<IIV>`` and ``<IIVCOR>`` descriptors. To associate a specific set of IIVs to a parameter set use the ``<IIVSET>`` and ``<IIVCORSET>`` descriptors. These set descriptors operate differently than the parameter set descriptors (``<PSET>``). The ``<PSET>`` just overwrites the default values and inherets the default varaince/covariance information. If you alter the IIV information for a parameter set it will *reset* the IIV information for that parameter set. The entire variance covariance matrix will need to be specified for that parameter set. 
+By default all parameter sets will have inter individual variability specified using the ``<IIV>`` and ``<IIVCOR>`` descriptors. To associate a specific set of IIVs to a parameter set use the ``<IIVSET>`` and ``<IIVCORSET>`` descriptors. These set descriptors operate differently than the parameter set descriptors (``<PSET>``). The ``<PSET>`` just overwrites the default values and inherits the default variance/covariance information. If you alter the IIV information for a parameter set it will *reset* the IIV information for that parameter set. The entire variance covariance matrix will need to be specified for that parameter set. 
 
 If the parameter set ``MYPSET`` has been defined then the following could be used to define the IIV for the parameters ``Q`` and ``CL``:
 
