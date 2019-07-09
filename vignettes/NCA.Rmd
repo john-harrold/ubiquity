@@ -94,7 +94,7 @@ Generally NCA will determine the following directly from the data:
 * ``AUC`` - The area under the curve  ($units=time \times concentration$)
 * ``AUMC`` - The area under the first moment curve  ($units=time^2 \times concentration$)
 
-These properties are all based on observational data. So the ``Cmax`` and ``Tmax`` will most certainly not be at the actual maximum concentration but as long as we sample judiciously it will give us a good approximation. Similarly, the calculated ``AUC`` and ``AUMC`` will be different than the actual values. To calculate the areas you need to dig back into your calculus text books to the trapezoid method. Basically each sampling interval is broken up into a bunch of trapezoids and the area of each is calculated and added up for all of the ``n`` samples:
+These properties are all based on observational data. So the ``Cmax`` and ``Tmax`` will most certainly not be at the actual maximum concentration but as long as we sample judiciously it will give us a good approximation. Similarly, the calculated ``AUC`` and ``AUMC`` will be different than the actual values. To calculate the areas you need to dig back into your calculus text books to the trapezoid method. Basically each sampling interval is a trapezoid and the area of each is calculated and added up for all of the ``n`` samples:
 
 $$
 AUC = \int_0^{t_f} Cdt \approx  \sum_{i=1}^{n-1}{\frac{C_i+C_{i+1}}{2}\times (t_{i+1}-t_{i})},  \ \ \ \ \ 
@@ -110,7 +110,7 @@ This can be done in Excel pretty easily. Depending on the data and the analysis 
 
 Properties like AUC and AUMC can also be be calculated using extrapolation from the last time point to infinity to account for data beyond the observations at hand. The subsequent values of clearance, volumes of distribution, etc can also change with extrapolation. 
 
-There is a lot of nuance associated with these calculations, and it is good to rely on software that focuses on this type of analysis. The [``PKNCA``](https://github.com/billdenney/pknca) package has been developed with this in mind. Ubiquity provides a set of functions to automate NCA and reporting. These functions act as a wrapper for the ``PKNCA`` package which does most of the heavy lifting.
+There is a lot of nuance associated with these calculations, and it is good to rely on software that focuses on this type of analysis. The [``PKNCA``](https://github.com/billdenney/pknca) package has been developed with this in mind. Ubiquity provides a set of functions to automate NCA and reporting for preclinical data. These functions act as a wrapper for the ``PKNCA`` package which does most of the heavy lifting. Only a small subset of the ``PKNCA`` functionaltiy is used here. If more extensive analysis is necessary then ``PKNCA`` can be used directly. 
 
 This vignette contains a series of examples on how to perform NCA in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
@@ -343,7 +343,7 @@ nca_summary = read.csv(file.path("output", "pk_sparse-nca_summary.csv"))
 rhandsontable(nca_summary,  height=150, width=500)
 ```
 
-To confirm what was done and identify any outliers that may be causing problem you can use the report output. Again the grey markers show the data, the green dashed line will show the value used for NCA, and the orange will show the C0 estimate. 
+To confirm what was done and identify any outliers that may be causing problems,  you can use the report output. Again the grey markers show the data, the green dashed line will show the value used for NCA, and the orange will show the C0 estimate. 
 
 ![Reporting for sparse sampling NCA](nca_reporting-sparse.png){width=100%} 
 
