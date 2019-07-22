@@ -9,12 +9,9 @@ options(show.error.locations = TRUE)
 # setwd(dirname(sys.frame(tail(grep('source',sys.calls()),n=1))$ofile))
 graphics.off()
 
-# if we are in a stand alone distribution we run from there
-# otherwise we try to load the package
-if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
-  source(file.path('library', 'r_general', 'ubiquity.R'))
-} else { 
-  library(ubiquity) }
+# If we cannot load the ubiquity package we try the stand alone distribution
+if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
+{source(file.path("library", "r_general", "ubiquity.R")) }
 
 # Rebuilding the system (R scripts and compiling C code)
 cfg = build_system(system_file="system.txt")
@@ -26,7 +23,6 @@ cfg = system_fetch_cfg()
 # Starting a report
 #
 cfg = system_report_init(cfg)
-
 
 #
 #  use system_report_view_layout to get the 
@@ -45,8 +41,10 @@ system_report_slide_title(cfg,
 
 # For displaying only text use the following:
 cfg = system_report_slide_content(cfg,
-                            content_type = "text", 
-                            content      = "Text")
+                                  title        = "Title",
+                                  sub_title    = "Sub Title",
+                                  content_type = "text", 
+                                  content      = "Body Text")
 #
 # To display bulleted text make a vector with 
 # pairs of indent level and text:
@@ -79,6 +77,7 @@ cfg = system_report_slide_content(cfg,
                                   sub_title    = "Sub Title",
                                   content_type = "table", 
                                   content      = tcontent)
+
 #
 # To add an image file the dimensions should be 
 #
@@ -86,7 +85,7 @@ cfg = system_report_slide_content(cfg,
 p = ggplot() + annotate("text", x=0, y=0, label = "picture example")
 imgfile = tempfile(pattern="image", fileext=".png")
 ggsave(filename=imgfile, plot=p, height=5.15, width=9, units="in")
-
+ 
 cfg = system_report_slide_content(cfg,
                                   title        = "Image example",
                                   sub_title    = "Image file",
@@ -104,35 +103,36 @@ cfg = system_report_slide_content(cfg,
 cfg = system_report_slide_section(cfg,
        title     = "Information in Two Column",      
        sub_title = "Text, pictures and bullets")
-
+ 
 #
 # Two columns of content
 #
 
+
+# 
 cfg = system_report_slide_two_col(cfg,
         title                  = "Two columns of plain text",      
-        sub_title              = NULL, 
+        sub_title              = "Subtitle", 
         content_type           = "text", 
         left_content           = "Left Side",
         right_content          = "Right Side")
 
 cfg = system_report_slide_two_col(cfg,
        title                  = "Two columns of lists",      
-       sub_title              = NULL, 
+       sub_title              = "Subtitle", 
        content_type           = "list", 
        left_content           = lcontent,
        right_content          = lcontent)
-
-
+  
+  
 cfg = system_report_slide_two_col(cfg,
        title                  = "Two columns: image and table",      
-       sub_title              = NULL, 
+       sub_title              = "Subtitle", 
        content_type           = "text", 
        left_content_type      = "ggplot",
        left_content           = p,
        right_content_type     = "table", 
        right_content          = tcontent)
-
 
 cfg = system_report_slide_two_col(cfg,
        title                  = "Two columns: plain text and image with header",      
@@ -146,16 +146,16 @@ cfg = system_report_slide_two_col(cfg,
 
 
 
-# Example using flex tables
+# # Example using flex tables
 tcf = list()
 tcf$table = data.frame(Parameters = c("Vp", "Cl", "Q", "Vt"),
                        Values     = 1:4,
                        Units      = c("L", "L/hr", "L/hr", "L") )
-# tcf$header_top   = 
-#      list(Parameters     = "Name", 
-#           Values         = "Value",
-#           Units          = "Units")
-# 
+tcf$header_top   = 
+     list(Parameters     = "Name", 
+          Values         = "Value",
+          Units          = "Units")
+
 tcf$cwidth        = 0.8 
 tcf$table_autofit = TRUE
 tcf$table_theme   ='theme_zebra'

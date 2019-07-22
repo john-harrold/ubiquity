@@ -4,7 +4,8 @@
 \alias{system_report_ph_content}
 \title{Populate Placeholder In Officer Report}
 \usage{
-system_report_ph_content(cfg, rpt, content_type, content, type, index)
+system_report_ph_content(cfg, rpt, content_type, content, type, index,
+  ph_label)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
@@ -18,6 +19,8 @@ system_report_ph_content(cfg, rpt, content_type, content, type, index)
 \item{type}{placeholder type (\code{"body"})}
 
 \item{index}{placeholder index (integer)}
+
+\item{ph_label}{placeholder location (text)}
 }
 \value{
 officer pptx object with the content added

@@ -15,7 +15,7 @@
 #'@import rstudioapi
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
-#'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail
+#'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion
 #'@importFrom stats median qt
 #'@importFrom MASS mvrnorm
 
@@ -8318,12 +8318,12 @@ if(isgood){
             # the type and index. If it's title we put the layout and master
             # information in there as well.
             if(lp[pidx, ]$type == "body"){
-              textstr = sprintf('type="body", index =%d', pidx)
-              rpt =ph_with_text(x=rpt, type="body", index=pidx, str=textstr)  
+              textstr = sprintf('type="body", index =%d, ph_label=%s', pidx, lp[pidx, ]$ph_label)
+              rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=lp[pidx, ]$ph_label), index = meta$section$indices$pidx, value=textstr) 
             } 
             if(lp[pidx, ]$type %in% c("title", "ctrTitle", "subTitle")){
-              textstr = sprintf('layout ="%s", master = "%s", type="%s", index =%d', layout, master, lp[pidx, ]$type,  pidx)
-              rpt =ph_with_text(x=rpt, type=lp[pidx, ]$type, str=textstr)  
+              textstr = sprintf('layout ="%s", master = "%s", type="%s", index =%d, ph_label=%s', layout, master, lp[pidx, ]$type,  pidx, lp[pidx, ]$ph_label)
+              rpt =ph_with(x=rpt, location=ph_location_label(ph_label=lp[pidx, ]$ph_label), value=textstr)  
             }
          }
        } 
@@ -8652,11 +8652,21 @@ if(is.null(rpttype) & !is.null(template)){
   }
 }
 
+# Making sure that officer is installed
 if(!system_req("officer")){
   isgood = FALSE
   vp(cfg, "Reporting is done through the 'officer' package. Unable to load ")
   vp(cfg, "this package. Reporting will be disabled.")
   cfg$reporting$enabled = FALSE
+} else if(utils::packageVersion("officer") < "0.3.5"){
+  # Now we make sure the correct version is installed.
+  isgood = FALSE
+  vp(cfg, paste("The currently installed version of officer is: >", utils::packageVersion("officer"),"<", sep=""))
+  vp(cfg, "Version officer version >= 0.3.5 required.")
+  vp(cfg, "Note: If you were using an organizational template with a")
+  vp(cfg, "      previous version you will need to update your myOrg.R")
+  vp(cfg, "      function. See the reporting vignette for more details,")
+  vp(cfg, "      specifically the ph_labels fields.")
 }
 
 if(isgood){
@@ -8776,23 +8786,27 @@ system_report_slide_content = function (cfg,
       tmprpt = add_slide(x      = tmprpt, 
                          layout = meta$content$layout$general,
                          master = meta$content$master$general)
-      body_index      = meta$content$indices$content_body
-      sub_title_index = meta$content$indices$content_sub_title
+      body_index          = meta$content$indices$content_body
+      sub_title_index     = meta$content$indices$content_sub_title
+      body_ph_label       = meta$content$ph_labels$content_body
+      sub_title_ph_label  = meta$content$ph_labels$content_sub_title
     }
     else if(content_type == "list"){
       tmprpt = add_slide(x      = tmprpt, 
                          layout = meta$content$layout$list,
                          master = meta$content$master$list)
-      body_index      = meta$content$indices$list_body
-      sub_title_index = meta$content$indices$list_sub_title
+      body_index          = meta$content$indices$list_body
+      sub_title_index     = meta$content$indices$list_sub_title
+      body_ph_label       = meta$content$ph_labels$list_body
+      sub_title_ph_label  = meta$content$ph_labels$list_sub_title
     }
 
     # Adding Slide title/subtitle information
     if(!is.null(title)){
-      tmprpt = ph_with_text(x=tmprpt, type='title', str=title) } 
+      tmprpt = ph_with(x=tmprpt, location = ph_location_type(type = "title"),  value=title) } 
     if(!is.null(sub_title_index) & !is.null(sub_title)){
-      tmprpt = ph_with_text(x=tmprpt, type='body', index=sub_title_index, str=sub_title) } 
-
+      tmprpt = ph_with(x=tmprpt,  location=ph_location_label(ph_label=sub_title_ph_label), value=sub_title) }
+      
     # Adding the content
     type   = "body"
     tmprpt = system_report_ph_content(cfg          = cfg,          
@@ -8800,7 +8814,8 @@ system_report_slide_content = function (cfg,
                                       content_type = content_type, 
                                       content      = content, 
                                       type         = type,         
-                                      index        = body_index)
+                                      index        = body_index,
+                                      ph_label     = body_ph_label)
   
     # Putting the report back into cfg
     cfg$reporting$reports[[rptname]]$report = tmprpt
@@ -8904,22 +8919,36 @@ system_report_slide_two_col = function (cfg,
                            layout = meta$two_col$layout$text,
                            master = meta$two_col$master$text)
 
-        left_index         = meta$two_col$indices$text_left
-        right_index        = meta$two_col$indices$text_right
-        left_title_index   = NULL
-        right_title_index  = NULL
-        sub_title_index    = meta$two_col$indices$text_sub_title
+        left_index               = meta$two_col$indices$text_left
+        right_index              = meta$two_col$indices$text_right
+        left_title_index         = NULL
+        right_title_index        = NULL
+
+        sub_title_index          = meta$two_col$indices$text_sub_title
+        sub_title_ph_label       = meta$two_col$ph_labels$text_sub_title
+        left_ph_label            = meta$two_col$ph_labels$text_left
+        right_ph_label           = meta$two_col$ph_labels$text_right
+        left_title_ph_label      = NULL
+        right_title_ph_label     = NULL
+
       } else {
         # Text with headers
         tmprpt = add_slide(x      = tmprpt, 
                            layout = meta$two_col$layout$text_head,
                            master = meta$two_col$master$text_head)
 
-        left_index         = meta$two_col$indices$text_head_left
-        right_index        = meta$two_col$indices$text_head_right
-        left_title_index   = meta$two_col$indices$text_head_left_title
-        right_title_index  = meta$two_col$indices$text_head_right_title
-        sub_title_index    = meta$two_col$indices$text_head_sub_title
+        left_index               = meta$two_col$indices$text_head_left
+        right_index              = meta$two_col$indices$text_head_right
+        left_title_index         = meta$two_col$indices$text_head_left_title
+        right_title_index        = meta$two_col$indices$text_head_right_title
+        sub_title_index          = meta$two_col$indices$text_head_sub_title
+
+        sub_title_index          = meta$two_col$indices$text_head_sub_title
+        sub_title_ph_label       = meta$two_col$ph_labels$text_head_sub_title
+        left_ph_label            = meta$two_col$ph_labels$text_head_left
+        right_ph_label           = meta$two_col$ph_labels$text_head_right
+        left_title_ph_label      = meta$two_col$ph_labels$text_head_left_title
+        right_title_ph_label     = meta$two_col$ph_labels$text_head_right_title
       }
     }else if(content_type %in% c('list')){
       if(is.null(left_content_header) & is.null(right_content_header)){
@@ -8928,11 +8957,20 @@ system_report_slide_two_col = function (cfg,
                            layout = meta$two_col$layout$list,
                            master = meta$two_col$master$list)
 
-        left_index         = meta$two_col$indices$list_left
-        right_index        = meta$two_col$indices$list_right
-        left_title_index   = NULL
-        right_title_index  = NULL
-        sub_title_index    = meta$two_col$indices$list_sub_title
+        left_index               = meta$two_col$indices$list_left
+        right_index              = meta$two_col$indices$list_right
+        left_title_index         = NULL
+        right_title_index        = NULL
+        sub_title_index          = meta$two_col$indices$list_sub_title
+
+        sub_title_index          = meta$two_col$indices$list_sub_title
+        sub_title_ph_label       = meta$two_col$ph_labels$list_sub_title
+        left_ph_label            = meta$two_col$ph_labels$list_left
+        right_ph_label           = meta$two_col$ph_labels$list_right
+        left_title_ph_label      = NULL
+        right_title_ph_label     = NULL
+
+
       
       } else {
         # List with headers
@@ -8945,6 +8983,13 @@ system_report_slide_two_col = function (cfg,
         left_title_index   = meta$two_col$indices$list_head_left_title
         right_title_index  = meta$two_col$indices$list_head_right_title
         sub_title_index    = meta$two_col$indices$list_head_sub_title
+
+        sub_title_index          = meta$two_col$indices$list_head_sub_title
+        sub_title_ph_label       = meta$two_col$ph_labels$list_head_sub_title
+        left_ph_label            = meta$two_col$ph_labels$list_head_left
+        right_ph_label           = meta$two_col$ph_labels$list_head_right
+        left_title_ph_label      = meta$two_col$ph_labels$list_head_left_title
+        right_title_ph_label     = meta$two_col$ph_labels$list_head_right_title
       }
     }
 
@@ -8958,9 +9003,10 @@ system_report_slide_two_col = function (cfg,
 
     # Adding Slide title/subtitle information
     if(!is.null(title)){
-      tmprpt = ph_with_text(x=tmprpt, type='title', str=title) } 
+      tmprpt = ph_with(x=tmprpt, location = ph_location_type(type = "title"),  value=title) } 
     if(!is.null(sub_title_index) & !is.null(sub_title)){
-      tmprpt = ph_with_text(x=tmprpt, type='body', index=sub_title_index, str=sub_title) } 
+      tmprpt = ph_with(x=tmprpt,  location=ph_location_label(ph_label=sub_title_ph_label), value=sub_title) }
+
 
 
     #
@@ -8972,7 +9018,8 @@ system_report_slide_two_col = function (cfg,
                                         content_type = left_content_header_type, 
                                         content      = left_content_header, 
                                         type         = "body",         
-                                        index        = left_title_index)
+                                        index        = left_title_index,
+                                        ph_label     = left_title_ph_label)
     }
     if(!is.null(right_content_header)){
       tmprpt = system_report_ph_content(cfg          = cfg,          
@@ -8980,7 +9027,8 @@ system_report_slide_two_col = function (cfg,
                                         content_type = right_content_header_type, 
                                         content      = right_content_header, 
                                         type         = "body",         
-                                        index        = right_title_index)
+                                        index        = right_title_index,
+                                        ph_label     = right_title_ph_label)
     }
 
     #
@@ -8992,7 +9040,8 @@ system_report_slide_two_col = function (cfg,
                                         content_type = left_content_type, 
                                         content      = left_content, 
                                         type         = "body",         
-                                        index        = left_index)
+                                        index        = left_index,
+                                        ph_label     = left_ph_label)
     }
     if(!is.null(right_content)){
       tmprpt = system_report_ph_content(cfg          = cfg,          
@@ -9000,7 +9049,8 @@ system_report_slide_two_col = function (cfg,
                                         content_type = right_content_type, 
                                         content      = right_content, 
                                         type         = "body",         
-                                        index        = right_index)
+                                        index        = right_index,
+                                        ph_label     = right_ph_label)
     }
 
 
@@ -9072,18 +9122,18 @@ system_report_slide_section = function (cfg,
     # Adding Slide title/subtitle information
     if(!is.null(title)){
       if(meta$section$type$title == "ctrTitle"){
-        tmprpt = ph_with_text(x=tmprpt, type='ctrTitle', str=title) 
+        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "ctrTitle"), value=title) 
        } else if (meta$section$type$title == "body" & !is.null(meta$section$indices$title)) {
-        tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$section$indices$title, str=title) 
+        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "body"), index = meta$section$indices$title, value=title) 
        } else {
          isgood = FALSE
        }
      } 
     if(!is.null(sub_title)){
       if(meta$section$type$sub_title == "subTitle"){
-        tmprpt = ph_with_text(x=tmprpt, type="subTitle", str=sub_title) 
+        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "subTitle"), value=sub_title) 
        } else if (meta$section$type$sub_title == "body" & !is.null(meta$section$indices$sub_title)) {
-        tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$section$indices$sub_title, str=sub_title) 
+        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "body"), index = meta$section$indices$sub_title, value=sub_title) 
        } else {
          isgood = FALSE
        }
@@ -9155,17 +9205,17 @@ system_report_slide_title   = function (cfg,
 
     # Adding Slide title/subtitle information
     if(meta$title$type$title == "ctrTitle"){
-      tmprpt = ph_with_text(x=tmprpt, type="ctrTitle", str=title) 
+      tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "ctrTitle"), value=title) 
      } else if (meta$title$type$title == "body" & !is.null(meta$title$indices$title)) {
-      tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$title$indices$title, str=title) 
+      tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "body"), index = meta$section$indices$title, value=title) 
      } else {
        isgood = FALSE
      }
     if(!is.null(sub_title)){
       if(meta$title$type$sub_title == "subTitle"){
-        tmprpt = ph_with_text(x=tmprpt, type="subTitle", str=sub_title) 
+        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "subTitle"), value=sub_title) 
        } else if (meta$title$type$sub_title == "body" & !is.null(meta$title$indices$sub_title)) {
-        tmprpt = ph_with_text(x=tmprpt, type='body', index = meta$title$indices$sub_title, str=sub_title) 
+        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "body"), index = meta$section$indices$sub_title, value=sub_title) 
        } else {
          isgood = FALSE
        }
@@ -9216,9 +9266,9 @@ return(cfg)}
 #  
 #        # Adding Slide title/subtitle information
 #        if(!is.null(title)){
-#          tmprpt = ph_with_text(x=tmprpt, type='ctrTitle', str=title) } 
+#          tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "ctrTitle"), value=title) 
 #        if(!is.null(sub_title_index) & !is.null(sub_title)){
-#          tmprpt = ph_with_text(x=tmprpt, type='subTitle', str=sub_title) } 
+#          tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "subTitle"), value=sub_title) 
 #        # Populate with content
 #  
 #
@@ -9248,6 +9298,7 @@ return(cfg)}
 #'@param content content
 #'@param type    placeholder type (\code{"body"})
 #'@param index   placeholder index (integer)
+#'@param ph_label  placeholder location (text)
 #'
 #'
 #'@return officer pptx object with the content added
@@ -9279,16 +9330,17 @@ return(cfg)}
 #'  }
 #'
 #'@seealso \code{\link{system_report_view_layout}}
-system_report_ph_content = function(cfg, rpt, content_type, content, type, index){
+system_report_ph_content = function(cfg, rpt, content_type, content, type, index, ph_label){
 
     if(content_type == "text"){
-      rpt = ph_with_text(x=rpt, type=type, index=index, str=content)
+      rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=content) 
     }
     else if(content_type == "list"){
       mcontent = matrix(data = content, ncol=2, byrow=TRUE)
       
       # Initializing the placeholder
-      rpt   = ph_empty(x=rpt, type=type, index=index)
+      #rpt   = ph_empty(x=rpt, location=ph_location_type(type=type), index=index)
+      rpt   = ph_empty(x=rpt, location=ph_location_label(ph_label=ph_label), index=index)
 
       # Getting the id_chr 
       ss    = slide_summary(rpt)
@@ -9300,10 +9352,10 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       }
     }
     else if(content_type == "imagefile"){
-      rpt = ph_with_img(x=rpt, type = type, index = index, src = content)   
+      rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=external_img(src=content)) 
     }
     else if(content_type == "ggplot"){
-      rpt = ph_with_gg(x=rpt, type = type, index = index, value = content)   
+      rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=content) 
     }
     else if(content_type == "table"){
       if('header' %in% names(content)){
@@ -9312,9 +9364,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       if('first_row' %in% names(content)){
         first_row = content$first_row
       } else {first_row = TRUE}
-      rpt = ph_with_table(x         = rpt,       type   = type, 
-                          index     = index,     header = header,
-                          first_row = first_row, value = content$table)   
+      rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=content$table, header=header, first_row=first_row) 
     }
     else if(content_type == "flextable"){
       # These are the default table options
@@ -9393,7 +9443,8 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
      ft = align(ft, align=table_body_alignment,   part="body"  )
 
      rpt = ph_with_flextable(x         = rpt,       type   = type, 
-                                        index     = index,     value  = ft)
+                             index     = index,     value  = ft)
+    #rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=ft) 
 
     }
    
@@ -9978,6 +10029,78 @@ res}
 
 #-------------------------------------------------------------------------
 #'@export 
+#'@title AUC for sparse data 
+#'@description Calculates AUCs with with sparse data using Bailers Method
+#' This is an implementation of Bailors method for calculating AUCs with
+#' sparse sampling. It is taken from the following publication:
+#'
+#' Nedelman, J. R., Gibiansky, E., & Lau, D. T. (1995). Applying Bailer's
+#' method for AUC confidence intervals to sparse sampling Pharmaceutical
+#' Research, 12(1), 124-128.
+#'@param conc_data data frame containing the sparse data 
+#'@param dsmap list with names specifying the columns:
+#' \itemize{
+#'  \item \code{NTIME}       Nominal time since last dose;  \code{"NTIME"} (default)
+#'  \item \code{CONC}        Concentration data;  \code{"CONC"} (default)
+#'  \item \code{ID}          Subject ID;  (\code{"ID"} (default)
+#' }
+#'@return list with the following elements
+#' \itemize{
+#'  \item \code{isgood} Boolean value indicating the result of the function call
+#'  \item \code{msg}    String contianing a description of any problems 
+#' }
+AUC_Bailers_method = function(conc_data  = NULL, 
+                              dsmap      = list(NTIME       = "NTIME", 
+                                                CONC        = "CONC", 
+                                                ID          = "ID")){
+res    = list() 
+msg    = ''
+isgood = TRUE
+
+
+# Making sure that the conc_data input is a data frame
+if(is.data.frame(conc_data)){
+  isgood = FALSE
+  msg = paste(msg, "conc_data must be a data frame")
+}
+    
+
+req_cols = c("NTIME", "CONC", "ID")
+
+# Checking the contents of dsmap
+for(cname in req_cols){
+  if(!(cname %in% names(dsmap))){
+    isgood = FALSE 
+    msg = paste(msg, "column: >", cname, "< not foundin dsmap", sep="")
+  }
+}
+
+# making sure that the columns specified in dsmap are found in conc_data
+if(isgood){
+  for(cname in names(dsmap)){
+    if(!(dsmap[[cname]] %in% names(conc_data))){
+      isgood = FALSE
+      msg = paste(msg, "column: >", dsmap[[cname]], "< not found in conc_data", sep = "")
+    }
+  }
+}
+
+# Calculating the AUC
+if(isgood){
+
+}
+
+if(!isgood){
+  msg = paste(msg, "AUC_Bailers_method()")
+}
+
+res$isgood = isgood
+
+res}
+
+
+#-------------------------------------------------------------------------
+#'@export 
 #'@title Automatic NCA
 #'@description Performs NCA in an automated fashion 
 #'
@@ -10014,7 +10137,7 @@ res}
 #'@param dsinc (NOT CURRENTLY IMPLEMENTED) optional character vector of columns from the dataset to include in the output summary (default \code{NULL})
 #'@return cfg ubiquity system object with the NCA results and if the analysis name is specified:
 #' \itemize{
-#'     \item{output/{analysis_name}-nca_summary.csv} NCA summary 
+#'     \item{output/{analysis_name}-nca_summary-pknca.csv} NCA summary 
 #'     \item{output/{analysis_name}-pknca_summary.csv} Raw output from PKNCA with subject and dose number columns appended 
 #'     \item{output/{analysis_name}-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
 #' }
@@ -10557,7 +10680,7 @@ system_nca_run = function(cfg,
     NCA_sum = NCA_sum[ with(NCA_sum, order(Dose_Number, ID)), ]
 
     pkncaraw_file  = file.path("output",paste(analysis_name, "-pknca_raw.csv" , sep=""))
-    csv_file       = file.path("output",paste(analysis_name, "-nca_summary.csv" , sep=""))
+    csv_file       = file.path("output",paste(analysis_name, "-nca_summary-pknca.csv" , sep=""))
     data_file      = file.path("output",paste(analysis_name, "-nca_data.RData" , sep=""))
     write.csv(NCA_sum,       file=csv_file,      row.names=FALSE, quote=FALSE)
     write.csv(PKNCA_raw_all, file=pkncaraw_file, row.names=FALSE, quote=FALSE)
@@ -11405,8 +11528,8 @@ system_glp_scenario = function(cfg,
 
     # Now we find the top human dose based on the metrics above:
     # human_dose_max has the top human dose
+    human_dose_max = 0
     for(TGT_tmp in names(HT)){
-      human_dose_max = 0
       if(HT[[TGT_tmp]]$dose > human_dose_max){
         human_dose_max = HT[[TGT_tmp]]$dose 
         TGT = TGT_tmp

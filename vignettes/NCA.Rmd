@@ -200,13 +200,13 @@ We link the analysis to the dataset by specfying the dataset name (``dsname``) u
 
 Running this function will produce the following files:
 
-* ``output/pk_single_dose-nca_summary.csv``  Summary level output from the analysis
-* ``output/pk_single_dose-nca_data.RData``   R objects used for downstream reporting
-* ``output/pk_single_dose-pknca_raw.csv``    Raw output from PKNCA
+* ``output/pk_single_dose-nca_summary-pknca.csv``  Summary level output from the analysis
+* ``output/pk_single_dose-nca_data.RData``         R objects used for downstream reporting
+* ``output/pk_single_dose-pknca_raw.csv``          Raw output from PKNCA
 
 
 ```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, fig.width=8, fig.height=4}
-nca_summary = read.csv(file.path("output", "pk_single_dose-nca_summary.csv"))
+nca_summary = read.csv(file.path("output", "pk_single_dose-nca_summary-pknca.csv"))
 rhandsontable(nca_summary,  width=500, height=200)
 ```
 
@@ -290,7 +290,7 @@ system_report_save(cfg, output_file=file.path("output", "pk_multiple_dose-report
 The same files are generated with the ``pk_multiple_dose`` prefix in the out ``output`` folder. The summary can be seen here:
 
 ```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, fig.width=8, fig.height=4}
-nca_summary = read.csv(file.path("output", "pk_multiple_dose-nca_summary.csv"))
+nca_summary = read.csv(file.path("output", "pk_multiple_dose-nca_summary-pknca.csv"))
 rhandsontable(nca_summary,  width=500, height=200)
 ```
 
@@ -339,7 +339,7 @@ system_report_save(cfg=cfg, output_file=file.path("output", "pk_sparse-report.pp
 Analysis of sparse data will calculate an average concentration at each time point and use those average values for NCA. The same files are generated from the analysis. You can see the summary here:
 
 ```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE}
-nca_summary = read.csv(file.path("output", "pk_sparse-nca_summary.csv"))
+nca_summary = read.csv(file.path("output", "pk_sparse-nca_summary-pknca.csv"))
 rhandsontable(nca_summary,  height=150, width=500)
 ```
 

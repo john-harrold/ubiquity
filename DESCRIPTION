@@ -24,7 +24,7 @@ Imports:
    ggplot2,
    knitr,
    MASS,
-   officer,
+   officer (>= 0.3.5),
    optimx,
    pso,
    rmarkdown,     

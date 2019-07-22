@@ -58,7 +58,7 @@ if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscal
 \value{
 cfg ubiquity system object with the NCA results and if the analysis name is specified:
 \itemize{
-    \item{output/{analysis_name}-nca_summary.csv} NCA summary 
+    \item{output/{analysis_name}-nca_summary-pknca.csv} NCA summary 
     \item{output/{analysis_name}-pknca_summary.csv} Raw output from PKNCA with subject and dose number columns appended 
     \item{output/{analysis_name}-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
 }

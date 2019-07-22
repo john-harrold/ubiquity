@@ -255,7 +255,7 @@ Master layout name          Content Elements
 
 ### Creating the layout file for the template
 
-Each element in a master is identified with an index number. These numbers are asigned as the master slide is built, so it can be difficult to identify what these numbers are through PowerPoint. If you named your template ``mytemplate.pptx``, then you can have ubiquity produce a slide deck with the masters annotated so you can identify these indices:
+Each element in a master is identified with an index number (`index`) and placeholder label (`ph_label`). These values are asigned as the master slide is built, so it can be difficult to find this information through PowerPoint. If you named your template ``mytemplate.pptx``, then you can have ubiquity produce a slide deck with the masters annotated so you can identify these values:
 
 ```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
 cfg = build_system()
@@ -264,7 +264,7 @@ cfg = system_report_view_layout(cfg)
 ```
 
 
-This should create a file called ``layout.pptx`` that has the ``layout`` name of each slide master in the title and the ``index`` of each body element identified. These slides should look something like:
+This should create a file called ``layout.pptx`` that has the ``layout`` name of each slide master in the title. Both the ``ph_label`` and ``index`` of each element will be identified. These slides should look something like:
 
 ![Master slide layouts](report_template_layout.png){width=100%}
 
