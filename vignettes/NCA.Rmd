@@ -84,7 +84,7 @@ p_AUMC = p_TC
 ```
 
 ```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, fig.width=8, fig.height=3.5}
-grid.arrange(p_AUC, p_AUMC, ncol=2)
+gridExtra::grid.arrange(p_AUC, p_AUMC, ncol=2)
 ```
 
 Generally NCA will determine the following directly from the data:
