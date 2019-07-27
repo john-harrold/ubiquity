@@ -27,6 +27,7 @@ Imports:
    MASS,
    officer (>= 0.3.5),
    optimx,
+   PKNCA,
    pso,
    rmarkdown,     
    rhandsontable,
@@ -39,7 +40,6 @@ Suggests:
    gridGraphics,
    webshot,
    testthat,
-   PKNCA,
    ggrepel
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
