@@ -1,6 +1,25 @@
 
 # Use this function to define the meta information for an organizations 
-# powerpoint template file
+# PowerPoint template file. First create a PowerPoint template as described in
+# the Reporting vignette. If your organizational template is stored in
+# myOrg.pptx you can do the following:
+#
+# First you will need a system file. This will create a minimal system file in
+# the current working directory:
+#
+# system_new(system_file="empty")
+#
+# Next initialize a report using your organizational template:
+#
+# cfg = system_report_init(cfg, tempalte="myOrg.pptx")
+#
+# Now generate an annotated layout of your template:
+#
+# system_report_view_layout(cfg, output_file="layout.pptx")
+#
+# Open the layout.pptx file in PowerPoint and fill in the information below
+# for each of the slide masters:
+
 org_pptx_meta = function(){
 #--------------------------------------------------------------------
 # default reporting options

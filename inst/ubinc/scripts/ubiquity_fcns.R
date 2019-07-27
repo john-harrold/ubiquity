@@ -8313,16 +8313,15 @@ if(isgood){
     
          # Now we go through each placholder
          for(pidx in 1:length(lp[,1])){
-    
             # If it's a text placeholder "body" or "title" we add text indicating
             # the type and index. If it's title we put the layout and master
             # information in there as well.
             if(lp[pidx, ]$type == "body"){
-              textstr = sprintf('type="body", index =%d, ph_label=%s', pidx, lp[pidx, ]$ph_label)
+              textstr = sprintf('type="body", index = %d, ph_label=%s', pidx, lp[pidx, ]$ph_label)
               rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=lp[pidx, ]$ph_label), index = meta$section$indices$pidx, value=textstr) 
             } 
             if(lp[pidx, ]$type %in% c("title", "ctrTitle", "subTitle")){
-              textstr = sprintf('layout ="%s", master = "%s", type="%s", index =%d, ph_label=%s', layout, master, lp[pidx, ]$type,  pidx, lp[pidx, ]$ph_label)
+              textstr = sprintf('layout="%s", master = "%s", type="%s", index =%d, ph_label=%s', layout, master, lp[pidx, ]$type,  pidx, lp[pidx, ]$ph_label)
               rpt =ph_with(x=rpt, location=ph_location_label(ph_label=lp[pidx, ]$ph_label), value=textstr)  
             }
          }

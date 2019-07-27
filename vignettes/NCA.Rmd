@@ -13,6 +13,7 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 require(ubiquity)
 require(rhandsontable)
+require(gridExtra)
 ```
 
 
@@ -21,7 +22,6 @@ require(rhandsontable)
 Non-compartmental analysis (NCA) is a simple and quick method for evaluating the exposure of a drug. It allows you to evaluate things like linearity and in vivo exposure. To illustrate this consider an antibody given in a subcutaneous injection. The actual profile a patient might experience is given in the solid black line. But we don't yet have the ability to sample in a continuous fashion. What we might observer is given by the blue points.   
 
 ```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, results="hide", fig.width=8, fig.height=4}
-library(gridExtra)
 
 system_new(system_file="mab_pk", overwrite=TRUE)
 cfg = build_system()
@@ -221,17 +221,17 @@ The following columns are provided in the outputd, and when calculated with ``PK
 * ``Tmax`` Time of Cmax
 * ``halflife`` Terminal half-life (``half.life``)
 * ``Vp_obs`` When the dosing route is "iv bolus", this is the volume calculated by dividing the dose in concentration units by the first observed concentration or C0 of extrapolation is selected. For other routes a value of -1 will be returned.
-* ``Vss_obs`` Steady-state volume of distribution ?
-(``vss.obs``)
-* ``Vss_pred`` Steady-state volume of distribution ?
-  (``vss.pred``
+* ``Vss_obs`` Steady-state volume of distribution based on observation data (``vss.obs``)
+* ``Vss_pred`` Steady-state volume of distribution with $C_{last,pred}$ as the final observation
+  (``vss.pred``)
 * ``C0`` Back-extrapolated initial concentration
-* ``CL_obs`` Clearance ? (``cl.obs``)
-* ``CL_pred`` Clearance ? (``cl.pred``)
-* ``AUClast`` Area under the curve ? (``auclast``)
-* ``AUCinf_pred`` Area under the curve ? (``aucinf.pred``)
-* ``AUCinf_obs`` Area under the curve ? (``aucinf.obs``)
+* ``CL_obs`` Clearance  based on observation data (``cl.obs``)
+* ``CL_pred`` Clearance calculated using  $C_{last,pred}$ as the final observation (``cl.pred``)
+* ``AUClast`` Area under the curve  based on observation data (``auclast``)
+* ``AUCinf_obs`` Area under the curve extrapolated to infinity using observed data (``aucinf.obs``)
+* ``AUCinf_pred`` Area under the curve extrapolated to infinity using $C_{last,pred}$ as the final observation (``aucinf.pred``)
 
+Where $C_{last,pred}$ is the predicted concentration at the final sample time by regression of the terminal phase of data. 
 
 ### Automated Reporting
 
