@@ -20,6 +20,7 @@ Imports:
    flextable,
    foreach,
    grid, 
+   gridExtra,
    gdata,
    ggplot2,
    knitr,
@@ -35,7 +36,6 @@ Imports:
 Suggests:
    GA,
    GGally,
-   gridExtra,
    gridGraphics,
    webshot,
    testthat,
