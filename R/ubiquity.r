@@ -403,14 +403,14 @@ return(res)}
 #'@return \code{TRUE} if the new file was created and \code{FALSE} otherwise
 #'
 #'@examples
-#' # To create an empty template:
-#' system_new()
-#' # To create a compartmental model of mAb PK, 
-#' # build the system, and create a simulation 
-#' # template:
-#' system_new(file_name="system-mabs.txt", system_file="mab_pk", overwrite=TRUE)
-#' cfg = build_system("system-mabs.txt")
-#' system_fetch_template(cfg, template = "Simulation")
+#'#  # To create an empty template:
+#'#  system_new()
+#'#  # To create a compartmental model of mAb PK, 
+#'#  # build the system, and create a simulation 
+#'#  # template:
+#'#  system_new(file_name="system-mabs.txt", system_file="mab_pk", overwrite=TRUE)
+#'#  cfg = build_system("system-mabs.txt")
+#'#  system_fetch_template(cfg, template = "Simulation")
 
 system_new  <- function(file_name="system.txt", system_file="template", overwrite=FALSE){
 
