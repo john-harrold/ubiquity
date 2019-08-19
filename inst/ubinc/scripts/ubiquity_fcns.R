@@ -4,6 +4,7 @@
 #'@import flextable
 #'@import foreach
 #'@import gdata
+#'@import gridExtra
 #'@import ggplot2
 #'@import knitr
 #'@import MASS
