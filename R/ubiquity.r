@@ -1205,7 +1205,7 @@ return(cfg)}
 #' For the different methods and control options, see the documentation for the \code{optim}
 #' and \code{optimx} libraries.
 #'
-#' To perform a global optimization you can install either the particle swarm (\code{\link[psooptim]{psooptim}})
+#' To perform a global optimization you can install either the particle swarm (\code{\link[pso]{pso}})
 #' genetic algorithm (\code{\link[GA]{GA}}) libraries.
 #' To use the particle swarm set the \code{optimizer} and \code{method}:
 #'  
@@ -1221,7 +1221,7 @@ return(cfg)}
 #'                        value  = "psoptim")
 #' }
 #' 
-#' The control option is a list described \code{psoptim} documentation.
+#' The control option is a list described \code{pso} documentation.
 #'
 #' To use the genetic algorithm set the optimizer and method:
 #' 
@@ -8300,32 +8300,32 @@ if(isgood){
     # Looping through each layout
     for(lidx in 1:length(lay_sum[,1])){
     
-       # Pulling out the layout properties
-       layout = lay_sum[lidx, 1]
-       master = lay_sum[lidx, 2]
-       lp = layout_properties ( x = rpt, layout = layout, master = master)
+      # Pulling out the layout properties
+      layout = lay_sum[lidx, 1]
+      master = lay_sum[lidx, 2]
+      lp = layout_properties ( x = rpt, layout = layout, master = master)
     
-       # Adding a slide for the current layout
-       rpt =  add_slide(x=rpt, layout = layout, master = master) 
+      # Adding a slide for the current layout
+      rpt =  add_slide(x=rpt, layout = layout, master = master) 
     
-       # Blank slides have nothing
-       if(length(lp[,1] > 0)){
+      # Blank slides have nothing
+      if(length(lp[,1] > 0)){
     
-         # Now we go through each placholder
-         for(pidx in 1:length(lp[,1])){
-            # If it's a text placeholder "body" or "title" we add text indicating
-            # the type and index. If it's title we put the layout and master
-            # information in there as well.
-            if(lp[pidx, ]$type == "body"){
-              textstr = sprintf('type="body", index = %d, ph_label=%s', pidx, lp[pidx, ]$ph_label)
-              rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=lp[pidx, ]$ph_label), index = meta$section$indices$pidx, value=textstr) 
-            } 
-            if(lp[pidx, ]$type %in% c("title", "ctrTitle", "subTitle")){
-              textstr = sprintf('layout="%s", master = "%s", type="%s", index =%d, ph_label=%s', layout, master, lp[pidx, ]$type,  pidx, lp[pidx, ]$ph_label)
-              rpt =ph_with(x=rpt, location=ph_location_label(ph_label=lp[pidx, ]$ph_label), value=textstr)  
-            }
-         }
-       } 
+        # Now we go through each placholder
+        for(pidx in 1:length(lp[,1])){
+          # If it's a text placeholder "body" or "title" we add text indicating
+          # the type and index. If it's title we put the layout and master
+          # information in there as well.
+          if(lp[pidx, ]$type == "body"){
+            textstr = sprintf('type="body", index = %d, ph_label=%s', pidx, lp[pidx, ]$ph_label)
+            rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=lp[pidx, ]$ph_label), index = cfg$reporting$reports[[rptname]]$meta$section$indices$pidx, value=textstr) 
+          } 
+          if(lp[pidx, ]$type %in% c("title", "ctrTitle", "subTitle")){
+            textstr = sprintf('layout="%s", master = "%s", type="%s", index =%d, ph_label=%s', layout, master, lp[pidx, ]$type,  pidx, lp[pidx, ]$ph_label)
+            rpt =ph_with(x=rpt, location=ph_location_label(ph_label=lp[pidx, ]$ph_label), value=textstr)  
+          }
+        }
+      } 
     }
   } 
 
@@ -9531,8 +9531,8 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
     } else{
       # Checking to make sure the image file exists
       if(content_type == "imagefile"){
-        if(!file.exists(imagefile)){
-          vp(cfg, paste("the imagefile >", imagefile, "< does not exist",sep=""))
+        if(!file.exists(content)){
+          vp(cfg, paste("the imagefile >", content, "< does not exist",sep=""))
           isgood = FALSE
         }
       }
