@@ -1,6 +1,6 @@
 Package: ubiquity
 Type: Package
-Title: PKPD Model Development and Deployment Tools
+Title: Pharmacokinetic/Pharmacodynamic Model Development and Deployment Tools
 Version: 1.0.0
 Authors@R: c(person("John", "Harrold", role = c("aut", "cre"),
                      email = "john.m.harrold@gmail.com"))

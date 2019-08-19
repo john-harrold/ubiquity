@@ -4,7 +4,6 @@
 #'@import flextable
 #'@import foreach
 #'@import gdata
-#'@import gridExtra
 #'@import ggplot2
 #'@import knitr
 #'@import MASS
@@ -16,6 +15,7 @@
 #'@import rstudioapi
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
+#'@importFrom gridExtra grid.arrange
 #'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion
 #'@importFrom stats median qt
 #'@importFrom MASS mvrnorm
