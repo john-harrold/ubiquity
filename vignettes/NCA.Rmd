@@ -237,7 +237,7 @@ Where $C_{last,pred}$ is the predicted concentration at the final sample time by
 
 Once the NCA has been run, the results can be appended to an open PowerPoint report. Here we initialize an empty report then use the function ``system_report_nca`` and the analysis name assigned to the analysis above (``pk_single_dose``) to attach those results. Then we can write the file:
 
-```{r warning=FALSE, message=FALSE, echo=TRUE, error=FALSE, results="hide", fig.width=8, fig.height=4}
+```{r warning=FALSE, message=FALSE, eval=FALSE, echo=TRUE, error=FALSE, results="hide", fig.width=8, fig.height=4}
 cfg = system_report_init(cfg)
 cfg = system_report_slide_title(cfg, title = "NCA of Single Dose PK")
 cfg = system_report_nca(cfg, analysis_name = "pk_single_dose")
@@ -268,7 +268,22 @@ rhandsontable(cfg$data$PKDATA$values, width=800, height=200)
 ```
 
 Next we perform the NCA and reporting as before. The only difference here is that we've removed the ``extrap_C0`` option. The default value is ``TRUE`` so back-extrapolation will occur. For IV dosing this is log-linear extrapolation to a nominal time of zero. For SC dosing this will be 0 for the first dose and the last observation from the last dosing interval for subsequent dosing. 
-```{r warning=FALSE, message=FALSE, echo=TRUE, error=FALSE, results="hide", fig.width=8, fig.height=4}
+```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, results="hide", fig.width=8, fig.height=4}
+cfg = system_nca_run(cfg, dsname        = "PKDATA", 
+                          dscale        = 1e6, 
+                          analysis_name = "pk_multiple_dose", 
+                          dsmap         = list(TIME    = "TIME_HR", 
+                                               NTIME   = "NTIME_HR", 
+                                               CONC    = "C_ng_ml", 
+                                               DOSE    = "DOSE",
+                                               ROUTE   = "ROUTE", 
+                                               ID      = "ID",
+                                               DOSENUM = "DOSENUM",
+                                               EXTRAP  = "EXTRAP"),
+                          digits        = 3)
+```
+
+```{r warning=FALSE, eval=FALSE, message=FALSE, echo=TRUE, error=FALSE, results="hide", fig.width=8, fig.height=4}
 cfg = system_nca_run(cfg, dsname        = "PKDATA", 
                           dscale        = 1e6, 
                           analysis_name = "pk_multiple_dose", 
@@ -315,7 +330,25 @@ rhandsontable(cfg$data$PKDATA$values, width=500, height=200)
 
 When we run the NCA we need to tell the function that we want to perform a sparse analysis. This is done by setting the ``sparse`` input to ``TRUE``. We also need to provide information on how to group cohorts. This is done by providing a ``SPARSEGROUP`` option in the ``dsmap``. In this case we can just use the ``DOSE`` column, however a different column could have been used. 
 
-```{r warning=FALSE, message=FALSE, echo=TRUE, error=FALSE, results="hide", fig.width=8, fig.height=4}
+```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, results="hide", fig.width=8, fig.height=4}
+cfg = system_nca_run(cfg, dsname        = "PKDATA", 
+                          dscale        = 1e6, 
+                          analysis_name = "pk_sparse",
+                          sparse        = TRUE,
+                          dsmap         = list(TIME        = "TIME_HR", 
+                                               NTIME       = "TIME_HR", 
+                                               CONC        = "C_ng_ml", 
+                                               DOSE        = "DOSE",
+                                               ROUTE       = "ROUTE", 
+                                               ID          = "ID",
+                                               SPARSEGROUP = "DOSE"),
+                          digits        = 3)
+            
+
+cfg = system_report_init(cfg)
+cfg = system_report_slide_title(cfg, title = "NCA of Sparsely Sampled PK")
+```
+```{r warning=FALSE, message=FALSE, eval=FALSE, echo=TRUE, error=FALSE, results="hide", fig.width=8, fig.height=4}
 cfg = system_nca_run(cfg, dsname        = "PKDATA", 
                           dscale        = 1e6, 
                           analysis_name = "pk_sparse",

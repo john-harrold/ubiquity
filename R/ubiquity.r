@@ -60,14 +60,14 @@ if(distribution == "automatic"){
   # If it's set to package we make sure the package is installed and
   # if ti's not we default to stand alone
   if(!("ubiquity" %in% rownames(installed.packages()))){
-    cat(sprintf("#> Warning: package selected but not found\n"))
+    message("#> Warning: package selected but not found")
     distribution = "stand alone" }
 }
 
 
 if(verbose == TRUE){
-  cat(sprintf("#> Ubiquity: (https://ubiquity.tools) \n"))
-  cat(sprintf("#> Distribution:           %s \n", distribution))
+  message("#> Ubiquity: (https://ubiquity.tools)")
+  message(paste("#> Distribution:           ", distribution, sep=""))
 }
 # Checking for perl
 if(as.character(Sys.which(perlcmd )) == ""){
@@ -111,14 +111,14 @@ cfg = list()
 
 # If we cannot find a system file we create an empty one 
 if(!file.exists(system_file)){
-  cat(sprintf('#> Unable to find system file >%s<\n',system_file))
-  cat(sprintf('#> Creating an empty template\n'))
+  message(paste("#> Unable to find system file >",system_file, "<", sep=""))
+  message("#> Creating an empty template")
   sys_new_res = system_new(system_file="template", file_name=system_file)
 }
 
 if(file.exists(system_file)){
   if(verbose == TRUE){
-    cat(sprintf("#> Building the system:    %s \n", system_file))
+    message(paste("#> Building the system:    ", system_file, sep=""))
   }
   
   build_command = sprintf('%s "%s" "%s" "%s" "%s" "%s"', perlcmd, build_script_pl, system_file, temp_directory, templates, distribution)
@@ -129,15 +129,15 @@ if(file.exists(system_file)){
   CFILE = TRUE
   
   if(length(output) > 0){
-    cat("#> Build reported errors and\n")
-    cat("#> may have failed, see below:\n")
+    message("#> Build reported errors and")
+    message("#> may have failed, see below:")
     for(line in output){
-      cat(paste(line, "\n"))
+      message(line)
     }
     rm('line')
   } else{
     if(verbose == TRUE){
-      cat("#> Done \n")}
+      message("#> Done ")}
     }
   
   #
@@ -150,7 +150,7 @@ if(file.exists(system_file)){
   # making the output directory to store generated information
   if(!file.exists('output')){
     if(verbose == TRUE){
-      cat("#> Creating output directory \n")
+      message("#> Creating output directory")
     }
     dir.create('output')
   }
@@ -164,7 +164,7 @@ if(file.exists(system_file)){
   
   # Now we compile the C file
   if(verbose == TRUE){
-    cat("#> Compiling C version of system \n")
+    message("#> Compiling C version of system")
   }
   if(file.exists(file.path(temp_directory, 'r_ode_model.c'))){
     # storing the working directory and 
@@ -179,19 +179,19 @@ if(file.exists(system_file)){
       if(verbose == TRUE){
         if(debug == TRUE){
           for(line in output){
-            cat(paste("#>   DEBUG:", line, "\n", sep=" "))
+            message(paste("#>   DEBUG:", line, sep=" "))
           }
         }
-        cat("#> Failed: Unable to compile C file\n") 
+        message("#> Failed: Unable to compile C file") 
         if(debug == TRUE){
-          cat("#> See above for more details\n")
+          message("#> See above for more details")
         }
       }
       CFILE = FALSE
     }else{
       # Loading the shared library
       if(verbose == TRUE){
-        cat("#> Loading the shared C library\n") }
+        message("#> Loading the shared C library") }
       dyn.load(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))
     }
     # Returning to the working directory
@@ -199,22 +199,22 @@ if(file.exists(system_file)){
   
   
     if(verbose == TRUE){
-      cat('#> System built, to fetch a new template use the following commands:\n')
-      cat('#>   fr = system_fetch_template(cfg, template = "Simulation")\n')
-      cat('#>   fr = system_fetch_template(cfg, template = "Estimation")\n')
+      message('#> System built, to fetch a new template use the following commands:')
+      message('#>   fr = system_fetch_template(cfg, template = "Simulation")')
+      message('#>   fr = system_fetch_template(cfg, template = "Estimation")')
     }
   }else{
     if(verbose == TRUE){
-      cat(sprintf("#> Failed: file %s%sr_ode_model.c not found \n",temp_directory, .Platform$file.sep))
+      message(paste("#> Failed: file", file.path(temp_directory, "r_ode_model.c"), " not found "))
     }
     CFILE = FALSE
   }
   
   if(CFILE == FALSE){
     if(verbose == TRUE){
-      cat("#> C model not available. Compile manually using the\n") 
-      cat("#> following command to debug:           \n") 
-      cat(sprintf("#> system('R CMD SHLIB \"%s%sr_ode_model.c\"') \n", temp_directory, .Platform$file.sep))
+      message("#> C model not available. Compile manually using the") 
+      message("#> following command to debug:          ") 
+      message(sprintf("#> system('R CMD SHLIB \"%s%sr_ode_model.c\"')", temp_directory, .Platform$file.sep))
     }
     
     }
@@ -226,7 +226,7 @@ if(file.exists(system_file)){
   } 
   
   } else {
-  cat(sprintf('#> Still unable to find system file >%s<\n',system_file))
+  message(paste("#> Still unable to find system file >", system_file,"<", sep=""))
   }
 # turning warnings back on
 options(warn=0)
@@ -354,22 +354,22 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
       for(fidx in 1:length(destinations)){
         if(write_file[fidx]){
           file.copy(sources[fidx], destinations[fidx], overwrite=TRUE)
-          cat( sprintf("#> Creating file: %s \n", destinations[fidx] ))
+          message(paste("#> Creating file:", destinations[fidx] ))
         } else {
           isgood = FALSE
-          cat(sprintf("#> File: %s, exists, and was not copied.\n", destinations[fidx] ))
-          cat(sprintf("#> Set overwrite=TRUE to force this file to be copied.\n"))
+          message(paste("#> File:", destinations[fidx], "exists, and was not copied."))
+          message(      "#> Set overwrite=TRUE to force this file to be copied.")
         }
       }
     } else {
       isgood = FALSE
-      cat(sprintf("#> section >%s< is not valid must be one of: %s \n", section, paste(allowed, collapse=", ")))
+      message(paste("#> section >", section, "< is not valid must be one of: ", paste(allowed, collapse=", "), sep=""))
     }
 
   } else {
     isgood = FALSE
-    cat("#> workshop_fetch()\n")
-    cat("#> This function only works with the ubiquity package distribution \n")
+    message("#> workshop_fetch()")
+    message("#> This function only works with the ubiquity package distribution ")
   }
 
 
@@ -442,7 +442,7 @@ system_new  <- function(file_name="system.txt", system_file="template", overwrit
  # does exist, we ste write_file to false
  if(!overwrite){
    if(file.exists(file_name)){
-     cat(sprintf("#> Error the file %s exists set overwrite=TRUE to overwrite\n", file_name))
+     message(paste("#> Error the file >", file_name, "< exists set overwrite=TRUE to overwrite", sep=""))
      write_file = FALSE}
  }
 
@@ -678,10 +678,10 @@ system_load_data <- function(cfg, dsname, data_file, data_sheet){
       }
       cfg$data[[dsname]]$data_file$name  = data_file
     } else {
-      cat(sprintf("#> ------------------------------------\n")) 
+      vp(cfg, " ------------------------------------") 
       vp(cfg, "system_load_data()") 
       vp(cfg, sprintf("unable to find the specified file >%s<", data_file)) 
-      cat(sprintf("#> ------------------------------------\n")) 
+      vp(cfg, " ------------------------------------")
     
     }
   }
@@ -964,19 +964,19 @@ return(cfg)}
 system_set_covariate <- function(cfg, covariate, times, values){
   isgood = TRUE
   if(!(length(times) == length(values)) ) {
-    cat(" #-> The times and values have differnt lengths\n") 
+    vp(cfg, "The times and values have differnt lengths") 
     isgood = FALSE
     }
   if(!(covariate %in% names(cfg$options$inputs$covariates))){
-    cat(sprintf(" #-> The covariate name %s could not be found\n", covariate)) 
+    vp(cfg, sprintf("The covariate name %s could not be found", covariate)) 
     isgood = FALSE
   }
   if(isgood){
     cfg$options$inputs$covariates[[covariate]]$times$values  = times 
     cfg$options$inputs$covariates[[covariate]]$values$values = values
   } else {
-    cat(sprintf(" #-> Something went wrong and the covariate, \n")) 
-    cat(sprintf(" #-> was not set, see the messages above.\n")) }
+    vp(cfg, sprintf(" Something went wrong and the covariate, ")) 
+    vp(cfg, sprintf(" was not set, see the messages above.")) }
 
 return(cfg)}
 
@@ -1006,19 +1006,19 @@ return(cfg)}
 system_set_rate <- function(cfg, rate, times, levels){
   isgood = TRUE
   if(!(length(times) == length(levels)) ) {
-    cat(" #-> The times and levels have differnt lengths\n") 
+    vp(cfg, "The times and levels have differnt lengths") 
     isgood = FALSE
     }
   if(!(rate %in% names(cfg$options$inputs$infusion_rates))){
-    cat(sprintf(" #-> The rate name %s could not be found\n", rate)) 
+    vp(cfg, sprintf("The rate name %s could not be found", rate)) 
     isgood = FALSE
   }
   if(isgood){
     cfg$options$inputs$infusion_rates[[rate]]$times$values  = times 
     cfg$options$inputs$infusion_rates[[rate]]$levels$values = levels
   } else {
-    cat(sprintf(" #-> Something went wrong and the rate, \n")) 
-    cat(sprintf(" #-> was not set, see the messages above.\n")) }
+    vp(cfg, "Something went wrong and the rate, ") 
+    vp(cfg, "was not set, see the messages above.") }
 return(cfg)}
 
 # cfg = system_set_option(cfg, group, option, value)
@@ -1263,7 +1263,7 @@ system_set_option <- function(cfg, group, option, value){
  
   groups = c('solver', 'stochastic', 'simulation', 'estimation', 'logging', 'titration')
   
-  errormsg = ''
+  errormsgs = c()
   # checking the user input
   isgood = TRUE
   if(group %in% groups){
@@ -1274,22 +1274,22 @@ system_set_option <- function(cfg, group, option, value){
       if(value == "multicore"){
         if(!system_req("doParallel")){
           isgood = FALSE
-          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doParallel package")
-          errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doParallel")')
+          errormsgs = c(errormsgs, "Unable to load the doParallel package")
+          errormsgs = c(errormsgs, 'install.packages("doParallel")')
         }
         if(!system_req("foreach")){
           isgood = FALSE
-          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the foreach package")
-          errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("foreach")')
+          errormsgs = c(errormsgs, "Unable to load the foreach package")
+          errormsgs = c(errormsgs, 'install.packages("foreach")')
         }
         if(!system_req("doRNG")){
           isgood = FALSE
-          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the doRNG package")
-          errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("doRNG")')
+          errormsgs =  c(errormsgs, "Unable to load the doRNG package")
+          errormsgs =  c(errormsgs, 'install.packages("doRNG")')
         }
 
         if(!isgood){
-          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load one or more packages needed for the  multicore option") }
+          errormsgs = c(errormsgs, "Unable to load one or more packages needed for the  multicore option") }
       }
     }
 
@@ -1297,8 +1297,8 @@ system_set_option <- function(cfg, group, option, value){
       if(value == "pso"){
         if(!system_req("pso")){
           isgood = FALSE
-          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the particle swarm optimizer (pso) package")
-          errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("pso")')
+          errormsgs =  c(errormsgs, errormsgs, "Unable to load the particle swarm optimizer (pso) package")
+          errormsgs =  c(errormsgs, errormsgs, 'install.packages("pso")')
         }
       }
     }
@@ -1306,8 +1306,8 @@ system_set_option <- function(cfg, group, option, value){
       if(value == "ga"){
         if(!system_req("GA")){
           isgood = FALSE
-          errormsg = sprintf('%s #-> %s\n', errormsg, "Unable to load the Genetic Algoriths (GA) package")
-          errormsg = sprintf('%s #-> %s\n', errormsg, 'install.packages("GA")')
+          errormsgs = c(errormsgs, "Unable to load the Genetic Algoriths (GA) package")
+          errormsgs = c(errormsgs, 'install.packages("GA")')
         }
       }
     }
@@ -1320,7 +1320,7 @@ system_set_option <- function(cfg, group, option, value){
         if((option == "states") | (option == "outputs")){
           for(val in value){
             if(!(val %in% names(cfg$options$mi[[option]]))){
-              errormsg = sprintf(' #-> %s %s \n', errormsg, val)
+              errormsgs = c(errormsgs, val)
               isgood = FALSE
             }
           } 
@@ -1333,18 +1333,18 @@ system_set_option <- function(cfg, group, option, value){
             # if it's not null we want to check if the dataset has been
             # defined
             if(!(value %in% names(cfg$data))){
-              errormsg =  sprintf('%s #-> Error: dataset >%s< not found, please load first \n', errormsg, value)
-              errormsg =  sprintf('%s #-> using system_load_data() \n', errormsg)
+              errormsgs = c(errormsgs, paste("Error: dataset >", value, "< not found, please load first", sep=""))
+              errormsgs = c(errormsgs, "using system_load_data()")
               isgood = FALSE
             }
           }
         }
         if(option == "sub_file_sample"){
           if(!any(value == c("with replacement", "sequential", "without replacement"))){
-            errormsg =  sprintf('%s #-> The value  %s is invalid and must be one of the following \n', errormsg, toString(value))
-            errormsg =  sprintf('%s #->   sequential          - sample from data file sequentially \n', errormsg)
-            errormsg =  sprintf('%s #->   with replacement    - sample from data file with replacement \n', errormsg)
-            errormsg =  sprintf('%s #->   without replacement - sample from data file with out replacement \n', errormsg)
+            errormsgs = c(errormsgs,  paste("The value", toString(value), "is invalid and must be one of the following"))
+            errormsgs = c(errormsgs,        "  sequential          - sample from data file sequentially")
+            errormsgs = c(errormsgs,        "  with replacement    - sample from data file with replacement")
+            errormsgs = c(errormsgs,        "  without replacement - sample from data file with out replacement")
             isgood = FALSE
           }
         }
@@ -1353,7 +1353,7 @@ system_set_option <- function(cfg, group, option, value){
         if(isgood){
           cfg$options$stochastic[[option]] = value
         }else{
-         errormsg = sprintf(' #-> The following %s are not valid\n%s', option, errormsg)
+         errormsgs = c( errormsgs,  paste(" #-> The following option >", option, "< is not valid", sep=""))
         }
         
         
@@ -1371,7 +1371,7 @@ system_set_option <- function(cfg, group, option, value){
              cfg$titration$titrate = value
           }
           else{
-             errormsg = sprintf('%s #-> The titrate option should be TRUE or FALSE\n', errormsg)
+             errormsgs = c(errormsgs, "The titrate option should be TRUE or FALSE")
              isgood = FALSE
           
           }
@@ -1394,21 +1394,22 @@ system_set_option <- function(cfg, group, option, value){
   } else {
     # flagging a bad group
     isgood = FALSE
-    errormsg = sprintf("%s #-> The specified group (%s) is invalid\n", errormsg, group)
-    errormsg = sprintf("%s #-> Valid groups are:  \n", errormsg)
+    errormsgs = c(errormsgs, paste("The specified group >", group,"< is invalid", sep=""))
+    errormsgs = c(errormsgs, "Valid groups are:")
     for(valid in groups){
-      errormsg = sprintf("%s #->   ->%s\n", errormsg, valid) }
+      errormsgs = c(errormsgs, paste("   ->", valid))}
   }
   
   
   # If the error flag has been switched above, then we print some inforamtion for the user
   if(!isgood){
-    cat(sprintf("#> ------------------------------------\n")) 
-    cat(sprintf("#> system_set_option()                 \n")) 
-    cat(sprintf("#> Something went wrong and the option,\n")) 
-    cat(sprintf("#> was not set:\n")) 
-    cat(errormsg)
-    cat(sprintf("#> ------------------------------------\n")) 
+    vp(cfg, "------------------------------------") 
+    vp(cfg, "system_set_option()                 ") 
+    vp(cfg, "Something went wrong and the option ") 
+    vp(cfg, "was not set:")
+    for(errormsg in errormsgs){
+      vp(cfg, errormsg) }
+    vp(cfg, "------------------------------------")
     }
   
 return(cfg)}
@@ -1420,7 +1421,7 @@ return(cfg)}
 #'@param cfg ubiquity system object    
 #'@param name name for the titration rule
 #'@param times list of times when the rule will be evaluated 
-#'@param timescale time scale associated with the titraiton times (as defined by \code{<TS:?>})
+#'@param timescale time scale associated with the titration times (as defined by \code{<TS:?>})
 #'
 #'@return Ubiquity system object with the titration rule created
 #'
@@ -1445,9 +1446,11 @@ system_new_tt_rule <- function(cfg, name, times, timescale){
   isgood = TRUE
   # empty list holding the new titration inforamtion
 
+  errormsgs = c()
+
   if(!timescale %in% names(cfg$options$time_scales)){
     isgood = FALSE
-    errormsg = sprintf('The timescale: "%s" was not defined', timescale)
+    errormsgs = c(errormsgs, paste("The timescale: >", timescale, "< was not defined", sep=""))
   }
 
   # checking the timescale to make sure it's been defined
@@ -1468,7 +1471,8 @@ system_new_tt_rule <- function(cfg, name, times, timescale){
     vp(cfg, "system_new_tt_rule()                ") 
     vp(cfg, "Something went wrong and the        ") 
     vp(cfg, "titration rule was not set          ") 
-    vp(cfg, errormsg)
+    for(errormsg in errormsgs){
+      vp(cfg, errormsg) }
     vp(cfg, "------------------------------------")
     }
 return(cfg)
@@ -1701,9 +1705,10 @@ system_set_tt_cond <- function(cfg, name, cond, action, value='-1'){
 
   isgood = TRUE
 
+  errormsgs = c()
 
   if(!(name %in% names(cfg$titration$rules))){
-    errormsg = sprintf('The rule "%s" was not found, first create the rule using system_new_tt_rule then add conditions', name)
+    errormsgs = c(errormsgs, paste( "The rule >", name, "< was not found, first create the rule using system_new_tt_rule then add conditions", sep=""))
     isgood = FALSE
   }
 
@@ -1739,13 +1744,15 @@ system_set_tt_cond <- function(cfg, name, cond, action, value='-1'){
     vp(cfg, "system_set_tt_cond()                ") 
     vp(cfg, "Something went wrong and the        ") 
     vp(cfg, "titration condition was not set     ") 
-    vp(cfg, errormsg)
+    for(errormsg in errormsgs){
+      vp(cfg, errormsg) }
     vp(cfg, "------------------------------------")
     }
 
 
 return(cfg)
 }
+# JMH HERE
 
 #'@export
 #'@title Parse String for Prototype Functions
@@ -3586,7 +3593,7 @@ multiplot <- function(..., plotlist=NULL, cols=1, layout=NULL) {
 #'
 #'@param cfg ubiquity system object    
 #'@param str string to print
-vp = function(cfg, str){
+vp <- function(cfg, str){
 # function []=vp(cfg, str)
 # vp -- verbose print
 #
@@ -3605,7 +3612,7 @@ system_log_entry(cfg, str)
 if('options' %in% names(cfg)){
 if('verbose' %in% names(cfg$options$logging)){
 if(TRUE == cfg$options$logging$verbose){
-  cat(sprintf('#> %s \n',toString(str)));
+  message(paste("#>", str))
   }}}
 }
 
