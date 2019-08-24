@@ -9889,7 +9889,7 @@ all(res_pkgs)}
 #'@param verbose enable verbose messaging   
 #'
 #'@return List fn result of all packages 
-#'examples
+#'@examples
 #'\donttest{
 #' invisible(system_check_requirements())
 #'}
