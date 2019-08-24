@@ -34,6 +34,7 @@ etc) about the system.
 \examples{
 # To log and display the current system information:
 \donttest{
+cfg = build_system()
 vp(cfg, system_view(cfg))
 }
 }
