@@ -9,7 +9,7 @@ vp(cfg, str)
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{str}{string to print}
+\item{str}{sequence of strings to print}
 }
 \description{
 Used to print messages to the screen and the log file.

@@ -112,7 +112,9 @@ cfg = list()
 # If we cannot find a system file we create an empty one 
 if(!file.exists(system_file)){
   message(paste("#> Unable to find system file >",system_file, "<", sep=""))
+  message("#> --------------------------")
   message("#> Creating an empty template")
+  message("#> --------------------------")
   sys_new_res = system_new(system_file="template", file_name=system_file)
 }
 
@@ -1407,8 +1409,7 @@ system_set_option <- function(cfg, group, option, value){
     vp(cfg, "system_set_option()                 ") 
     vp(cfg, "Something went wrong and the option ") 
     vp(cfg, "was not set:")
-    for(errormsg in errormsgs){
-      vp(cfg, errormsg) }
+    vp(cfg, errormsgs)
     vp(cfg, "------------------------------------")
     }
   
@@ -1471,8 +1472,7 @@ system_new_tt_rule <- function(cfg, name, times, timescale){
     vp(cfg, "system_new_tt_rule()                ") 
     vp(cfg, "Something went wrong and the        ") 
     vp(cfg, "titration rule was not set          ") 
-    for(errormsg in errormsgs){
-      vp(cfg, errormsg) }
+    vp(cfg, errormsgs) 
     vp(cfg, "------------------------------------")
     }
 return(cfg)
@@ -1744,15 +1744,13 @@ system_set_tt_cond <- function(cfg, name, cond, action, value='-1'){
     vp(cfg, "system_set_tt_cond()                ") 
     vp(cfg, "Something went wrong and the        ") 
     vp(cfg, "titration condition was not set     ") 
-    for(errormsg in errormsgs){
-      vp(cfg, errormsg) }
+    vp(cfg, errormsgs) 
     vp(cfg, "------------------------------------")
     }
 
 
 return(cfg)
 }
-# JMH HERE
 
 #'@export
 #'@title Parse String for Prototype Functions
@@ -1843,10 +1841,10 @@ parse_patterns  <- function(cfg, str){
    
     if(found_error){
       vp(cfg, 'Error parsing patterns')
-      vp(cfg, sprintf('String:       %s', str))
-      vp(cfg, sprintf('Pattern name: %s', pname))
-      vp(cfg, sprintf('Pattern:      %s', patterns[[pname]]$pattern))
-      vp(cfg, sprintf('Error Message:%s', errormsg))
+      vp(cfg, paste('String:        ', str,                       sep=""))
+      vp(cfg, paste('Pattern name:  ', pname,                     sep=""))
+      vp(cfg, paste('Pattern:       ', patterns[[pname]]$pattern, sep=""))
+      vp(cfg, paste('Error Message: ', errormsg,                  sep=""))
     
     }
   
@@ -2103,16 +2101,17 @@ return(cfg)
 #'@seealso \code{\link{system_zero_inputs}}
 system_set_bolus <- function(cfg, state, times, values){
   
-  errormsg = '';
+  errormsgs = c()
+
   # checking the user input
   isgood = TRUE
   if(!(length(times) == length(values))){
-    errormsg = sprintf("%s#> The times and values have differnt lengths\n", errormsg)
-    cat("#> \n") 
+    errormsgs = c(errormsgs, "The times and values have differnt lengths")
+    errormsgs = c(errormsgs, " ")
     isgood = FALSE
     }
   if(!(state %in% names(cfg$options$inputs$bolus$species))){
-    errormsg = sprintf("%s#> The state %s could not be found\n", errormsg, state)
+    errormsgs = c(errormsgs, paste("The state >", state, "< could not be found", sep=""))
     isgood = FALSE
   }
   
@@ -2196,7 +2195,7 @@ system_set_bolus <- function(cfg, state, times, values){
     vp(cfg, sprintf("system_set_bolus()                  ")) 
     vp(cfg, sprintf("Something went wrong and the bolus, ")) 
     vp(cfg, sprintf("was not set:")) 
-    cat(    errormsg)
+    vp(cfg, errormsgs) 
     vp(cfg, sprintf("------------------------------------")) 
     
     }
@@ -2229,9 +2228,9 @@ system_set_iiv <- function(cfg, IIV1, IIV2, VALUE){
     IIV2_idx = match(c(IIV2), names(cfg$iiv$iivs))
     
     if(is.na(IIV1_idx)){
-      cat(sprintf(" #-> IIV %s not found \n", IIV1)) 
-    }else if(is.na(IIV1_idx)){
-      cat(sprintf(" #-> IIV %s not found \n", IIV2)) 
+      vp(cfg, paste("IIV >", IIV1, "<not found", sep="")) 
+    }else if(is.na(IIV2_idx)){
+      vp(cfg, paste("IIV >", IIV2, "<not found", sep="")) 
     }else{
       cfg$iiv$values[IIV1_idx, IIV2_idx] = VALUE
       cfg$iiv$values[IIV2_idx, IIV1_idx] = VALUE
@@ -2300,7 +2299,7 @@ toc <- function()
 #'@param cfg   ubiquity system object    
 #'@param field string indicating the aspect of the system to display
 #'
-#'@return string with system information 
+#'@return sequence of strings with system in formation (one line per element)
 #'
 #' The \code{field} 
 #' \itemize{
@@ -2315,164 +2314,169 @@ toc <- function()
 #'    \item \code{"estimation"} estimation options
 #' }
 #'@examples
-#' # cat(system_view(cfg), field="parameters")
+#' # To log and display the current system information:
+#' \donttest{
+#' vp(cfg, system_view(cfg))
+#' }
 system_view <- function(cfg,field="all") {
   
-  msg = ''
+  msgs = c()
   
   # Processing infusion rate information
   if(field == "all" | field== "parameters"){
-      msg = sprintf("%s #-> Parmaeter Information\n", msg)
-      msg = sprintf("%s #-> Parameter set selected: \n", msg)
-      msg = sprintf("%s #->   %s  \n", msg, cfg$parameters$current_set)
-      msg = sprintf("%s #->   %s  \n", msg,  cfg$parameters$sets[[cfg$parameters$current_set]]$name)
-      msg = sprintf("%s #-> Default parameters for current set:  \n", msg )
-      msg = sprintf("%s #->%s |  %s | %s \n", msg,
-                  pad_string('name', 18), 
-                  pad_string('value', 12), 
-                  pad_string('units', 15))
-      msg = sprintf("%s #->%s \n", msg, paste(replicate(52, "-"), collapse = ""))
+      msgs = c(msgs, sprintf(" Parameter Information"))
+      msgs = c(msgs, sprintf(" Parameter set selected:"))
+      msgs = c(msgs, sprintf("   Short Name:  %s", cfg$parameters$current_set))
+      msgs = c(msgs, sprintf("   Description: %s", cfg$parameters$sets[[cfg$parameters$current_set]]$name))
+      msgs = c(msgs, sprintf(" Default parameters for current set:"))
+      msgs = c(msgs, sprintf("%s |  %s | %s",
+                     pad_string('name', 18), 
+                     pad_string('value', 12), 
+                     pad_string('units', 15)))
+      msgs = c(msgs, paste(replicate(52, "-"), collapse = ""))
       for(pidx in 1:length(cfg$parameters$matrix$name)){
-      msg = sprintf("%s #->%s |  %s | %s \n", msg,
+      msgs = c(msgs, sprintf("%s |  %s | %s",
                   pad_string(as.character(cfg$parameters$matrix$name[pidx]), 18), 
                   var2string(cfg$parameters$matrix$value[pidx], 12), 
-                  pad_string(as.character(cfg$parameters$matrix$units[pidx]), 15))
+                  pad_string(as.character(cfg$parameters$matrix$units[pidx]), 15)))
       }
-      msg = sprintf("%s #->%s \n", msg, paste(replicate(52, "-"), collapse = ""))
-    
-      msg = sprintf("%s\n", msg)
+      msgs = c(msgs, paste(replicate(52, "-"), collapse = ""))
+      msgs = c(msgs, " ")
   }
   
   
   # Processing bolus information
   if(field == "all" | field== "bolus"){
     if("bolus" %in% names(cfg$options$inputs))  {
-      msg = sprintf("%s #-> Bolus dosing details \n", msg)
-      msg = sprintf("%s #->%s |  %s | %s | %s\n",  msg,
-                 pad_string("field", 10),
-                 pad_string("values", 10),
-                 pad_string("scaling", 10),
-                 pad_string("units", 10))
-      msg = sprintf("%s #->%s \n", msg, paste(replicate(50, "-"), collapse = ""))
-      msg = sprintf("%s #->%s |  %s | %s | %s\n", msg,
-                 pad_string("times", 10),
-                 pad_string(paste(cfg$options$inputs$bolus$times$values, collapse=" "), 10),
-                 pad_string(cfg$options$inputs$bolus$times$scale, 10),
-                 pad_string(cfg$options$inputs$bolus$times$units, 10))
+      msgs = c(msgs, sprintf(" Bolus dosing details "))
+      msgs = c(msgs, sprintf("%s |  %s | %s | %s",
+                      pad_string("field", 10),
+                      pad_string("values", 10),
+                      pad_string("scaling", 10),
+                      pad_string("units", 10)))
+      msgs = c(msgs, paste(replicate(50, "-"), collapse = ""))
+      msgs = c(msgs, sprintf("%s |  %s | %s | %s",
+                     pad_string("times", 10),
+                     pad_string(paste(cfg$options$inputs$bolus$times$values, collapse=" "), 10),
+                     pad_string(cfg$options$inputs$bolus$times$scale, 10),
+                     pad_string(cfg$options$inputs$bolus$times$units, 10)))
       
       for(species in names(cfg$options$inputs$bolus$species)){
-        msg = sprintf("%s #->%s |  %s | %s | %s\n", msg,
+        msgs = c(msgs,  sprintf("%s |  %s | %s | %s",
                    pad_string(species, 10),
                    pad_string(paste(cfg$options$inputs$bolus$species[[species]]$values, collapse=" "), 10),
                    pad_string(cfg$options$inputs$bolus$species[[species]]$scale, 10),
-                   pad_string(cfg$options$inputs$bolus$species[[species]]$units, 10))
+                   pad_string(cfg$options$inputs$bolus$species[[species]]$units, 10)))
       }
-      msg = sprintf("%s #->%s \n\n", msg, paste(replicate(50, "-"), collapse = ""))
+      msgs = c(msgs, paste(replicate(50, "-"), collapse = ""))
       
     } else {
-      msg = sprintf("%s #-> No bolus information found\n", msg) }
+      msgs = c(msgs, "No bolus information found") }
   }
   
   # Processing infusion rate information
   if(field == "all" | field== "rate"){
     if("infusion_rates" %in% names(cfg$options$inputs))  {
-      msg = sprintf("%s #-> Infusion rate details \n", msg)
-      msg = sprintf("%s #->%s | %s | %s | %s | %s\n", msg,
+      msgs = c(msgs, sprintf(" Infusion rate details "))
+      msgs = c(msgs, sprintf("%s | %s | %s | %s | %s",
                  pad_string("Rate ", 10),
                  pad_string("field", 10),
                  pad_string("values", 10),
                  pad_string("scaling", 10),
-                 pad_string("units", 10))
-      msg = sprintf("%s #->%s \n", msg, paste(replicate(65, "-"), collapse = ""))
+                 pad_string("units", 10)))
+      msgs = c(msgs, paste(replicate(65, "-"), collapse = ""))
       for(rate    in cfg$options$inputs$infusion_rate_names){
-        msg =sprintf("%s #->%s | %s | %s | %s | %s\n", msg,
+        msgs =c(msgs, sprintf("%s | %s | %s | %s | %s",
                    pad_string(rate, 10),
                    pad_string('time', 10),
                    pad_string(paste(cfg$options$inputs$infusion_rates[[rate]]$times$values, collapse=" "), 10),
                    pad_string(      cfg$options$inputs$infusion_rates[[rate]]$times$scale, 10),
-                   pad_string(      cfg$options$inputs$infusion_rates[[rate]]$times$units, 10))
-        msg =sprintf("%s #->%s | %s | %s | %s | %s\n", msg,
+                   pad_string(      cfg$options$inputs$infusion_rates[[rate]]$times$units, 10)))
+        msgs =c(msgs, sprintf("%s | %s | %s | %s | %s",
                    pad_string('', 10),
                    pad_string('levels', 10),
                    pad_string(paste(cfg$options$inputs$infusion_rates[[rate]]$levels$values, collapse=" "), 10),
                    pad_string(      cfg$options$inputs$infusion_rates[[rate]]$levels$scale, 10),
-                   pad_string(      cfg$options$inputs$infusion_rates[[rate]]$levels$units, 10))
+                   pad_string(      cfg$options$inputs$infusion_rates[[rate]]$levels$units, 10)))
       }
-      msg =sprintf("%s #->%s \n\n", msg, paste(replicate(65, "-"), collapse = ""))
+      msgs = c(msgs, paste(replicate(65, "-"), collapse = ""))
+      msgs = c(msgs, " ")
     } else {
-      msg =sprintf("%s #-> No infusion rate information found\n",msg) }
+      msgs =c(msgs, " No infusion rate information found") }
   }
   
   # Processing covariate information
   if(field == "all" | field== "covariate"){
     if("covariates" %in% names(cfg$options$inputs))  {
-      msg = sprintf("%s #-> Covariate details \n", msg)
-      msg = sprintf("%s #->%s | %s | %s | %s\n", msg,
-                 pad_string(" Covariate", 10),
-                 pad_string("field", 10),
-                 pad_string("values", 10),
-                 pad_string("units", 10))
-      msg = sprintf("%s #->%s \n", msg, paste(replicate(50, "-"), collapse = ""))
+      msgs = c(msgs, sprintf(" Covariate details"))
+      msgs = c(msgs, sprintf("%s | %s | %s | %s",
+                     pad_string(" Covariate", 10),
+                     pad_string("field", 10),
+                     pad_string("values", 10),
+                     pad_string("units", 10)))
+      msgs = c(msgs, paste(replicate(50, "-"), collapse = ""))
         for(covariate in names(cfg$options$inputs$covariates)){
-          msg =sprintf("%s #->%s | %s | %s | %s\n", msg,
+          msgs = c(msgs, sprintf("%s | %s | %s | %s",
                      pad_string(covariate, 10),
                      pad_string('time', 10),
                      pad_string(paste(cfg$options$inputs$covariates[[covariate]]$times$values, collapse=" "), 10),
-                     pad_string(      cfg$options$inputs$covariates[[covariate]]$times$units, 10))
-          msg =sprintf("%s #->%s | %s | %s | %s\n", msg,
+                     pad_string(      cfg$options$inputs$covariates[[covariate]]$times$units, 10)))
+          msgs = c(msgs, sprintf("%s | %s | %s | %s",
                      pad_string(sprintf('(%s)', cfg$options$inputs$covariates[[covariate]]$cv_type), 10),
                      pad_string('levels', 10),
                      pad_string(paste(cfg$options$inputs$covariates[[covariate]]$values$values, collapse=" "), 10),
-                     pad_string(      cfg$options$inputs$covariates[[covariate]]$values$units,  10))
+                     pad_string(      cfg$options$inputs$covariates[[covariate]]$values$units,  10)))
         }
-        msg =sprintf("%s #->%s \n\n", msg, paste(replicate(50, "-"), collapse = ""))
+        msgs = c(msgs, paste(replicate(50, "-"), collapse = ""), " ")
     } else {
-      msg =sprintf("%s #->No covariate information found\n\n", msg)}
+      msgs = c(msgs, "No covariate information found", " ")}
   }
   
   # Processing iiv information    
   if(field == "all" | field== "iiv"){
     if("iiv" %in% names(cfg))  {
-      msg = sprintf("%s #-> IIV details \n", msg)
-      msg = sprintf("%s #-> IIV/Parameter set: \n", msg)
-      msg = sprintf("%s #-> %s \n", msg, cfg$iiv$current_set)
-      msg = sprintf("%s #-> Variance/covariance matrix \n", msg)
+      msgs = c(msgs, sprintf(" IIV details"))
+      msgs = c(msgs, sprintf(" IIV/Parameter set:"))
+      msgs = c(msgs, sprintf("   Short Name:  %s ", cfg$iiv$current_set))
+      msgs = c(msgs, sprintf(" Variance/covariance matrix"))
       iivs = names(cfg$iiv$iivs)
       # creating the headers
-      msg = sprintf("%s #-> %s",msg,  pad_string('', 18))
+      msgs = c(msgs, " ")
+      row_str =  pad_string(" ", 18)
       for(colidx in 1:length(iivs)){
-        msg = sprintf("%s%s",msg, pad_string(iivs[colidx], 18)) }
-        msg = sprintf("%s\n",msg)
+        row_str = sprintf("%s%s", row_str, pad_string(iivs[colidx], 18))}
+        msgs = c(msgs, row_str)
       for(rowidx in 1:length(iivs)){
-        msg = sprintf("%s #-> %s",msg,  pad_string(iivs[rowidx], 18))
+        row_str = sprintf("%s",  pad_string(iivs[rowidx], 18))
         for(colidx in 1:length(iivs)){
-          msg = sprintf("%s%s",msg,  var2string( cfg$iiv$values[rowidx,colidx], 18))
+          row_str = sprintf("%s%s", row_str, var2string( cfg$iiv$values[rowidx,colidx], 18))
         }
-        msg = sprintf("%s\n",msg)
+        msgs = c(msgs, row_str)
       }
+      msgs = c(msgs, " " )
         
-      msg = sprintf("%s #-> On parameters \n", msg)
+      msgs = c(msgs, sprintf(" On parameters"))
       for(pname in names(cfg$iiv$parameters)){
-         msg = sprintf("%s #-> %s, %s(%s)\n",msg,
+         msgs = c(msgs, sprintf(" %s, %s(%s)",
                        pad_string(pname,10),
                        pad_string(cfg$iiv$parameters[[pname]]$iiv_name,10),
-                       cfg$iiv$parameters[[pname]]$distribution, 10)  
+                       cfg$iiv$parameters[[pname]]$distribution, 10)  )
       }
       
     } else {
-      msg = sprintf("%s #-> No IIV information found\n", msg) }
+      msgs = c(msgs, " No IIV information found") }
   }
 
   #
   # Simulation Options
   #
   if(field == "all" | field== "simulation"){
-     msg = sprintf("%s\n #-> Simulation details \n\n", msg)
+     msgs = c(msgs, sprintf(" Simulation details"), " ")
      if('integrate_with' %in% names(cfg$options$simulation_options)){
-       msg = sprintf("%s #-> integrate_with          %s \n", msg, cfg$options$simulation_options$integrate_with)
+       msgs = c(msgs, sprintf(" integrate_with          %s", cfg$options$simulation_options$integrate_with))
      }
      if('output_times' %in% names(cfg$options$simulation_options)){
-       msg = sprintf("%s #-> output_times            %s \n", msg, var2string_gen(cfg$options$simulation_options$output_times))
+       msgs = c(msgs, sprintf(" output_times            %s ", var2string_gen(cfg$options$simulation_options$output_times)))
      }
   }
   #
@@ -2484,25 +2488,24 @@ system_view <- function(cfg,field="all") {
   #
 
 
-
   #
   # Datasets
   #
   if(field == "all" | field== "datasets"){
       if("data" %in% names(cfg))  {
-        msg = sprintf("%s\n #-> Dataset details \n", msg)
+        msgs = c(msgs, " ", " Dataset details")
         for(ds_name   in names(cfg$data)){
-          msg = sprintf("%s #-> ----------------\n", msg)
-          msg = sprintf("%s #-> Name:      %s\n", msg, ds_name)
-          msg = sprintf("%s #-> Data File: %s\n", msg, cfg$data[[ds_name]]$data_file$name)
+          msgs = c(msgs, paste(replicate(20, "-"), collapse = ""))
+          msgs = c(msgs, sprintf(" Name:      %s", ds_name))
+          msgs = c(msgs, sprintf(" Data File: %s", cfg$data[[ds_name]]$data_file$name))
           if("sheet" %in% names(cfg$data[[ds_name]]$data_file)){
-            msg = sprintf("%s #-> Sheet:     %s\n", msg, cfg$data[[ds_name]]$data_file$sheet)
+            msgs = c(msgs, sprintf(" Sheet:     %s", cfg$data[[ds_name]]$data_file$sheet))
           }
-          msg = sprintf("%s #-> Columns:   %s\n", msg, paste(colnames(cfg$data[[ds_name]]$values), collapse=", "))
-          msg = sprintf("%s #-> Rows:      %d\n", msg, nrow(cfg$data[[ds_name]]$values))
+          msgs = c(msgs, sprintf(" Columns:   %s", paste(colnames(cfg$data[[ds_name]]$values), collapse=", ")))
+          msgs = c(msgs, sprintf(" Rows:      %d", nrow(cfg$data[[ds_name]]$values)))
         }
       } else {
-       msg = sprintf("%s #-> No datasets loaded\n", msg) }
+       msgs = c(msgs, " No datasets loaded") }
   }
 
 
@@ -2510,12 +2513,13 @@ system_view <- function(cfg,field="all") {
   # Estimation Options
   #
   if(field == "all" | field== "estimation"){
-     msg = sprintf("%s\n #-> Estimation details \n\n", msg)
-     msg = sprintf("%s #-> Parameter set:          %s \n", msg, cfg$parameters$current_set)
-     msg = sprintf("%s #-> Parameters estimated:   %s \n", msg, toString(names(cfg$estimation$mi)))
-     msg = sprintf("%s #-> objective_type          %s \n", msg, cfg$estimation$objective_type)
-     msg = sprintf("%s #-> observation_function    %s \n", msg, cfg$estimation$options$observation_function)
-
+     msgs = c(msgs, "")
+     msgs = c(msgs,         " Estimation details ")
+     msgs = c(msgs, "")
+     msgs = c(msgs, sprintf(" Parameter set:          %s",  cfg$parameters$current_set))
+     msgs = c(msgs, sprintf(" Parameters estimated:   %s",  toString(names(cfg$estimation$mi))))
+     msgs = c(msgs, sprintf(" objective_type          %s",  cfg$estimation$objective_type))
+     msgs = c(msgs, sprintf(" observation_function    %s",  cfg$estimation$options$observation_function))
   }
 
 
@@ -2524,95 +2528,79 @@ system_view <- function(cfg,field="all") {
   #
   if(field == "all" | field== "cohorts"){
      if("cohorts" %in% names(cfg))  {
-       msg = sprintf("%s\n #-> Cohort details \n\n", msg)
+       msgs = c(msgs, " ")
+       msgs = c(msgs," Cohort details")
        for(ch_name   in names(cfg$cohorts)){
-         msg = sprintf("%s #-> Cohort: %s\n", msg, ch_name)
-         msg = sprintf("%s #-> ----------------\n", msg)
-         msg = sprintf("%s #-> dataset: %s\n", msg, cfg$cohorts[[ch_name]]$dataset)
-         msg = sprintf("%s #-> Cohort options (options) \n", msg)
+         msgs = c(msgs,sprintf(" Cohort: %s", ch_name))
+         msgs = c(msgs, paste(replicate(20, "-"), collapse = ""))
+         msgs = c(msgs,sprintf(" dataset: %s", cfg$cohorts[[ch_name]]$dataset))
+         msgs = c(msgs,sprintf(" Cohort options (options) "))
+         #options
          if('options' %in% names(cfg$cohorts[[ch_name]])){
            for(opname in names(cfg$cohorts[[ch_name]]$options)){
-             msg = sprintf("%s #->     %s = c(%s)      \n", msg, opname, 
-             toString(cfg$cohorts[[ch_name]]$cf[[opname]]))
+             msgs = c(msgs, sprintf("     %s = c(%s)", opname, toString(cfg$cohorts[[ch_name]]$cf[[opname]])))
            }
          } else{
-           msg = sprintf("%s #->     none           \n", msg)
+           msgs = c(msgs, "     none")
          }
-
-         #options
-         msg = sprintf("%s #-> \n", msg)
+         msgs = c(msgs, " ")
 
          #filter 
-         msg = sprintf("%s #-> Cohort filter (cf) \n", msg)
+         msgs = c(msgs, " Cohort filter (cf)")
          if('cf' %in% names(cfg$cohorts[[ch_name]])){
            for(col_name in names(cfg$cohorts[[ch_name]]$cf)){
-             msg = sprintf("%s #->     %s = c(%s)      \n", msg, col_name, 
-             toString(cfg$cohorts[[ch_name]]$cf[[col_name]]))
+             msgs = c(msgs, sprintf("     %s = c(%s)", col_name, toString(cfg$cohorts[[ch_name]]$cf[[col_name]])))
            }
          } else{
-           msg = sprintf("%s #->     none           \n", msg)
+           msgs = c(msgs, "     none")
          }
+         msgs = c(msgs, " ")
 
-         msg = sprintf("%s #-> \n", msg)
-
-         msg = sprintf("%s #-> Cohort-specific parametrers (cp) \n", msg)
+         msgs = c(msgs, " Cohort-specific parametrers (cp)")
          if('cp' %in% names(cfg$cohorts[[ch_name]])){
            for(pname in names(cfg$cohorts[[ch_name]]$cp)){
-             msg = sprintf("%s #->     %s = %s        \n", msg, pname, 
-             toString(cfg$cohorts[[ch_name]]$cp[[pname]]))
+             msgs = msgs(sprintf("     %s = %s", pname, toString(cfg$cohorts[[ch_name]]$cp[[pname]])))
            }
          } else{
-           msg = sprintf("%s #->     none           \n", msg)
+           msgs = c(msgs, "     none")
          }
-         #filter 
-         msg = sprintf("%s #-> \n", msg)
 
-         msg = sprintf("%s #-> Inputs \n", msg)
-         #inputs 
-         msg = sprintf("%s #-> \n", msg)
-
-         msg = sprintf("%s #-> Outputs \n", msg)
+         msgs = c(msgs, " ")
+         msgs = c(msgs, " Outputs")
          for(oname in names(cfg$cohorts[[ch_name]]$outputs)){
 
-           msg = sprintf("%s #->   >%s<         \n", msg, oname)
-           msg = sprintf("%s #->    Dataset:    \n", msg)
-           msg = sprintf("%s #->     Sample Time  %s \n", msg, 
-                   cfg$cohorts[[ch_name]]$outputs[[oname]]$obs$time)
-           msg = sprintf("%s #->     Observation  %s \n", msg, 
-                   cfg$cohorts[[ch_name]]$outputs[[oname]]$obs$value)
+           msgs = c(msgs, sprintf("   >%s<              ", oname))
+           msgs = c(msgs, sprintf("    Dataset:         "))
+           msgs = c(msgs, sprintf("     Sample Time  %s ", cfg$cohorts[[ch_name]]$outputs[[oname]]$obs$time))
+           msgs = c(msgs, sprintf("     Observation  %s ", cfg$cohorts[[ch_name]]$outputs[[oname]]$obs$value))
            if('missing' %in% names(cfg$cohorts[[ch_name]]$outputs[[oname]]$obs)){
-               msg = sprintf("%s #->     Missing      %s \n", msg, 
-                       toString(cfg$cohorts[[ch_name]]$outputs[[oname]]$obs$missing))
+               msgs = c(msgs, sprintf("     Missing      %s ", toString(cfg$cohorts[[ch_name]]$outputs[[oname]]$obs$missing)))
            }
 
-           msg = sprintf("%s #->                \n", msg)
+           msgs = c(msgs, " ")
 
-           msg = sprintf("%s #->    Model:      \n", msg)
-           msg = sprintf("%s #->     Timescale    %s \n", msg, 
-                   cfg$cohorts[[ch_name]]$outputs[[oname]]$model$time)
-           msg = sprintf("%s #->     Output       %s \n", msg, 
-                   cfg$cohorts[[ch_name]]$outputs[[oname]]$model$value)
-           msg = sprintf("%s #->     Variance     %s \n", msg, 
-                   cfg$cohorts[[ch_name]]$outputs[[oname]]$model$variance)
-           msg = sprintf("%s #->    ---         \n", msg)
+           msgs = c(msgs, sprintf("    Model:           "))
+           msgs = c(msgs, sprintf("     Timescale    %s ", cfg$cohorts[[ch_name]]$outputs[[oname]]$model$time))
+           msgs = c(msgs, sprintf("     Output       %s ", cfg$cohorts[[ch_name]]$outputs[[oname]]$model$value))
+           msgs = c(msgs, sprintf("     Variance     %s ", cfg$cohorts[[ch_name]]$outputs[[oname]]$model$variance))
+           msgs = c(msgs, sprintf("    ---              "))
 
          }
-         #outputs 
-         msg = sprintf("%s #-> \n", msg)
+         msgs = c(msgs, " ")
 
        }
      } else {
-       msg = sprintf("%s #-> No cohort information found\n", msg) }
+       msgs = c(msgs, " No cohort information found") }
   }
   
   # Processing infusion rate information
   if(field == "all" | field== "XXX"){
    #  if("infusion_rates" %in% names(cfg$options$inputs))  {
    #  } else {
-   #    cat(" #-> No XXX information found\n") }
+   #  }
   }
   
-return(msg)}
+return(msgs)}
 # /system_view
 #-----------------------------------------------------------
 
@@ -3592,7 +3580,7 @@ multiplot <- function(..., plotlist=NULL, cols=1, layout=NULL) {
 #'@description  Used to print messages to the screen and the log file.
 #'
 #'@param cfg ubiquity system object    
-#'@param str string to print
+#'@param str sequence of strings to print
 vp <- function(cfg, str){
 # function []=vp(cfg, str)
 # vp -- verbose print
@@ -3612,7 +3600,9 @@ system_log_entry(cfg, str)
 if('options' %in% names(cfg)){
 if('verbose' %in% names(cfg$options$logging)){
 if(TRUE == cfg$options$logging$verbose){
-  message(paste("#>", str))
+  for(line in str){
+    message(paste("#>", line))
+  }
   }}}
 }
 
@@ -3982,7 +3972,7 @@ system_define_cohort <- function(cfg, cohort){
      }
      else{
       isgood = FALSE
-      vp(cfg, sprintf('Error: An bolus input >%s< was specified for this cohort but'))
+      vp(cfg, sprintf('Error: A bolus input was specified for this cohort but'))
       vp(cfg, sprintf('       there are no bolus inputs defined in the system.txt file.'))
       vp(cfg, sprintf('       <B:times>;         []; scale; units'))
       vp(cfg, sprintf('       <B:events>; STATE; []; scale; units'))
@@ -4799,7 +4789,7 @@ if(length(SIMINT_cfg$options$simulation_options$solver_opts)>0){
 # overriding the default simulation options
 for(SIMINT_option in names(SIMINT_cfg$options$simulation_options)){
   if(is.null(SIMINT_simulation_options[[SIMINT_option]])){
-    print(paste("Unknown simulation option", SIMINT_option))}
+    vp(SIMINT_cfg, paste("Unknown simulation option", SIMINT_option))}
   else{
     SIMINT_simulation_options[[SIMINT_option]] = SIMINT_cfg$options$simulation_options[[SIMINT_option]] }
 }
@@ -5535,7 +5525,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
   if(odtest$isgood){
       vp(cfg,'------------------------------------------')
       vp(cfg,'Starting Estimation ')
-      vp(cfg, sprintf('Parmaeters:          %s', paste(names(cfg$estimation$mi), collapse=", ")))
+      vp(cfg, sprintf('Parameters:          %s', paste(names(cfg$estimation$mi), collapse=", ")))
       vp(cfg, sprintf('Objective Function:  %s', cfg$estimation$objective_type))
       vp(cfg, sprintf('Optimizer:           %s', cfg$estimation$options$optimizer))
       vp(cfg, sprintf('Method:              %s', cfg$estimation$options$method))
@@ -5690,7 +5680,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       # Generating the solution statistics and writing the results to a file
       pest$statistics_est = solution_statistics(pest$estimate, cfg)
       files = generate_report(pest$estimate, pest$statistics_est, cfg)
-      cat(files$report_file_contents, sep="\n")
+      vp(cfg, files$report_file_contents)
       
       vp(cfg, "If you are happy with the results, the following")
       vp(cfg, "can be used to update system.txt file. Just copy, ")
@@ -5794,7 +5784,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
         pstr =  sprintf('<PSET:%s:%s> %s', ptmp$set_name, pname,  ptmp$value)
       
       }
-    cat(pstr, "\n")
+    message(pstr)
     pest$sysup = paste(pest$sysup, pstr, "\n")
 
     }
@@ -7517,9 +7507,9 @@ linspace = function(a, b, n=100){
      isgood = FALSE }
 
    if(!isgood){
-     cat("#> linspace error:\n")
-     cat("#> n should be a positive integer >= 2 \n")
-     cat("#> defaulting to 100\n")
+     message("#> linspace error:")
+     message("#> n should be a positive integer >= 2 ")
+     message("#> defaulting to 100")
      n = 100
    }
 
@@ -7554,9 +7544,9 @@ logspace = function(a, b, n=100){
      isgood = FALSE }
 
    if(!isgood){
-     cat("#> logspace error:\n")
-     cat("#> n should be a positive integer >= 2 \n")
-     cat("#> defaulting to 100\n")
+     message("#> logspace error:")
+     message("#> n should be a positive integer >= 2 ")
+     message("#> defaulting to 100")
      n = 100
    }
 
@@ -9872,15 +9862,22 @@ return(tsample)
 #'@keywords internal
 #'@description  Used to ensure packages are loaded as they are needed.
 #' 
-#'@param pkgs  character vector of s
+#'@param pkgs  character vector of package names
 #'
-#'@return Boolean result of all packages 
+#'@return Boolean result (one for each package) of the loaded status
 system_req <- function(pkgs){
   res_pkg  = NULL
   res_pkgs = c()
   for(pkg in pkgs){
-    eval(parse(text=sprintf("res_pkg = require(%s, quietly=TRUE)", pkg))) 
-    res_pkgs = c(res_pkgs, res_pkg)
+    # If we're running as a stand alone script (i.e. the ubiquity package
+    # hasn't been loaded, then we require packages
+    if(!("ubiquity" %in% (.packages()))){
+      eval(parse(text=sprintf("res_pkg = require(%s, quietly=TRUE)", pkg))) 
+      res_pkgs = c(res_pkgs, res_pkg)
+    } else {
+    # otherwise we just return a Boolean value to see if the package is loaded
+      res_pkgs = c(res_pkgs, (pkg  %in% (.packages())))
+    }
   }
 all(res_pkgs)}
 #-------------------------------------------------------------------------
@@ -9892,6 +9889,10 @@ all(res_pkgs)}
 #'@param verbose enable verbose messaging   
 #'
 #'@return List fn result of all packages 
+#'examples
+#'\donttest{
+#' invisible(system_check_requirements())
+#'}
 system_check_requirements <- function(checklist = list(perl    = list(check   = TRUE, perlcmd = "perl"),
                                                        C       = list(check   = TRUE)), 
                                                   verbose   = TRUE){
@@ -9899,17 +9900,17 @@ system_check_requirements <- function(checklist = list(perl    = list(check   = 
   res = list()
 
   if(verbose == TRUE){
-    cat("#> system_check_requirements()\n")}
+    message("#> system_check_requirements()")}
                        
 
   # Checking Perl
   if("perl" %in% names(checklist)){
     res$perl = TRUE
 
-    if(verbose == TRUE){ cat("#> Testing perl, looking for a perl interpreter\n")}
+    if(verbose == TRUE){ message("#> Testing perl, looking for a perl interpreter")}
     # First we see if we can find the interpreter
     if(as.character(Sys.which(checklist$perl$perlcmd)) != ""){
-      if(verbose == TRUE){ cat("#> Perl interpreter found, now testing it\n")}
+      if(verbose == TRUE){ message("#> Perl interpreter found, now testing it")}
       # if we find the interpreter we try to run a simple perl command
       perl_test_cmd = "perl -e  \"print 'perl works';\""
       
@@ -9919,29 +9920,29 @@ system_check_requirements <- function(checklist = list(perl    = list(check   = 
 
       # If the numeric result is 0 then it the command executed 
       if( perl_test_cmd_result_numeric  == 0){
-        if(verbose == TRUE){ cat("#>    > Success: Perl runs, everything should be good\n")}
+        if(verbose == TRUE){ message("#>    > Success: Perl runs, everything should be good")}
         res$perl = TRUE
         # perl_test_cmd_result_string = system(perl_test_cmd, intern = TRUE)
       } else {
         res$perl = FALSE
-        if(verbose == TRUE){ cat("#>    > Failure: Execution of perl test failed\n")}
+        if(verbose == TRUE){ message("#>    > Failure: Execution of perl test failed")}
       }
     } else {
       res$perl   = FALSE
       if(verbose == TRUE){
-        cat("#> Unable to find perl\n")
-        cat("#> \n")
+        message("#> Unable to find perl")
+        message("#> ")
         if(.Platform$OS.type == "windows"){
-          cat("#> On Windows you will need to install a perl distribution.\n")
-          cat("#> Windows testing for ubiquity is done with strawberry perl:\n")
-          cat("#> http://strawberryperl.com \n")
-          cat("#> \n")
-          cat("#> After you've installed perl you may need to update\n")
-          cat("#> the PATH through the Control Panel (Environment Variables) \n")
+          message("#> On Windows you will need to install a perl distribution.")
+          message("#> Windows testing for ubiquity is done with strawberry perl:")
+          message("#> http://strawberryperl.com ")
+          message("#> ")
+          message("#> After you've installed perl you may need to update")
+          message("#> the PATH through the Control Panel (Environment Variables) ")
         
         }
         if(.Platform$OS.type == "unix"){
-          cat("#> On Unix (Linux, Mac OS, etc) perl should come standard.\n")
+          message("#> On Unix (Linux, Mac OS, etc) perl should come standard.")
         }
       }
     }
@@ -9989,14 +9990,14 @@ void derivs (int *neq, double *t, double *y, double *ydot,
     close(fileConn)
     
     # Compiling the C file
-    if(verbose == TRUE){ cat("#> Attempting to compile C file\n")}
+    if(verbose == TRUE){ message("#> Attempting to compile C file")}
     compile_result = system("R CMD SHLIB mymod.c", ignore.stderr=TRUE, ignore.stdout=TRUE)
 
     if(compile_result == 0){
-      if(verbose == TRUE){ cat("#>    > Success: C file compiled\n")}
+      if(verbose == TRUE){ message("#>    > Success: C file compiled")}
       # loading it
 
-      if(verbose == TRUE){ cat("#> Loading the library \n")}
+      if(verbose == TRUE){ message("#> Loading the library ")}
 
         load_result = FALSE
         tryCatch(
@@ -10008,7 +10009,7 @@ void derivs (int *neq, double *t, double *y, double *ydot,
           error = function(e) { })
       
         if(load_result){
-          if(verbose == TRUE){ cat("#>    > Success: C library loaded\n")}
+          if(verbose == TRUE){ message("#>    > Success: C library loaded")}
           # running the model
           parms <- c(k1 = 0.04)
           Y     <- c(y1 = 10.0)
@@ -10022,11 +10023,11 @@ void derivs (int *neq, double *t, double *y, double *ydot,
 
           res$C = TRUE
         } else {
-          if(verbose == TRUE){ cat("#>    > Failure: Unable to load the C library\n")}
+          if(verbose == TRUE){ message("#>    > Failure: Unable to load the C library")}
           res$C = FALSE
         }
     } else {
-      if(verbose == TRUE){ cat("#>    > Failure: Unable to compile C file\n")}
+      if(verbose == TRUE){ message("#>    > Failure: Unable to compile C file")}
       res$C = FALSE
     }
        

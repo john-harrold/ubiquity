@@ -13,7 +13,11 @@ system_check_requirements(checklist = list(perl = list(check = TRUE,
 \item{verbose}{enable verbose messaging}
 }
 \value{
-List fn result of all packages
+List fn result of all packages 
+examples
+\donttest{
+invisible(system_check_requirements())
+}
 }
 \description{
 Check the local installation for perl and verify C compiler is installed and working.

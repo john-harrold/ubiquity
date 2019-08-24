@@ -12,7 +12,7 @@ system_view(cfg, field = "all")
 \item{field}{string indicating the aspect of the system to display}
 }
 \value{
-string with system information 
+sequence of strings with system in formation (one line per element)
 
 The \code{field} 
 \itemize{
@@ -32,5 +32,8 @@ Displays information (dosing, simulation options, covariates,
 etc) about the system.
 }
 \examples{
-# cat(system_view(cfg), field="parameters")
+# To log and display the current system information:
+\donttest{
+vp(cfg, system_view(cfg))
+}
 }

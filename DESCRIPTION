@@ -6,7 +6,7 @@ Authors@R: c(person("John", "Harrold", role = c("aut", "cre"),
                      email = "john.m.harrold@gmail.com"))
 Author: John Harrold [aut, cre]
 Maintainer: John Harrold <john.m.harrold@gmail.com>
-Description: R workflor for the ubiquity pharmacokinetic and pharmacodyamic (PKPD) tools (<http://ubiquity.tools>) used for model development and deployment.
+Description: R workflow for the ubiquity pharmacokinetic and pharmacodyamic (PKPD) tools (<http://ubiquity.tools>) used for model development and deployment.
 URL: https://ubiquity.tools
 SystemRequirements: Perl
 BugReports: https://github.com/john-harrold/ubiquity/issues

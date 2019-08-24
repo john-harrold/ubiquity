@@ -7,10 +7,10 @@
 system_req(pkgs)
 }
 \arguments{
-\item{pkgs}{character vector of s}
+\item{pkgs}{character vector of package names}
 }
 \value{
-Boolean result of all packages
+Boolean result (one for each package) of the loaded status
 }
 \description{
 Used to ensure packages are loaded as they are needed.
