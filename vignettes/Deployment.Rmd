@@ -224,23 +224,30 @@ cfg$gui$functions$plot_ind =  'function_name(cfg, parameters,som)'
 cfg$gui$functions$plot_var =  'function_name(cfg, parameters,som)'
 ```
 
-##Deployment on a Shiny Server
+## Deployment on a Shiny Server
 
-To deploy the ShinyApp on a shiny server you need to indicate this by modifying ``ubiquity_app.R`` and chaining the deploying variable to ``TRUE``:
+To deploy the ShinyApp on a shiny server you need to indicate this by modifying ``ubiquity_app.R`` and changing the deploying variable to ``TRUE``:
 
 ```{r, eval=FALSE}
 deploying = TRUE
 ```
 
 
-Then the ShinyApp needs to be initialized on the server by running the following **as the shiny user** on the server:
+Then the ShinyApp needs to be initialized on the server. You can do this two ways. First you can 
+create an empty file called ``REBUILD`` that needs to be deployed along side the other app files. You can do this with the ``touch`` command from the ``nat.utils`` package: 
 
 ```{r, eval=FALSE}
-R -e "source('model_gui.r')"
+nat.utils::touch("REBUILD")
 ```
 
+This will force the initialization the first time the app is loaded. This works well if you are using ``rsconnect`` to deploy your app. Alternatively, you can manually sync the files and run the following **as the shiny user** on the server.
 
-If the App fails to run on the Shiny Server two options should be checked:
+```{r, eval=FALSE}
+R -e "source('ubiquity_app.R')"
+```
+
+If the App fails to run on the Shiny Server check the following:
+
 * Make sure all of the correct packages have been installed and are available to the user the Shiny Server is running under.
 * Make sure the ownership and permissions on the server files is correct.
 

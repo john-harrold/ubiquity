@@ -58,7 +58,7 @@ This will create the file ``analysis_simulate.R`` in the working directory. This
 
 We'll begin by demonstrating how to simulate an indiviudal response to dosing. The system parameters for the default parameter set can be pulled out of this object:
 
-```{r results="hide", warning=FALSE}
+```{r results="hide", warning=FALSE, message=FALSE}
 cfg = build_system(system_file = "system.txt")
 parameters = system_fetch_parameters(cfg)
 ```
@@ -106,12 +106,12 @@ print(p)
 
 Next we want to simulate the response of multiple subjects. This system has IIV specified in the following manner:
 ```{r warning=FALSE, comment=''}
-cat(system_view(cfg, 'iiv'))
+message(paste(system_view(cfg, 'iiv'), collapse="\n"))
 ```
 
 Different aspects of the Monte Carlo simulations can be specified. For example the following states that we want to simulate 20 subjects and the simulation is run using ```simulate_subjects```:
 
-```{r warning=FALSE, results=FALSE}
+```{r warning=FALSE, results=FALSE, message=FALSE}
 cfg=system_set_option(cfg, group  = "stochastic",
                            option = "nsub",
                            value  = 20)
@@ -179,7 +179,7 @@ cfg=system_set_option(cfg, group  = "stochastic",
 ```
 
 Then we just use ``simulate_subjects`` to run the simulation as before:
-```{r results=FALSE, warning=FALSE}
+```{r results=FALSE, warning=FALSE, message=FALSE}
 som  = simulate_subjects(parameters, cfg)
 ```
 

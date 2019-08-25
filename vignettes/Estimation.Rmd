@@ -47,7 +47,7 @@ cfg = build_system(system_file = "system.txt")
 
 Once the system has been built, you can create a local copy of an estimation template for the system:
 
-```{r results="hide"}
+```{r results="hide", message=FALSE}
 system_fetch_template(cfg, template="Estimation")
 ```
 
@@ -232,7 +232,7 @@ plot_opts = c()
 plot_opts$outputs$Parent$yscale       = 'log'
 ```
  
-```{r results="hide", echo=TRUE, warning=FALSE, eval=TRUE}
+```{r results="hide", echo=TRUE, warning=FALSE, eval=TRUE, message=FALSE}
 plinfo = system_plot_cohorts(erp, plot_opts, cfg, analysis_name=analysis_name)
 ```
 
