@@ -36,14 +36,14 @@ Reporting is implemented using the ``officer`` package. Officer provides a lot o
 * ``system_report_set`` - Set the officer object for a report
 * ``system_report_save`` - Save a report to a file
 
-The workshop (http://workshop.ubiquity.grok.tv) provides an example of how to use these functions. To make a copy this script run the following:
+The workshop (http://workshop.ubiquity.grok.tv) provides an example of how to use these functions. To make a copy of an example script run the following:
 
 ```{r eval=FALSE}
 library(ubiquity)
 fr = workshop_fetch(section="Reporting", overwrite=TRUE)
 ```
 
-This should create the folloing script
+This should create the following script
 
 * ``make_report_PowerPoint.R`` Generates a PowerPoint presentation from an R script
 
@@ -59,10 +59,10 @@ cfg = system_report_init(cfg)
 
 ## Content type
 
-With the report created we can begin adding slides. There are several diffent slide formats with different placeholders for content and each placehodler can contian a type of content (text, list, image file, etc). The following list provides a the available content types followed by the format of the content:
+With the report created we can begin adding slides. There are several diffent slide formats with different placeholders for content. Each placehodler can contian a different type of content (text, list, image file, etc). The following list provides a the available content types followed by the format of the content:
 
 * ``"text"`` text string of information
-* ``"list"`` vector of paired values (indent level and text), eg.  c(1, "Main Bullet", 2 "Sub Bullet")
+* ``"list"`` vector of paired values (indent level and text), eg.  ``c(1, "Main Bullet", 2 "Sub Bullet")``
 * ``"imagefile"`` string containing path to image file
 * ``"ggplot"`` ggplot object, eg. ``p = ggplot() + ...``
 * ``"table"`` list containing the table content and other options with the following elements (defaults in parenthesis):
