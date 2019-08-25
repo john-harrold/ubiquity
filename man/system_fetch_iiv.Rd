@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_fetch_iiv}
 \alias{system_fetch_iiv}
-\title{Get Variability Terms}
+\title{Fetch Variability Terms}
 \usage{
 system_fetch_iiv(cfg, IIV1, IIV2)
 }
@@ -11,17 +11,26 @@ system_fetch_iiv(cfg, IIV1, IIV2)
 
 \item{IIV1}{row name of the variance/covariance matrix}
 
-\item{IIV2}{column name of the variance/covariance matrix element}
+\item{IIV2}{column name of the variance/covariance matrix}
 }
 \value{
 Value from the variance/covariance matrix
 }
 \description{
-Extract elements of the current variance covariance matrix
+Extract elements of the current variance/covariance matrix
 specified in the system file with \code{<IIV:?:?> ?}, \code{<IIVCOR:?:?>?}, \code{<IIVSET:?:?> ?}, \code{<IIVCORSET:?:?>?}
 }
 \examples{
-#  val = system_fetch_iiv(cfg, IIV1="ETACL", IIV2="ETAVc")'
+\donttest{
+# Creating a system file from the mab_pk example
+system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+
+# Building the system 
+cfg = build_system("system_example.txt")
+
+# Covariance term for ETACL and ETAVc
+val = system_fetch_iiv(cfg, IIV1="ETACL", IIV2="ETAVc")
+}
 }
 \seealso{
 \code{\link{system_set_iiv}}

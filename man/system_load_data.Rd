@@ -32,15 +32,3 @@ Multiple datasets can be loaded as long as they are given different
 names. Datasets should be in a NONMEM-ish format with the
 first row containing the column header names.
 }
-\examples{
-# cfg = system_load_data(cfg, 
-#                        dsname     = "DSNAME", 
-#                        data_file  = "data.xls", 
-#                        data_sheet = "sheetname")
-# cfg = system_load_data(cfg, 
-#                        dsname     = "DSNAME", 
-#                        data_file  = "data.csv")
-# cfg = system_load_data(cfg, 
-#                        dsname     = "DSNAME", 
-#                        data_file  = "data.tab")
-}

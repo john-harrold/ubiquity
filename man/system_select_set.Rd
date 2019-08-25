@@ -23,8 +23,14 @@ switching between these parameterizations, and (optionally) specifying a
 subset of parameters estimated when performing parameter estimation.
 }
 \examples{
-# Examples
-# cfg = system_select_set(cfg, ’default’)
-# pnames = c('CL', 'Vp')
-# cfg = system_select_set(cfg, ’myset', pnames)
+\donttest{
+# Creating a system file from the mab_pk example
+system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+
+# Building the system 
+cfg = build_system("system_example.txt")
+
+# Selecting the default parameter set
+cfg = system_select_set(cfg, "default")
+}
 }

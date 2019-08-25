@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_fetch_parameters}
 \alias{system_fetch_parameters}
-\title{Get System Parameters}
+\title{Fetch System Parameters}
 \usage{
 system_fetch_parameters(cfg)
 }
@@ -10,12 +10,21 @@ system_fetch_parameters(cfg)
 \item{cfg}{ubiquity system object}
 }
 \value{
-List of parameters for the selected parameter set or the default parameter set if the selected set does not exist
+List of parameters for the selected parameter set
 }
 \description{
 Fetch the parameters of the currently selected parameter set. To switch
 between parameter sets use \code{\link{system_select_set}}
 }
 \examples{
-# parameters = system_fetch_parameters(cfg)
+\donttest{
+# Creating a system file from the mab_pk example
+system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+
+# Building the system 
+cfg = build_system("system_example.txt")
+
+# Fetching the default parameter set
+parameters = system_fetch_parameters(cfg)
+}
 }

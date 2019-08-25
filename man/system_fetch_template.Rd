@@ -26,8 +26,8 @@ This function provides a method to make local copies of these templates.
 The template argument can have the following values
 
 \itemize{
- \item{"Simulation"}       produces \code{analysis_simulate.R}: R-Script named  with placeholders used to run simulations
- \item{"Estimation"}       produces \code{analysis_estimate.R}: R-Script named  with placeholders used to perform naive-pooled parameter estimation
+ \item{"Simulation"}       produces \code{analysis_simulate.R}: R-Script named with placeholders used to run simulations
+ \item{"Estimation"}       produces \code{analysis_estimate.R}: R-Script named with placeholders used to perform naive-pooled parameter estimation
  \item{"NCA"}              produces \code{analysis_nca.R}: R-Script to perform non-compartmental analysis (NCA) and report out the results
  \item{"ShinyApp"}         produces \code{ubiquity_app.R}, \code{server.R} and \code{ui.R}: files needed to run the model through a Shiny App either locally or on a Shiny Server
  \item{"Model Diagram"}    produces \code{system.svg}: SVG template for producing a model diagram (Goto \url{https://inkscape.org} for a free SVG editor)
@@ -39,5 +39,14 @@ The template argument can have the following values
 }
 }
 \examples{
-#tr =  system_fetch_template(cfg, template="Simulation")
+\donttest{
+# Creating a system file from the mab_pk example
+system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+
+# Building the system 
+cfg = build_system("system_example.txt")
+
+# Creating a simulation template
+fr =  system_fetch_template(cfg, template="Simulation")
+}
 }

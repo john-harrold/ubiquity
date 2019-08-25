@@ -22,11 +22,19 @@ Ubiquity system object with the infusion rate set
 Defines infusion rates specified in the system file using  \code{<R:?>}
 }
 \examples{
-# cfg = system_set_rate(cfg,
-#            rate   = "RNAME",
-#            times  = c(0, 1), 
-#            levels = c(10, 0))
-# Examples
+\donttest{
+# Creating a system file from the mab_pk example
+system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+
+# Building the system 
+cfg = build_system("system_example.txt")
+
+# 5 minute infusion at 10 mg/min
+cfg = system_set_rate(cfg,
+           rate   = "Dinf",
+           times  = c(0,  5), 
+           levels = c(10, 0))
+}
 }
 \seealso{
 \code{\link{system_zero_inputs}}

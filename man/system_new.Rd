@@ -35,12 +35,8 @@ Copy a blank template (\code{system_file="template"}) file to the working direct
 }
 }
 \examples{
-#  # To create an empty template:
-#  system_new()
-#  # To create a compartmental model of mAb PK, 
-#  # build the system, and create a simulation 
-#  # template:
-#  system_new(file_name="system-mabs.txt", system_file="mab_pk", overwrite=TRUE)
-#  cfg = build_system("system-mabs.txt")
-#  system_fetch_template(cfg, template = "Simulation")
+\donttest{
+# To create an example system file named example_system.txt:
+system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+}
 }

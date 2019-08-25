@@ -33,3 +33,4 @@ ubiquity system object with the bolus dosing updated.
 The prototype function \code{SI_TT_BOLUS} provides an interface to this function. Based on the input from \code{SI_TT_BOLUS}
 bolus inputs will be updated for the current titration time.
 }
+\keyword{internal}

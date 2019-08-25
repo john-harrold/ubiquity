@@ -20,7 +20,7 @@ Ubiquity system object with the option set
 }
 \description{
 Different options associated performing analyses (e.g running
-simulations, performing parameter esitmations, logging, etc.) can be set
+simulations, performing parameter estimation, logging, etc.) can be set
 with this function
 }
 \details{

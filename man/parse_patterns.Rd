@@ -15,8 +15,6 @@ parse_patterns(cfg, str)
 String with the prototype functions replaced
 }
 \description{
-A string can contain any number of protytype functions, and this function will find them and replace them with the actual R code.
+A string can contain any number of prototype functions, and this function will find them and replace them with the actual R code.
 }
-\examples{
-# Examples
-}
+\keyword{internal}

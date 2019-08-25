@@ -8,12 +8,12 @@ build_system(system_file = "system.txt", distribution = "automatic",
   perlcmd = "perl", verbose = TRUE, debug = TRUE)
 }
 \arguments{
-\item{system_file}{name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt')}
+\item{system_file}{name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt'), if the file does not exist a template will be created and compiled.}
 
 \item{distribution}{indicates weather you are using a 'package' or a 'stand alone' 
 distribution of ubiquity. If set to 'automatic' the build script will first 
 look to see if the ubiquity R package is installed. If it is installed it
-will use the package. Otherwise, it will assume a 'sand alone' package.}
+will use the package. Otherwise, it will assume a "sand alone" distribution.}
 
 \item{perlcmd}{system command to run perl}
 
@@ -25,5 +25,7 @@ will use the package. Otherwise, it will assume a 'sand alone' package.}
 Builds the specified system file creating the targets for R and other languages as well as the templates for performing simulations and estimations.
 }
 \examples{
-# build_system(system_file='system.txt')
+\donttest{
+cfg = build_system()
+}
 }

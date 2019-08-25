@@ -24,8 +24,17 @@ and \code{<CVSET:?:?>} will have their default values for a given parameter
 set. This function is a means to overwrite those values.
 }
 \examples{
-#  cfg = system_set_covariate(cfg, 
-#                             covariate = "COV",
-#                             times     = c(1, 3, 25),
-#                             values    = c(1, 2,  1))
+\donttest{
+# Creating a system file from the mab_pk example
+system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+
+# Building the system 
+cfg = build_system("system_example.txt")
+
+# Setting the covariate WT to 50
+cfg = system_set_covariate(cfg, 
+                           covariate = "WT",
+                           times     = c(0), 
+                           values    = c(50))
+}
 }

@@ -18,14 +18,23 @@ Ubiquity system object with the specified inputs set to zero
 }
 \description{
 Multiple default inputs can be specified in the system file. At
-the scripting level this function can be used to eliminate all of them then
-apply ony the subsequently specified inputs.
+the scripting level this function can be used to set all inputs to zero.
+Then only the subsequently specified inputs will be applied.
 }
 \examples{
-# Clear all inputs:
-# cfg = system_zero_inputs()
+\donttest{
+# Creating a system file from the mab_pk example
+system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+
+# Building the system 
+cfg = build_system("system_example.txt")
+
 # Clear only infusion rates
-# cfg = system_zero_inputs(cfg, bolus=TRUE, rates=FALSE)
+cfg = system_zero_inputs(cfg, bolus=TRUE, rates=FALSE)
+
+# Clear all inputs:
+cfg = system_zero_inputs(cfg)
+}
 }
 \seealso{
 \code{\link{system_set_rate}}, \code{\link{system_set_bolus}}

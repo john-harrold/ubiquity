@@ -26,16 +26,18 @@
 #'@title Building The System
 #'@description  Builds the specified system file creating the targets for R and other languages as well as the templates for performing simulations and estimations. 
 #'
-#'@param system_file name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt')
+#'@param system_file name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt'), if the file does not exist a template will be created and compiled.
 #'@param distribution indicates weather you are using a 'package' or a 'stand alone' 
 #' distribution of ubiquity. If set to 'automatic' the build script will first 
 #' look to see if the ubiquity R package is installed. If it is installed it
-#' will use the package. Otherwise, it will assume a 'sand alone' package.
+#' will use the package. Otherwise, it will assume a "sand alone" distribution.
 #'@param perlcmd system command to run perl
 #'@param verbose enable verbose messaging   
 #'@param debug Boolean variable indicating if debugging information should be displayed
 #'@examples
-#' # build_system(system_file='system.txt')
+#' \donttest{
+#' cfg = build_system()
+#'}
 build_system <- function(system_file    = "system.txt",
                          distribution   = "automatic",
                          perlcmd        = "perl",
@@ -81,7 +83,7 @@ invisible(system_req(pkgs))
 # For stand alone distributions we just use the default template and transient
 # directory
 if(distribution == "stand alone"){
-  templates       = file.path( getwd(), "library", "templates")
+  templates       = file.path(getwd(), "library", "templates")
   temp_directory  = file.path(getwd(), "transient")
   build_script_pl = "build_system.pl"
 }
@@ -238,13 +240,17 @@ return(cfg)}
 #'@export 
 #'@title Fetch Ubiquity Workshop Sections
 #'@description With the ubiquity package this function can be used to fetch
-#' sections of the workshop.
+#' example files for different sections of the workshop.
 #'
 #'@param section Name of the section of workshop to retrieve 
 #'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
 #'@details Valid sections are "Simulation", "Estimation", "Titration" "Reporting", and "NCA"
 #'
 #'@return list
+#'@examples
+#' \donttest{
+#' workshop_fetch("Estimation")
+#'}
 workshop_fetch <- function(section="Simulation", overwrite=FALSE){
   res = list()
   allowed = c("Simulation", "Estimation", "Titration", "Reporting", "Testing", "NCA")
@@ -405,15 +411,10 @@ return(res)}
 #'@return \code{TRUE} if the new file was created and \code{FALSE} otherwise
 #'
 #'@examples
-#'#  # To create an empty template:
-#'#  system_new()
-#'#  # To create a compartmental model of mAb PK, 
-#'#  # build the system, and create a simulation 
-#'#  # template:
-#'#  system_new(file_name="system-mabs.txt", system_file="mab_pk", overwrite=TRUE)
-#'#  cfg = build_system("system-mabs.txt")
-#'#  system_fetch_template(cfg, template = "Simulation")
-
+#' \donttest{
+#' # To create an example system file named example_system.txt:
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'}
 system_new  <- function(file_name="system.txt", system_file="template", overwrite=FALSE){
 
  allowed = c("template",      "mab_pk",         "pbpk",          "pwc", 
@@ -475,8 +476,8 @@ isgood}
 #'@details The template argument can have the following values
 #'
 #' \itemize{
-#'  \item{"Simulation"}       produces \code{analysis_simulate.R}: R-Script named  with placeholders used to run simulations
-#'  \item{"Estimation"}       produces \code{analysis_estimate.R}: R-Script named  with placeholders used to perform naive-pooled parameter estimation
+#'  \item{"Simulation"}       produces \code{analysis_simulate.R}: R-Script named with placeholders used to run simulations
+#'  \item{"Estimation"}       produces \code{analysis_estimate.R}: R-Script named with placeholders used to perform naive-pooled parameter estimation
 #'  \item{"NCA"}              produces \code{analysis_nca.R}: R-Script to perform non-compartmental analysis (NCA) and report out the results
 #'  \item{"ShinyApp"}         produces \code{ubiquity_app.R}, \code{server.R} and \code{ui.R}: files needed to run the model through a Shiny App either locally or on a Shiny Server
 #'  \item{"Model Diagram"}    produces \code{system.svg}: SVG template for producing a model diagram (Goto \url{https://inkscape.org} for a free SVG editor)
@@ -488,7 +489,16 @@ isgood}
 #'}
 #'
 #'@examples
-#' #tr =  system_fetch_template(cfg, template="Simulation")
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#'
+#' # Creating a simulation template
+#' fr =  system_fetch_template(cfg, template="Simulation")
+#'}
 system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
 
  res = list()
@@ -644,18 +654,6 @@ return(res)}
 #'@param data_sheet argument identifying the name of the sheet in an excel file
 #' 
 #'@return Ubiquity system object with the dataset loaded
-#'
-#'@examples
-#' # cfg = system_load_data(cfg, 
-#' #                        dsname     = "DSNAME", 
-#' #                        data_file  = "data.xls", 
-#' #                        data_sheet = "sheetname")
-#' # cfg = system_load_data(cfg, 
-#' #                        dsname     = "DSNAME", 
-#' #                        data_file  = "data.csv")
-#' # cfg = system_load_data(cfg, 
-#' #                        dsname     = "DSNAME", 
-#' #                        data_file  = "data.tab")
 system_load_data <- function(cfg, dsname, data_file, data_sheet){
 
 
@@ -706,10 +704,16 @@ system_load_data <- function(cfg, dsname, data_file, data_sheet){
 #'@return Ubiquity system object with the specified parameter set active
 #'
 #'@examples
-#' # Examples
-#' # cfg = system_select_set(cfg, ’default’)
-#' # pnames = c('CL', 'Vp')
-#' # cfg = system_select_set(cfg, ’myset', pnames)
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#' 
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#' 
+#' # Selecting the default parameter set
+#' cfg = system_select_set(cfg, "default")
+#'}
 system_select_set = function(cfg, set_name='default', parameter_names=NULL){
 #
 # takes the system information variable cfg and makes the values in the string
@@ -756,8 +760,6 @@ if(!is.null(parameter_names)){
 if(is.null(parameter_names)){
   parameter_names = names(cfg$options$mi$parameters)
 }
-
-
 
 tmp_to_estimate_system   = c()
 tmp_to_estimate_variance = c() 
@@ -844,7 +846,7 @@ return(cfg)
 # parameters = system_fetch_parameters(cfg)
 #
 #'@export
-#'@title Get System Parameters
+#'@title Fetch System Parameters
 #'
 #'@description
 #' Fetch the parameters of the currently selected parameter set. To switch
@@ -852,31 +854,44 @@ return(cfg)
 #'
 #'@param cfg ubiquity system object    
 #'
-#'@return List of parameters for the selected parameter set or the default parameter set if the selected set does not exist
+#'@return List of parameters for the selected parameter set
 #'
 #'@examples
-#' # parameters = system_fetch_parameters(cfg)
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#'
+#' # Fetching the default parameter set
+#' parameters = system_fetch_parameters(cfg)
+#'}
 system_fetch_parameters <- function(cfg){
   return(cfg$parameters$values)}
 
 
-# cfg = system_fetch_iiv(cfg, IIV1, IIV2)
-#
-#
-#
-#
 #'@export
-#'@title Get Variability Terms
-#'@description Extract elements of the current variance covariance matrix
+#'@title Fetch Variability Terms
+#'@description Extract elements of the current variance/covariance matrix
 #' specified in the system file with \code{<IIV:?:?> ?}, \code{<IIVCOR:?:?>?}, \code{<IIVSET:?:?> ?}, \code{<IIVCORSET:?:?>?}
 #'
 #'@param cfg ubiquity system object    
 #'@param IIV1 row name of the variance/covariance matrix
-#'@param IIV2 column name of the variance/covariance matrix element
+#'@param IIV2 column name of the variance/covariance matrix 
 #'
 #'@return Value from the variance/covariance matrix   
 #'@examples
-#' #  val = system_fetch_iiv(cfg, IIV1="ETACL", IIV2="ETAVc")'
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#'
+#' # Covariance term for ETACL and ETAVc
+#' val = system_fetch_iiv(cfg, IIV1="ETACL", IIV2="ETAVc")
+#'}
 #'@seealso \code{\link{system_set_iiv}}
 system_fetch_iiv <- function(cfg, IIV1, IIV2){
   
@@ -902,11 +917,12 @@ system_fetch_iiv <- function(cfg, IIV1, IIV2){
   }
 return(VALUE)}
 
+
 #'@export
 #'@title Zero All Model Inputs
 #'@description Multiple default inputs can be specified in the system file. At
-#' the scripting level this function can be used to eliminate all of them then
-#' apply ony the subsequently specified inputs. 
+#' the scripting level this function can be used to set all inputs to zero.
+#' Then only the subsequently specified inputs will be applied.
 #'
 #'@param cfg ubiquity system object    
 #'@param bolus Boolean value indicating weather bolus inputs should be set to zero
@@ -915,10 +931,19 @@ return(VALUE)}
 #'@return Ubiquity system object with the specified inputs set to zero
 #'
 #'@examples
-#' # Clear all inputs:
-#' # cfg = system_zero_inputs()
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#'
 #' # Clear only infusion rates
-#' # cfg = system_zero_inputs(cfg, bolus=TRUE, rates=FALSE)
+#' cfg = system_zero_inputs(cfg, bolus=TRUE, rates=FALSE)
+#'
+#' # Clear all inputs:
+#' cfg = system_zero_inputs(cfg)
+#'}
 #'@seealso \code{\link{system_set_rate}}, \code{\link{system_set_bolus}}
 system_zero_inputs <- function(cfg, bolus=TRUE, rates=TRUE){
   # zeroing out the bolus values
@@ -942,9 +967,6 @@ system_zero_inputs <- function(cfg, bolus=TRUE, rates=TRUE){
   }
 return(cfg)}
 
-# cfg = system_set_covariate(cfg, covariate, times, values)
-#
-#
 #'@export
 #'@title Set Covariate Values
 #'@description Covariates specified in the system file using  \code{<CV:?>}
@@ -959,10 +981,19 @@ return(cfg)}
 #'@return Ubiquity system object with the covariate set
 #'
 #'@examples
-#'#  cfg = system_set_covariate(cfg, 
-#'#                             covariate = "COV",
-#'#                             times     = c(1, 3, 25),
-#'#                             values    = c(1, 2,  1))
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#'
+#' # Setting the covariate WT to 50
+#' cfg = system_set_covariate(cfg, 
+#'                            covariate = "WT",
+#'                            times     = c(0), 
+#'                            values    = c(50))
+#'}
 system_set_covariate <- function(cfg, covariate, times, values){
   isgood = TRUE
   if(!(length(times) == length(values)) ) {
@@ -983,10 +1014,6 @@ system_set_covariate <- function(cfg, covariate, times, values){
 return(cfg)}
 
 
-# cfg = system_set_rate(cfg, rate, times, levels)
-#
-#
-#
 #'@export
 #'@title Set Infusion Rate Inputs
 #'@description Defines infusion rates specified in the system file using  \code{<R:?>}
@@ -999,11 +1026,19 @@ return(cfg)}
 #'@return Ubiquity system object with the infusion rate set
 #'
 #'@examples
-#' # cfg = system_set_rate(cfg,
-#' #            rate   = "RNAME",
-#' #            times  = c(0, 1), 
-#' #            levels = c(10, 0))
-#' # Examples
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#'
+#' # 5 minute infusion at 10 mg/min
+#' cfg = system_set_rate(cfg,
+#'            rate   = "Dinf",
+#'            times  = c(0,  5), 
+#'            levels = c(10, 0))
+#'}
 #'@seealso \code{\link{system_zero_inputs}}
 system_set_rate <- function(cfg, rate, times, levels){
   isgood = TRUE
@@ -1023,13 +1058,10 @@ system_set_rate <- function(cfg, rate, times, levels){
     vp(cfg, "was not set, see the messages above.") }
 return(cfg)}
 
-# cfg = system_set_option(cfg, group, option, value)
-#
-#
 #'@export
 #'@title Setting Analysis Options
 #'@description Different options associated performing analyses (e.g running
-#' simulations, performing parameter esitmations, logging, etc.) can be set
+#' simulations, performing parameter estimation, logging, etc.) can be set
 #' with this function
 #'
 #'@param cfg ubiquity system object    
@@ -1754,15 +1786,13 @@ return(cfg)
 
 #'@export
 #'@title Parse String for Prototype Functions
-#'@description A string can contain any number of protytype functions, and this function will find them and replace them with the actual R code.
+#'@keywords internal
+#'@description A string can contain any number of prototype functions, and this function will find them and replace them with the actual R code.
 #'
 #'@param cfg ubiquity system object    
 #'@param str string
 #'
 #'@return String with the prototype functions replaced
-#'
-#'@examples
-#' # Examples
 parse_patterns  <- function(cfg, str){
 
   patterns = list()
@@ -1853,6 +1883,8 @@ parse_patterns  <- function(cfg, str){
  return(newstr)
 }
 
+
+#'@export
 #'@title Parse Prototype Functions for Arguments
 #'@keywords internal
 #'@description 
@@ -1987,8 +2019,10 @@ find_bracketed_arguments <- function(str, pattern, replace = '', narg, op = '[',
 return(finfo)
 }
 
+
 #'@export
 #'@title Actual Function Called by \code{SI_TT_BOLUS}
+#'@keywords internal
 #'@description The prototype function \code{SI_TT_BOLUS} provides an interface to this function. Based on the input from \code{SI_TT_BOLUS}
 #' bolus inputs will be updated for the current titration time. 
 #' 
@@ -2024,6 +2058,7 @@ cfg = system_set_bolus(cfg    = cfg,
 return(cfg)
 }
 
+# JMH Documentation to here
 #'@export
 #'@title Actual Function Called by \code{SI_TT_RATE}
 #'@description The prototype function \code{SI_TT_RATE} provides an interface to this function. Based on the input from \code{SI_TT_RATE}
@@ -2296,7 +2331,7 @@ toc <- function()
 #'@description Displays information (dosing, simulation options, covariates,
 #' etc) about the system.
 #'
-#'@param cfg   ubiquity system object    
+#'@param cfg ubiquity system object    
 #'@param field string indicating the aspect of the system to display
 #'
 #'@return sequence of strings with system in formation (one line per element)
@@ -2717,7 +2752,7 @@ return(str)}
 #' 
 #' 
 #'@param parameters list containing the typical value of parameters
-#'@param cfg       ubiquity system object    
+#'@param cfg ubiquity system object    
 #'@param progress_message text string to prepend when called from the ShinyApp
 #'
 #'@return Mapped simulation output with individual predictions, individual
