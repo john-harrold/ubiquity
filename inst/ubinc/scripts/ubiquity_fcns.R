@@ -4942,7 +4942,7 @@ SIMINT_simcommand = sprintf('%s %s)', SIMINT_simcommand, SIMINT_solver_opts)
                     
 } else if("c-file" == SIMINT_simulation_options$integrate_with){
 
-SIMINT_simcommand = ' SIMINT_simout <- ode(SIMINT_IC, SIMINT_output_times_actual, 
+SIMINT_simcommand = ' SIMINT_simout <- deSolve::ode(SIMINT_IC, SIMINT_output_times_actual, 
                                            func     = "derivs", 
                                            parms    = unlist(SIMINT_parameters),
                                            jacfunc  = NULL, 
