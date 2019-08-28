@@ -31,22 +31,21 @@
 #' distribution of ubiquity. If set to 'automatic' the build script will first 
 #' look to see if the ubiquity R package is installed. If it is installed it
 #' will use the package. Otherwise, it will assume a "sand alone" distribution.
-#'@param perlcmd system command to run perl
-#'@param verbose enable verbose messaging   
-#'@param debug Boolean variable indicating if debugging information should be displayed
+#'@param perlcmd system command to run perl ("perl")
+#'@param verbose enable verbose messaging   (TRUE)
+#'@param debug Boolean variable indicating if debugging information should be displayed (TRUE)
 #'@examples
 #' \donttest{
 #' cfg = build_system()
 #'}
-build_system <- function(system_file    = "system.txt",
-                         distribution   = "automatic",
-                         perlcmd        = "perl",
-                         verbose        =  TRUE,
-                         debug          =  TRUE){
+build_system <- function(system_file     = "system.txt",
+                         distribution    = "automatic",
+                         perlcmd         = "perl",
+                         verbose         =  TRUE,
+                         debug           =  TRUE){
 
 
  
-
 
 # If the distribution is set to automatic we see if the package is loaded
 # If not we see if the stand alone library file is present, lastly we try to
@@ -66,6 +65,7 @@ if(distribution == "automatic"){
     distribution = "stand alone" }
 }
 
+temp_directory  = file.path(getwd(), "transient")
 
 if(verbose == TRUE){
   message("#> Ubiquity: (https://ubiquity.tools)")
@@ -84,7 +84,6 @@ invisible(system_req(pkgs))
 # directory
 if(distribution == "stand alone"){
   templates       = file.path(getwd(), "library", "templates")
-  temp_directory  = file.path(getwd(), "transient")
   build_script_pl = "build_system.pl"
 }
 
@@ -92,7 +91,6 @@ if(distribution == "stand alone"){
 # needed to build the system
 if(distribution == "package"){
   package_dir     = system.file("", package="ubiquity")
-  temp_directory  = file.path(getwd(), "transient")
   templates       = file.path(package_dir, "ubinc", "templates")
   build_script_pl = file.path(package_dir, "ubinc", "perl",  "build_system.pl")
 }
@@ -107,7 +105,6 @@ if(distribution == "package"){
   
 # turning off warnings so we don't get a lot of
 # stuff from the system commands below
-options(warn=-1)
 
 cfg = list()
 
@@ -178,7 +175,7 @@ if(file.exists(system_file)){
     mywd = getwd()
     setwd(temp_directory)
     # Compling the C file
-    output =  system('R CMD SHLIB r_ode_model.c', intern=TRUE) #, ignore.stderr=!debug)
+    output =  system('R CMD SHLIB r_ode_model.c', intern=TRUE) 
     if("status" %in% names(attributes(output))){
       if(verbose == TRUE){
         if(debug == TRUE){
@@ -232,8 +229,6 @@ if(file.exists(system_file)){
   } else {
   message(paste("#> Still unable to find system file >", system_file,"<", sep=""))
   }
-# turning warnings back on
-options(warn=0)
 return(cfg)}
 
 # -------------------------------------------------------------------------
@@ -1033,6 +1028,9 @@ return(cfg)}
 #' # Building the system 
 #' cfg = build_system("system_example.txt")
 #'
+#' # Clearing all inputs
+#' cfg = system_zero_inputs(cfg)
+#'
 #' # 5 minute infusion at 10 mg/min
 #' cfg = system_set_rate(cfg,
 #'            rate   = "Dinf",
@@ -1148,7 +1146,7 @@ return(cfg)}
 #'  \item\code{"outputs"} - A list of the predicted outputs to include (default all outputs defined by \code{<O>})
 #'  \item\code{"states"} - A list of the predicted states to include(default all states)
 #'  \item\code{"sub_file"} - Name of data set loaded with (\code{\link{system_load_data}}) containing subject level parameters and coviariates
-#'  \item\code{"sub_sample"} - Controls how subjects are sampled from the dataset
+#'  \item\code{"sub_file_sample"} - Controls how subjects are sampled from the dataset
 #'  }
 #'
 #' If you wanted to generate \code{1000} subjects but only wanted the parameters, you would
@@ -2058,10 +2056,9 @@ cfg = system_set_bolus(cfg    = cfg,
 return(cfg)
 }
 
-# JMH Documentation to here
 #'@export
 #'@title Actual Function Called by \code{SI_TT_RATE}
-#'@description The prototype function \code{SI_TT_RATE} provides an interface to this function. Based on the input from \code{SI_TT_RATE}
+#'@description The prototype function \code{SI_TT_RATE} provides an abstract interface to this function. Based on the input from \code{SI_TT_RATE}
 #' infusion rate inputs will be updated for the current titration time. 
 #' 
 #'@param cfg       ubiquity system object    
@@ -2114,8 +2111,6 @@ cfg = system_set_rate(cfg    = cfg,
 return(cfg)
 }
 
-# cfg = system_set_bolus(cfg, state, times, values)
-#
 #'@export
 #'@title Set Bolus Inputs
 #'@description Defines infusion rates specified in the system file using  \code{<B:times>} and   \code{<B:events>} 
@@ -2128,11 +2123,21 @@ return(cfg)
 #'@return Ubiquity system object with the bolus information set
 #'
 #'@examples
-#' # cfg = system_set_bolus(cfg,
-#' #            state  = "SNAME",
-#' #            times  = c(0, 1), 
-#' #            values = c(10, 0))
-#' # Examples
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#'
+#' # Clearing all inputs
+#' cfg = system_zero_inputs(cfg)
+#'
+#' # SC dose of 200 mg
+#' cfg = system_set_bolus(cfg, state   ="At", 
+#'                             times   = c(  0.0),  #  day
+#'                             values  = c(400.0))  #  mg
+#'}
 #'@seealso \code{\link{system_zero_inputs}}
 system_set_bolus <- function(cfg, state, times, values){
   
@@ -2228,7 +2233,7 @@ system_set_bolus <- function(cfg, state, times, values){
   } else {
     vp(cfg, sprintf("------------------------------------")) 
     vp(cfg, sprintf("system_set_bolus()                  ")) 
-    vp(cfg, sprintf("Something went wrong and the bolus, ")) 
+    vp(cfg, sprintf("Something went wrong and the bolus  ")) 
     vp(cfg, sprintf("was not set:")) 
     vp(cfg, errormsgs) 
     vp(cfg, sprintf("------------------------------------")) 
@@ -2237,9 +2242,6 @@ system_set_bolus <- function(cfg, state, times, values){
 
 return(cfg)}
 
-# cfg = system_set_iiv(cfg, IIV1, IIV2, VALUE)
-#
-#
 #'@export
 #'@title Set Variability Terms
 #'@description Set elements of the current variance covariance matrix
@@ -2248,16 +2250,28 @@ return(cfg)}
 #'@param cfg ubiquity system object    
 #'@param IIV1 row name of the variance/covariance matrix
 #'@param IIV2 column name of the variance/covariance matrix element
-#'@param VALUE value to assign to the variance/covariance matrix element
+#'@param value value to assign to the variance/covariance matrix element
 #'
 #'@return Ubiquity system object with IIV information set
 #'@examples
-#' # cfg = system_set_iiv(cfg,
-#' #                      IIV1 = "ETACL",
-#' #                      IIV2 = "ETAVc",
-#' #                      VALUE=0.03)
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#'
+#' # Clearing all inputs
+#' cfg = system_zero_inputs(cfg)
+#'
+#' # Setting the covariance element for CL and Vc to 0.03
+#' cfg = system_set_iiv(cfg,
+#'                      IIV1 = "ETACL",
+#'                      IIV2 = "ETAVc",
+#'                      value=0.03)
+#'}
 #'@seealso \code{\link{system_fetch_iiv}}
-system_set_iiv <- function(cfg, IIV1, IIV2, VALUE){
+system_set_iiv <- function(cfg, IIV1, IIV2, value){
   if("iiv" %in% names(cfg)){
     IIV1_idx = match(c(IIV1), names(cfg$iiv$iivs))
     IIV2_idx = match(c(IIV2), names(cfg$iiv$iivs))
@@ -2267,14 +2281,16 @@ system_set_iiv <- function(cfg, IIV1, IIV2, VALUE){
     }else if(is.na(IIV2_idx)){
       vp(cfg, paste("IIV >", IIV2, "<not found", sep="")) 
     }else{
-      cfg$iiv$values[IIV1_idx, IIV2_idx] = VALUE
-      cfg$iiv$values[IIV2_idx, IIV1_idx] = VALUE
+      cfg$iiv$values[IIV1_idx, IIV2_idx] = value
+      cfg$iiv$values[IIV2_idx, IIV1_idx] = value
     }
   } else {
+    vp(cfg, "------------------------------------")
     vp(cfg, "system_set_iiv()")
     vp(cfg, "No IIV information was found") 
     vp(cfg, "These can be specified using: ") 
     vp(cfg, "<IIV:?>, <IIV:?:?>, and <IIVCOR:?:?> ")
+    vp(cfg, "------------------------------------")
   }
 return(cfg)}
 
@@ -2325,7 +2341,6 @@ toc <- function()
 } 
 
 #-----------------------------------------------------------
-# system_view(cfg,field="all") 
 #'@export
 #'@title View Information About the System
 #'@description Displays information (dosing, simulation options, covariates,
@@ -2438,7 +2453,7 @@ system_view <- function(cfg,field="all") {
       msgs = c(msgs, paste(replicate(65, "-"), collapse = ""))
       msgs = c(msgs, " ")
     } else {
-      msgs =c(msgs, " No infusion rate information found") }
+      msgs =c(msgs, "No infusion rate information found") }
   }
   
   # Processing covariate information
@@ -2500,14 +2515,14 @@ system_view <- function(cfg,field="all") {
       }
       
     } else {
-      msgs = c(msgs, " No IIV information found") }
+      msgs = c(msgs, "No IIV information found") }
   }
 
   #
   # Simulation Options
   #
   if(field == "all" | field== "simulation"){
-     msgs = c(msgs, sprintf(" Simulation details"), " ")
+     msgs = c(msgs, sprintf(" ", "Simulation details"))
      if('integrate_with' %in% names(cfg$options$simulation_options)){
        msgs = c(msgs, sprintf(" integrate_with          %s", cfg$options$simulation_options$integrate_with))
      }
@@ -2549,9 +2564,8 @@ system_view <- function(cfg,field="all") {
   # Estimation Options
   #
   if(field == "all" | field== "estimation"){
-     msgs = c(msgs, "")
-     msgs = c(msgs,         " Estimation details ")
-     msgs = c(msgs, "")
+     msgs = c(msgs, " ")
+     msgs = c(msgs,         "Estimation details ")
      msgs = c(msgs, sprintf(" Parameter set:          %s",  cfg$parameters$current_set))
      msgs = c(msgs, sprintf(" Parameters estimated:   %s",  toString(names(cfg$estimation$mi))))
      msgs = c(msgs, sprintf(" objective_type          %s",  cfg$estimation$objective_type))
@@ -2679,8 +2693,8 @@ return(mystr)
 #'@return Number as a string padded
 #'
 #'@examples
-#'#var2string(pi, nsig_f=20)
-#'#var2string(.0001121, nsig_e=2, maxlength=10)
+#'var2string(pi, nsig_f=20)
+#'var2string(.0001121, nsig_e=2, maxlength=10)
 var2string <- function(vars,maxlength=0, nsig_e = 3, nsig_f = 4) {
 #  str = var2string(var, 12) 
 #  converts the numerical value 'var' to a padded string 12 characters wide
@@ -2724,6 +2738,9 @@ return(strs)}
 #'@param location either \code{"beginning"} to pad the left or \code{"end"} to pad the right
 #'
 #'@return Padded string
+#'@examples
+#'pad_string("bob", maxlength=10)
+#'pad_string("bob", maxlength=10, location="end")
 pad_string <-function(str, maxlength=1, location='beginning'){
 #  str = padstring(str, maxlength)
 #
@@ -2750,7 +2767,6 @@ return(str)}
 #'@title Run Population Simulations 
 #'@description  Used to run Population/Monte Carlo simulations with subjects
 #' generated from either provided variance/covariance information or a dataset. 
-#' 
 #' 
 #'@param parameters list containing the typical value of parameters
 #'@param cfg ubiquity system object    
@@ -3367,8 +3383,6 @@ return(p)
 #'   \item \code{stats$median} vector of median values
 #'   }
 timecourse_stats = function (d, ci){
-#
-# 
 
 tc = list();
 
@@ -3392,6 +3406,7 @@ return(tc)
 }
 
 
+# JMH Documentation to here
 #'@title Extracts Covariates for a Subject from a Subject Data File
 #'@keywords internal
 #'@description 
@@ -4905,11 +4920,11 @@ if(!SIMINT_isgood){
 
 if("r-file" == SIMINT_simulation_options$integrate_with){
 # simulating the system using R
-SIMINT_simcommand = 'SIMINT_simout = ode(SIMINT_IC, 
-                                         SIMINT_output_times_actual,
-                                         system_DYDT, SIMINT_cfg, 
-                                         method=SIMINT_simulation_options$solver, 
-                                         events=list(data=SIMINT_eventdata)'
+SIMINT_simcommand = 'SIMINT_simout = deSolve::ode(SIMINT_IC, 
+                                                  SIMINT_output_times_actual,
+                                                  system_DYDT, SIMINT_cfg, 
+                                                  method=SIMINT_simulation_options$solver, 
+                                                  events=list(data=SIMINT_eventdata)'
 SIMINT_simcommand = sprintf('%s %s)', SIMINT_simcommand, SIMINT_solver_opts)
 
 #   tryCatch(
@@ -9965,22 +9980,29 @@ void derivs (int *neq, double *t, double *y, double *ydot,
     if(('mymod' %in% names(getLoadedDLLs()))){
       dyn.unload(getLoadedDLLs()$mymod[["path"]])}
 
+    # temporary working direcotry
+    twd = tempdir()
+    dyn_file = file.path(twd, paste("mymod", .Platform$dynlib.ext, sep = ""))
+    c_file   = file.path(twd, "mymod.c")
+    o_file   = file.path(twd, "mymod.o")
     # Cleaning up any model files from previous run
-    if(file.exists(paste("mymod", .Platform$dynlib.ext, sep = ""))){
-      file.remove( paste("mymod", .Platform$dynlib.ext, sep = "")) }
-    if(file.exists("mymod.c")){
-       file.remove("mymod.c") }
-    if(file.exists("mymod.o")){
-       file.remove("mymod.o") }
+    if(file.exists(dyn_file)){
+       file.remove(dyn_file)}
+    if(file.exists(c_file)){
+       file.remove(c_file) }
+    if(file.exists(o_file)){
+       file.remove(o_file) }
+
+
 
     # Making the c file
-    fileConn<-file("mymod.c")
+    fileConn<-file(c_file)
     writeLines(cfile, fileConn)
     close(fileConn)
     
     # Compiling the C file
     if(verbose == TRUE){ message("#> Attempting to compile C file")}
-    compile_result = system("R CMD SHLIB mymod.c", ignore.stderr=TRUE, ignore.stdout=TRUE)
+    compile_result = system(paste("R CMD SHLIB ", c_file), ignore.stderr=TRUE, ignore.stdout=TRUE)
 
     if(compile_result == 0){
       if(verbose == TRUE){ message("#>    > Success: C file compiled")}
@@ -9991,7 +10013,7 @@ void derivs (int *neq, double *t, double *y, double *ydot,
         load_result = FALSE
         tryCatch(
          { 
-          load_result = dyn.load(paste("mymod", .Platform$dynlib.ext, sep = ""))
+          load_result = dyn.load(dyn_file)
           load_result = TRUE
          },
           warning = function(w) { },
@@ -10021,7 +10043,6 @@ void derivs (int *neq, double *t, double *y, double *ydot,
     }
        
   }
-  
 res}
 
 #-------------------------------------------------------------------------

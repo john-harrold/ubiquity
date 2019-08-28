@@ -126,15 +126,15 @@ cohort$outputs$parent$options$marker_color       = 'black'
 cohort$outputs$parent$options$marker_shape       = 1
 cohort$outputs$parent$options$marker_line        = 1 
 
-cohort$outputs$metabolite$obs$time               = 'TIME' 
-cohort$outputs$metabolite$obs$value              = 'MT'    
-cohort$outputs$metabolite$obs$missing            = -1;
-cohort$outputs$metabolite$model$time             = 'hours'        
-cohort$outputs$metabolite$model$value            = 'Cmblood'
-cohort$outputs$metabolite$model$variance         = 'slope_metabolite*PRED^2'
-cohort$outputs$metabolite$options$marker_color   = 'blue'
-cohort$outputs$metabolite$options$marker_shape   = 1
-cohort$outputs$metabolite$options$marker_line    = 1 
+cohort$outputs$Metabolite$obs$time               = 'TIME' 
+cohort$outputs$Metabolite$obs$value              = 'MT'    
+cohort$outputs$Metabolite$obs$missing            = -1;
+cohort$outputs$Metabolite$model$time             = 'hours'        
+cohort$outputs$Metabolite$model$value            = 'Cmblood'
+cohort$outputs$Metabolite$model$variance         = 'slope_metabolite*PRED^2'
+cohort$outputs$Metabolite$options$marker_color   = 'blue'
+cohort$outputs$Metabolite$options$marker_shape   = 1
+cohort$outputs$Metabolite$options$marker_line    = 1 
 cfg = system_define_cohort(cfg, cohort)
 #----------------------------------------------------------
 
@@ -156,15 +156,15 @@ cohort$outputs$parent$options$marker_color       = 'green'
 cohort$outputs$parent$options$marker_shape       = 1
 cohort$outputs$parent$options$marker_line        = 1 
 
-cohort$outputs$metabolite$obs$time               = 'TIME' 
-cohort$outputs$metabolite$obs$value              = 'MT'    
-cohort$outputs$metabolite$obs$missing            = -1;
-cohort$outputs$metabolite$model$time             = 'hours'        
-cohort$outputs$metabolite$model$value            = 'Cmblood'
-cohort$outputs$metabolite$model$variance         = 'slope_metabolite*PRED^2'
-cohort$outputs$metabolite$options$marker_color   = 'red'
-cohort$outputs$metabolite$options$marker_shape   = 1
-cohort$outputs$metabolite$options$marker_line    = 1 
+cohort$outputs$Metabolite$obs$time               = 'TIME' 
+cohort$outputs$Metabolite$obs$value              = 'MT'    
+cohort$outputs$Metabolite$obs$missing            = -1;
+cohort$outputs$Metabolite$model$time             = 'hours'        
+cohort$outputs$Metabolite$model$value            = 'Cmblood'
+cohort$outputs$Metabolite$model$variance         = 'slope_metabolite*PRED^2'
+cohort$outputs$Metabolite$options$marker_color   = 'red'
+cohort$outputs$Metabolite$options$marker_shape   = 1
+cohort$outputs$Metabolite$options$marker_line    = 1 
 cfg = system_define_cohort(cfg, cohort)
 
 #----------------------------------------------------------
@@ -179,10 +179,10 @@ erp = system_simulate_estimation_results(pest = pest, cfg = cfg)
 
 plot_opts = c()
 
-plot_opts$outputs$metabolite$yscale   = 'log'   
-plot_opts$outputs$metabolite$ylabel   = 'Metabolite'
-plot_opts$outputs$metabolite$ylim     = c(1, 100)
-plot_opts$outputs$metabolite$xlabel   = 'Time (hours)'
+plot_opts$outputs$Metabolite$yscale   = 'log'   
+plot_opts$outputs$Metabolite$ylabel   = 'Metabolite'
+plot_opts$outputs$Metabolite$ylim     = c(1, 100)
+plot_opts$outputs$Metabolite$xlabel   = 'Time (hours)'
 
 plot_opts$outputs$parent$yscale        = 'log'
 plot_opts$outputs$parent$ylabel        = 'Parent'

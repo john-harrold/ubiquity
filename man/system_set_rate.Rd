@@ -29,6 +29,9 @@ system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
 # Building the system 
 cfg = build_system("system_example.txt")
 
+# Clearing all inputs
+cfg = system_zero_inputs(cfg)
+
 # 5 minute infusion at 10 mg/min
 cfg = system_set_rate(cfg,
            rate   = "Dinf",

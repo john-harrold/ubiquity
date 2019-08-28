@@ -15,11 +15,11 @@ distribution of ubiquity. If set to 'automatic' the build script will first
 look to see if the ubiquity R package is installed. If it is installed it
 will use the package. Otherwise, it will assume a "sand alone" distribution.}
 
-\item{perlcmd}{system command to run perl}
+\item{perlcmd}{system command to run perl ("perl")}
 
-\item{verbose}{enable verbose messaging}
+\item{verbose}{enable verbose messaging   (TRUE)}
 
-\item{debug}{Boolean variable indicating if debugging information should be displayed}
+\item{debug}{Boolean variable indicating if debugging information should be displayed (TRUE)}
 }
 \description{
 Builds the specified system file creating the targets for R and other languages as well as the templates for performing simulations and estimations.

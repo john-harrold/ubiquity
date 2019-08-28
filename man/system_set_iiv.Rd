@@ -4,7 +4,7 @@
 \alias{system_set_iiv}
 \title{Set Variability Terms}
 \usage{
-system_set_iiv(cfg, IIV1, IIV2, VALUE)
+system_set_iiv(cfg, IIV1, IIV2, value)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
@@ -13,7 +13,7 @@ system_set_iiv(cfg, IIV1, IIV2, VALUE)
 
 \item{IIV2}{column name of the variance/covariance matrix element}
 
-\item{VALUE}{value to assign to the variance/covariance matrix element}
+\item{value}{value to assign to the variance/covariance matrix element}
 }
 \value{
 Ubiquity system object with IIV information set
@@ -23,10 +23,22 @@ Set elements of the current variance covariance matrix
 specified in the system file with \code{<IIV:?:?> ?}, \code{<IIVCOR:?:?>?}, \code{<IIVSET:?:?> ?}, \code{<IIVCORSET:?:?>?}
 }
 \examples{
-# cfg = system_set_iiv(cfg,
-#                      IIV1 = "ETACL",
-#                      IIV2 = "ETAVc",
-#                      VALUE=0.03)
+\donttest{
+# Creating a system file from the mab_pk example
+system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+
+# Building the system 
+cfg = build_system("system_example.txt")
+
+# Clearing all inputs
+cfg = system_zero_inputs(cfg)
+
+# Setting the covariance element for CL and Vc to 0.03
+cfg = system_set_iiv(cfg,
+                     IIV1 = "ETACL",
+                     IIV2 = "ETAVc",
+                     value=0.03)
+}
 }
 \seealso{
 \code{\link{system_fetch_iiv}}

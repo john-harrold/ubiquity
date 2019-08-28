@@ -99,7 +99,7 @@ parameters) it can be useful to specify the following:
  \item\code{"outputs"} - A list of the predicted outputs to include (default all outputs defined by \code{<O>})
  \item\code{"states"} - A list of the predicted states to include(default all states)
  \item\code{"sub_file"} - Name of data set loaded with (\code{\link{system_load_data}}) containing subject level parameters and coviariates
- \item\code{"sub_sample"} - Controls how subjects are sampled from the dataset
+ \item\code{"sub_file_sample"} - Controls how subjects are sampled from the dataset
  }
 
 If you wanted to generate \code{1000} subjects but only wanted the parameters, you would

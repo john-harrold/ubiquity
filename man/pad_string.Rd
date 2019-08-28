@@ -19,3 +19,7 @@ Padded string
 \description{
 Adds spaces to the beginning or end of strings until it reaches the maxlength. Used for aligning text.
 }
+\examples{
+pad_string("bob", maxlength=10)
+pad_string("bob", maxlength=10, location="end")
+}

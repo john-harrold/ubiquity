@@ -22,11 +22,21 @@ Ubiquity system object with the bolus information set
 Defines infusion rates specified in the system file using  \code{<B:times>} and   \code{<B:events>}
 }
 \examples{
-# cfg = system_set_bolus(cfg,
-#            state  = "SNAME",
-#            times  = c(0, 1), 
-#            values = c(10, 0))
-# Examples
+\donttest{
+# Creating a system file from the mab_pk example
+system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+
+# Building the system 
+cfg = build_system("system_example.txt")
+
+# Clearing all inputs
+cfg = system_zero_inputs(cfg)
+
+# SC dose of 200 mg
+cfg = system_set_bolus(cfg, state   ="At", 
+                            times   = c(  0.0),  #  day
+                            values  = c(400.0))  #  mg
+}
 }
 \seealso{
 \code{\link{system_zero_inputs}}

@@ -30,6 +30,6 @@ system_set_tt_rate(cfg, rate, times, levels, tt_ts, tsinfo,
 ubiquity system object with the infusion rates updated.
 }
 \description{
-The prototype function \code{SI_TT_RATE} provides an interface to this function. Based on the input from \code{SI_TT_RATE}
+The prototype function \code{SI_TT_RATE} provides an abstract interface to this function. Based on the input from \code{SI_TT_RATE}
 infusion rate inputs will be updated for the current titration time.
 }

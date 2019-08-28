@@ -22,6 +22,6 @@ Number as a string padded
 Mechanism for converting numeric variables into strings for reporting.
 }
 \examples{
-#var2string(pi, nsig_f=20)
-#var2string(.0001121, nsig_e=2, maxlength=10)
+var2string(pi, nsig_f=20)
+var2string(.0001121, nsig_e=2, maxlength=10)
 }
