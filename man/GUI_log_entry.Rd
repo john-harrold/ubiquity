@@ -12,6 +12,7 @@ GUI_log_entry(cfg, text)
 \item{text}{string to print/log}
 }
 \description{
-Called from the ShinyApp to add a log entry with "App "
+Called from the ShinyApp to add a log entry with "App"
 prepended to the log entry
 }
+\keyword{internal}

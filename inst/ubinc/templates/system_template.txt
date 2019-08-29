@@ -52,11 +52,9 @@
 # #-------------#
 #
 # System parameters
-#    name              value     lower      upper   units editable    grouping
-#                                bound      bound
-
-<P>  PNAME               1.0       eps        Inf   hr         yes     System
-
+#     name                   value               lower             upper    units   editable    grouping
+#                                                bound             bound            
+<P>   PNAME                   1.0                eps               Inf         hr   yes System
 
 # Name the default parameter set described by the <P> above
 #<PSET:default> Default parameter set description 

@@ -43,6 +43,7 @@ cfg=system_set_option(cfg, group  = "simulation",
 # Individual Simulation:
 som = run_simulation_ubiquity(parameters, cfg)
 
+library(ggplot2)
 myfig = ggplot() + 
         geom_line(data=som$simout, aes(x=ts.days,   y=C_ng_ml), color="red")  +
         xlab("Time (days)")+

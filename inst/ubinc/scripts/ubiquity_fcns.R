@@ -3406,7 +3406,6 @@ return(tc)
 }
 
 
-# JMH Documentation to here
 #'@title Extracts Covariates for a Subject from a Subject Data File
 #'@keywords internal
 #'@description 
@@ -3444,6 +3443,7 @@ return(tmpcfg)
 
 #'@export
 #'@title Generate Subject
+#'@keywords internal
 #'@description 
 #' Generates subject with variability specified using the \code{<IIV:?>} descriptor
 #' in the system file
@@ -3534,6 +3534,18 @@ generate_parameter = function (SIMINT_parameters, SIMINT_cfg, SIMINT_PARAMETER_T
 #'@param cfg ubiquity system object    
 #'
 #'@return ubiquity system object with logging enabled
+#'
+#'@examples
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#'
+#' # Initialzing the log file
+#' system_log_init(cfg)
+#'}
 system_log_init = function (cfg){
 # initializes the log file then enables logging
 
@@ -3544,6 +3556,7 @@ system_log_init = function (cfg){
 return(cfg)
 }
 
+#'@export
 #'@title Add Log Entry
 #'@description Appends a specified line to the analysis log
 #'@keywords internal
@@ -3551,16 +3564,18 @@ return(cfg)
 #'@param cfg ubiquity system object    
 #'@param entry string containing the log entry
 #'
+#'@examples
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#'
+#' # Initialzing the log file
+#' system_log_entry(cfg, "Text of log entry")
+#'}
 system_log_entry = function(cfg, entry){
-#
-# # Initialize the log file:
-# # transient/ubiquity_log.txt
-# cfg = system_log_init(cfg) 
-#
-# Add a log entry
-# system_log_entry(cfg, "this is a log entry");
-#
-
 
 # if logging is disabled we don't do anything 
 if(cfg$options$logging$enabled ==  TRUE){
@@ -3585,18 +3600,18 @@ if(cfg$options$logging$enabled ==  TRUE){
 #'
 #'@param cfg ubiquity system object    
 #'@param str sequence of strings to print
+#'@examples
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#'
+#' # Building the system 
+#' cfg = build_system("system_example.txt")
+#'
+#' # Initialzing the log file
+#' vp(cfg, "Message that will be logged")
+#'}
 vp <- function(cfg, str){
-# function []=vp(cfg, str)
-# vp -- verbose print
-#
-# Print out the message contained in 'str' if the verbose option in cfg is
-# set. Example:
-#
-#  cfg$options$logging$verbose = TRUE;
-#
-#  vp(cfg, 'Hellow world');
-#
-
 # logging string 
 system_log_entry(cfg, str)
 
@@ -3611,8 +3626,9 @@ if(TRUE == cfg$options$logging$verbose){
 }
 
 #'@export
+#'@keywords internal
 #'@title Wrapper for system_log_entry Used in ShinyApp
-#'@description Called from the ShinyApp to add a log entry with "App "
+#'@description Called from the ShinyApp to add a log entry with "App"
 #' prepended to the log entry 
 #'
 #'@param cfg ubiquity system object    
@@ -3621,34 +3637,8 @@ GUI_log_entry <-function(cfg, text){
    system_log_entry(cfg, sprintf("App %s", text))
 }
 
-
-# function [recs] = nm_select_records(cfg, values, filter)
-#
-# Takes a data set created using system_load_data with all or a subset of the data
-# (derived from cfg$data$dsname$vaalues) in records, and filters the data according to
-# the information specified in filter and returns that match. 
-#
-# Multiple filters are joined by a boolean AND. While multiple options for a
-# given filter are combined using an OR.
-#
-# For example to extract only the observations (EVID=0) in cohort 2 of studies 1-3,
-# we create the filter in the following way:
-#  
-#  
-# myfilter$evid    = c(0)
-# myfilter$cohorts = c(2)  
-# myfilter$studies = c(1,2,3)
-# 
-# This creates the following boolean relationship:
-# (evid = 0) and (chhorts = 2) and ((studies = 1) or (studies = 2) or (studies = 3))
-#
-#
-# [obs] = nm_select_records(data, data.values, myfilter)
-#
-# This should display the first five rows of obs
-# with the appropriate header on top
-
 #'@export
+#'@keywords internal
 #'@title Select Records from NONMEM-ish Data Set
 #'@description Retrieves a subset of a NONMEM-ish data set based on a list containing filtering information.
 #'@keywords internal
@@ -3696,11 +3686,8 @@ nm_select_records    <- function(cfg, values, filter){
   return(values)
 }
 
-
-#
-#
-  
 #'@export
+#'@keywords internal
 #'@title Convert Time in Timescale to Simulation Time
 #'@description 
 #' converts a time specified in a defined timescale (say weeks) to the
@@ -3732,9 +3719,6 @@ system_clear_cohorts  <- function(cfg){
   cfg$cohorts = c()
 return(cfg)}
 
-#
-# Defines a cohort
-#
 #'@export
 #'@title Define Estimation Cohort
 #'@description Define a cohort to include in a parameter estimation
@@ -3748,36 +3732,27 @@ return(cfg)}
 #' Each cohort has a name (eg \code{d5mpk}), and the dataset containing the
 #' information for this cohort is identified (the name defined in \code{\link{system_load_data}})
 #'
-#' \preformatted{
-#'cohort  = c()
+#' \preformatted{cohort  = c()
 #'cohort$name    = ’d5mpk’
-#'cohort$dataset = ’pmdata’
-#' }
+#'cohort$dataset = ’pmdata’}
 #'
 #' Next it is necessary to define a filter (\code{cf} field) that can be
 #' applied to the dataset to only return values relevant to this cohort. For
 #' example, if we only want records where the column \code{DOSE} is 5 (for the 5
 #' mpk cohort). We can 
 #'
-#' \preformatted{
-#'cohort$cf$DOSE = c(5)
-#' }
+#' \preformatted{cohort$cf$DOSE = c(5)}
 #'
 #' If the dataset has the headings \code{ID}, \code{DOSE} and \code{SEX}  and
 #' cohort filter had the following format:
 #'
-#'\preformatted{
-#'cohort$cf$ID   = c(1:4)
+#'\preformatted{cohort$cf$ID   = c(1:4)
 #'cohort$cf$DOSE = c(5,10)
-#'cohort$cf$SEX  = c(1)
-#'}
+#'cohort$cf$SEX  = c(1)}
 #'
 #'It would be translated into the boolean filter:
 #' 
-#'\preformatted{
-#'((ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)
-#'}
-#'
+#'\preformatted{((ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)}
 #'
 #' Next we define the dosing for this cohort. It is only necessary to define
 #' those inputs that are non-zero. So if the data here were generated from
@@ -3786,10 +3761,8 @@ return(cfg)}
 #' compartment \code{Cp}, you would pass this information to the cohort in the
 #' following manner:
 #'
-#' \preformatted{
-#'cohort$inputs$bolus$Cp$AMT   = c(5)
-#'cohort$inputs$bolus$Cp$TIME  = c(0)
-#' }
+#' \preformatted{cohort$inputs$bolus$Cp$AMT   = c(5)
+#'cohort$inputs$bolus$Cp$TIME  = c(0)}
 #'  
 #' Inputs can also include any infusion rates (\code{infusion_rates}) or
 #' covariates (\code{covariates}). Covariates will have the default value
@@ -3809,29 +3782,25 @@ return(cfg)}
 #  \code{'PRED^2'}, to incorporate the variance parameter \code{SLOPE} use
 #  something like \code{'SLOPE*PRED^2'}.
 #'  
-#' \preformatted{
-#'cohort$outputs$ONAME$obs$time        = ’TIMECOL’      
+#'\preformatted{cohort$outputs$ONAME$obs$time        = ’TIMECOL’      
 #'cohort$outputs$ONAME$obs$value       = ’OBSCOL’       
 #'cohort$outputs$ONAME$obs$missing     = -1         
 #'cohort$outputs$ONAME$model$time      = ’TS'       
 #'cohort$outputs$ONAME$model$value     = ’MODOUTPUT’  
-#'cohort$outputs$ONAME$model$variance  = ’VARMOD'     
-#' }
+#'cohort$outputs$ONAME$model$variance  = ’VARMOD'}
 #' 
 #' \bold{Note: Output names should be consistent between cohorts so they will be grouped together when plotting results.}
 #' 
-#' 
 #' Optionally we can add information about the markers to use when plotting
 #' the output for this cohort:
-#' \preformatted{
-#'cohort$outputs$ONAME$options$marker_color   = 'black'
+#' 
+#'\preformatted{cohort$outputs$ONAME$options$marker_color   = 'black'
 #'cohort$outputs$ONAME$options$marker_shape   = 16
-#'cohort$outputs$ONAME$options$marker_line    = 1 
-#' }
+#'cohort$outputs$ONAME$options$marker_line    = 1 }
 #'
 #' Lastly we define the cohort:
 #'
-#' \code{cfg = system_define_cohort(cfg, cohort)}
+#'@seealso Estimation vignette (\code{vignette("Estimation", package = "ubiquity")})
 system_define_cohort <- function(cfg, cohort){
   
  if('options' %in% names(cohort)){
@@ -4331,6 +4300,7 @@ else{
 }
 
 
+# JMH Documentation to here
 #'@export
 #'@title General Observation Details Function
 #'@description Used to calculate observation details based on 
@@ -4343,9 +4313,7 @@ else{
 #'
 #'@return  If estimation is TRUE then the output is a matrix  of observation details of the format:
 #' 
-#' \preformatted{
-#'od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT]
-#' }
+#' \preformatted{od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT] }
 #' 
 #'   The values are the observed (\code{OBS}) data, predicted
 #'   values (\code{PRED}) and variance (\code{VAR}) at the given \code{TIME}. The columns \code{OUTPUT} and
@@ -4354,9 +4322,7 @@ else{
 #'  When estimation is \code{FALSE} we output \code{od$pred} is a data frame with the
 #'  following headings:
 #' 
-#' \preformatted{
-#'od$pred  = [TIME, OBS, PRED, VAR, SMOOTH, OUTPUT, COHORT]
-#' }
+#' \preformatted{od$pred  = [TIME, OBS, PRED, VAR, SMOOTH, OUTPUT, COHORT] }
 #' 
 #'   The \code{TIME}, \code{OBS}, \code{PRED} and \code{VAR} are the same as those listed above. The \code{SMOOTH}
 #'   variable is \code{FALSE} for rows that correspond to records in the dataset and
@@ -4367,9 +4333,7 @@ else{
 #'  Also the \code{od$all} list item is created with all of the simulation information
 #'  stored for each cohort:
 #'  
-#' \preformatted{
-#'od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]
-#' }
+#' \preformatted{od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]}
 #'\itemize{
 #'   \item \code{tstime}             - timescale of the system
 #'   \item \code{ts.ts1, ... ts.tsn} - timescales defined in the system
@@ -4381,9 +4345,7 @@ else{
 #' Lastly if debugging is enabled the field \code{isgood} will be set to \code{FALSE}
 #' if any problems are encountered.
 #'
-#' \preformatted{
-#'od$isgood = TRUE
-#' }
+#' \preformatted{od$isgood = TRUE}
 #'
 #'@seealso \code{\link{system_define_cohort}} and \code{\link{system_simulate_estimation_results}}
 system_od_general <- function(pest, cfg, estimation=TRUE, details=FALSE){

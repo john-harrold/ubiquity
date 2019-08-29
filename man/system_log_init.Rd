@@ -15,3 +15,15 @@ ubiquity system object with logging enabled
 \description{
 Initializes the currently specified system log file.
 }
+\examples{
+\donttest{
+# Creating a system file from the mab_pk example
+system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+
+# Building the system 
+cfg = build_system("system_example.txt")
+
+# Initialzing the log file
+system_log_init(cfg)
+}
+}

@@ -18,9 +18,7 @@ system_od_general(pest, cfg, estimation = TRUE, details = FALSE)
 \value{
 If estimation is TRUE then the output is a matrix  of observation details of the format:
 
-\preformatted{
-od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT]
-}
+\preformatted{od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT] }
 
   The values are the observed (\code{OBS}) data, predicted
   values (\code{PRED}) and variance (\code{VAR}) at the given \code{TIME}. The columns \code{OUTPUT} and
@@ -29,9 +27,7 @@ od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT]
  When estimation is \code{FALSE} we output \code{od$pred} is a data frame with the
  following headings:
 
-\preformatted{
-od$pred  = [TIME, OBS, PRED, VAR, SMOOTH, OUTPUT, COHORT]
-}
+\preformatted{od$pred  = [TIME, OBS, PRED, VAR, SMOOTH, OUTPUT, COHORT] }
 
   The \code{TIME}, \code{OBS}, \code{PRED} and \code{VAR} are the same as those listed above. The \code{SMOOTH}
   variable is \code{FALSE} for rows that correspond to records in the dataset and
@@ -42,9 +38,7 @@ od$pred  = [TIME, OBS, PRED, VAR, SMOOTH, OUTPUT, COHORT]
  Also the \code{od$all} list item is created with all of the simulation information
  stored for each cohort:
  
-\preformatted{
-od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]
-}
+\preformatted{od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]}
 \itemize{
   \item \code{tstime}             - timescale of the system
   \item \code{ts.ts1, ... ts.tsn} - timescales defined in the system
@@ -56,9 +50,7 @@ od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]
 Lastly if debugging is enabled the field \code{isgood} will be set to \code{FALSE}
 if any problems are encountered.
 
-\preformatted{
-od$isgood = TRUE
-}
+\preformatted{od$isgood = TRUE}
 }
 \description{
 Used to calculate observation details based on 

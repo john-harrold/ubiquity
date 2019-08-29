@@ -59,6 +59,7 @@ cfg=system_set_option(cfg, group  = "stochastic",
 som  = simulate_subjects(parameters, cfg)
 
 graphics.off()
+library(ggplot2)
 myfig = ggplot(som$tcsummary, aes(x=ts.days, y=o.C_ng_ml.mean)) +
                geom_ribbon(aes(ymin=o.C_ng_ml.lb_ci, 
                                ymax=o.C_ng_ml.ub_ci), 

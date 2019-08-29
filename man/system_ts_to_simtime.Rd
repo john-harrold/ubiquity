@@ -20,3 +20,4 @@ system_ts_to_simtime(cfg, tstime, ts)
 converts a time specified in a defined timescale (say weeks) to the
 timescale of the simulation (say hours if the rates are in 1/hr units)
 }
+\keyword{internal}

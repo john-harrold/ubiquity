@@ -21,36 +21,27 @@ Define a cohort to include in a parameter estimation
 Each cohort has a name (eg \code{d5mpk}), and the dataset containing the
 information for this cohort is identified (the name defined in \code{\link{system_load_data}})
 
-\preformatted{
-cohort  = c()
+\preformatted{cohort  = c()
 cohort$name    = ’d5mpk’
-cohort$dataset = ’pmdata’
-}
+cohort$dataset = ’pmdata’}
 
 Next it is necessary to define a filter (\code{cf} field) that can be
 applied to the dataset to only return values relevant to this cohort. For
 example, if we only want records where the column \code{DOSE} is 5 (for the 5
 mpk cohort). We can 
 
-\preformatted{
-cohort$cf$DOSE = c(5)
-}
+\preformatted{cohort$cf$DOSE = c(5)}
 
 If the dataset has the headings \code{ID}, \code{DOSE} and \code{SEX}  and
 cohort filter had the following format:
 
-\preformatted{
-cohort$cf$ID   = c(1:4)
+\preformatted{cohort$cf$ID   = c(1:4)
 cohort$cf$DOSE = c(5,10)
-cohort$cf$SEX  = c(1)
-}
+cohort$cf$SEX  = c(1)}
 
 It would be translated into the boolean filter:
 
-\preformatted{
-((ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)
-}
-
+\preformatted{((ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)}
 
 Next we define the dosing for this cohort. It is only necessary to define
 those inputs that are non-zero. So if the data here were generated from
@@ -59,10 +50,8 @@ using \code{<B:times>} and \code{<B:events>} dosing into the central
 compartment \code{Cp}, you would pass this information to the cohort in the
 following manner:
 
-\preformatted{
-cohort$inputs$bolus$Cp$AMT   = c(5)
-cohort$inputs$bolus$Cp$TIME  = c(0)
-}
+\preformatted{cohort$inputs$bolus$Cp$AMT   = c(5)
+cohort$inputs$bolus$Cp$TIME  = c(0)}
  
 Inputs can also include any infusion rates (\code{infusion_rates}) or
 covariates (\code{covariates}). Covariates will have the default value
@@ -79,27 +68,24 @@ MUST have the same units) ’TS’ and ’MODOUTPUT'. The variance model
 of the model prediction (\code{PRED}), variance parameters (defined with
 \code{<VP>} in the system file), and numbers. To do a least squares
  
-\preformatted{
-cohort$outputs$ONAME$obs$time        = ’TIMECOL’      
+\preformatted{cohort$outputs$ONAME$obs$time        = ’TIMECOL’      
 cohort$outputs$ONAME$obs$value       = ’OBSCOL’       
 cohort$outputs$ONAME$obs$missing     = -1         
 cohort$outputs$ONAME$model$time      = ’TS'       
 cohort$outputs$ONAME$model$value     = ’MODOUTPUT’  
-cohort$outputs$ONAME$model$variance  = ’VARMOD'     
-}
+cohort$outputs$ONAME$model$variance  = ’VARMOD'}
 
 \bold{Note: Output names should be consistent between cohorts so they will be grouped together when plotting results.}
 
-
 Optionally we can add information about the markers to use when plotting
 the output for this cohort:
-\preformatted{
-cohort$outputs$ONAME$options$marker_color   = 'black'
+
+\preformatted{cohort$outputs$ONAME$options$marker_color   = 'black'
 cohort$outputs$ONAME$options$marker_shape   = 16
-cohort$outputs$ONAME$options$marker_line    = 1 
-}
+cohort$outputs$ONAME$options$marker_line    = 1 }
 
 Lastly we define the cohort:
-
-\code{cfg = system_define_cohort(cfg, cohort)}
+}
+\seealso{
+Estimation vignette (\code{vignette("Estimation", package = "ubiquity")})
 }
