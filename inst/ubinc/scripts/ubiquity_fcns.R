@@ -4312,7 +4312,6 @@ else{
 #'@param details set \code{TRUE} to display information about cohorts as they are simulated (useful for debugging when passed through \code{\link{system_simulate_estimation_results}})
 #'
 #'@return  If estimation is TRUE then the output is a matrix  of observation details of the format:
-#' 
 #' \preformatted{od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT] }
 #' 
 #'   The values are the observed (\code{OBS}) data, predicted
@@ -4321,7 +4320,6 @@ else{
 #' 
 #'  When estimation is \code{FALSE} we output \code{od$pred} is a data frame with the
 #'  following headings:
-#' 
 #' \preformatted{od$pred  = [TIME, OBS, PRED, VAR, SMOOTH, OUTPUT, COHORT] }
 #' 
 #'   The \code{TIME}, \code{OBS}, \code{PRED} and \code{VAR} are the same as those listed above. The \code{SMOOTH}
@@ -4332,7 +4330,6 @@ else{
 #'  
 #'  Also the \code{od$all} list item is created with all of the simulation information
 #'  stored for each cohort:
-#'  
 #' \preformatted{od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]}
 #'\itemize{
 #'   \item \code{tstime}             - timescale of the system
@@ -4344,7 +4341,6 @@ else{
 #'
 #' Lastly if debugging is enabled the field \code{isgood} will be set to \code{FALSE}
 #' if any problems are encountered.
-#'
 #' \preformatted{od$isgood = TRUE}
 #'
 #'@seealso \code{\link{system_define_cohort}} and \code{\link{system_simulate_estimation_results}}

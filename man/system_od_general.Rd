@@ -17,7 +17,6 @@ system_od_general(pest, cfg, estimation = TRUE, details = FALSE)
 }
 \value{
 If estimation is TRUE then the output is a matrix  of observation details of the format:
-
 \preformatted{od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT] }
 
   The values are the observed (\code{OBS}) data, predicted
@@ -26,7 +25,6 @@ If estimation is TRUE then the output is a matrix  of observation details of the
 
  When estimation is \code{FALSE} we output \code{od$pred} is a data frame with the
  following headings:
-
 \preformatted{od$pred  = [TIME, OBS, PRED, VAR, SMOOTH, OUTPUT, COHORT] }
 
   The \code{TIME}, \code{OBS}, \code{PRED} and \code{VAR} are the same as those listed above. The \code{SMOOTH}
@@ -37,7 +35,6 @@ If estimation is TRUE then the output is a matrix  of observation details of the
  
  Also the \code{od$all} list item is created with all of the simulation information
  stored for each cohort:
- 
 \preformatted{od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]}
 \itemize{
   \item \code{tstime}             - timescale of the system
@@ -49,7 +46,6 @@ If estimation is TRUE then the output is a matrix  of observation details of the
 
 Lastly if debugging is enabled the field \code{isgood} will be set to \code{FALSE}
 if any problems are encountered.
-
 \preformatted{od$isgood = TRUE}
 }
 \description{
