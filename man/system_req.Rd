@@ -10,9 +10,12 @@ system_req(pkgs)
 \item{pkgs}{character vector of package names}
 }
 \value{
-Boolean result (one for each package) of the loaded status
+Boolean result of the loaded status for all of the packages
 }
 \description{
-Used to ensure packages are loaded as they are needed.
+Used to ensure packages are loaded as they are needed for the
+stand alone distribution of ubiquity. If the ubiquity package is being used this
+function simply returns 'TRUE' if the packages are installed and false if
+one is not.
 }
 \keyword{internal}

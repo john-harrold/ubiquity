@@ -13,7 +13,7 @@ system_od_general(pest, cfg, estimation = TRUE, details = FALSE)
 
 \item{estimation}{\code{TRUE} when called during an estimation and \code{FALSE} when called to test objective function or generate observation information for plotting}
 
-\item{details}{set \code{TRUE} to display information about cohorts as they are simulated (useful for debugging when passed through \code{\link{system_simulate_estimation_results}})}
+\item{details}{\code{TRUE} to display information about cohorts as they are simulated (useful for debugging when passed through \code{\link{system_simulate_estimation_results}})}
 }
 \value{
 If estimation is TRUE then the output is a matrix  of observation details of the format:

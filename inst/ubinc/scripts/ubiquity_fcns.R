@@ -3731,7 +3731,6 @@ return(cfg)}
 #'@details 
 #' Each cohort has a name (eg \code{d5mpk}), and the dataset containing the
 #' information for this cohort is identified (the name defined in \code{\link{system_load_data}})
-#'
 #' \preformatted{cohort  = c()
 #'cohort$name    = ’d5mpk’
 #'cohort$dataset = ’pmdata’}
@@ -3740,18 +3739,15 @@ return(cfg)}
 #' applied to the dataset to only return values relevant to this cohort. For
 #' example, if we only want records where the column \code{DOSE} is 5 (for the 5
 #' mpk cohort). We can 
-#'
 #' \preformatted{cohort$cf$DOSE = c(5)}
 #'
 #' If the dataset has the headings \code{ID}, \code{DOSE} and \code{SEX}  and
 #' cohort filter had the following format:
-#'
 #'\preformatted{cohort$cf$ID   = c(1:4)
 #'cohort$cf$DOSE = c(5,10)
 #'cohort$cf$SEX  = c(1)}
 #'
 #'It would be translated into the boolean filter:
-#' 
 #'\preformatted{((ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)}
 #'
 #' Next we define the dosing for this cohort. It is only necessary to define
@@ -3760,7 +3756,6 @@ return(cfg)}
 #' using \code{<B:times>} and \code{<B:events>} dosing into the central
 #' compartment \code{Cp}, you would pass this information to the cohort in the
 #' following manner:
-#'
 #' \preformatted{cohort$inputs$bolus$Cp$AMT   = c(5)
 #'cohort$inputs$bolus$Cp$TIME  = c(0)}
 #'  
@@ -3781,7 +3776,6 @@ return(cfg)}
 #  estimation use \code{'1'}, to weight against the prediction squared use
 #  \code{'PRED^2'}, to incorporate the variance parameter \code{SLOPE} use
 #  something like \code{'SLOPE*PRED^2'}.
-#'  
 #'\preformatted{cohort$outputs$ONAME$obs$time        = ’TIMECOL’      
 #'cohort$outputs$ONAME$obs$value       = ’OBSCOL’       
 #'cohort$outputs$ONAME$obs$missing     = -1         
@@ -3793,7 +3787,6 @@ return(cfg)}
 #' 
 #' Optionally we can add information about the markers to use when plotting
 #' the output for this cohort:
-#' 
 #'\preformatted{cohort$outputs$ONAME$options$marker_color   = 'black'
 #'cohort$outputs$ONAME$options$marker_shape   = 16
 #'cohort$outputs$ONAME$options$marker_line    = 1 }
@@ -4300,7 +4293,6 @@ else{
 }
 
 
-# JMH Documentation to here
 #'@export
 #'@title General Observation Details Function
 #'@description Used to calculate observation details based on 
@@ -4309,7 +4301,7 @@ else{
 #'@param pest vector of parameters to be estimated
 #'@param cfg ubiquity system object    
 #'@param estimation \code{TRUE} when called during an estimation and \code{FALSE} when called to test objective function or generate observation information for plotting
-#'@param details set \code{TRUE} to display information about cohorts as they are simulated (useful for debugging when passed through \code{\link{system_simulate_estimation_results}})
+#'@param details \code{TRUE} to display information about cohorts as they are simulated (useful for debugging when passed through \code{\link{system_simulate_estimation_results}})
 #'
 #'@return  If estimation is TRUE then the output is a matrix  of observation details of the format:
 #' \preformatted{od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT] }
@@ -4578,8 +4570,11 @@ return(od)
 
 }
 
+# JMH Documentation to here
+
 #'@export
 #'@title Create Full Parameter Vector from Estimation Subset
+#'@keywords internal
 #'@description Can be used to take a subset of parameters (those being
 #' estimated and returned from ' \code{\link{system_estimate_parameters}})
 #' into a full list of system parameters.
@@ -4595,25 +4590,19 @@ return(od)
 #' 
 #'  The function select_set pulls out a parameter set and can optionally select
 #'  only a subset for estimation:
-#' 
 #' \preformatted{
 #'pnames = c('Vp', 'CL')
-#'cfg = system_select_set(cfg, "default", pnames)
-#' }
+#'cfg = system_select_set(cfg, "default", pnames)}
 #' 
 #'  The default values of this subset can be accessed in the following way:
-#' 
 #' \preformatted{
-#'pest = system_fetch_guess(cfg)
-#' }
+#'pest = system_fetch_guess(cfg)}
 #' 
 #'  The estimation routines will work with this reduced parameter set, but to
 #'  run simulations the full set is needed. The full values can be retrieved 
 #'  using the following: 
-#' 
 #' \preformatted{
-#'parameters = fetch_full_parameters(pest, cfg) 
-#' }
+#'parameters = fetch_full_parameters(pest, cfg) }
 #' 
 #'@seealso \code{\link{system_fetch_guess}}, \code{\link{system_select_set}}
 fetch_full_parameters <- function(pest, cfg){
@@ -5669,28 +5658,6 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
         vp(cfg,'------------------------------------------')
         vp(cfg, "The final parameter estimates are:")
     "error"})
-
-  # JMH it looks like removing the warning argument will allow access to the
-  # initial expression even when warnings are generated
-  #tcres = tryCatch(
-  # { 
-  #   eval(parse(text=tCcode))
-  # "success"},
-  #   warning = function(w) {
-  #   eval(parse(text=tCcode))
-  # "warning"},
-  #   error = function(e) {
-  #     vp(cfg, "Solution statistics calculation failed")
-  #     vp(cfg, "This can happen when you have a parameter")
-  #     vp(cfg, "set that makes the system stiff.")
-  #     vp(cfg, "The final parameter estimates are:")
-  # "error"})
-  #
-  #
-  # if(is.null(pest$statistics_est) & tcres =="warning"){
-  #   pest$statistics_est = solution_statistics(pest$estimate, cfg)
-  #   files = generate_report(pest$estimate, pest$statistics_est, cfg)
-  # }
 
     # Saving the report information 
     pest$report = files
@@ -9822,11 +9789,14 @@ return(tsample)
 #-------------------------------------------------------------------------
 #'@title Require Suggested Packages 
 #'@keywords internal
-#'@description  Used to ensure packages are loaded as they are needed.
+#'@description  Used to ensure packages are loaded as they are needed for the
+#' stand alone distribution of ubiquity. If the ubiquity package is being used this
+#' function simply returns 'TRUE' if the packages are installed and false if
+#' one is not.
 #' 
 #'@param pkgs  character vector of package names
 #'
-#'@return Boolean result (one for each package) of the loaded status
+#'@return Boolean result of the loaded status for all of the packages
 system_req <- function(pkgs){
   res_pkg  = NULL
   res_pkgs = c()
@@ -9837,8 +9807,8 @@ system_req <- function(pkgs){
       eval(parse(text=sprintf("res_pkg = require(%s, quietly=TRUE)", pkg))) 
       res_pkgs = c(res_pkgs, res_pkg)
     } else {
-    # otherwise we just return a Boolean value to see if the package is loaded
-      res_pkgs = c(res_pkgs, (pkg  %in% (.packages())))
+    # otherwise we just return a Boolean value to see if the package is installed 
+      res_pkgs = c(res_pkgs, (pkg  %in% row.names(installed.packages())))
     }
   }
 all(res_pkgs)}
@@ -10138,11 +10108,6 @@ system_nca_run = function(cfg,
                           digits            = 3,
                           dsinc             = NULL){
 
- # JMH dont think these are necessary
- #  ncares = list()
- #  ncasum = list()
- #  scenres = list()
-  
   # stores the report objects
   rptobjs = list()
   isgood = TRUE
