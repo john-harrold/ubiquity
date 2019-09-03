@@ -7,15 +7,15 @@
 system_req(pkgs)
 }
 \arguments{
-\item{pkgs}{character vector of package names}
+\item{pkgs}{character vector of package names to check}
 }
 \value{
-Boolean result of the loaded status for all of the packages
+Boolean result of the loaded (stand alone) or installed (package) status for all of the packages
 }
 \description{
 Used to ensure packages are loaded as they are needed for the
 stand alone distribution of ubiquity. If the ubiquity package is being used this
-function simply returns 'TRUE' if the packages are installed and false if
+function simply returns 'TRUE' if the packages are installed and FALSE if
 one is not.
 }
 \keyword{internal}

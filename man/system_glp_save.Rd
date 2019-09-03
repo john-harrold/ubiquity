@@ -5,7 +5,7 @@
 \title{Save results from a GLP Study design}
 \usage{
 system_glp_save(cfg, study_name = "default", rptname = "default",
-  prefix = NULL, output_directory = getwd())
+  prefix = NULL)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
@@ -15,8 +15,6 @@ system_glp_save(cfg, study_name = "default", rptname = "default",
 \item{rptname}{short name used to identify the report to attach results to the study in other functions (\code{default})}
 
 \item{prefix}{optional string to prepend to files generated (default value of \code{NULL} will use \code{study_name})}
-
-\item{output_directory}{path to save files to (\code{getwd()})}
 }
 \value{
 List with the following names

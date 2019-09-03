@@ -23,9 +23,7 @@ Assigns a value for a named parameter in a parameter list.
 }
 \details{
 To set the parameter Vc to a value of 3, the following would be used:
-
-\preformatted{
-parameters = system_fetch_parameters(cfg) 
+\preformatted{parameters = system_fetch_parameters(cfg) 
 parameters = system_set_parameter(cfg, parameters, pname = 'Vc', value = 3) 
 }
 }

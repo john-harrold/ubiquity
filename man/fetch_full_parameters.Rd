@@ -7,12 +7,12 @@
 fetch_full_parameters(pest, cfg)
 }
 \arguments{
-\item{pest}{subset of parameters being estimated}
+\item{pest}{list containing subset of parameters being estimated}
 
 \item{cfg}{ubiquity system object}
 }
 \value{
-Full parameter vector
+Full list of parameters with default values for the currently selected parameter set and the values in pest  merged
 }
 \description{
 Can be used to take a subset of parameters (those being
@@ -26,19 +26,16 @@ This function is used to build a full parameter set from a subset, and is
 
  The function select_set pulls out a parameter set and can optionally select
  only a subset for estimation:
-\preformatted{
-pnames = c('Vp', 'CL')
+\preformatted{pnames = c('Vp', 'CL')
 cfg = system_select_set(cfg, "default", pnames)}
 
  The default values of this subset can be accessed in the following way:
-\preformatted{
-pest = system_fetch_guess(cfg)}
+\preformatted{pest = system_fetch_guess(cfg)}
 
  The estimation routines will work with this reduced parameter set, but to
  run simulations the full set is needed. The full values can be retrieved 
  using the following: 
-\preformatted{
-parameters = fetch_full_parameters(pest, cfg) }
+\preformatted{parameters = fetch_full_parameters(pest, cfg) }
 }
 \seealso{
 \code{\link{system_fetch_guess}}, \code{\link{system_select_set}}

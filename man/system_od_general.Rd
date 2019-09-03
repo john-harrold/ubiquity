@@ -44,8 +44,7 @@ If estimation is TRUE then the output is a matrix  of observation details of the
   \item \code{cohort}             - name of the cohort for these predictions
 }
 
-Lastly if debugging is enabled the field \code{isgood} will be set to \code{FALSE}
-if any problems are encountered.
+Lastly the field \code{isgood} will be set to \code{FALSE} if any problems are encountered, and \code{TRUE} if everything worked.
 \preformatted{od$isgood = TRUE}
 }
 \description{

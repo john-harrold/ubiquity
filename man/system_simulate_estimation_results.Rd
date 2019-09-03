@@ -14,11 +14,12 @@ system_simulate_estimation_results(pest, cfg, details = FALSE)
 \item{details}{set \code{TRUE} to display information about cohorts as they are simulated (useful for debugging)}
 }
 \value{
-observations in a list, see \code{\link{system_define_cohort}} when \code{estimation=FALSE}
+observations in a list, see \code{\link{system_od_general}} when \code{estimation=FALSE}
 }
 \description{
-Simulates the system at the parameter estimates \code{pest}
+Simulates the system at the parameter estimates \code{pest} for creating diagnostic plots
 }
 \seealso{
-\code{\link{system_define_cohort}} \code{\link{system_plot_cohorts}}
+\code{\link{system_define_cohort}}, \code{\link{system_plot_cohorts}}
+and the vignette on parameter estimation (\code{vignette("estimation", package = "ubiquity")})
 }

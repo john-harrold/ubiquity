@@ -12,9 +12,9 @@ som_to_df(cfg, som)
 \item{som}{simulation output from \code{\link{run_simulation_ubiquity}}, \code{\link{simulate_subjects}}, or  \code{\link{run_simulation_titrate}}}
 }
 \value{
-Dataframe of the format:
+Data frame of the format:
 
-When applied to the output of   \code{\link{run_simulation_ubiquity}} or  \code{\link{run_simulation_titrate}}
+When applied to the output of \code{\link{run_simulation_ubiquity}} or  \code{\link{run_simulation_titrate}}
 \itemize{
  \item \code{ts.time}                   - timescale of the system
  \item \code{ts.ts1}, ... \code{ts.tsn} - timescales defined in the system (<TS>)

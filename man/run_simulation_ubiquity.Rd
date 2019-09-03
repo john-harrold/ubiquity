@@ -16,15 +16,14 @@ run_simulation_ubiquity(SIMINT_parameters, SIMINT_cfg,
 }
 \value{
 The simulation output is mapped (\code{som}) is a list.
-time-course is stored in the \code{simout} element. The first column (\code{time})
-contains the simulation time in the units of the simulation, days in this
-case. Next there is a colunn for each state and a
-column for each output. Each system parameter is also
-passed through the simulation into the output. Models with covariates
-will contain the  initial value (prefix: \code{SIMINT_CVIC_}) as well as the values at each time point. For the
-Next secondary parameters
-are also provided as well as a column for each timescale specified in
-the system file with a "\code{ts.}" prefix.
+time-course is stored in the \code{simout} element. 
+\itemize{
+\item The first column (\code{time}) contains the simulation time in the units of the simulation. 
+\item Next there is a column for each: State, output and system parameter   
+\item Models with covariate will contain the initial value  (prefix: \code{SIMINT_CVIC_}) as well as the values at each time point
+\item Each static and dynamic system parameter is also passed through
+\item A column for each timescale is returned with a "\code{ts.}" prefix.
+}
 }
 \description{
 Controls the execution of individual simulations with deSolve using either R scripts or loadable C libraries.

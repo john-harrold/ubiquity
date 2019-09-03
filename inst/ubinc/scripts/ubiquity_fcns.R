@@ -27,22 +27,24 @@
 #'@description  Builds the specified system file creating the targets for R and other languages as well as the templates for performing simulations and estimations. 
 #'
 #'@param system_file name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt'), if the file does not exist a template will be created and compiled.
-#'@param distribution indicates weather you are using a 'package' or a 'stand alone' 
-#' distribution of ubiquity. If set to 'automatic' the build script will first 
+#'@param distribution indicates weather you are using a \code{'package'} or a \code{'stand alone'}
+#' distribution of ubiquity. If set to \code{'automatic'} the build script will first 
 #' look to see if the ubiquity R package is installed. If it is installed it
-#' will use the package. Otherwise, it will assume a "sand alone" distribution.
+#' will use the package. Otherwise, it will assume a \code{"sand alone"} distribution.
 #'@param perlcmd system command to run perl ("perl")
-#'@param verbose enable verbose messaging   (TRUE)
-#'@param debug Boolean variable indicating if debugging information should be displayed (TRUE)
+#'@param output_directory location to store analysis outputs (\code{file.path(".", "output")})
+#'@param verbose enable verbose messaging   (\code{TRUE})
+#'@param debug Boolean variable indicating if debugging information should be displayed (\code{TRUE})
 #'@examples
 #' \donttest{
 #' cfg = build_system()
 #'}
-build_system <- function(system_file     = "system.txt",
-                         distribution    = "automatic",
-                         perlcmd         = "perl",
-                         verbose         =  TRUE,
-                         debug           =  TRUE){
+build_system <- function(system_file       = "system.txt",
+                         distribution      = "automatic",
+                         perlcmd           = "perl",
+                         output_directory  = file.path(".", "output"),
+                         verbose           =  TRUE,
+                         debug             =  TRUE){
 
 
  
@@ -153,7 +155,7 @@ if(file.exists(system_file)){
     if(verbose == TRUE){
       message("#> Creating output directory")
     }
-    dir.create('output')
+    dir.create(output_directory)
   }
   
   #next we remove any files to make sure we start from scratch
@@ -224,6 +226,9 @@ if(file.exists(system_file)){
   if(file.exists(file.path(temp_directory, "auto_rcomponents.R"))){
     source(file.path(temp_directory, "auto_rcomponents.R"))
     eval(parse(text="cfg = system_fetch_cfg()"))
+
+    # Storing the output directory in the cfg variable
+    cfg$options$misc$output_directory = output_directory
   } 
   
   } else {
@@ -4331,8 +4336,7 @@ else{
 #'   \item \code{cohort}             - name of the cohort for these predictions
 #' }
 #'
-#' Lastly if debugging is enabled the field \code{isgood} will be set to \code{FALSE}
-#' if any problems are encountered.
+#' Lastly the field \code{isgood} will be set to \code{FALSE} if any problems are encountered, and \code{TRUE} if everything worked.
 #' \preformatted{od$isgood = TRUE}
 #'
 #'@seealso \code{\link{system_define_cohort}} and \code{\link{system_simulate_estimation_results}}
@@ -4570,7 +4574,6 @@ return(od)
 
 }
 
-# JMH Documentation to here
 
 #'@export
 #'@title Create Full Parameter Vector from Estimation Subset
@@ -4578,10 +4581,10 @@ return(od)
 #'@description Can be used to take a subset of parameters (those being
 #' estimated and returned from ' \code{\link{system_estimate_parameters}})
 #' into a full list of system parameters.
-#'@param pest subset of parameters being estimated
+#'@param pest list containing subset of parameters being estimated 
 #'@param cfg ubiquity system object    
 #'
-#'@return Full parameter vector
+#'@return Full list of parameters with default values for the currently selected parameter set and the values in pest  merged
 #' 
 #'@details    
 #'  This function is used to build a full parameter set from a subset, and is
@@ -4590,19 +4593,16 @@ return(od)
 #' 
 #'  The function select_set pulls out a parameter set and can optionally select
 #'  only a subset for estimation:
-#' \preformatted{
-#'pnames = c('Vp', 'CL')
+#' \preformatted{pnames = c('Vp', 'CL')
 #'cfg = system_select_set(cfg, "default", pnames)}
 #' 
 #'  The default values of this subset can be accessed in the following way:
-#' \preformatted{
-#'pest = system_fetch_guess(cfg)}
+#' \preformatted{pest = system_fetch_guess(cfg)}
 #' 
 #'  The estimation routines will work with this reduced parameter set, but to
 #'  run simulations the full set is needed. The full values can be retrieved 
 #'  using the following: 
-#' \preformatted{
-#'parameters = fetch_full_parameters(pest, cfg) }
+#' \preformatted{parameters = fetch_full_parameters(pest, cfg) }
 #' 
 #'@seealso \code{\link{system_fetch_guess}}, \code{\link{system_select_set}}
 fetch_full_parameters <- function(pest, cfg){
@@ -4637,9 +4637,7 @@ return(parameters_full)
 #'@details     
 #'
 #'  To set the parameter Vc to a value of 3, the following would be used:
-#'
-#' \preformatted{
-#'parameters = system_fetch_parameters(cfg) 
+#' \preformatted{parameters = system_fetch_parameters(cfg) 
 #'parameters = system_set_parameter(cfg, parameters, pname = 'Vc', value = 3) 
 #' }
 #'
@@ -4696,16 +4694,14 @@ calculate_variance <- function(SIMINT_parameters, SIMINT_varstr, SIMINT_odchunk,
 #'@param SIMINT_dropfirst when \code{TRUE} it will drop the first sample point (prevents bolus doses from starting at 0)
 #'
 #'@return The simulation output is mapped (\code{som}) is a list.
-#' time-course is stored in the \code{simout} element. The first column (\code{time})
-#' contains the simulation time in the units of the simulation, days in this
-#' case. Next there is a colunn for each state and a
-#' column for each output. Each system parameter is also
-#' passed through the simulation into the output. Models with covariates
-#' will contain the  initial value (prefix: \code{SIMINT_CVIC_}) as well as the values at each time point. For the
-#' Next secondary parameters
-#' are also provided as well as a column for each timescale specified in
-#' the system file with a "\code{ts.}" prefix.
-#'
+#' time-course is stored in the \code{simout} element. 
+#'\itemize{
+#' \item The first column (\code{time}) contains the simulation time in the units of the simulation. 
+#' \item Next there is a column for each: State, output and system parameter   
+#' \item Models with covariate will contain the initial value  (prefix: \code{SIMINT_CVIC_}) as well as the values at each time point
+#' \item Each static and dynamic system parameter is also passed through
+#' \item A column for each timescale is returned with a "\code{ts.}" prefix.
+#'}
 #'@seealso Simulation vignette (\code{vignette("Simulation", package = "ubiquity")})
 run_simulation_ubiquity = function(SIMINT_parameters,SIMINT_cfg, SIMINT_dropfirst=TRUE){
 
@@ -4957,6 +4953,7 @@ SIMINT_simout_mapped$simout = as.data.frame(SIMINT_simout)
 
 return(SIMINT_simout_mapped) } 
 
+
 #'@export
 #'@title Converts the Wide/Verbose Output Simulation Functions into Data Frames
 #'@description  
@@ -4967,9 +4964,9 @@ return(SIMINT_simout_mapped) }
 #'@param cfg ubiquity system object    
 #'@param som simulation output from \code{\link{run_simulation_ubiquity}}, \code{\link{simulate_subjects}}, or  \code{\link{run_simulation_titrate}}
 #'
-#'@return Dataframe of the format:
+#'@return Data frame of the format:
 #'
-#'When applied to the output of   \code{\link{run_simulation_ubiquity}} or  \code{\link{run_simulation_titrate}}
+#'When applied to the output of \code{\link{run_simulation_ubiquity}} or  \code{\link{run_simulation_titrate}}
 #'\itemize{
 #'  \item \code{ts.time}                   - timescale of the system
 #'  \item \code{ts.ts1}, ... \code{ts.tsn} - timescales defined in the system (<TS>)
@@ -5163,6 +5160,7 @@ calculate_objective_pso <- function(pvect, cfg){
   obj = calculate_objective(plist, cfg, estimation=TRUE)
   return(obj)
 }
+
 
 #'@title \code{GA} Wrapper for calculate_objective
 #'@description Converts the parameter vector to a named list and returns the
@@ -5370,6 +5368,8 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
 }
 
 
+# JMH Documentation to here
+
 #-----------------------------------------------------------
 # system_estimate_parameters - controls the estimation process
 #'@export
@@ -5387,7 +5387,7 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
 #'
 #'  The \code{flowctl} argument can have the following values
 #'  \itemize{
-#'   \item \code{"plot guess"}  return the initial guess
+#'   \item \code{"plot guess"} return the initial guess
 #'   \item \code{"estimate"} perform estimation
 #'   \item \code{"previous estimate as guess"} load previous estimate for \code{analysis_name} and use that as the initial guess
 #'   \item \code{"plot previous estimate"} return the previous estimate for \code{analysis_name}
@@ -5397,7 +5397,11 @@ system_estimate_parameters <- function(cfg,
                                        analysis_name   = "my_analysis", 
                                        archive_results = TRUE){
 
-  fname_estimate = sprintf('output%s%s.RData', .Platform$file.sep, analysis_name) 
+  # Pulling the output directory from the ubiquity object
+  output_directory = cfg$options$misc$output_directory 
+
+  # File to store estimation results
+  fname_estimate = file.path(output_directory, paste(analysis_name, ".RData", sep=""))
 
   if((flowctl == "estimate") | (flowctl == "previous estimate as guess")){
     # Checking the analysis_name
@@ -5466,6 +5470,9 @@ return(pest)}
 #' statistics 
 estimate_parameters <- function(cfg){
 
+# Pulling the output directory from the ubiquity object
+output_directory = cfg$options$misc$output_directory 
+
 pest = c()
 pest$sysup = ''
 
@@ -5488,9 +5495,9 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       # Clearing out any previous outputs summarizing the solution
       #  - estimate csv files
       #  - report
-      if(file.exists(file.path("output","report.txt"        ))){file.remove(file.path("output","report.txt"        ))}
-      if(file.exists(file.path("output","parameters_all.csv"))){file.remove(file.path("output","parameters_all.csv"))}
-      if(file.exists(file.path("output","parameters_est.csv"))){file.remove(file.path("output","parameters_est.csv"))}
+      if(file.exists(file.path(output_directory,"report.txt"        ))){file.remove(file.path(output_directory,"report.txt"        ))}
+      if(file.exists(file.path(output_directory,"parameters_all.csv"))){file.remove(file.path(output_directory,"parameters_all.csv"))}
+      if(file.exists(file.path(output_directory,"parameters_est.csv"))){file.remove(file.path(output_directory,"parameters_est.csv"))}
 
 
 
@@ -5732,15 +5739,16 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
 #system_simulate_estimation_results
 #'@export
 #'@title Simulate Results at Estimates
-#'@description Simulates the system at the parameter estimates \code{pest}
+#'@description Simulates the system at the parameter estimates \code{pest} for creating diagnostic plots
 #'
 #'@param cfg ubiquity system object    
 #'@param pest vector of parameters
 #'@param details set \code{TRUE} to display information about cohorts as they are simulated (useful for debugging)
 #'
-#'@return observations in a list, see \code{\link{system_define_cohort}} when \code{estimation=FALSE}
+#'@return observations in a list, see \code{\link{system_od_general}} when \code{estimation=FALSE}
 #'
-#'@seealso \code{\link{system_define_cohort}} \code{\link{system_plot_cohorts}}
+#'@seealso \code{\link{system_define_cohort}}, \code{\link{system_plot_cohorts}}
+#' and the vignette on parameter estimation (\code{vignette("estimation", package = "ubiquity")}) 
 system_simulate_estimation_results <- function(pest, cfg, details=FALSE){
  observations = NULL
  eval(parse(text=sprintf('observations = %s(pest, cfg, estimation=FALSE, details=details)', cfg$estimation$options$observation_function)))
@@ -5836,6 +5844,10 @@ def = c()
 def$yscale = "linear"
 def$xlim  = NULL
 def$ylim  = NULL
+
+
+# Pulling the output directory from the ubiquity object
+output_directory = cfg$options$misc$output_directory 
 
 # These are the dimensions of the timecourse (tc) and observed vs predicted
 # (op) figures that are generated
@@ -5961,12 +5973,11 @@ for(output in levels(erp$pred$OUTPUT)){
       p = p + ylim(plot_opts$outputs[[output]]$ylim) } 
   }
 
-
-  fname_pdf = sprintf('output%s%s_timecourse_%s.pdf', .Platform$file.sep, analysis_name, output )
+  fname_pdf = file.path(output_directory, paste(analysis_name, "_timecourse_", output, ".pdf", sep=""))
   ggsave(fname_pdf, plot=p, device="pdf", height=def$dim$tc$height, width=def$dim$tc$width)
   vp(cfg, sprintf('Figure written: %s', fname_pdf))
 
-  fname_png = sprintf('output%s%s_timecourse_%s.png', .Platform$file.sep, analysis_name, output )
+  fname_png = file.path(output_directory, paste(analysis_name, "_timecourse_", output, ".png", sep=""))
   ggsave(fname_png, plot=p, device="png", height=def$dim$tc$height, width=def$dim$tc$width)
   vp(cfg, sprintf('Figure written: %s', fname_png))
 
@@ -6044,11 +6055,11 @@ for(output in levels(erp$pred$OUTPUT)){
   p = prepare_figure(p, purpose=def$purpose)
   eval(parse(text=sprintf('p = p + scale_colour_manual(values=c(%s))', color_string)))
 
-  fname_pdf = sprintf('output%s%s_obs_pred_%s.pdf', .Platform$file.sep, analysis_name, output )
+  fname_pdf = file.path(output_directory, paste(analysis_name, "_obs_pred_", output, ".pdf", sep=""))
   ggsave(fname_pdf, plot=p, device="pdf", height=def$dim$op$height, width=def$dim$op$width)
   vp(cfg, sprintf('Figure written: %s', fname_pdf))
 
-  fname_png = sprintf('output%s%s_obs_pred_%s.png', .Platform$file.sep, analysis_name, output )
+  fname_png = file.path(output_directory, paste(analysis_name, "_obs_pred_", output, ".png", sep=""))
   ggsave(fname_png, plot=p, device="png", height=def$dim$op$height, width=def$dim$op$width)
   vp(cfg, sprintf('Figure written: %s', fname_png))
 
@@ -6062,7 +6073,7 @@ for(output in levels(erp$pred$OUTPUT)){
 
 
 if(archive_results){
-  fname_grobs = file.path("output", paste(analysis_name, "_pr.Rdata", sep=""))
+  fname_grobs = file.path(output_directory, paste(analysis_name, "_pr.Rdata", sep=""))
   vp(cfg, sprintf('Graphics objects written to: %s', fname_grobs))
   save(grobs, file=fname_grobs)
 }
@@ -6192,12 +6203,12 @@ generate_report  <- function( parameters, ss, cfg){
 
 parameters_full = fetch_full_parameters(cfg=cfg, pest=parameters)
 
-report_file         = file.path("output","report.txt")
-parameters_all_file = file.path("output","parameters_all.csv")
-parameters_est_file = file.path("output","parameters_est.csv")
+# Pulling the output directory from the ubiquity object
+output_directory = cfg$options$misc$output_directory 
 
-#p_all    c('pname' 'guess'  'estimate' 'cvpct' 'cilb' 'ciub' 'units' 'notes')
-
+report_file         = file.path(output_directory,"report.txt")
+parameters_all_file = file.path(output_directory,"parameters_all.csv")
+parameters_est_file = file.path(output_directory,"parameters_est.csv")
 
 notes_str = 'F=Fixed parameter, L=estimate at/near lower bound, U=estimate at/near upper bound'; 
 cn =  c('pname', 'guess',  'estimate', 'cvpct', 'cilb', 'ciub', 'units', 'notes')
@@ -6406,17 +6417,16 @@ f.source      = c()
 f.destination = c()
 
 
-f.source      = c(f.source,      file.path("output","parameters_all.csv"))
-f.source      = c(f.source,      file.path("output","parameters_est.csv"))
-f.source      = c(f.source,      file.path("output","report.txt"        ))
+# Pulling the output directory from the ubiquity object
+output_directory = cfg$options$misc$output_directory 
 
+f.source      = c(f.source,      file.path(output_directory, "parameters_all.csv"))
+f.source      = c(f.source,      file.path(output_directory, "parameters_est.csv"))
+f.source      = c(f.source,      file.path(output_directory, "report.txt"        ))
 
-
-
-
-f.destination = c(f.destination, file.path("output",paste(name, "-parameters_all.csv", sep="")))
-f.destination = c(f.destination, file.path("output",paste(name, "-parameters_est.csv", sep="")))
-f.destination = c(f.destination, file.path("output",paste(name, "-report.txt"        , sep="")))
+f.destination = c(f.destination, file.path(output_directory, paste(name, "-parameters_all.csv", sep="")))
+f.destination = c(f.destination, file.path(output_directory, paste(name, "-parameters_est.csv", sep="")))
+f.destination = c(f.destination, file.path(output_directory, paste(name, "-report.txt"        , sep="")))
 
 # clearing out the destination files to prevent old results from lingering
 for(fidx in 1:length(f.destination)){ 
@@ -8652,14 +8662,6 @@ return(cfg)
 
 # -------------------------------------------------------------------------
 # system_report_slide_content
-# cfg = system_report_slide_content(cfg,
-#        title          = "Title",
-#        sub_title      = NULL,    
-#        rptname        = "default",
-#        content_type   = "text", 
-#        content        = "Text")
-# Content dimensions:
-# ggsave(filename=imgfile, plot=p, height=5.15, width=9, units="in")
 #'@export
 #'@title Add Slide With Main Body of Content
 #'@description Creates a report slide with a title and single large area of content 
@@ -9567,6 +9569,9 @@ cfg}
 system_report_estimation = function (cfg,
                                rptname        = "default",
                                analysis_name  = NULL){
+  # Pulling the output directory from the ubiquity object
+  output_directory = cfg$options$misc$output_directory 
+
   isgood = TRUE
   rpttypes = c("PowerPoint")
 
@@ -9597,8 +9602,8 @@ system_report_estimation = function (cfg,
       vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
     
       # File names where the estimation results should be stored:
-      fname_estimate = file.path("output", paste(analysis_name, ".RData",    sep=""))
-      fname_grobs    = file.path("output", paste(analysis_name, "_pr.RData", sep=""))
+      fname_estimate = file.path(output_directory, paste(analysis_name, ".RData",    sep=""))
+      fname_grobs    = file.path(output_directory, paste(analysis_name, "_pr.RData", sep=""))
       if(file.exists(fname_estimate)){
         vp(cfg, paste("Loading estimation results from file:", fname_estimate))
         # Loads the variable pe and pest
@@ -9791,12 +9796,12 @@ return(tsample)
 #'@keywords internal
 #'@description  Used to ensure packages are loaded as they are needed for the
 #' stand alone distribution of ubiquity. If the ubiquity package is being used this
-#' function simply returns 'TRUE' if the packages are installed and false if
+#' function simply returns 'TRUE' if the packages are installed and FALSE if
 #' one is not.
 #' 
-#'@param pkgs  character vector of package names
+#'@param pkgs character vector of package names to check
 #'
-#'@return Boolean result of the loaded status for all of the packages
+#'@return Boolean result of the loaded (stand alone) or installed (package) status for all of the packages
 system_req <- function(pkgs){
   res_pkg  = NULL
   res_pkgs = c()
@@ -10111,6 +10116,9 @@ system_nca_run = function(cfg,
   # stores the report objects
   rptobjs = list()
   isgood = TRUE
+
+  # Pulling the output directory from the ubiquity object
+  output_directory = cfg$options$misc$output_directory 
 
   system_req("PKNCA")
 
@@ -10620,9 +10628,9 @@ system_nca_run = function(cfg,
     # Sorting the NCA table by ID then Dose_Number
     NCA_sum = NCA_sum[ with(NCA_sum, order(Dose_Number, ID)), ]
 
-    pkncaraw_file  = file.path("output",paste(analysis_name, "-pknca_raw.csv" , sep=""))
-    csv_file       = file.path("output",paste(analysis_name, "-nca_summary-pknca.csv" , sep=""))
-    data_file      = file.path("output",paste(analysis_name, "-nca_data.RData" , sep=""))
+    pkncaraw_file  = file.path(output_directory, paste(analysis_name, "-pknca_raw.csv" , sep=""))
+    csv_file       = file.path(output_directory, paste(analysis_name, "-nca_summary-pknca.csv" , sep=""))
+    data_file      = file.path(output_directory, paste(analysis_name, "-nca_data.RData" , sep=""))
     write.csv(NCA_sum,       file=csv_file,      row.names=FALSE, quote=FALSE)
     write.csv(PKNCA_raw_all, file=pkncaraw_file, row.names=FALSE, quote=FALSE)
     save(grobs_sum, NCA_sum, file=data_file)
@@ -11081,7 +11089,6 @@ res}
 #'@param study_name name of the study to save (\code{"default"})
 #'@param rptname      short name used to identify the report to attach results to the study in other functions (\code{default})
 #'@param prefix optional string to prepend to files generated (default value of \code{NULL} will use \code{study_name})
-#'@param output_directory  path to save files to (\code{getwd()})
 #'@seealso \code{\link{system_glp_init}}, \code{\link{system_glp_scenario}}
 #'@return List with the following names
 #' \itemize{
@@ -11091,8 +11098,10 @@ res}
 system_glp_save = function(cfg, 
                      study_name       = "default",
                      rptname          = "default",
-                     prefix           = NULL,
-                     output_directory = getwd()){
+                     prefix           = NULL){
+
+  # Pulling the output directory from the ubiquity object
+  output_directory = cfg$options$misc$output_directory 
   isgood = TRUE
   res = list()
 

@@ -28,18 +28,17 @@
 # Parameters  #
 #-------------#
 #
-#   name         value           lower  upper  units    editable grouping
-#                                bound  bound
-<P> BW           3.0             eps    Inf    kg        yes     System
-<P> BW_R         3.0             eps    Inf    kg        no      System
-<P> MW         145.0             eps    Inf    kDa       yes     System
-<P> CL           0.00015         eps    Inf    L/hr/kg   yes     System 
-<P> Q            0000029         eps    Inf    L/hr/kg   yes     System 
-<P> Vp           0.04589         eps    Inf    L/kg      yes     System 
-<P> Vt           0.03114         eps    Inf    L/kg      yes     System 
-<P> ka           0.10            eps    Inf    1/hr      yes     System 
-<P> Fb           0.74            eps    Inf    1/hr      yes     System 
-
+#     name                     value             lower             upper        units    editable grouping
+#                                                bound             bound        
+<P>   BW                       3.0               eps               Inf          kg        yes     System
+<P>   BW_R                     3.0               eps               Inf          kg        no      System
+<P>   MW                     145.0               eps               Inf          kDa       yes     System
+<P>   CL                       0.00015           eps               Inf          L/hr/kg   yes     System 
+<P>   Q                        0000029           eps               Inf          L/hr/kg   yes     System 
+<P>   Vp                       0.04589           eps               Inf          L/kg      yes     System 
+<P>   Vt                       0.03114           eps               Inf          L/kg      yes     System 
+<P>   ka                       0.10              eps               Inf          1/hr      yes     System 
+<P>   Fb                       0.74              eps               Inf          1/hr      yes     System 
 <PSET:default>   NHP
 <PSET:human>     Human
 <PSET:human:BW>  70 

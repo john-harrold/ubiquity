@@ -25,7 +25,7 @@ Manages the flow of parameter estimation using data specified with \code{system_
 \details{
 The \code{flowctl} argument can have the following values
  \itemize{
-  \item \code{"plot guess"}  return the initial guess
+  \item \code{"plot guess"} return the initial guess
   \item \code{"estimate"} perform estimation
   \item \code{"previous estimate as guess"} load previous estimate for \code{analysis_name} and use that as the initial guess
   \item \code{"plot previous estimate"} return the previous estimate for \code{analysis_name}
