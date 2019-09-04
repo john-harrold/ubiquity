@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{check_steady_state}
 \alias{check_steady_state}
-\title{Verify System steady-state}
+\title{Verify System Steady State}
 \usage{
 check_steady_state(cfg, som)
 }
@@ -15,5 +15,6 @@ check_steady_state(cfg, som)
 list with name \code{steady_state} (boolean indicating weather the system was at steady state) and \code{states} a vector of states that have steady state offset.
 }
 \description{
-Takes the output  \code{\link{run_simulation_ubiquity}} and verifies that the system is running at steady-state by analyzing the timecourse of all of the states in the system
+Takes the output  \code{\link{run_simulation_ubiquity}} and verifies that the system is running at steady state by analyzing the timecourse of all of the states in the system
 }
+\keyword{internal}

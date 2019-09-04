@@ -21,5 +21,5 @@ Simulates the system at the parameter estimates \code{pest} for creating diagnos
 }
 \seealso{
 \code{\link{system_define_cohort}}, \code{\link{system_plot_cohorts}}
-and the vignette on parameter estimation (\code{vignette("estimation", package = "ubiquity")})
+and the vignette on parameter estimation (\code{vignette("Estimation", package = "ubiquity")})
 }

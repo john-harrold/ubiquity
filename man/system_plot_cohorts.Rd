@@ -27,8 +27,8 @@ respectively. Both of these fields contain three elements for a given
 output. For example, say there is an output named \code{PK} the both the
 \code{timecourse} and \code{obs_pred} elements will have a field named
 \code{PK} containing a ggplot object
-and two fileds \code{PK_png} and \code{PK_pdf} containing the paths the the
-files containing that figure in the respecitve fortmats.
+and two fields \code{PK_png} and \code{PK_pdf} containing the paths to the
+files containing that figure in the respective formats.
 }
 \description{
 Generates figures for each cohort/output for a given set of

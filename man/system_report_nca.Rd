@@ -24,3 +24,6 @@ cfg ubiquity system object with the NCA results appended to the specified report
 \description{
 Appends the results of NCA to a report
 }
+\seealso{
+Vignette on NCA (\code{vignette("NCA", package = "ubiquity")})
+}

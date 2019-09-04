@@ -10,9 +10,9 @@ system_report_slide_content(cfg, title = "Title", sub_title = NULL,
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{title}{string with slide title}
+\item{title}{string with slide title (\code{"Title"})}
 
-\item{sub_title}{string with slide sub title}
+\item{sub_title}{string with slide sub title (code{NULL})}
 
 \item{rptname}{report name initialized with \code{system_report_init}}
 
@@ -30,5 +30,5 @@ Creates a report slide with a title and single large area of content
 For information on the format of content, see \code{\link{system_report_ph_content}}.
 }
 \seealso{
-\code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity list containing content to add")})
+\code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 }

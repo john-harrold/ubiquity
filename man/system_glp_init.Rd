@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_glp_init}
 \alias{system_glp_init}
-\title{Initialize GLP study}
+\title{Initialize GLP study design}
 \usage{
 system_glp_init(cfg, study_title = "Study Title",
   study_name = "default")
@@ -18,5 +18,5 @@ system_glp_init(cfg, study_title = "Study Title",
 cfg ubiquity system object with the study initialized
 }
 \description{
-Creates a GLP study
+Creates a new GLP study design
 }

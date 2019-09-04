@@ -22,8 +22,8 @@ gg_log10_yaxis(fo, ylim_min = NULL, ylim_max = NULL,
 ggplot object with formatted axis
 }
 \description{
-Wrapper for \code{\link{system_new_tt_rule}} to create a log 10 y-axis
+Wrapper for \code{\link{gg_axis}} to create a log 10 y-axis
 }
 \seealso{
-\code{\link{gg_axis}} and \code{\link{gg_log10_yaxis}}
+\code{\link{gg_axis}} and \code{\link{gg_log10_xaxis}}
 }

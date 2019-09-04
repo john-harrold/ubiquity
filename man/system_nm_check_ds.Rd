@@ -34,8 +34,9 @@ system_nm_check_ds(cfg, DS = "DSNAME", col_ID = "ID",
 
 \item{INPUTS}{List mapping input information in the dataset to names used in the system.txt file}
 
-\item{OBS}{List mapping obseravation information in the dataset to nams used in the system.txt file}
+\item{OBS}{List mapping obseravation information in the dataset to names used in the system.txt file}
 }
 \description{
 Checks the dataset against the information specified by \code{\link{system_define_cohorts_nm}} for validity
 }
+\keyword{internal}

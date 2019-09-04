@@ -33,3 +33,4 @@ Nedelman, J. R., Gibiansky, E., & Lau, D. T. (1995). Applying Bailer's
 method for AUC confidence intervals to sparse sampling Pharmaceutical
 Research, 12(1), 124-128.
 }
+\keyword{internal}

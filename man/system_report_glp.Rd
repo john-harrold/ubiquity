@@ -20,5 +20,5 @@ system_report_glp(cfg, study_title = "Study Title",
 cfg ubiquity system object with the study report information added
 }
 \description{
-Append GLP study information a report
+Append GLP study design a report
 }

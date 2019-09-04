@@ -17,3 +17,7 @@ system_report_estimation(cfg, rptname = "default",
 \description{
 This will take the output generated during a parameter estimation and append those results to a specified report.
 }
+\seealso{
+\code{\link{system_report_init}}, the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
+and the estimation vignette (\code{vignette("Estimation", package = "ubiquity")})
+}

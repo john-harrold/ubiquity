@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_report_init}
 \alias{system_report_init}
-\title{Initialize a New officer Report}
+\title{Initialize a New Officer Report}
 \usage{
 system_report_init(cfg, template = NULL, rptname = "default",
   rpttype = NULL, meta = NULL)
@@ -20,14 +20,14 @@ system_report_init(cfg, template = NULL, rptname = "default",
 }
 \description{
 Creates a new officer report based either on the ubiquity
-template or one specified by the user. Once created, slides can then be
+template or one specified by the user. Once created, content can then be
 added.
 }
 \details{
 Either the rpttype can be specified or the template. If a report type is
   specified the internal ubiquity template for that type will be used. If
   the user specifies a template, the type will be determined from the file
-  extension. If both values are null the report type will default to 
+  extension. If both values are NULL the report type will default to 
   "PowerPoint" internally.
 }
 \seealso{

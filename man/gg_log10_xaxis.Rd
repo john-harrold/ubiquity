@@ -22,7 +22,7 @@ gg_log10_xaxis(fo, xlim_min = NULL, xlim_max = NULL,
 ggplot object with formatted axis
 }
 \description{
-Wrapper for \code{\link{system_new_tt_rule}} to create a log 10 x-axis
+Wrapper for \code{\link{gg_axis}} to create a log 10 x-axis
 }
 \seealso{
 \code{\link{gg_axis}} and \code{\link{gg_log10_xaxis}}

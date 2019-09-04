@@ -45,21 +45,14 @@ from a NONMEM dataset
 }
 \details{
 \bold{NOTE: to use this function it is necessary that a timescale be define for the system time scale. For example, if the system time scale was days, something like the following is needed:}
-
-\preformatted{
-<TS:days> 1
-}
+\preformatted{<TS:days> 1}
 
 Include all records in the dataset
-\preformatted{
-filter = NULL
-}
+\preformatted{filter = NULL}
 
 Include only records matching the following filter
-\preformatted{
-filter = list()
-filter$COLNAME = c()
-}
+\preformatted{filter = list()
+filter$COLNAME = c()}
 
 Mapping information: 
 
@@ -71,12 +64,10 @@ input:
 \item \code{covariates} List with for each covariate in the dataset (\code{<CV:?>}): each covariate name should have a \code{col_COV} indicating the column in the database that contains that covariate
 }
 From a coding perspective it looks like this:
-\preformatted{
-INPUTMAP = list()
+\preformatted{INPUTMAP = list()
 INPUTMAP$bolus$SPECIES$CMT_NUM            =  1
 INPUTMAP$infusion_rates$RATE$CMT_NUM      =  1
-INPUTMAP$covariates$CVNAME$col_COV        = 'CNAME'
-}
+INPUTMAP$covariates$CVNAME$col_COV        = 'CNAME'}
 
 The observation mapping information (\code{OBSMAP}) is a list with elements for each output as
 described in for system_define_cohort. Each output is a list with the following names:
@@ -87,11 +78,12 @@ described in for system_define_cohort. Each output is a list with the following 
  \item missing Value indicating a missing observation or \code{NULL}
 }
 From a coding perspective it looks like this:
-\preformatted{
-OBSMAP = list()
+\preformatted{OBSMAP = list()
 OBSMAP$ONAME=list(variance     = 'PRED^2',
                  CMT          =  1,
                  output       = '<O>',
-                 missing      =  NULL )
+                 missing      =  NULL )}
 }
+\seealso{
+Estimation vignette (\code{vignette("Estimation", package = "ubiquity")})
 }

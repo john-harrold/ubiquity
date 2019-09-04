@@ -66,3 +66,6 @@ cfg ubiquity system object with the NCA results and if the analysis name is spec
 \description{
 Performs NCA in an automated fashion
 }
+\seealso{
+Vignette on NCA (\code{vignette("NCA", package = "ubiquity")})
+}

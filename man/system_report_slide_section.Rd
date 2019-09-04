@@ -10,9 +10,9 @@ system_report_slide_section(cfg, title = "Title", sub_title = NULL,
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{title}{string with slide title}
+\item{title}{string with slide title (\code{"Title"})}
 
-\item{sub_title}{string with slide sub title}
+\item{sub_title}{string with slide sub title (code{NULL})}
 
 \item{rptname}{report name initialized with \code{system_report_init}}
 }

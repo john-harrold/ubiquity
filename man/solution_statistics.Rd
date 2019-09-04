@@ -16,7 +16,7 @@ list containing information about the provided estimates
 }
 \description{
 Attempts to determine the variance/covariance matrix,
-confidence intervals and CV percent for a list of parameter estiamtes
+confidence intervals and CV percent for a list of parameter estimates 
 \code{parameters}. This method was taken from the ADAPT 5 User's Guide
 chapter 3.
 }

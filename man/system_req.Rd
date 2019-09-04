@@ -16,6 +16,6 @@ Boolean result of the loaded (stand alone) or installed (package) status for all
 Used to ensure packages are loaded as they are needed for the
 stand alone distribution of ubiquity. If the ubiquity package is being used this
 function simply returns 'TRUE' if the packages are installed and FALSE if
-one is not.
+if not.
 }
 \keyword{internal}

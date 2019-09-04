@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_report_fetch}
 \alias{system_report_fetch}
-\title{Retrieve the officer pptx Object of a Report}
+\title{Retrieve the officer Object of a Report}
 \usage{
 system_report_fetch(cfg, rptname = "default")
 }
@@ -15,5 +15,8 @@ system_report_fetch(cfg, rptname = "default")
 officer pptx object with the of the report named \code{rptname}
 }
 \description{
-Reports are stored in the ubiquity system object and this provides a method for retrieving them by name.
+Reports are stored in the ubiquity system object and this provides a method for retrieving them by name. They can then be modified using the officer functions directly.
+}
+\seealso{
+\code{\link{system_report_init}} and \code{\link{system_report_set}}
 }

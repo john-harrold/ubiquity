@@ -5368,7 +5368,6 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
 }
 
 
-# JMH Documentation to here
 
 #-----------------------------------------------------------
 # system_estimate_parameters - controls the estimation process
@@ -5748,7 +5747,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
 #'@return observations in a list, see \code{\link{system_od_general}} when \code{estimation=FALSE}
 #'
 #'@seealso \code{\link{system_define_cohort}}, \code{\link{system_plot_cohorts}}
-#' and the vignette on parameter estimation (\code{vignette("estimation", package = "ubiquity")}) 
+#' and the vignette on parameter estimation (\code{vignette("Estimation", package = "ubiquity")}) 
 system_simulate_estimation_results <- function(pest, cfg, details=FALSE){
  observations = NULL
  eval(parse(text=sprintf('observations = %s(pest, cfg, estimation=FALSE, details=details)', cfg$estimation$options$observation_function)))
@@ -5818,8 +5817,8 @@ system_fetch_guess <- function(cfg){
 #' output. For example, say there is an output named \code{PK} the both the
 #' \code{timecourse} and \code{obs_pred} elements will have a field named
 #' \code{PK} containing a ggplot object
-#' and two fileds \code{PK_png} and \code{PK_pdf} containing the paths the the
-#' files containing that figure in the respecitve fortmats.
+#' and two fields \code{PK_png} and \code{PK_pdf} containing the paths to the
+#' files containing that figure in the respective formats. 
 #'@seealso The estimation vignette (\code{vignette("Estimation", package = "ubiquity")}) 
 system_plot_cohorts <- function(erp, plot_opts=c(), cfg, analysis_name='analysis', archive_results = TRUE, prefix=NULL){
 
@@ -6097,10 +6096,10 @@ return(grobs)
 #'@param cfg ubiquity system object    
 #'@param pname name of parameter to set
 #'@param value value to assign
-#'@param lb optionally change the lower bound
-#'@param ub optionally change the upper bound
+#'@param lb optionally change the lower bound (\code{NULL})
+#'@param ub optionally change the upper bound (\code{NULL}) 
 #'
-#'@return cfg - ubiquity system object    
+#'@return cfg - ubiquity system object with guess and bounds assigned   
 #'
 #' @details 
 #'
@@ -6109,44 +6108,17 @@ return(grobs)
 #' following command can be used after the parameter set has been selected to
 #' specify the value (\code{VALUE}) of the parameter \code{PNAME} and optionally the lower (\code{lb})
 #' and upper (\code{ub}) bounds:
-#' 
-#' \preformatted{
-#'cfg =
-#'system_set_guess(cfg, pname="PNAME", value=VALUE, lb=NULL, ub=NULL)
-#'}
+#' \preformatted{cfg = system_set_guess(cfg, pname="PNAME", value=VALUE, lb=NULL, ub=NULL)}
 #'
 #' To set the initial guess for the parameter Vc to a value of 3, the following
 #' would be used:
-#' 
-#' \preformatted{
-#'cfg = system_set_guess(cfg, "Vc", value=3)
-#' }
+#' \preformatted{cfg = system_set_guess(cfg, "Vc", value=3)}
 #'
 #' To specify the guess and overwrite the upper bound on Vc and set it to 5
-#'
-#' \preformatted{
-#'cfg = system_set_guess(cfg, "Vc", value=3, ub=5)
-#' }
+#' \preformatted{cfg = system_set_guess(cfg, "Vc", value=3, ub=5) }
 system_set_guess <- function(cfg, pname, value, lb=NULL, ub=NULL){
-#  cfg = system_set_guess(cfg,  pname, value, lb, ub)
-#
-#  pname = name of the parameter to set
-#  value = value of the guess for the parameter
-#  lb = lower bound (optional)
-#  ub = upper bound (optional)
-#
-#  To set the initial guess for the parameter Vc to a value of 3, the
-#  following would be used:
-#
-#  cfg = system_set_guess(cfg, pname='Vc', value=3);
-#
-#  To specify the guess and overwrite the upper bound on Vc and set it to 5
-#
-#  cfg = system_set_guess(cfg, pname='Vc', value=3, ub=5);
-#
 
 isgood = TRUE
-
 
 if(pname %in% names(cfg$parameters$values)){
   if(pname %in% names(cfg$estimation$parameters$guess)){
@@ -6391,26 +6363,6 @@ return(files)
 #'@param name analysis name 
 #'@param cfg ubiquity system object    
 archive_estimation <- function(name, cfg){
-#
-#  archive_estimation(name, cfg)
-#
-#  Archives the estimation results by moving the output files to the same file
-#  names with 'name' prepended to them. This prevents them from being
-#  overwritten in a different analysis script the following files are
-#  archived:
-#
-#   output/parameters_all.csv             
-#   output/parameters_est.csv             
-#   output/report.txt                     
-#
-#  Example:
-#   archive_estimation('mysoln', cfg)
-#
-#   Would rename the files above 
-#   output/mysoln-parameters_all.csv             
-#   output/mysoln-parameters_est.csv             
-#   output/mysoln-report.txt                     
-#
 
 
 f.source      = c()
@@ -6487,8 +6439,6 @@ compare_estimate <- function(cfg, parameters, pname){
       notes = 'U'
     }
   }
-
-  
 return(notes)
 }
 #/compare_estimate
@@ -6499,7 +6449,7 @@ return(notes)
 #'@title Calculate Solution Statistics
 #'@keywords internal
 #'@description Attempts to determine the variance/covariance matrix,
-#' confidence intervals and CV percent for a list of parameter estiamtes
+#' confidence intervals and CV percent for a list of parameter estimates 
 #' \code{parameters}. This method was taken from the ADAPT 5 User's Guide
 #' chapter 3.
 #' 
@@ -6746,10 +6696,10 @@ solution_statistics <- function(parameters, cfg){
   return(s)
 }
 
-#'@export
-#'@title Verify System steady-state
+#'@title Verify System Steady State
+#'@keywords internal
 #'
-#'@description Takes the output  \code{\link{run_simulation_ubiquity}} and verifies that the system is running at steady-state by analyzing the timecourse of all of the states in the system
+#'@description Takes the output  \code{\link{run_simulation_ubiquity}} and verifies that the system is running at steady state by analyzing the timecourse of all of the states in the system
 #'
 #'@param cfg ubiquity system object    
 #'@param som output of \code{\link{run_simulation_ubiquity}} 
@@ -6796,13 +6746,13 @@ res}
 #'@description Takes the ubiquity system object and other optional inputs to verify the system is running at steady state. This also provides information that can be helpful in debugging systems not running at steady state. 
 #'
 #'@param cfg ubiquity system object    
-#'@param parameters optional set of parameters (\code{NULL}) to check at steady state (if set to \code{NULL} then the parameters for the currently selected parameter set will be used)
-#'@param zero_rates Boolean value to control removing all rate inputs (\code{TRUE})
-#'@param zero_bolus Boolean value to control removing all bolus inputs (\code{TRUE})
-#'@param output_times sequence of output times to simulate for offset determination (\code{seq(0,100,1)})
+#'@param parameters        optional set of parameters (\code{NULL}) to check at steady state (if set to \code{NULL} then the parameters for the currently selected parameter set will be used)
+#'@param zero_rates        Boolean value to control removing all rate inputs (\code{TRUE})
+#'@param zero_bolus        Boolean value to control removing all bolus inputs (\code{TRUE})
+#'@param output_times      sequence of output times to simulate for offset determination (\code{seq(0,100,1)})
 #'@param offset_tol        maximum percent offset to be considered zero (\code{.Machine$double.eps*100})
 #'@param derivative_tol    maximum derivative value to be considered zero (\code{.Machine$double.eps*100})
-#'@param derivative_time   time to evaluate derivatives to identify deviations, set to \code{NULL} to skip derivative evaluation
+#'@param derivative_time   time to evaluate derivatives to identify deviations (\code{0}), set to \code{NULL} to skip derivative evaluation
 #'@return List with the following names
 #' \itemize{
 #' \item \code{steady_state} Boolean indicating weather the system was at steady state
@@ -7085,8 +7035,6 @@ fo = fo + theme(legend.key = element_blank())
 
 return(fo)
 }
-
-
 #---------------------------------------------------------------------------
 # gg_axis
 #'@export
@@ -7302,7 +7250,7 @@ fo}
 # gg_log10_yaxis
 #'@export
 #'@title Make Pretty ggplot y-Axis Log 10 Scale
-#'@description Wrapper for \code{\link{system_new_tt_rule}} to create a log 10 y-axis
+#'@description Wrapper for \code{\link{gg_axis}} to create a log 10 y-axis
 #'
 #'@param fo ggplot figure object
 #'@param ylim_min     set to a number to define the lower bound of the y-axis
@@ -7311,7 +7259,7 @@ fo}
 #'@param y_tick_label \code{TRUE} to show y tick labels, \code{FALSE} to hide the y tick labels
 #'
 #'@return ggplot object with formatted axis 
-#'@seealso \code{\link{gg_axis}} and \code{\link{gg_log10_yaxis}}
+#'@seealso \code{\link{gg_axis}} and \code{\link{gg_log10_xaxis}}
 gg_log10_yaxis = function(fo, 
                           ylim_min     = NULL, 
                           ylim_max     = NULL, 
@@ -7337,7 +7285,7 @@ fo}
 # gg_log10_xaxis
 #'@export
 #'@title Make Pretty ggplot x-Axis Log 10 Scale
-#'@description Wrapper for \code{\link{system_new_tt_rule}} to create a log 10 x-axis
+#'@description Wrapper for \code{\link{gg_axis}} to create a log 10 x-axis
 #'
 #'@param fo ggplot figure object
 #'@param xlim_min     set to a number to define the lower bound of the x-axis
@@ -7371,7 +7319,7 @@ fo}
 #---------------------------------------------------------------------------
 #ubiquity_name_check
 #'@title Check Names of Cohorts, Analyses, Reports, etc.
-#'@description  Checks names specified for different aspects (cohorts,
+#'@description  Checks names specified for different analysis aspects (cohorts,
 #' analyses, reports, etc.) to make sure that they start with a letter and
 #' contain only letters, numbers and _
 #'
@@ -7467,7 +7415,7 @@ linspace = function(a, b, n=100){
 #'@param n number of elements  (integer >=2)
 #'
 #'@return vector of numbers from \code{a} to \code{b} with
-#'\code{n} logarythmically (base 10) spaced apart
+#'\code{n} logarithmically (base 10) spaced apart
 #'
 #'@examples
 #' logspace(-2, 3,20)
@@ -7520,21 +7468,14 @@ logspace = function(a, b, n=100){
 #'@details
 #'
 #'\bold{NOTE: to use this function it is necessary that a timescale be define for the system time scale. For example, if the system time scale was days, something like the following is needed:}
-#'
-#'\preformatted{
-#'<TS:days> 1
-#'}
+#'\preformatted{<TS:days> 1}
 #' 
 #' Include all records in the dataset
-#'\preformatted{
-#'filter = NULL
-#'}
+#'\preformatted{filter = NULL}
 #' 
 #' Include only records matching the following filter
-#'\preformatted{
-#'filter = list()
-#'filter$COLNAME = c()
-#'}
+#'\preformatted{filter = list()
+#'filter$COLNAME = c()}
 #' 
 #' Mapping information: 
 #' 
@@ -7546,12 +7487,10 @@ logspace = function(a, b, n=100){
 #' \item \code{covariates} List with for each covariate in the dataset (\code{<CV:?>}): each covariate name should have a \code{col_COV} indicating the column in the database that contains that covariate
 #'}
 #'From a coding perspective it looks like this:
-#'\preformatted{
-#'INPUTMAP = list()
+#'\preformatted{INPUTMAP = list()
 #'INPUTMAP$bolus$SPECIES$CMT_NUM            =  1
 #'INPUTMAP$infusion_rates$RATE$CMT_NUM      =  1
-#'INPUTMAP$covariates$CVNAME$col_COV        = 'CNAME'
-#'}
+#'INPUTMAP$covariates$CVNAME$col_COV        = 'CNAME'}
 #'
 #'The observation mapping information (\code{OBSMAP}) is a list with elements for each output as
 #'described in for system_define_cohort. Each output is a list with the following names:
@@ -7562,13 +7501,12 @@ logspace = function(a, b, n=100){
 #'  \item missing Value indicating a missing observation or \code{NULL}
 #'}
 #'From a coding perspective it looks like this:
-#'\preformatted{
-#'OBSMAP = list()
+#'\preformatted{OBSMAP = list()
 #'OBSMAP$ONAME=list(variance     = 'PRED^2',
 #'                  CMT          =  1,
 #'                  output       = '<O>',
-#'                  missing      =  NULL )
-#'}
+#'                  missing      =  NULL )}
+#'@seealso Estimation vignette (\code{vignette("Estimation", package = "ubiquity")})
 system_define_cohorts_nm = function(cfg, 
                                     DS        = 'DSNAME',
                                     col_ID    = 'ID',
@@ -7914,7 +7852,7 @@ TSsys}
 # -------------------------------------------------------------------------
 # system_nm_check_ds - Takes mapping information from a NONMEM dataset and
 # checks it with specifications in the system.txt file
-#'@export
+#'@keywords internal
 #'@title Check NONMEM Dataset for Automatic Definitions  
 #'@description Checks the dataset against the information specified by \code{\link{system_define_cohorts_nm}} for validity
 #'
@@ -7931,7 +7869,7 @@ TSsys}
 #'@param col_GROUP Column name to use for defining similar cohorts when generating figures.
 #'@param filter List used to filter the dataset or \code{NULL} if the whole dataset is to be used (see filter rules or  \code{\link{nm_select_records}} or a description of how to use this option)
 #'@param INPUTS List mapping input information in the dataset to names used in the system.txt file
-#'@param OBS List mapping obseravation information in the dataset to nams used in the system.txt file
+#'@param OBS List mapping obseravation information in the dataset to names used in the system.txt file
 system_nm_check_ds = function(cfg, 
                               DS        = 'DSNAME',
                               col_ID    = 'ID',
@@ -8167,9 +8105,9 @@ result}
 # -------------------------------------------------------------------------
 # system_report_view_layout
 #'@export
-#'@title Generate Annotated Layout for report templates
-#'@description Elements of slide masters are identified by indices of the
-#' different of these elements. As PowerPoint masters are created the indices 
+#'@title Generate Annotated Layout for Report Templates
+#'@description Elements of slide masters are identified by placeholder labels.
+#' As PowerPoint masters are created the labels
 #' can be difficult to predict. Word documents are identified by style names. 
 #' This function will create a layout file identifying all of the elements of 
 #' each slide master for a PowerPoint template or each paragraph and table 
@@ -8317,14 +8255,15 @@ return(rpt)}
 # rpt = system_report_fetch(cfg, 
 #     rptname       =  "default")
 #'@export
-#'@title Retrieve the officer pptx Object of a Report 
+#'@title Retrieve the officer Object of a Report 
 #'
-#'@description Reports are stored in the ubiquity system object and this provides a method for retrieving them by name.
+#'@description Reports are stored in the ubiquity system object and this provides a method for retrieving them by name. They can then be modified using the officer functions directly.
 #'
 #'@param cfg ubiquity system object    
 #'@param rptname report name
 #'
 #'@return officer pptx object with the of the report named \code{rptname}
+#'@seealso \code{\link{system_report_init}} and \code{\link{system_report_set}}
 system_report_fetch = function (cfg,
                                rptname     = "default"){
 
@@ -8355,7 +8294,7 @@ return(rpt)}
 #'@param rpt officer object 
 #'
 #'@return ubiquity system object with \code{rpt} as content for \code{rptname}
-#'@seealso \code{\link{system_report_init}}
+#'@seealso \code{\link{system_report_init}} and \code{\link{system_report_fetch}}
 system_report_set = function (cfg,
                               rptname     = "default",
                               rpt         = NULL){
@@ -8383,16 +8322,13 @@ return(cfg)}
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
 # system_report_save 
-# system_report_save(cfg, 
-#     rptname       =  "default",
-#     output_file   = "myreport.pptx")
 #'@export
 #'@title Save Report to File
 #'@description Save the contents of \code{rptname} to the file \code{output_file}
 #'
 #'@param cfg ubiquity system object    
 #'@param rptname report name initialized with \code{system_report_init}
-#'@param output_file name of file to save the report to
+#'@param output_file file name of saved report
 #'
 #'@details If you don't specify an output file it will save the report either
 #'report.pptx or report.docx (depending on the type of report) in the current
@@ -8507,9 +8443,9 @@ system_report_save = function (cfg,
 # -------------------------------------------------------------------------
 # system_report_init 
 #'@export
-#'@title Initialize a New officer Report
+#'@title Initialize a New Officer Report
 #'@description Creates a new officer report based either on the ubiquity
-#' template or one specified by the user. Once created, slides can then be
+#' template or one specified by the user. Once created, content can then be
 #' added. 
 #'
 #'
@@ -8523,7 +8459,7 @@ system_report_save = function (cfg,
 #'   Either the rpttype can be specified or the template. If a report type is
 #'   specified the internal ubiquity template for that type will be used. If
 #'   the user specifies a template, the type will be determined from the file
-#'   extension. If both values are null the report type will default to 
+#'   extension. If both values are NULL the report type will default to 
 #'   "PowerPoint" internally. 
 #'
 #'@seealso Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
@@ -8668,17 +8604,17 @@ return(cfg)
 #'
 #'@param cfg ubiquity system object    
 #'@param rptname report name initialized with \code{system_report_init}
-#'@param title     string with slide title
-#'@param sub_title string with slide sub title
-#'@param content_type type of content for main body of slide
-#'@param content content of main body of slide
+#'@param title                     string with slide title (\code{"Title"})
+#'@param sub_title                 string with slide sub title (code{NULL})
+#'@param content_type              type of content for main body of slide
+#'@param content                   content of main body of slide
 #'
 #'@return ubiquity system object with slide added to report
 #'
 #'@details 
 #'  For information on the format of content, see \code{\link{system_report_ph_content}}.
 #'
-#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity list containing content to add")})
+#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 system_report_slide_content = function (cfg,
                                title                  = "Title",      
                                sub_title              = NULL, 
@@ -8755,32 +8691,14 @@ system_report_slide_content = function (cfg,
 return(cfg)}
 #/system_report_slide_content
 # -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
 # system_report_slide_two_col
-# Content dimensions:
-# Without header: units = inches, height = 5.08, width = 4.65
-# With header:    units = inches, height = 4.41, width = 4.65
-# cfg = system_report_slide_two_col = function (cfg,
-#        title                     = "Title",      
-#        sub_title                 = NULL, 
-#        rptname                   = "default",
-#        content_type              = 'text', 
-#        left_content              =  NULL,
-#        left_content_type         =  NULL, 
-#        right_content             =  NULL,
-#        right_content_type        =  NULL, 
-#        left_content_header       =  NULL,  
-#        left_content_header_type  = 'text', 
-#        right_content_header      =  NULL,
-#        right_content_header_type = 'text')
-# 
 #'@export
 #'@title Generate Slide with Two Column Layout
 #'@description Creates a report slide with a title two columns of content with optional headers over the columns
 #'
 #'@param cfg ubiquity system object    
-#'@param title                     string with slide title
-#'@param sub_title                 string with slide sub title
+#'@param title                     string with slide title (\code{"Title"})
+#'@param sub_title                 string with slide sub title (code{NULL})
 #'@param rptname                   report name initialized with \code{system_report_init}
 #'@param content_type              type of content for body text elements 'list' or 'text'
 #'@param left_content              content of left column
@@ -9006,8 +8924,8 @@ return(cfg)}
 #'@title Generate Slide with Section Break
 #'@description Creates a report slide with a section break.
 #'@param cfg ubiquity system object    
-#'@param title                     string with slide title
-#'@param sub_title                 string with slide sub title
+#'@param title                     string with slide title (\code{"Title"})
+#'@param sub_title                 string with slide sub title (code{NULL})
 #'@param rptname                   report name initialized with \code{system_report_init}
 #'
 #'@return ubiquity system object with slide added to report
@@ -9091,8 +9009,8 @@ return(cfg)}
 #'@title Generate Title Slide
 #'@description Creates a report title slide.
 #'@param cfg ubiquity system object    
-#'@param title                     string with slide title
-#'@param sub_title                 string with slide sub title
+#'@param title                     string with slide title (\code{"Title"})
+#'@param sub_title                 string with slide sub title (code{NULL})
 #'@param rptname                   report name initialized with \code{system_report_init}
 #'
 #'@return ubiquity system object with slide added to report
@@ -9160,60 +9078,6 @@ system_report_slide_title   = function (cfg,
 
 return(cfg)}
 #/system_report_slide_title  
-# -------------------------------------------------------------------------
-
-#  # -------------------------------------------------------------------------
-#  # system_report_slide_xxx
-#  # Content dimensions:
-#  # units = inches, 
-#  system_report_slide_xxx     = function (cfg,
-#                                 title                  = "Title",      
-#                                 sub_title              = NULL, 
-#                                 rptname                = "default",
-#                                 content_type           = 'text', 
-#                                 left_content           = 'Text',
-#                                 right_content          = 'Text',
-#                                 left_content_header    =  NULL,  
-#                                 right_content_header   =  NULL){
-#  
-#    # We only process this if reporting is enabled
-#    if(cfg$reporting$enabled){
-#      # checking to make sure the user has initialized the report
-#      if(rptname %in% names(cfg$reporting$reports)){
-#        # Pulling out the meta data for the report template
-#        meta = cfg$reporting$reports[[rptname]]$meta 
-#        # Pulling out the report to make it easier to deal with
-#        tmprpt  = cfg$reporting$reports[[rptname]]$report
-#  
-#        browser()
-#        # Adding the slide
-#        tmprpt = add_slide(x      = tmprpt, 
-#                           layout = meta$xxx$layout$general,
-#                           master = meta$xxx$master$general)
-#  
-#  
-#        # Adding Slide title/subtitle information
-#        if(!is.null(title)){
-#          tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "ctrTitle"), value=title) 
-#        if(!is.null(sub_title_index) & !is.null(sub_title)){
-#          tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "subTitle"), value=sub_title) 
-#        # Populate with content
-#  
-#
-#        # Putting the report back into cfg
-#        cfg$reporting$reports[[rptname]]$report = tmprpt
-#      } else {
-#        vp(cfg, sprintf("system_report_slide_xxx    () "))
-#        vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
-#        vp(cfg, sprintf("       Slide not added"               ))
-#      }
-#    }
-#  
-#  
-#  return(cfg)}
-#  #/system_report_slide_xxx    
-#  # -------------------------------------------------------------------------
-
 # -------------------------------------------------------------------------
 # system_report_ph_content
 #'@export
@@ -9384,8 +9248,8 @@ return(rpt)}
 # -------------------------------------------------------------------------
 # system_report_doc_add_content
 #'@export
-#'@title Add to  Body of a Word Document Report
-#'@description Adds content to the body of a word document
+#'@title Add content to Body of a Word Document Report
+#'@description Appends content to the body of a word document
 #'
 #' For example if you have <HEADER_LEFT> in the header of your document and you wanted to
 #' replace it with the text "Upper left" you would do the following:
@@ -9566,6 +9430,8 @@ cfg}
 #'@param cfg ubiquity system object    
 #'@param rptname report name 
 #'@param analysis_name string containing the name of the estimation analysis and used as a prefix to store the results
+#'@seealso \code{\link{system_report_init}}, the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
+#'and the estimation vignette (\code{vignette("Estimation", package = "ubiquity")})
 system_report_estimation = function (cfg,
                                rptname        = "default",
                                analysis_name  = NULL){
@@ -9797,7 +9663,7 @@ return(tsample)
 #'@description  Used to ensure packages are loaded as they are needed for the
 #' stand alone distribution of ubiquity. If the ubiquity package is being used this
 #' function simply returns 'TRUE' if the packages are installed and FALSE if
-#' one is not.
+#' if not.
 #' 
 #'@param pkgs character vector of package names to check
 #'
@@ -9979,8 +9845,8 @@ void derivs (int *neq, double *t, double *y, double *ydot,
 res}
 
 #-------------------------------------------------------------------------
-#'@export 
 #'@title AUC for sparse data 
+#'@keywords internal
 #'@description Calculates AUCs with with sparse data using Bailers Method
 #' This is an implementation of Bailors method for calculating AUCs with
 #' sparse sampling. It is taken from the following publication:
@@ -10092,6 +9958,7 @@ res}
 #'     \item{output/{analysis_name}-pknca_summary.csv} Raw output from PKNCA with subject and dose number columns appended 
 #'     \item{output/{analysis_name}-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
 #' }
+#'@seealso Vignette on NCA (\code{vignette("NCA", package = "ubiquity")}) 
 system_nca_run = function(cfg, 
                           dsname            = "PKDS", 
                           dscale            = 1,
@@ -10667,6 +10534,7 @@ cfg}
 #'@param rows_max maximum number of rows per slide when generating tabular data
 #'@param table_headers Boolean variable to add descriptive headers to output tables (default \code{TRUE})
 #'@return cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:
+#'@seealso Vignette on NCA (\code{vignette("NCA", package = "ubiquity")}) 
 system_report_nca = function(cfg, 
                           rptname       = "default",
                           analysis_name = "analysis",
@@ -10835,8 +10703,8 @@ cfg}
 
 #-------------------------------------------------------------------------
 #'@export 
-#'@title Initialize GLP study
-#'@description Creates a GLP study 
+#'@title Initialize GLP study design
+#'@description Creates a new GLP study design
 #'
 #'@param cfg ubiquity system object
 #'@param study_title  String containing descriptive information about the study
@@ -10862,7 +10730,7 @@ cfg}
 #-------------------------------------------------------------------------
 #'@export 
 #'@title Report GLP Study  
-#'@description Append GLP study information a report
+#'@description Append GLP study design a report
 #'
 #'@param cfg ubiquity system object
 #'@param study_title  String containing descriptive information about the study

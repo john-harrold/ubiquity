@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_report_doc_add_content}
 \alias{system_report_doc_add_content}
-\title{Add to  Body of a Word Document Report}
+\title{Add content to Body of a Word Document Report}
 \usage{
 system_report_doc_add_content(cfg, rptname = "default",
   content_type = NULL, content = NULL)
@@ -44,7 +44,7 @@ For each content type listed below the following content is expected:
 cfg ubiquity system object with the content added to the body
 }
 \description{
-Adds content to the body of a word document
+Appends content to the body of a word document
 
 For example if you have <HEADER_LEFT> in the header of your document and you wanted to
 replace it with the text "Upper left" you would do the following:

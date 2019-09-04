@@ -13,12 +13,12 @@ system_set_guess(cfg, pname, value, lb = NULL, ub = NULL)
 
 \item{value}{value to assign}
 
-\item{lb}{optionally change the lower bound}
+\item{lb}{optionally change the lower bound (\code{NULL})}
 
-\item{ub}{optionally change the upper bound}
+\item{ub}{optionally change the upper bound (\code{NULL})}
 }
 \value{
-cfg - ubiquity system object
+cfg - ubiquity system object with guess and bounds assigned
 }
 \description{
 Default values for parameters are taken from the \code{system.txt} file
@@ -32,22 +32,12 @@ specified in the \code{system.txt} file for the currently selected parameter set
 following command can be used after the parameter set has been selected to
 specify the value (\code{VALUE}) of the parameter \code{PNAME} and optionally the lower (\code{lb})
 and upper (\code{ub}) bounds:
-
-\preformatted{
-cfg =
-system_set_guess(cfg, pname="PNAME", value=VALUE, lb=NULL, ub=NULL)
-}
+\preformatted{cfg = system_set_guess(cfg, pname="PNAME", value=VALUE, lb=NULL, ub=NULL)}
 
 To set the initial guess for the parameter Vc to a value of 3, the following
 would be used:
-
-\preformatted{
-cfg = system_set_guess(cfg, "Vc", value=3)
-}
+\preformatted{cfg = system_set_guess(cfg, "Vc", value=3)}
 
 To specify the guess and overwrite the upper bound on Vc and set it to 5
-
-\preformatted{
-cfg = system_set_guess(cfg, "Vc", value=3, ub=5)
-}
+\preformatted{cfg = system_set_guess(cfg, "Vc", value=3, ub=5) }
 }

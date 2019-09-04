@@ -24,7 +24,7 @@ system_check_steady_state(cfg, parameters = NULL, zero_rates = TRUE,
 
 \item{derivative_tol}{maximum derivative value to be considered zero (\code{.Machine$double.eps*100})}
 
-\item{derivative_time}{time to evaluate derivatives to identify deviations, set to \code{NULL} to skip derivative evaluation}
+\item{derivative_time}{time to evaluate derivatives to identify deviations (\code{0}), set to \code{NULL} to skip derivative evaluation}
 }
 \value{
 List with the following names

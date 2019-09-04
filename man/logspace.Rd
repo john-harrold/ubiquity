@@ -15,7 +15,7 @@ logspace(a, b, n = 100)
 }
 \value{
 vector of numbers from \code{a} to \code{b} with
-\code{n} logarythmically (base 10) spaced apart
+\code{n} logarithmically (base 10) spaced apart
 }
 \description{
 Creates a vector of n elements logarithmically spaced apart.

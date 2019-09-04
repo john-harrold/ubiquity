@@ -11,7 +11,7 @@ system_report_save(cfg, rptname = "default", output_file = NULL)
 
 \item{rptname}{report name initialized with \code{system_report_init}}
 
-\item{output_file}{name of file to save the report to}
+\item{output_file}{file name of saved report}
 }
 \description{
 Save the contents of \code{rptname} to the file \code{output_file}
