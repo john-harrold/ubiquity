@@ -2029,7 +2029,7 @@ user_log_init <- function(input, output, session) {
 # If it is then we return that user name. If not we 
 # assume we're working on a local install and return
 # 'default'
-find_user_dir <- function(session) {
+find_user_dir <- function(session, full=TRUE) {
   
   # Trying to determine where to store the user information
   # First we see if the session$user exists, if not we look for the
@@ -2043,7 +2043,8 @@ find_user_dir <- function(session) {
   }
 
   # returning the full path to the user directory
-  user = file.path(getwd(),"transient", "rgui", user)
+  if(full){
+    user = file.path(getwd(),"transient", "rgui", user) } 
 
   return(user)
 }
@@ -2136,6 +2137,7 @@ generate_model_report <- function(cfg, session, RID){
     user_dir = find_user_dir(session)
     Rmdfile  = sprintf('%s%s%s', cfg$gui$wd, .Platform$file.sep, cfg$gui$modelreport_files[[RID]]$file)
     htmlfile = sprintf('%s%smodel_report_%s.html', user_dir, .Platform$file.sep, RID)
+    htmlfile_base = paste("model_report_", RID, ".html", sep="")
 
     # If the html file does not exits and the Rmd file ends in html then we 
     # just use that as the report instead of rendering it.
@@ -2177,9 +2179,10 @@ generate_model_report <- function(cfg, session, RID){
 
 
     output = c()
-    output$htmlfile = htmlfile
-    output$success  = success
-    output$message  = message
+    output$htmlfile      = htmlfile
+    output$htmlfile_base = htmlfile_base
+    output$success       = success
+    output$message       = message
     return(output)
 }
 
@@ -2197,7 +2200,9 @@ update_uimodelreport <- function(input, output, session){
       # generating the report in html
       mg      = generate_model_report(cfg, session, "R1")
       if(mg$success){
-        result  = includeHTML(mg$htmlfile)
+        result  = tags$iframe(seamless = "seamless",
+                  src   = file.path(find_user_dir(session, full=FALSE), mg$htmlfile_base),
+                  width = 600, height=700)
       } else {
         result = "Report generation failed"
         user_log_entry(cfg, "Unable to generate report") }
@@ -2217,7 +2222,9 @@ update_uimodelreport <- function(input, output, session){
       # generating the report in html
       mg      = generate_model_report(cfg, session, "R2")
       if(mg$success){
-        result  = includeHTML(mg$htmlfile)
+        result  = tags$iframe(seamless = "seamless",
+                  src   = file.path(find_user_dir(session, full=FALSE), mg$htmlfile_base),
+                  width = 600, height=700)
       } else {
         result = "Report generation failed"
         user_log_entry(cfg, "Unable to generate report") }
@@ -2237,7 +2244,9 @@ update_uimodelreport <- function(input, output, session){
       # generating the report in html
       mg      = generate_model_report(cfg, session, "R3")
       if(mg$success){
-        result  = includeHTML(mg$htmlfile)
+        result  = tags$iframe(seamless = "seamless",
+                  src   = file.path(find_user_dir(session, full=FALSE), mg$htmlfile_base),
+                  width = 600, height=700)
       } else {
         result = "Report generation failed"
         user_log_entry(cfg, "Unable to generate report") }
@@ -2257,7 +2266,9 @@ update_uimodelreport <- function(input, output, session){
       # generating the report in html
       mg      = generate_model_report(cfg, session, "R4")
       if(mg$success){
-        result  = includeHTML(mg$htmlfile)
+        result  = tags$iframe(seamless = "seamless",
+                  src   = file.path(find_user_dir(session, full=FALSE), mg$htmlfile_base),
+                  width = 600, height=700)
       } else {
         result = "Report generation failed"
         user_log_entry(cfg, "Unable to generate report") }
@@ -2277,7 +2288,9 @@ update_uimodelreport <- function(input, output, session){
       # generating the report in html
       mg      = generate_model_report(cfg, session, "R5")
       if(mg$success){
-        result  = includeHTML(mg$htmlfile)
+        result  = tags$iframe(seamless = "seamless",
+                  src   = file.path(find_user_dir(session, full=FALSE), mg$htmlfile_base),
+                  width = 600, height=700)
       } else {
         result = "Report generation failed"
         user_log_entry(cfg, "Unable to generate report") }
@@ -2293,6 +2306,7 @@ server <- function(input, output, session) {
   # Initializing the the session for 
   # the current user
   initialize_session(session) 
+  addResourcePath(find_user_dir(session, full=FALSE), find_user_dir(session))
   cfg=gui_fetch_cfg(session)
   user_log_init(input, output, session)
 
