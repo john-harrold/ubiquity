@@ -9,6 +9,7 @@ options(show.error.locations = TRUE)
 # setwd(dirname(sys.frame(tail(grep('source',sys.calls()),n=1))$ofile))
 graphics.off()
 
+library(ggplot2)
 # If we cannot load the ubiquity package we try the stand alone distribution
 if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
 {source(file.path("library", "r_general", "ubiquity.R")) }

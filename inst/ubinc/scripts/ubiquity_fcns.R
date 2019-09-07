@@ -5526,6 +5526,9 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
         }
       }
       else if(cfg$estimation$options$optimizer %in% c('pso')){
+      # Setting the random seed to that 
+        vp(cfg, paste('Random seed:         ', cfg$options$stochastic$seed, sep=""))
+        set.seed(cfg$options$stochastic$seed)
         p = pso::psoptim(par     = as.vector(cfg$estimation$parameters$guess),
                          fn      = calculate_objective_pso, 
                          cfg     = cfg, 
@@ -5535,6 +5538,8 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       
       }
       else if(cfg$estimation$options$optimizer %in% c('ga')){
+        vp(cfg, paste('Random seed:         ', cfg$options$stochastic$seed, sep=""))
+        set.seed(cfg$options$stochastic$seed)
         # par     = as.vector(cfg$estimation$parameters$guess),
 
         # This is a string of the control variables that the user passed on.
