@@ -3479,7 +3479,7 @@ covmatrix = cfg$iiv$values;
 muzero    = matrix(0, nrow(covmatrix),1)
 
 # Generating the normal sample:
-iiv_sample = mvrnorm(n = 1, muzero, covmatrix, tol = 1e-6, empirical = FALSE, EISPACK = FALSE);
+iiv_sample = MASS::mvrnorm(n = 1, muzero, covmatrix, tol = 1e-6, empirical = FALSE, EISPACK = FALSE);
 
 # now looping through each parameter with inter-individual variability
 #names(cfg$iiv$iivs)
