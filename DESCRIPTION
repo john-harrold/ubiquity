@@ -1,13 +1,13 @@
 Package: ubiquity
 Type: Package
-Title: PKPD Model Development and Deployment Tools
+Title: PKPD and Systems Pharamcology Model Development and Deployment Tools
 Version: 1.0.0
 Authors@R: c(person("John", "Harrold", role = c("aut", "cre"),
                      email = "john.m.harrold@gmail.com"))
 Author: John Harrold [aut, cre]
 Maintainer: John Harrold <john.m.harrold@gmail.com>
-Description: R workflow for the ubiquity pharmacokinetic and pharmacodyamic (PKPD) tools (<http://ubiquity.tools>) used for model development and deployment.
-URL: https://ubiquity.tools
+Description: Complete workflow for the analysis of pharmacokinetic pharmacodynamic (PKPD) and systems pharmacology models including: creation of ordinary differential equation-based models, parameter estimation, individual/population based simulations, titration/rule-based simulations for trial design and modeling assays, deployment with a customizable Shiny app, and non-compartmental analysis. System-specific analysis templates can be generated and each element includes integrated reporting with PowerPoint. 
+URL: https://ubiquity.tools/rworkflow
 SystemRequirements: Perl
 BugReports: https://github.com/john-harrold/ubiquity/issues
 License: BSD_3_clause + file LICENSE
