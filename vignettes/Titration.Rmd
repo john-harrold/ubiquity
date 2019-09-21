@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=TRUE)
 require(ubiquity)
 require(deSolve)
 require(ggplot2)
@@ -131,7 +131,7 @@ cfg=system_set_option(cfg, group  = "simulation",
                            option = "output_times", 
                            seq(0,10*7,.5))
 ```
-```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3}
+```{r warning=FALSE, message=FALSE}
 cfg = system_zero_inputs(cfg) 
 cfg = system_set_rate(cfg, rate    = "Dinf", 
                 times   = c( 0, 30, 20160, 20190, 40320, 40350, 60480, 60510, 80640, 80670),
@@ -140,22 +140,22 @@ som_fix = run_simulation_ubiquity(parameters, cfg)
 ```
 
 Now to use the rule-based dosing we enable titration, create the rule (``"ivdose"``) to hold the dosing times, and create the conditions resulting in the dosing. This is all similar to the previous example except we use the ``SI_TT_RATE`` prototype function. The rate and the units of times and levels are the same as those specified in the system file (``<R:?>``). The times here are also relative to the titration time. 
-```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3}
+```{r warning=FALSE, message=FALSE}
 cfg=system_set_option(cfg, group = "titration", option = "titrate",        value     = TRUE)
 cfg=system_new_tt_rule(cfg, name = "ivdose",    times  = c(0, 2, 4, 6, 8), timescale = "weeks")
 ```
-```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3}
+```{r warning=FALSE, message=FALSE}
 cfg=system_set_tt_cond(cfg,       
                        name       = "ivdose",
                        cond       = "TRUE",   
                        action     = "SI_TT_RATE[rate='Dinf', times=c(0,30), levels=c(15,0)]",
                        value      = "1")
 ```
-```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3}
+```{r warning=FALSE, message=FALSE}
 som_tt = run_simulation_titrate(parameters, cfg)
 ```
 
-```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3}
+```{r warning=FALSE, message=FALSE}
  myfig = ggplot() + 
          geom_line(data=som_fix$simout, aes(x=ts.days,   y=Cc, color="Fixed Dosing"), linetype=1) +
          geom_line(data=som_tt$simout,  aes(x=ts.days,   y=Cc, color="Titration"   ), linetype=2)  +
@@ -186,7 +186,7 @@ cfg=system_set_option(cfg,
                       value       = TRUE)
 ```
 
-```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3}
+```{r warning=FALSE, message=FALSE}
 cfg=system_new_tt_rule(cfg,   
     name       = "ivdose",
     times      = c(0, 6, 12, 18, 24),   
@@ -204,7 +204,7 @@ cfg=system_set_tt_cond(cfg,
 
 som_tt = run_simulation_titrate(parameters, cfg)
 ```
-```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3}
+```{r warning=FALSE, message=FALSE}
 myfig = ggplot() + 
         geom_line(data=som_tt$simout, aes(x=ts.weeks,   y=Cc), color="blue")  
 myfig = prepare_figure('present', myfig) 
@@ -305,7 +305,7 @@ cfg=system_set_tt_cond(cfg,
 som_tt = run_simulation_titrate(parameters, cfg)
 ```
                            
-```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3}
+```{r warning=FALSE, message=FALSE}
 myfig = ggplot() +
         geom_line(data=som_tt$simout, aes(x=ts.weeks,   y=Cc), color="red")  
 myfig = prepare_figure('present', myfig) 
@@ -313,7 +313,6 @@ print(myfig)
 ```
 
 ## Contents of ``system.txt``
-```{r echo=FALSE, comment=''}
-cat(readLines("system.txt"), sep = "\n")
+```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
+cat(readLines(system.file("ubinc", "systems","system-mab_pk.txt", package="ubiquity")), sep="\n")
 ```
-
