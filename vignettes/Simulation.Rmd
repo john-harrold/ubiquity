@@ -9,8 +9,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, message=FALSE, eval=TRUE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=FALSE)
 require(ubiquity)
 require(deSolve)
 require(ggplot2)
@@ -24,7 +24,7 @@ require(rhandsontable)
 
 The workshop (http://workshop.ubiquity.grok.tv) provides several examples of how to perform simulations in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
-```{r eval=FALSE}
+```{r, message=FALSE}
 library(ubiquity)
 fr = workshop_fetch(section="Simulation", overwrite=TRUE)
 ```
@@ -37,18 +37,18 @@ This should create the following scripts:
 
 These rely on a PK model of mAbs in humans ([Davda etal. mAbs, 6(4), 1094-1102](http://doi.org/10.4161/mabs.29095)).  The contents of the system file for this model can be seen at the bottom (use ``?system_new`` to see a list of the available system file examples). The first step in any analysis (simulation, estimation, etc) is building the system file creating the ubiquity model object (``cfg``). 
 
-```{r results="hide", message=FALSE, echo=FALSE}
+```{r results="hide",  echo=FALSE}
 library(ubiquity)
 system_new(file_name="system.txt", system_file="mab_pk", overwrite = TRUE)
 ```
 
-```{r results="hide", message=FALSE}
+```{r results="hide"}
 cfg = build_system(system_file = "system.txt")
 ```
 
 After building any system you can then create templates. To create a template script for running simulations use ``system_fetch_template`` and specify  ``"Simulation"`` as the template argument:
 
-```{r eval=FALSE}
+```{r results="hide"}
 system_fetch_template(cfg, template="Simulation")
 ```
 
@@ -58,7 +58,7 @@ This will create the file ``analysis_simulate.R`` in the working directory. This
 
 We'll begin by demonstrating how to simulate an indiviudal response to dosing. The system parameters for the default parameter set can be pulled out of this object:
 
-```{r results="hide", warning=FALSE, message=FALSE}
+```{r results="hide", warning=FALSE}
 cfg = build_system(system_file = "system.txt")
 parameters = system_fetch_parameters(cfg)
 ```
@@ -82,17 +82,22 @@ cfg = system_set_bolus(cfg, state  = "At",
 ```
 
 Next we run the simulation:
-```{r results="hide", warning=FALSE, message=FALSE}
+```{r results="hide", warning=FALSE}
 som = run_simulation_ubiquity(parameters, cfg)
 ```
 
 The variable ``som`` is a list containing the mapped simulation output, and the time course is stored in the ``simout`` element. The first column (``time``) contains the simulation time in the units of the simulation, days in this case. Next there is a column for each state (``At``, ``Cc``, ``Cp``) and a column for each output (``C_ng_ml``, ``C_DOSE``). Each system parameter is passed through the simulation into the output (``F1``, ... ``MW``). This model has two covariates specified DOSE and WT. The initial value of these covariates is passed through as well as the values at each time point. For the covariate ``DOSE`` this is ``SIMINT_CVIC_DOSE`` and ``DOSE``, respectively. Next secondary parameters are also provided (``kel``, ... ``kpc``). Lastly each timescale specified in the system file is also passed through with a "``ts.``" prefix:
 
-```{r echo=FALSE}
+```{r results="hide", warning=FALSE, echo=FALSE}
+save(som, file="Simulation_som_single.RData")
+```
+
+```{r echo=FALSE, eval=TRUE}
+load("Simulation_som_single.RData")
 rhandsontable(som$simout, width=600, height=300)
 ```
 
-```{r warning=FALSE, fig.width=7, fig.height=3}
+```{r warning=FALSE, fig.width=7, fig.height=3, eval=TRUE}
 p = ggplot() + 
     geom_line(data=som$simout, aes(x=ts.days, y=C_ng_ml), color="blue")  +
     xlab("Time (days)")+
@@ -105,18 +110,33 @@ print(p)
 ## Simulating Population Response From IIV (``analysis_multiple.r``) 
 
 Next we want to simulate the response of multiple subjects. This system has IIV specified in the following manner:
-```{r warning=FALSE, comment=''}
+```{r warning=FALSE, comment='', message=TRUE}
 message(paste(system_view(cfg, 'iiv'), collapse="\n"))
 ```
 
 Different aspects of the Monte Carlo simulations can be specified. For example the following states that we want to simulate 20 subjects and the simulation is run using ```simulate_subjects```:
 
-```{r warning=FALSE, results=FALSE, message=FALSE}
+```{r warning=FALSE, results=FALSE}
 cfg=system_set_option(cfg, group  = "stochastic",
                            option = "nsub",
                            value  = 20)
 
 som  = simulate_subjects(parameters, cfg)
+```
+
+```{r results="hide", warning=FALSE, echo=FALSE}
+# Creating a reduced form of the simulation output to save it and use less disk space
+tmpsom = som
+som = list()
+som$tcsummary = data.frame(o.C_ng_ml.mean  =  tmpsom$tcsummary$o.C_ng_ml.mean,
+                           o.C_ng_ml.ub_ci =  tmpsom$tcsummary$o.C_ng_ml.ub_ci,
+                           o.C_ng_ml.lb_ci =  tmpsom$tcsummary$o.C_ng_ml.lb_ci,
+                           ts.days         =  tmpsom$tcsummary$ts.days)
+save(som, file="Simulation_som_multiple.RData")
+```
+
+```{r echo=FALSE, eval=TRUE}
+load("Simulation_som_multiple.RData")
 ```
 
 The output here, ``som``, has a different structure than the output from an individual simulation. It is a list with the following elements
@@ -131,7 +151,7 @@ The output here, ``som``, has a different structure than the output from an indi
 * ``som$times`` - Data frame with a column for the simulation time (``time``) and a column for each timescale with a ``ts.`` prefix.
 
 
-```{r warning=FALSE, fig.width=7, fig.height=3}
+```{r warning=FALSE, fig.width=7, fig.height=3, eval=TRUE}
 p = ggplot(som$tcsummary, aes(x=ts.days, y=o.C_ng_ml.mean)) +
            geom_ribbon(aes(ymin=o.C_ng_ml.lb_ci, 
                            ymax=o.C_ng_ml.ub_ci), 
@@ -179,12 +199,12 @@ cfg=system_set_option(cfg, group  = "stochastic",
 ```
 
 Then we just use ``simulate_subjects`` to run the simulation as before:
-```{r results=FALSE, warning=FALSE, message=FALSE}
+```{r results=FALSE, warning=FALSE, eval=FALSE}
 som  = simulate_subjects(parameters, cfg)
 ```
 
 
 ## Contents of ``system.txt``
-```{r echo=FALSE, comment=''}
-cat(readLines("system.txt"), sep = "\n")
+```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
+cat(readLines(system.file("ubinc", "systems","system-mab_pk.txt", package="ubiquity")), sep="\n")
 ```

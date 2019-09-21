@@ -9193,7 +9193,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
 
       # Creating the table
       invisible(system_req("flextable"))
-      ft = regulartable(content$table,  cwidth = cwidth, cheight=cheight)
+      ft = flextable::regulartable(content$table,  cwidth = cwidth, cheight=cheight)
       
       # Adding headers
       header_types = c("header_top", "header_middle", "header_bottom")
@@ -10961,6 +10961,7 @@ res}
 #'@param cfg ubiquity system object
 #'@param study_name name of the study to save (\code{"default"})
 #'@param rptname      short name used to identify the report to attach results to the study in other functions (\code{default})
+#'@param output_directory optional location to save results (default value of \code{NULL} will use the output folder specified at build time)
 #'@param prefix optional string to prepend to files generated (default value of \code{NULL} will use \code{study_name})
 #'@seealso \code{\link{system_glp_init}}, \code{\link{system_glp_scenario}}
 #'@return List with the following names
@@ -10971,10 +10972,14 @@ res}
 system_glp_save = function(cfg, 
                      study_name       = "default",
                      rptname          = "default",
+                     output_directory = NULL,
                      prefix           = NULL){
 
   # Pulling the output directory from the ubiquity object
+  if(is.null(output_directory)){
   output_directory = cfg$options$misc$output_directory 
+  }
+
   isgood = TRUE
   res = list()
 
