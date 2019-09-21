@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=FALSE)
 require(ubiquity)
 require(deSolve)
 require(ggplot2)
@@ -214,7 +214,7 @@ The information in this variable will be used to generate some standard plots be
      + ``TIME`` - Time in units of the data
      + ``OBS`` - Observations (``SMOOTH = FALSE``), -1 (``SMOOTH=TRUE``)
      + ``PRED`` - Predictions (``SMOOTH = FALSE``)
-     + ``VAR`` - Variance (SMOOTH = FALSE), -1 (SMOOTH=TRUE)
+     + ``VAR`` - Variance (``SMOOTH = FALSE``), -1 (``SMOOTH=TRUE``)
      + ``SMOOTH`` - ``FALSE`` for observation times, ``TRUE`` for observations
      + ``OUTPUT`` - name of the output
      + ``COHORT`` - name of the cohort
@@ -232,7 +232,7 @@ plot_opts = c()
 plot_opts$outputs$Parent$yscale       = 'log'
 ```
  
-```{r results="hide", echo=TRUE, warning=FALSE, eval=TRUE, message=FALSE}
+```{r results="hide", echo=TRUE, warning=FALSE, message=FALSE}
 plinfo = system_plot_cohorts(erp, plot_opts, cfg, analysis_name=analysis_name)
 ```
 
@@ -244,18 +244,30 @@ When called, ``system_plot_cohorts`` will write ``png`` and ``pdf`` output for t
 * output/parent_d1030_obs_pred_Parent.png 
 
 ```{r fig.width=7, fig.height=4, echo=FALSE}
-plinfo$timecourse$Parent
+# Creating a reduced form of the estimation output to save it and use less disk space
+estout = list()
+estout$tc =  plinfo$timecourse$Parent
+estout$op =  plinfo$obs_pred$Parent
+save(estout, file="Estimation_estout.RData")
 ```
 
-```{r fig.width=7, fig.height=4, echo=FALSE}
-plinfo$obs_pred$Parent
+```{r echo=FALSE, eval=TRUE}
+load("Estimation_estout.RData")
+```
+
+```{r fig.width=7, fig.height=4, echo=FALSE, eval=TRUE}
+estout$tc
+```
+
+```{r fig.width=7, fig.height=4, echo=FALSE, eval=TRUE}
+estout$op
 ```
 
 ## Maximum likelihood/two outputs (``analysis_parent_metabolite.r``)
 
 This example is similar to the last except we are analyzing two different outputs (parent and metabolite) and we have a proportional variance model. So now we can estimate the parameters associated with those outputs as well as the variance parameters:
 
-```{r results="hide", echo=TRUE}
+```{r results="hide", echo=TRUE, eval=FALSE}
 pnames = c('Vp',
            'Vt',
            'Vm',
@@ -270,7 +282,7 @@ cfg = system_select_set(cfg, "default", pnames)
 
 
 The parameters being estimated contain variance parameters (``slope_parent`` and ``slope_metabolite``) so a maximum likelihood objective will be used. The cohort definitions look much the same as those before except the variance model here is defined as  ``'slope_parent*PRED^2'``, and there is a separate output named ``Metabolite``.
-```{r results="hide", echo=TRUE}
+```{r results="hide", echo=TRUE, eval=FALSE}
 cfg = system_clear_cohorts(cfg)
 cohort = c()
 cohort$name                                      = 'dose_10'
@@ -410,8 +422,8 @@ cfg = system_define_cohorts_nm(cfg,
                                 
 
 ## Contents of ``system.txt``
-```{r echo=FALSE, comment=''}
-cat(readLines("system.txt"), sep = "\n")
+```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
+cat(readLines(system.file("ubinc", "systems","system-adapt.txt", package="ubiquity")), sep="\n")
 ```
  
 [^1]: analysis names must start with a letter and containing only letters, numbers, and _
