@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=FALSE)
 require(ubiquity)
 require(deSolve)
 require(ggplot2)
@@ -51,18 +51,19 @@ Next simply open ``ubiquity_app.R`` in RStudio and source it, and RStudio will o
 
 After starting  the App will load the default dosing from the \verb|system.txt| file and run the model. The first model output will be plotted. And as you make changes to the App, those changes will be reflected in the user log at the bottom of the screen. You can change the outputs being plotted, the axis limits, and other aspects of the plot using the plot controls below the figure. 
 
-![ShinyApp interface after initialization](ShinyApp-ss-Initialization.png){width=60%} 
+![ShinyApp interface after initialization](ShinyApp-ss-Initialization.png){width=100%} 
 
 The intent is to provide a quick method to get the model up and running with default behaviors that will provide for most of what users will need. The behavior of the ShinyApp can be further customized (described below). First we will discuss the default interface:
 
 ###Altering dosing  
+
 A list of bolus times and values can be specified as comma-separated values. To dose in a repeated fashion check the ``Repeat the last dose'' box, provide a dosing interval (in the same units as the dosing times), and give the number of doses to administer. The example here will repeat the 400 mg dose every two weeks for two doses.
 
-![Bolus Dosing](ShinyApp-ss-Bolus.png){width=30%}  
+![Bolus Dosing](ShinyApp-ss-Bolus.png){width=50%}  
 
 Rates of infusion are specified as a set of switching times and corresponding infusion rates (both separated by commas). The infusion rates are held constant until the next switching time. The example here would infuse the drug at 800mg/min starting at time 0, and the infusion will be turned off (set to 0) after 30 minutes. 
 
-![Continuous Infusion](ShinyApp-ss-Infusion.png){width=30%}
+![Continuous Infusion](ShinyApp-ss-Infusion.png){width=50%}
 
 
 
@@ -71,15 +72,15 @@ Rates of infusion are specified as a set of switching times and corresponding in
 
 If the variability for system parameters has been specified (``<IIV:?>?`` and ``<IIVCOR:?>?``) then a  "Variability" tab  will be visible. Simply check the "Simulate with variability" box, alter the number of subjects, prediction interval, and elements of the variance-covariance matrix to simulate the desired population response.  
 
-![Population simulation options](ShinyApp-ss-IIV.png){width=30%}
+![Population simulation options](ShinyApp-ss-IIV.png){width=50%}
 
 When you select "Update Plot", each selected output will be plotted (mean -- solid line, selected confidence interval -- shaded region).
 
-![Population timecourse](ShinyApp-ss-Pop_timecourse.png){width=30%}
+![Population timecourse](ShinyApp-ss-Pop_timecourse.png){width=100%}
 
 ##Saving model results   
 
-![Saving an analysis](ShinyApp-ss-Save.png){width=30%}
+![Saving an analysis](ShinyApp-ss-Save.png){width=60%}
 
 To save the model results you need to only provide a descriptive name for the analysis, push the save button, and click on the link that is generated. If you select the time stamp, this will be appended to the name of the zip file. By default the following files will be saved:
 

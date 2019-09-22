@@ -10,20 +10,34 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=FALSE)
 require(ubiquity)
 require(ggplot2)
 require(rhandsontable)
 require(gridExtra)
+# The presim variable will contain presimualted data when eval is set to true
+presim_loaded = FALSE
 ```
 
+```{r echo=FALSE, results=FALSE}
+  presim= list()
+  if(file.exists("NCA_presim.RData")){
+    file.remove("NCA_presim.RData")
+  }
+```
+
+```{r echo=FALSE, results=FALSE, eval=TRUE}
+if(file.exists("NCA_presim.RData")){
+  load("NCA_presim.RData")
+  presim_loaded = TRUE
+}
+```
 
 ## Introduction
 
 Non-compartmental analysis (NCA) is a simple and quick method for evaluating the exposure of a drug. It allows you to evaluate things like linearity and in vivo exposure. To illustrate this consider an antibody given in a subcutaneous injection. The actual profile a patient might experience is given in the solid black line. But we don't yet have the ability to sample in a continuous fashion. What we might observer is given by the blue points.   
 
 ```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, results="hide", fig.width=8, fig.height=4}
-
 system_new(system_file="mab_pk", overwrite=TRUE)
 cfg = build_system()
 parameters = system_fetch_parameters(cfg)
@@ -62,6 +76,24 @@ for(tidx in 1:(nrow(som_sample$simout)-1)){
     polydf = rbind(tmpdf, polydf)
   }
 }
+```
+
+```{r results="hide", warning=FALSE, echo=FALSE}
+# When eval is set to TRUE we save the presimulated results
+  presim$plots$som_smooth = som_smooth
+  presim$plots$som_sample = som_sample
+  presim$plots$polydf     = polydf
+```
+
+```{r results="hide", warning=FALSE, echo=FALSE, eval=TRUE}
+if(presim_loaded){
+  som_smooth = presim$plots$som_smooth 
+  som_sample = presim$plots$som_sample 
+  polydf     = presim$plots$polydf
+}
+```
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, eval=TRUE, results="hide", fig.width=8, fig.height=4}
 p_C = ggplot()
 p_C = p_C +  geom_line(data=som_smooth$simout, aes(x=ts.days, y=C_ng_ml))
 p_C = p_C + geom_point(data=som_sample$simout, aes(x=ts.days, y=C_ng_ml), color="blue")
@@ -84,7 +116,7 @@ p_AUC = p_C
 p_AUMC = p_TC
 ```
 
-```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, fig.width=8, fig.height=3.5}
+```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, eval=TRUE, fig.width=8, fig.height=3.5}
 gridExtra::grid.arrange(p_AUC, p_AUMC, ncol=2)
 ```
 
@@ -159,8 +191,8 @@ cfg = system_load_data(cfg, dsname     = "PKDATA",
 
 The NCA functions in ubiquity expect data to have a certain format. There are columns that are required, those that are optional or depend on the kind of analysis being performed and other columns can also be present. In this context consider the following dataset: 
 
-```{r echo=FALSE, fig.align="center"}
-rhandsontable(cfg$data$PKDATA$values, width=500, height=200)
+```{r echo=FALSE, fig.align="center", eval=TRUE}
+rhandsontable(read.csv(system.file("ubinc", "csv", "pk_all_sd.csv" , package="ubiquity")), width=500, height=200)
 ```
 
 The required columns and their names in this dataset provided in parenthesis are:
@@ -201,13 +233,23 @@ We link the analysis to the dataset by specfying the dataset name (``dsname``) u
 
 Running this function will produce the following files:
 
-* ``output/pk_single_dose-nca_summary-pknca.csv``  Summary level output from the analysis
+* ``output/pk_single_dose-nca_summary-pknca.csv``  Summary level output from the analysis (see table below)
 * ``output/pk_single_dose-nca_data.RData``         R objects used for downstream reporting
 * ``output/pk_single_dose-pknca_raw.csv``          Raw output from PKNCA
 
 
-```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, fig.width=8, fig.height=4}
+```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE}
 nca_summary = read.csv(file.path("output", "pk_single_dose-nca_summary-pknca.csv"))
+presim$sd$nca_summary = nca_summary
+```
+
+```{r results="hide", warning=FALSE, echo=FALSE, eval=TRUE}
+if(presim_loaded){
+  nca_summary = presim$sd$nca_summary
+}
+```
+
+```{r echo=FALSE, fig.align="center", eval=TRUE}
 rhandsontable(nca_summary,  width=500, height=200)
 ```
 
@@ -254,7 +296,7 @@ For each dose a summary slide will be produced and a full timecourse will be cre
 
 Below shows the slides generated for an individual subject and the first set of summary slides for the analysis. Notice that because ``extrap_C0`` was set to ``FALSE`` C0 was not calculated (-1). Because this individual received a SC dose the estimate for ``Vp`` is also not calcualted (-1). Also note that the data for this inidivudal did not allow for extrapolation of AUC to infinity (``NA``). As a result the parameters that depend this value also resulted in (``NA``). The timecourse figure shows the data in the dataset (grey closed symbols, solid line) and the data used for NCA (green open symbols, dashed line). This way you can visually confirm at the subject level what data was used. 
 
-![Reporting for single dose NCA](nca_reporting-sd.png){width=100%} 
+![Reporting for single dose NCA](nca_reporting-sd.png){width=80%} 
 
 ## Multiple Dose Data
 This example follows the script ``analysis_nca_md.R``, and uses the dataset ``pk_all_md.csv``.   If we rebuild the system and load the multiple dose dataset we can see that the dataset looks almost identical to the single dose data set. The primary difference is that there are two extra columns: ``NTIME_HR`` and ``EXTRAP``. The first column (``NTIME_HR``) contains the time since the last dose. The ``EXTRAP`` column is optional and allows the user to specify the number of points to back extrapolate C0 for ``iv bolus`` dosing. This will have no effect unless it is specified in the ``dsmap`` below. If you scroll through the data you can see that there is intensive sampling for ``DOSENUM`` 1 and 6. But for doses 2-5 there are only three samples per interval. These latter dose intervals (2-5) will be ignored with the default value of ``NCA_min`` (4) which defines the minimum number of saples required for analysis.
@@ -264,8 +306,8 @@ cfg = system_load_data(cfg, dsname     = "PKDATA",
                             data_file  = "pk_all_md.csv")
 ```
 
-```{r echo=FALSE, fig.align="center"}
-rhandsontable(cfg$data$PKDATA$values, width=800, height=200)
+```{r echo=FALSE, fig.align="center", eval=TRUE}
+rhandsontable(read.csv(system.file("ubinc", "csv", "pk_all_md.csv" , package="ubiquity")), width=500, height=200)
 ```
 
 Next we perform the NCA and reporting as before. The only difference here is that we've removed the ``extrap_C0`` option. The default value is ``TRUE`` so back-extrapolation will occur. For IV dosing this is log-linear extrapolation to a nominal time of zero. For SC dosing this will be 0 for the first dose and the last observation from the last dosing interval for subsequent dosing. 
@@ -305,14 +347,25 @@ system_report_save(cfg, output_file=file.path("output", "pk_multiple_dose-report
 
 The same files are generated with the ``pk_multiple_dose`` prefix in the out ``output`` folder. The summary can be seen here:
 
-```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE, fig.width=8, fig.height=4}
+```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE}
 nca_summary = read.csv(file.path("output", "pk_multiple_dose-nca_summary-pknca.csv"))
+presim$md$nca_summary = nca_summary
+```
+
+```{r results="hide", warning=FALSE, echo=FALSE, eval=TRUE}
+if(presim_loaded){
+  nca_summary = presim$md$nca_summary
+}
+```
+
+```{r echo=FALSE, fig.align="center", eval=TRUE}
 rhandsontable(nca_summary,  width=500, height=200)
 ```
 
+
 Below you can see the report slides for two subjects. The first subject was dosed IV. Again the grey markers/solid line show the full timecourse for that subject from the dataset. The data used for NCA (dose 1 and 6) is shown in green. The solid orange marker shows the extrapolated C0. If you look closely the open orange markers show the data points used for extraplation conneced with an orange dashed line. The second subject was given SC doses. For the first dose the extraplated C0 was zero. This can be seen by the green dashed line extendeding down to zero. The C0 for dose 6 is simply the last observation carried forward as shown by the solid orange marker. 
 
-![Reporting for multiple dose NCA](nca_reporting-md.png){width=100%} 
+![Reporting for multiple dose NCA](nca_reporting-md.png){width=80%} 
 
 ## Sparse Sampling
 
@@ -324,9 +377,8 @@ cfg = system_load_data(cfg, dsname     = "PKDATA",
                             data_file  = "pk_sparse_sd.csv")
 ```
 
-
-```{r echo=FALSE, fig.align="center"}
-rhandsontable(cfg$data$PKDATA$values, width=500, height=200)
+```{r echo=FALSE, fig.align="center", eval=TRUE}
+rhandsontable(read.csv(system.file("ubinc", "csv", "pk_sparse_sd.csv" , package="ubiquity")), width=500, height=200)
 ```
 
 When we run the NCA we need to tell the function that we want to perform a sparse analysis. This is done by setting the ``sparse`` input to ``TRUE``. We also need to provide information on how to group cohorts. This is done by providing a ``SPARSEGROUP`` option in the ``dsmap``. In this case we can just use the ``DOSE`` column, however a different column could have been used. 
@@ -374,11 +426,26 @@ Analysis of sparse data will calculate an average concentration at each time poi
 
 ```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE}
 nca_summary = read.csv(file.path("output", "pk_sparse-nca_summary-pknca.csv"))
+presim$sparse$nca_summary = nca_summary
+```
+
+```{r results="hide", warning=FALSE, echo=FALSE, eval=TRUE}
+if(presim_loaded){
+  nca_summary = presim$sparse$nca_summary
+}
+```
+
+```{r echo=FALSE, fig.align="center", eval=TRUE}
 rhandsontable(nca_summary,  height=150, width=500)
+```
+
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+save(presim, file="NCA_presim.RData")
 ```
 
 To confirm what was done and identify any outliers that may be causing problems,  you can use the report output. Again the grey markers show the data, the green dashed line will show the value used for NCA, and the orange will show the C0 estimate. 
 
-![Reporting for sparse sampling NCA](nca_reporting-sparse.png){width=100%} 
+![Reporting for sparse sampling NCA](nca_reporting-sparse.png){width=80%} 
 
 [^1]: analysis names must start with a letter and containing only letters, numbers, and _

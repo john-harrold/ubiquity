@@ -21,10 +21,6 @@ require(rhandsontable)
 
 # The presim variable will contain presimualted data when eval is set to true
 presim_loaded = FALSE
-if(file.exists("Titration_presim.RData")){
-  load("Titration_presim.RData")
-  presim_loaded = TRUE
-}
 ```
 
 ```{r echo=FALSE, results=FALSE}
@@ -32,6 +28,12 @@ if(file.exists("Titration_presim.RData")){
   if(file.exists("Titration_presim.RData")){
     file.remove("Titration_presim.RData")
   }
+```
+```{r echo=FALSE, results=FALSE, eval=TRUE}
+if(file.exists("Titration_presim.RData")){
+  load("Titration_presim.RData")
+  presim_loaded = TRUE
+}
 ```
 
 ## Introduction
@@ -273,13 +275,13 @@ print(myfig)
 Initially the concentration in the serum is 0 (``Cc < 900``), so dosing starts at 700. After six months the titration rule is triggered again. At this point the serum concentration is greater greater than 900 so the dose level is reduced to 600. All subsequent measurements are greater than 900 so the dose remains at 600.
 
 *Titration output: som_tt$titration*
-```{r echo=FALSE}
-rhandsontable(som_tt$titration, width=600, height=300)
+```{r echo=FALSE, fig.align="center", eval=TRUE}
+rhandsontable(som_tt$titration, width=550)
 ```
 
 *Titration output: som_tt$titration_history*
-```{r echo=FALSE}
-rhandsontable(som_tt$titration_history, width=600)
+```{r echo=FALSE, fig.align="center", eval=TRUE}
+rhandsontable(som_tt$titration_history, width=550)
 ```
 
 ## Monte Carlo Simulations (``analysis_visit_dosing_titration_stochastic.r``)
@@ -326,7 +328,7 @@ sdf = som_to_df(cfg, som)
 ```
 
 
-```{r echo=FALSE}
+```{r echo=FALSE, eval=TRUE}
 rhandsontable(sdf, width=600, height=300)
 ```
 

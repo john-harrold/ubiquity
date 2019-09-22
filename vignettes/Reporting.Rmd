@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=FALSE )
 require(ubiquity)
 require(deSolve)
 require(ggplot2)
@@ -38,7 +38,7 @@ Reporting is implemented using the ``officer`` package. Officer provides a lot o
 
 The workshop (http://workshop.ubiquity.grok.tv) provides an example of how to use these functions. To make a copy of an example script run the following:
 
-```{r eval=TRUE}
+```{r }
 library(ubiquity)
 fr = workshop_fetch(section="Reporting", overwrite=TRUE)
 ```
@@ -51,7 +51,7 @@ This should create the following script
 
 The first step is to initialize a report:
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 system_new(file_name="system.txt", system_file="mab_pk", overwrite = TRUE)
 cfg = build_system(system_file = "system.txt")
 cfg = system_report_init(cfg)
@@ -82,7 +82,7 @@ With the report created we can begin adding slides. There are several diffent sl
 
 First you may want to add a title slide to the presentation:
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 cfg = system_report_slide_title(cfg, 
            title     = "Generating Inline Reports",
            sub_title = "A Working Example")
@@ -90,7 +90,7 @@ cfg = system_report_slide_title(cfg,
 
 Next you may want to add an overview of your analysis. The ``content`` slide provides one placeholder that you can fill with any of the above content types.
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 cfg = system_report_slide_content(cfg, 
            title     = "Single text area",   
            content   = "This vignette provides examples of how to add different types of slide content" )
@@ -98,7 +98,7 @@ cfg = system_report_slide_content(cfg,
 
 The default content type is text, but you may want to add a list. Lists are formatted as vectors with paired elements. The first element contains the indention level and the second element contains the actual text:
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 lcont = c(1, "Top level item", 
           2, "This is a sub bullet",
           2, "This is another sub bullet")
@@ -110,7 +110,7 @@ cfg = system_report_slide_content(cfg,
 
 If you are running simulations and want to dump ``ggplot`` figures to a file, that is pretty easy as well. Here we will simulate a single dose:
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 parameters = system_fetch_parameters(cfg)
 cfg = system_zero_inputs(cfg)
 cfg = system_set_bolus(cfg, state = "At",
@@ -126,7 +126,7 @@ som = run_simulation_ubiquity(parameters, cfg)
 
 Then we can plot the response in ``ggplot``:
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 myfig = ggplot() + 
         geom_line(data=som$simout, aes(x=ts.days,   y=C_ng_ml), color="red")  +
         xlab("Time (days)")+
@@ -137,7 +137,7 @@ myfig = prepare_figure("present", myfig)
 
 Then that figure can be added to a slide:
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 cfg = system_report_slide_content(cfg, 
            title        = "ggplot objects can be inserted directly", 
            content_type = "ggplot",
@@ -146,7 +146,7 @@ cfg = system_report_slide_content(cfg,
 
 You can also pull image content from files as well using the ``imagefile`` content type. 
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 cfg = system_report_slide_content(cfg, 
            title        = "Images can be inserted from files", 
            sub_title    = "But the image should have the same aspect ratio as the placeholder", 
@@ -159,7 +159,7 @@ The benefit of using ``ggplot`` is that it will automatically size the image to 
 
 Tabular data can be include too. The simplest method is to use the ``table`` content type and supply a list with an element named ``table`` containing a data frame with the tabular information you want to display:
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 tcont = list()
 tcont$table = parameters
 cfg = system_report_slide_content(cfg, 
@@ -170,7 +170,7 @@ cfg = system_report_slide_content(cfg,
 
 This may not be the most attractive way to display tabular information, and for smaller tables it may be a bit poorly formatted. As an alternative the ``flextable`` package can be used by specifying that content type:
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 tcont = list()
 tcont$table = parameters
 cfg = system_report_slide_content(cfg, 
@@ -181,7 +181,7 @@ cfg = system_report_slide_content(cfg,
 
 To provide a little more formatting, two column masters are provides. The ``content_type`` argument indicates the type of text that can be included. It  should be either ``"list"`` or ``"text"``. If the left or right content is to contain a table or figure it can be overwritten. 
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 cfg = system_report_slide_two_col(cfg,
        title                  = "Two columns of lists",      
        sub_title              = NULL, 
@@ -193,7 +193,7 @@ cfg = system_report_slide_two_col(cfg,
 
 You can specify column headers if you like. These be ``text``, ``imagefile``, ``ggplot``, ``table`` or ``flextable``.
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 cfg = system_report_slide_two_col(cfg,
        title                  = "ggplot vs imagefile",      
        sub_title              = NULL, 
@@ -210,7 +210,7 @@ cfg = system_report_slide_two_col(cfg,
 ## Saving slides 
 
 Finally, after you have added all of your sldies, you will want to put them in a file:
-```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+```{r results="hide", message=FALSE, warning=FALSE}
 system_report_save(cfg, output_file = "report_vignette.pptx")
 ```
 
