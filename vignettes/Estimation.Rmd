@@ -243,7 +243,7 @@ When called, ``system_plot_cohorts`` will write ``png`` and ``pdf`` output for t
 * output/parent_d1030_obs_pred_Parent.pdf 
 * output/parent_d1030_obs_pred_Parent.png 
 
-```{r fig.width=7, fig.height=4, echo=FALSE}
+```{r echo=FALSE}
 # Creating a reduced form of the estimation output to save it and use less disk space
 estout = list()
 estout$tc =  plinfo$timecourse$Parent

@@ -9,8 +9,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=TRUE)
+```{r setup, include=FALSE, eval=TRUE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=FALSE)
 require(ubiquity)
 require(deSolve)
 require(ggplot2)
@@ -18,6 +18,20 @@ require(foreach)
 require(doParallel)
 require(doRNG)
 require(rhandsontable)
+
+# The presim variable will contain presimualted data when eval is set to true
+presim_loaded = FALSE
+if(file.exists("Titration_presim.RData")){
+  load("Titration_presim.RData")
+  presim_loaded = TRUE
+}
+```
+
+```{r echo=FALSE, results=FALSE}
+  presim= list()
+  if(file.exists("Titration_presim.RData")){
+    file.remove("Titration_presim.RData")
+  }
 ```
 
 ## Introduction
@@ -92,8 +106,24 @@ Next we simulate the system using the titration function:
 ```{r results="hide", message=FALSE}
 som_tt = run_simulation_titrate(parameters, cfg)
 ```
+
+```{r results="hide", warning=FALSE, echo=FALSE}
+# When eval is set to TRUE we save the presimulated results
+presim$bolus$som_tt$simout  = data.frame(ts.days = som_tt$simout$ts.days, 
+                                         Cc      = som_tt$simout$Cc)
+presim$bolus$som_fix$simout = data.frame(ts.days = som_fix$simout$ts.days, 
+                                         Cc      = som_fix$simout$Cc)
+```
+
+```{r results="hide", warning=FALSE, echo=FALSE, eval=TRUE}
+if(presim_loaded){
+  som_tt  = presim$bolus$som_tt
+  som_fix = presim$bolus$som_fix
+}
+```
+
 Now we can overlay the predictions using both methods to show that they produce the same result:
-```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3}
+```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3, eval=TRUE}
  myfig = ggplot() + 
          geom_line(data=som_fix$simout, aes(x=ts.days,   y=Cc, color="Fixed Dosing"), linetype=1) +
          geom_line(data=som_tt$simout,  aes(x=ts.days,   y=Cc, color="Titration"   ), linetype=2)  +
@@ -155,7 +185,22 @@ cfg=system_set_tt_cond(cfg,
 som_tt = run_simulation_titrate(parameters, cfg)
 ```
 
-```{r warning=FALSE, message=FALSE}
+```{r results="hide", warning=FALSE, echo=FALSE}
+# When eval is set to TRUE we save the presimulated results
+presim$infusion$som_tt$simout  = data.frame(ts.days = som_tt$simout$ts.days, 
+                                            Cc      = som_tt$simout$Cc)      
+presim$infusion$som_fix$simout = data.frame(ts.days = som_fix$simout$ts.days, 
+                                            Cc      = som_fix$simout$Cc)
+```
+
+```{r results="hide", warning=FALSE, echo=FALSE, eval=TRUE}
+if(presim_loaded){
+  som_tt  = presim$infusion$som_tt
+  som_fix = presim$infusion$som_fix
+}
+```
+
+```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3, eval=TRUE}
  myfig = ggplot() + 
          geom_line(data=som_fix$simout, aes(x=ts.days,   y=Cc, color="Fixed Dosing"), linetype=1) +
          geom_line(data=som_tt$simout,  aes(x=ts.days,   y=Cc, color="Titration"   ), linetype=2)  +
@@ -204,7 +249,22 @@ cfg=system_set_tt_cond(cfg,
 
 som_tt = run_simulation_titrate(parameters, cfg)
 ```
-```{r warning=FALSE, message=FALSE}
+
+```{r results="hide", warning=FALSE, echo=FALSE}
+# When eval is set to TRUE we save the presimulated results
+presim$visit$som_tt$simout  = data.frame(ts.days  = som_tt$simout$ts.days, 
+                                         ts.weeks = som_tt$simout$ts.weeks,
+                                         Cc       = som_tt$simout$Cc)      
+presim$visit$som_tt$titration         = som_tt$titration[1:100,]
+presim$visit$som_tt$titration_history = som_tt$titration_history
+```
+
+```{r results="hide", warning=FALSE, echo=FALSE, eval=TRUE}
+if(presim_loaded){
+  som_tt  = presim$visit$som_tt
+}
+```
+```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3, eval=TRUE}
 myfig = ggplot() + 
         geom_line(data=som_tt$simout, aes(x=ts.weeks,   y=Cc), color="blue")  
 myfig = prepare_figure('present', myfig) 
@@ -231,6 +291,20 @@ This example is similar to the last except here we are performing population sim
 cfg = system_set_option(cfg, group="stochastic", option="nsub",    value=20)
 som= simulate_subjects(parameters, cfg)
 ```
+```{r results="hide", warning=FALSE, echo=FALSE}
+# When eval is set to TRUE we save the presimulated results
+sdf = som_to_df(cfg, som)
+sdf = sdf[1:100,]
+#presim$visit$som  = som
+presim$visit$sdf  = sdf
+```
+
+```{r results="hide", warning=FALSE, echo=FALSE, eval=TRUE}
+if(presim_loaded){
+  #som = presim$visit$som       
+  sdf = presim$visit$sdf
+}
+```
 
 This will add a data a list element called ``som$titration`` with three fields for
 each titration rule (``tname``):
@@ -247,12 +321,13 @@ Each of these fields is a matrix with an entry for each simulation time (column)
 * *``som$titration$tt.ivdose.timescaletimescale``*  
 
 This data structure (``som``) can be collapsed down to a data frame using the ``som_to_df`` function. With titration simulations a column is added for each rule giving the value of that rule at the indicated time (the first 100 rows are shown):
-```{r message=FALSE, results=FALSE}
+```{r message=FALSE, results=FALSE, eval=FALSE}
 sdf = som_to_df(cfg, som)
 ```
 
+
 ```{r echo=FALSE}
-rhandsontable(sdf[1:100,], width=600, height=300)
+rhandsontable(sdf, width=600, height=300)
 ```
 
 ## Performing State/Compartment Resets (``analysis_state_reset.r``)
@@ -304,12 +379,28 @@ cfg=system_set_tt_cond(cfg,
                        value      = "0")                              
 som_tt = run_simulation_titrate(parameters, cfg)
 ```
+
+```{r results="hide", warning=FALSE, echo=FALSE}
+# When eval is set to TRUE we save the presimulated results
+presim$state$som_tt$simout  = data.frame(ts.weeks = som_tt$simout$ts.weeks,
+                                         Cc       = som_tt$simout$Cc)
+```
+
+```{r results="hide", warning=FALSE, echo=FALSE, eval=TRUE}
+if(presim_loaded){
+  som_tt  = presim$state$som_tt
+}
+```
                            
-```{r warning=FALSE, message=FALSE}
+```{r warning=FALSE, message=FALSE, fig.width=7, fig.height=3, eval=TRUE}
 myfig = ggplot() +
         geom_line(data=som_tt$simout, aes(x=ts.weeks,   y=Cc), color="red")  
 myfig = prepare_figure('present', myfig) 
 print(myfig)
+```
+
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+save(presim, file="Titration_presim.RData")
 ```
 
 ## Contents of ``system.txt``
