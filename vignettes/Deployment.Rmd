@@ -51,7 +51,7 @@ Next simply open ``ubiquity_app.R`` in RStudio and source it, and RStudio will o
 
 After starting  the App will load the default dosing from the \verb|system.txt| file and run the model. The first model output will be plotted. And as you make changes to the App, those changes will be reflected in the user log at the bottom of the screen. You can change the outputs being plotted, the axis limits, and other aspects of the plot using the plot controls below the figure. 
 
-![ShinyApp interface after initialization](ShinyApp-ss-Initialization.png){width=100%} 
+![ShinyApp interface after initialization](ShinyApp-ss-Initialization.png){width=80%} 
 
 The intent is to provide a quick method to get the model up and running with default behaviors that will provide for most of what users will need. The behavior of the ShinyApp can be further customized (described below). First we will discuss the default interface:
 
@@ -76,7 +76,7 @@ If the variability for system parameters has been specified (``<IIV:?>?`` and ``
 
 When you select "Update Plot", each selected output will be plotted (mean -- solid line, selected confidence interval -- shaded region).
 
-![Population timecourse](ShinyApp-ss-Pop_timecourse.png){width=100%}
+![Population timecourse](ShinyApp-ss-Pop_timecourse.png){width=80%}
 
 ##Saving model results   
 
