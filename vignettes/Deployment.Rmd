@@ -45,7 +45,7 @@ This should create the following three files:
 * ``server.R`` - Server script
 * ``ui.R``- UI script
 
-##Running the model
+## Running the model
 
 Next simply open ``ubiquity_app.R`` in RStudio and source it, and RStudio will open in a window associated with that application. The ShinyApp tends to work better when run within a browser. 
 
@@ -55,7 +55,7 @@ After starting  the App will load the default dosing from the \verb|system.txt| 
 
 The intent is to provide a quick method to get the model up and running with default behaviors that will provide for most of what users will need. The behavior of the ShinyApp can be further customized (described below). First we will discuss the default interface:
 
-###Altering dosing  
+### Altering dosing  
 
 A list of bolus times and values can be specified as comma-separated values. To dose in a repeated fashion check the ``Repeat the last dose'' box, provide a dosing interval (in the same units as the dosing times), and give the number of doses to administer. The example here will repeat the 400 mg dose every two weeks for two doses.
 
@@ -68,7 +68,7 @@ Rates of infusion are specified as a set of switching times and corresponding in
 
 
 
-###Population simulations
+### Population simulations
 
 If the variability for system parameters has been specified (``<IIV:?>?`` and ``<IIVCOR:?>?``) then a  "Variability" tab  will be visible. Simply check the "Simulate with variability" box, alter the number of subjects, prediction interval, and elements of the variance-covariance matrix to simulate the desired population response.  
 
@@ -78,7 +78,7 @@ When you select "Update Plot", each selected output will be plotted (mean -- sol
 
 ![Population timecourse](ShinyApp-ss-Pop_timecourse.png){width=80%}
 
-##Saving model results   
+## Saving model results   
 
 ![Saving an analysis](ShinyApp-ss-Save.png){width=60%}
 
@@ -114,9 +114,9 @@ cfg$gui$save$system_txt = TRUE
 cfg$gui$save$user_log   = TRUE
 ```
 
-##Model documentation 
+## Model documentation 
 
-###Model diagram
+### Model diagram
 
 It can be difficult for a user to look at a set of parameters, dosing inputs, and outputs and determine how a model works. To aid the user it can be useful to create a model diagram. To utilize the majority of the screen space, the image should be roughly twice as wide as it is tall.
 
@@ -128,7 +128,7 @@ system_fetch_template(cfg, template="Model Diagram")
 
 it will create the file ``system.svg``. You can edit it and save it as a portable network graphics (png) file named ``system.png`` in the directory with the ``ubiquity_app.R`` file. When you start the ShinyApp it should find that file and create a tab in the plotting area of the App.
 
-###Model reports
+### Model reports
 
 Sometimes you need more detail than an annotated model diagram. Or you may need to perform some calculations based on the results of a simulation. It may be better to present information in a tabulated format. For these scenarios you can create an RMarkdown file.  Create a copy the report template (``system_report.Rmd``) and a script to test it (``test_system_report.r``):
 
@@ -176,7 +176,7 @@ cfg$gui$modelreport_files$R1$file  = "system_report.html"
 
 This will tell the App to read in the html, prevent rendering the report, and speed things up for the user.
 
-##User definable functions
+## User definable functions
 
 To customize the simulation and plotting within the ShinyApp it is necessary to create custom functions. These need to be placed in a file. For example these could be placed in ``mylibs.r`` in the main template directory. Lastly, you need to tell the ShinyApp to load this file. You need to  edit ``ubiquity_app.R`` and add the following line:
 
@@ -184,7 +184,7 @@ To customize the simulation and plotting within the ShinyApp it is necessary to 
 cfg$gui$functions$user_def = 'mylibs.r'
 ```
 
-###Custom simulation commands
+### Custom simulation commands
 By default the ShinyApp will run simulations using ``run_simulation_ubiquity`` (individual) or ``simulate_subjects`` (population). These take as inputs the ``parameters`` vector containing the current parameter set with any changes made through the interface and ``cfg`` data structure. You can create your own functions and overwrite these by defining the following:
 
 
@@ -201,7 +201,7 @@ cfg$gui$functions$sim_var = 'function_name(parameters, cfg)'
 ```
 Note that in order to use the default plotting functionality these functions need to return values in the same format as the default functions for individual (``run_simulation_ubiquity``) and population (``simulate_subjects``) simulations.
 
-###Custom plotting commands
+### Custom plotting commands
 
 To customize the plotting output you need to create functions that can utilize 
 the simulation output ``som``. For individual and population simulations
