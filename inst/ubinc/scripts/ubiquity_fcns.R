@@ -10019,8 +10019,6 @@ system_nca_run = function(cfg,
       for(cn in names(dsfilter)){
         DS = DS[DS[[cn]] %in% dsfilter[[cn]], ]
       }
-
-
     }
   } else {
     isgood = FALSE
@@ -10385,111 +10383,136 @@ system_nca_run = function(cfg,
 
           time_start = min(NCA_CONCDS$NTIME) 
           time_stop  = max(NCA_CONCDS$NTIME)
-          # Removing negative concentration values that may result from the
-          # residual correction
-          #NCA_CONCDS = NCA_CONCDS[NCA_CONCDS$CONC > 0, ]
-
-          NCA.conc = PKNCA::PKNCAconc(NCA_CONCDS, CONC~NTIME|ID)
-          NCA.dose = PKNCA::PKNCAdose(NCA_DOSEDS, DOSE~NTIME|ID)
-          NCA.data = PKNCA::PKNCAdata(data.conc = NCA.conc,
-                                      data.dose = NCA.dose,
-                                      intervals = data.frame(start       = time_start,
-                                                             end         = time_stop,
-                                                             half.life   = TRUE,
-                                                             aucall      = TRUE,
-                                                             auclast     = TRUE,
-                                                             cmax        = TRUE, 
-                                                             vss.obs     = TRUE,
-                                                             vss.pred    = TRUE,
-                                                             cl.pred     = TRUE,
-                                                             cl.obs      = TRUE,
-                                                             aucinf.pred = TRUE,
-                                                             aucinf.obs  = TRUE))
-          NCA.res =  PKNCA::pk.nca(NCA.data)
-
-          # Rounding the NCA results:
-          if(!is.null(digits)){
-            NCA.res$result$PPORRES =  signif(NCA.res$result$PPORRES, digits)
+         
+         #tryCatch(
+         # { 
+         #  NCA.conc = PKNCA::PKNCAconc(NCA_CONCDS, CONC~NTIME|ID)
+         # },
+         #  error = function(e) {
+         #  browser()
+         # })
+         #
+          # Checking for duplicated times
+          if(any(duplicated(NCA_CONCDS$NTIME))){
+            vp(cfg, paste(ID_label, ": >", sub, "< Dose ", dosenum, " the following time values were repeated", sep="")) 
+            vp(cfg, paste("NTIME: ", unique(NCA_CONCDS[duplicated(NCA_CONCDS$NTIME), ]$NTIME), " (nominal time, ", dsmap$NTIME, " in the dataset)", sep=""))
+            vp(cfg, paste("TIME:  ", unique(NCA_CONCDS[duplicated(NCA_CONCDS$NTIME), ]$NTIME), " (actual time, ",   dsmap$TIME, " in the dataset)", sep=""))
+            vp(cfg, "This can happen when:")
+            vp(cfg, "  - If you are using back extrapolation to time zero and you have data at time zero")
+            vp(cfg, "  - If you have mulitple analytes measured at the same time points. You can use the dsfilter to run NCA on these analytes separately.")
+            # Skipping the subject/dose number
+            PROC_SUBDN = FALSE
           }
 
-          tmpsum$halflife      =  NCA.res$result[NCA.res$result$PPTESTCD == "half.life",   ]$PPORRES
-          tmpsum$Vp_obs        =  Vp_obs
-          tmpsum$Vss_obs       =  NCA.res$result[NCA.res$result$PPTESTCD == "vss.obs",     ]$PPORRES
-          tmpsum$Vss_pred      =  NCA.res$result[NCA.res$result$PPTESTCD == "vss.pred",    ]$PPORRES
-          tmpsum$CL_obs        =  NCA.res$result[NCA.res$result$PPTESTCD == "cl.obs",      ]$PPORRES
-          tmpsum$CL_pred       =  NCA.res$result[NCA.res$result$PPTESTCD == "cl.pred",     ]$PPORRES  
-          tmpsum$AUClast       =  NCA.res$result[NCA.res$result$PPTESTCD == "auclast",     ]$PPORRES
-          tmpsum$AUCinf_pred   =  NCA.res$result[NCA.res$result$PPTESTCD == "aucinf.pred", ]$PPORRES
-          tmpsum$AUCinf_obs    =  NCA.res$result[NCA.res$result$PPTESTCD == "aucinf.obs",  ]$PPORRES
+          # sub dosenum
 
-          # Storing the raw results
-          PKNCA_raw_tmp         = NCA.res$result
-          PKNCA_raw_tmp$sub     = sub
-          PKNCA_raw_tmp$dosenum = dosenum
 
-          if(is.null(PKNCA_raw_all)){
-             PKNCA_raw_all = PKNCA_raw_tmp
-          } else {
-             PKNCA_raw_all = rbind(PKNCA_raw_all,  PKNCA_raw_tmp)
+          if(PROC_SUBDN){
+            NCA.conc = PKNCA::PKNCAconc(NCA_CONCDS, CONC~NTIME|ID)
+            NCA.dose = PKNCA::PKNCAdose(NCA_DOSEDS, DOSE~NTIME|ID)
+            NCA.data = PKNCA::PKNCAdata(data.conc = NCA.conc,
+                                        data.dose = NCA.dose,
+                                        intervals = data.frame(start       = time_start,
+                                                               end         = time_stop,
+                                                               half.life   = TRUE,
+                                                               aucall      = TRUE,
+                                                               auclast     = TRUE,
+                                                               cmax        = TRUE, 
+                                                               vss.obs     = TRUE,
+                                                               vss.pred    = TRUE,
+                                                               cl.pred     = TRUE,
+                                                               cl.obs      = TRUE,
+                                                               aucinf.pred = TRUE,
+                                                               aucinf.obs  = TRUE))
+            NCA.res =  PKNCA::pk.nca(NCA.data)
+            
+            # Rounding the NCA results:
+            if(!is.null(digits)){
+              NCA.res$result$PPORRES =  signif(NCA.res$result$PPORRES, digits)
+            }
+            
+            tmpsum$halflife      =  NCA.res$result[NCA.res$result$PPTESTCD == "half.life",   ]$PPORRES
+            tmpsum$Vp_obs        =  Vp_obs
+            tmpsum$Vss_obs       =  NCA.res$result[NCA.res$result$PPTESTCD == "vss.obs",     ]$PPORRES
+            tmpsum$Vss_pred      =  NCA.res$result[NCA.res$result$PPTESTCD == "vss.pred",    ]$PPORRES
+            tmpsum$CL_obs        =  NCA.res$result[NCA.res$result$PPTESTCD == "cl.obs",      ]$PPORRES
+            tmpsum$CL_pred       =  NCA.res$result[NCA.res$result$PPTESTCD == "cl.pred",     ]$PPORRES  
+            tmpsum$AUClast       =  NCA.res$result[NCA.res$result$PPTESTCD == "auclast",     ]$PPORRES
+            tmpsum$AUCinf_pred   =  NCA.res$result[NCA.res$result$PPTESTCD == "aucinf.pred", ]$PPORRES
+            tmpsum$AUCinf_obs    =  NCA.res$result[NCA.res$result$PPTESTCD == "aucinf.obs",  ]$PPORRES
+            
+            # Storing the raw results
+            PKNCA_raw_tmp         = NCA.res$result
+            PKNCA_raw_tmp$sub     = sub
+            PKNCA_raw_tmp$dosenum = dosenum
+            
+            if(is.null(PKNCA_raw_all)){
+               PKNCA_raw_all = PKNCA_raw_tmp
+            } else {
+               PKNCA_raw_all = rbind(PKNCA_raw_all,  PKNCA_raw_tmp)
+            }
+            
+            # Summarizing everything for the current subject/dose to be used in
+            # report generation later
+            lctmp = c(1, paste("Number of observations:"   , var2string(tmpsum$Nobs       , nsig_e=2, nsig_f=0) ),
+                      1, paste("Dose: "                    , var2string(tmpsum$Dose       , nsig_e=2, nsig_f=2) ), 
+                      1, paste("Dose concentration units: ", var2string(tmpsum$Dose_CU    , nsig_e=2, nsig_f=2) ), 
+                      1, paste("Cmax: "                    , var2string(tmpsum$Cmax       , nsig_e=2, nsig_f=2) ), 
+                      1, paste("C0: "                      , var2string(tmpsum$C0         , nsig_e=2, nsig_f=2) ), 
+                      1, paste("Tmax: "                    , var2string(tmpsum$Tmax       , nsig_e=2, nsig_f=2) ), 
+                      1, paste("Halflife: "                , var2string(tmpsum$halflife   , nsig_e=2, nsig_f=2) ),
+                      1, paste("Time interval: "           , toString(time_start), '-', toString(time_stop))) 
+            rctmp = c(1, paste("Vp  (observed):"           , var2string(tmpsum$Vp_obs     , nsig_e=2, nsig_f=2) ),
+                      1, paste("Vss (observed):"           , var2string(tmpsum$Vss_obs    , nsig_e=2, nsig_f=2) ),
+                      1, paste("Vss (predicted):"          , var2string(tmpsum$Vss_pred   , nsig_e=2, nsig_f=2) ), 
+                      1, paste("CL  (observed):"           , var2string(tmpsum$CL_obs     , nsig_e=2, nsig_f=2) ), 
+                      1, paste("CL  (predicted):"          , var2string(tmpsum$CL_pred    , nsig_e=2, nsig_f=2) ), 
+                      1, paste("AUC (0-last):"             , var2string(tmpsum$AUClast    , nsig_e=2, nsig_f=2) ), 
+                      1, paste("AUC (0-inf, predicted):"   , var2string(tmpsum$AUCinf_pred, nsig_e=2, nsig_f=2) ), 
+                      1, paste("AUC (0-inf, observed):"    , var2string(tmpsum$AUCinf_obs , nsig_e=2, nsig_f=2) ))
+            
+            # storing the actual values to be used in the reporting
+            rptobjs[[sub_str]][[dosenum_str]]$dosenum = dosenum
+            rptobjs[[sub_str]][[dosenum_str]]$sub     = sub    
+            rptobjs[[sub_str]][[dosenum_str]]$lc = lctmp
+            rptobjs[[sub_str]][[dosenum_str]]$rc = rctmp
+            
+            tmpsum = as.data.frame(tmpsum)
+            if(is.null(NCA_sum)){
+               NCA_sum = tmpsum
+            } else {
+               NCA_sum = rbind(tmpsum, NCA_sum)
+            }
+            
+            
+            # Overlaying the concentration values used
+            ptmp = eval(parse(text="ptmp + geom_point(data=NCA_CONCDS, aes(x=TIME, y=CONC), shape=1,           color='green')"))
+            ptmp = eval(parse(text="ptmp +  geom_line(data=NCA_CONCDS, aes(x=TIME, y=CONC), linetype='dashed', color='green')"))
+            
+            # Adding extrapolation information
+            if(extrap_C0){
+              # Showing extrapolation points and line:
+              if(!is.null(BACKEXTRAP_TIME) & !is.null(BACKEXTRAP_CONC)){
+                BACKEXTRAP_DF  = data.frame(TIME=c(C0_TIME, BACKEXTRAP_TIME), CONC=c(C0, BACKEXTRAP_CONC))
+                ptmp = eval(parse(text="ptmp + geom_point(data=BACKEXTRAP_DF, aes(x=TIME, y=CONC), shape   =1,      , color='orange')"))
+                ptmp = eval(parse(text="ptmp +  geom_line(data=BACKEXTRAP_DF, aes(x=TIME, y=CONC), linetype='dotted', color='orange')"))
+              } 
+            
+              # Showing C0 with a solid point
+              BACKEXTRAP_DF  = data.frame(TIME=c(C0_TIME), CONC=c(C0))
+              ptmp = eval(parse(text="ptmp + geom_point(data=BACKEXTRAP_DF, aes(x=TIME, y=CONC), shape   =16,      , color='orange')"))
+            
+            }
           }
 
-          # Summarizing everything for the current subject/dose to be used in
-          # report generation later
-          lctmp = c(1, paste("Number of observations:"   , var2string(tmpsum$Nobs       , nsig_e=2, nsig_f=0) ),
-                    1, paste("Dose: "                    , var2string(tmpsum$Dose       , nsig_e=2, nsig_f=2) ), 
-                    1, paste("Dose concentration units: ", var2string(tmpsum$Dose_CU    , nsig_e=2, nsig_f=2) ), 
-                    1, paste("Cmax: "                    , var2string(tmpsum$Cmax       , nsig_e=2, nsig_f=2) ), 
-                    1, paste("C0: "                      , var2string(tmpsum$C0         , nsig_e=2, nsig_f=2) ), 
-                    1, paste("Tmax: "                    , var2string(tmpsum$Tmax       , nsig_e=2, nsig_f=2) ), 
-                    1, paste("Halflife: "                , var2string(tmpsum$halflife   , nsig_e=2, nsig_f=2) ),
-                    1, paste("Time interval: "           , toString(time_start), '-', toString(time_stop))) 
-          rctmp = c(1, paste("Vp  (observed):"           , var2string(tmpsum$Vp_obs     , nsig_e=2, nsig_f=2) ),
-                    1, paste("Vss (observed):"           , var2string(tmpsum$Vss_obs    , nsig_e=2, nsig_f=2) ),
-                    1, paste("Vss (predicted):"          , var2string(tmpsum$Vss_pred   , nsig_e=2, nsig_f=2) ), 
-                    1, paste("CL  (observed):"           , var2string(tmpsum$CL_obs     , nsig_e=2, nsig_f=2) ), 
-                    1, paste("CL  (predicted):"          , var2string(tmpsum$CL_pred    , nsig_e=2, nsig_f=2) ), 
-                    1, paste("AUC (0-last):"             , var2string(tmpsum$AUClast    , nsig_e=2, nsig_f=2) ), 
-                    1, paste("AUC (0-inf, predicted):"   , var2string(tmpsum$AUCinf_pred, nsig_e=2, nsig_f=2) ), 
-                    1, paste("AUC (0-inf, observed):"    , var2string(tmpsum$AUCinf_obs , nsig_e=2, nsig_f=2) ))
-          
-          # storing the actual values to be used in the reporting
-          rptobjs[[sub_str]][[dosenum_str]]$dosenum = dosenum
-          rptobjs[[sub_str]][[dosenum_str]]$sub     = sub    
-          rptobjs[[sub_str]][[dosenum_str]]$lc = lctmp
-          rptobjs[[sub_str]][[dosenum_str]]$rc = rctmp
-          
-          tmpsum = as.data.frame(tmpsum)
-          if(is.null(NCA_sum)){
-             NCA_sum = tmpsum
-          } else {
-             NCA_sum = rbind(tmpsum, NCA_sum)
-          }
-          
-          
-          # Overlaying the concentration values used
-          ptmp = eval(parse(text="ptmp + geom_point(data=NCA_CONCDS, aes(x=TIME, y=CONC), shape=1,           color='green')"))
-          ptmp = eval(parse(text="ptmp +  geom_line(data=NCA_CONCDS, aes(x=TIME, y=CONC), linetype='dashed', color='green')"))
-
-          # Adding extrapolation information
-          if(extrap_C0){
-            # Showing extrapolation points and line:
-            if(!is.null(BACKEXTRAP_TIME) & !is.null(BACKEXTRAP_CONC)){
-              BACKEXTRAP_DF  = data.frame(TIME=c(C0_TIME, BACKEXTRAP_TIME), CONC=c(C0, BACKEXTRAP_CONC))
-              ptmp = eval(parse(text="ptmp + geom_point(data=BACKEXTRAP_DF, aes(x=TIME, y=CONC), shape   =1,      , color='orange')"))
-              ptmp = eval(parse(text="ptmp +  geom_line(data=BACKEXTRAP_DF, aes(x=TIME, y=CONC), linetype='dotted', color='orange')"))
-            } 
-
-            # Showing C0 with a solid point
-            BACKEXTRAP_DF  = data.frame(TIME=c(C0_TIME), CONC=c(C0))
-            ptmp = eval(parse(text="ptmp + geom_point(data=BACKEXTRAP_DF, aes(x=TIME, y=CONC), shape   =16,      , color='orange')"))
-          
-          }
 
 
 
+        } 
 
-        } else {
-          vp(cfg, "    Skipping this subject/dose combination")
+
+        if(!PROC_SUBDN){
+          vp(cfg, "Skipping this subject/dose combination")
         }
       }
 
