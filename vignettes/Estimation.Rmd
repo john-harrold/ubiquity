@@ -10,7 +10,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=FALSE ) 
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=FALSE)
 require(ubiquity)
 require(deSolve)
 require(ggplot2)
@@ -202,6 +202,11 @@ If one of the estimation options are selected for the ``flowctl`` then several f
 * `` output/parent_d1030-parameters_est.csv`` - Summary table with estimated parameters 
 
 Next the system is simulated at the estimate and the data is stored in ``erp``. 
+```{r results="hide", echo=TRUE, warning=FALSE}
+cfg=system_set_option(cfg, group  = "simulation", 
+                           option = "output_times", 
+                           seq(0,100,5))
+```
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
 erp = system_simulate_estimation_results(pest = pest, cfg = cfg) 
@@ -248,20 +253,14 @@ When called, ``system_plot_cohorts`` will write ``png`` and ``pdf`` output for t
 estout = list()
 estout$tc =  plinfo$timecourse$Parent
 estout$op =  plinfo$obs_pred$Parent
-save(estout, file="Estimation_estout.RData")
+ggsave(filename="Estimation-parent-tc.png", plot=estout$tc, height=4, width=7, units="in", dpi=72)
+ggsave(filename="Estimation-parent-op.png", plot=estout$op, height=4, width=7, units="in", dpi=72)
 ```
 
-```{r echo=FALSE, eval=TRUE}
-load("Estimation_estout.RData")
-```
+![Timecourse](Estimation-parent-tc.png){width=80%}
 
-```{r fig.width=7, fig.height=4, echo=FALSE, eval=TRUE}
-estout$tc
-```
+![Observed vs Predicted](Estimation-parent-op.png){width=80%}
 
-```{r fig.width=7, fig.height=4, echo=FALSE, eval=TRUE}
-estout$op
-```
 
 ## Maximum likelihood/two outputs (``analysis_parent_metabolite.r``)
 
