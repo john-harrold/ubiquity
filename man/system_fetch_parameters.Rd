@@ -19,10 +19,15 @@ between parameter sets use \code{\link{system_select_set}}
 \examples{
 \donttest{
 # Creating a system file from the mab_pk example
-system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+fr = system_new(file_name        = "system.txt", 
+                system_file      = "mab_pk", 
+                overwrite        = TRUE, 
+                output_directory = tempdir())
 
 # Building the system 
-cfg = build_system("system_example.txt")
+cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+      output_directory          = file.path(tempdir(), "output"),
+      temporary_directory       = tempdir())
 
 # Fetching the default parameter set
 parameters = system_fetch_parameters(cfg)

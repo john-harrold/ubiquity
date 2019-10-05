@@ -34,7 +34,17 @@ etc) about the system.
 \examples{
 # To log and display the current system information:
 \donttest{
-cfg = build_system()
+# Creating a system file from the mab_pk example
+fr = system_new(file_name        = "system.txt", 
+                system_file      = "mab_pk", 
+                overwrite        = TRUE, 
+                output_directory = tempdir())
+
+# Building the system 
+cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+      output_directory          = file.path(tempdir(), "output"),
+      temporary_directory       = tempdir())
+
 vp(cfg, system_view(cfg))
 }
 }

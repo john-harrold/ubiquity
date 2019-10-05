@@ -5,7 +5,7 @@
 \title{Create New \code{system.txt} File}
 \usage{
 system_new(file_name = "system.txt", system_file = "template",
-  overwrite = FALSE)
+  overwrite = FALSE, output_directory = getwd())
 }
 \arguments{
 \item{file_name}{name of the new file to create}
@@ -13,6 +13,8 @@ system_new(file_name = "system.txt", system_file = "template",
 \item{system_file}{name of the system file to copy}
 
 \item{overwrite}{if \code{TRUE} the new system file will overwrite any existing files present}
+
+\item{output_directory}{\code{getwd()} directory where system file will be placed}
 }
 \value{
 \code{TRUE} if the new file was created and \code{FALSE} otherwise
@@ -37,6 +39,9 @@ Copy a blank template (\code{system_file="template"}) file to the working direct
 \examples{
 \donttest{
 # To create an example system file named example_system.txt:
-system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+system_new(system_file      = "mab_pk", 
+           file_name        = "system_example.txt", 
+           overwrite        = TRUE,  
+           output_directory = tempdir())
 }
 }

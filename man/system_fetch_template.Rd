@@ -4,7 +4,8 @@
 \alias{system_fetch_template}
 \title{Create New Template After Building System File}
 \usage{
-system_fetch_template(cfg, template = "Simulation", overwrite = FALSE)
+system_fetch_template(cfg, template = "Simulation", overwrite = FALSE,
+  output_directory = getwd())
 }
 \arguments{
 \item{cfg}{ubiquity system object}
@@ -12,6 +13,8 @@ system_fetch_template(cfg, template = "Simulation", overwrite = FALSE)
 \item{template}{template type}
 
 \item{overwrite}{if \code{TRUE} the new system file will overwrite any existing files present}
+
+\item{output_directory}{directory where workshop files will be placed (getwd())}
 }
 \value{
 List with vectors of template \code{sources}, \code{destinations}
@@ -41,12 +44,19 @@ The template argument can have the following values
 \examples{
 \donttest{
 # Creating a system file from the mab_pk example
-system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+fr = system_new(file_name        = "system.txt", 
+                system_file      = "mab_pk", 
+                overwrite        = TRUE, 
+                output_directory = tempdir())
 
 # Building the system 
-cfg = build_system("system_example.txt")
+cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+      output_directory          = file.path(tempdir(), "output"),
+      temporary_directory       = tempdir())
 
 # Creating a simulation template
-fr =  system_fetch_template(cfg, template="Simulation")
+fr =  system_fetch_template(cfg, 
+      template         = "Simulation", 
+      output_directory = tempdir())
 }
 }

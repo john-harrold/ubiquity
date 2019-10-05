@@ -25,7 +25,7 @@ if("ubiquity" %in% (.packages())){
   ubiquity_distribution = "package"
 }
 
-source(file.path("transient", "auto_rcomponents.R"))
+source(file.path("transient", "app_base", "auto_rcomponents.R"))
 
 #-----------------------------------------
 str2list = function(cfg, str){
@@ -217,7 +217,7 @@ download_simulation = function(input, output, session){
         }
 
         # system specific functions
-        fname_arc_r      = file.path(cfg$gui$wd, "transient", "auto_rcomponents.R")
+        fname_arc_r      = file.path(cfg$gui$wd, "transient", "app_base", "auto_rcomponents.R")
         # export template
         fname_save_r     = file.path(cfg$options$misc$templates, "r_gui_save.R")
         
@@ -2044,7 +2044,7 @@ find_user_dir <- function(session, full=TRUE) {
 
   # returning the full path to the user directory
   if(full){
-    user = file.path(getwd(),"transient", "rgui", user) } 
+    user = file.path(getwd(),"transient", "app_base", "rgui", user) } 
 
   return(user)
 }
@@ -2062,7 +2062,7 @@ initialize_session <- function(session) {
   # cfg variable into it
   dir.create(user_dir)
 
-  file.copy(file.path(getwd(), "transient", "rgui", "gui_state.RData"), file.path(user_dir, "gui_state.RData"))
+  file.copy(file.path(getwd(), "transient", "app_base", "rgui", "gui_state.RData"), file.path(user_dir, "gui_state.RData"))
 
   # loading the cfg variable
   cfg=gui_fetch_cfg(session)
@@ -2084,9 +2084,9 @@ initialize_session <- function(session) {
   # Default to integrating with r scripts
   cfg$options$simulation_options$integrate_with  = "r-file"
   # If the dynamic library exists we try to load it
-  if(file.exists(file.path("transient", paste("r_ode_model", .Platform$dynlib.ext, sep = "")))){
+  if(file.exists(file.path("transient","app_base",  paste("r_ode_model", .Platform$dynlib.ext, sep = "")))){
     GUI_log_entry(cfg, "Found dynamic library attempting to load")
-    dyn.load(file.path("transient", paste("r_ode_model", .Platform$dynlib.ext, sep = ""))) }
+    dyn.load(file.path("transient", "app_base",  paste("r_ode_model", .Platform$dynlib.ext, sep = ""))) }
 
   # If the library has been loaded we switch to C
   if(is.null(getLoadedDLLs()$r_ode_model) == FALSE){

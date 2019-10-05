@@ -94,6 +94,10 @@ MAIN:
     if(exists($ARGV[3])){
       $cfg->{files}->{distribution} = $ARGV[3]; }
 
+    # fifth argument: model prefix
+    if(exists($ARGV[4])){
+      $cfg->{files}->{model_prefix} = $ARGV[4]; }
+
     #
     # making sure the temporary directory is there
     #
@@ -395,6 +399,9 @@ my $cfg;
   # part of a package ("package")
   $cfg->{files}->{distribution}                      = 'stand alone';
 
+  # Prefix use in generated functions an files associated for the R workflow
+  $cfg->{files}->{model_prefix}                      = 'ubiquity_model';
+
   # C files
   $cfg->{files}->{initialize}                        = 'auto_initial_sizes.h';
   $cfg->{files}->{common_block}                      = 'auto_common_block.h';
@@ -670,7 +677,7 @@ sub dump_reserved_words
   $output_file .= '-'x$lengths->{notes};
   $output_file .= "\n";
 
-  open(FH, '>', $cfg->{files}->{reserved_words});
+  open(FH, '>', &catfile( $cfg->{files}->{temp_directory}, $cfg->{files}->{reserved_words}));
   print FH $output_file;
   close(FH);
 
@@ -750,6 +757,7 @@ sub dump_rproject
   $mc->{SYSTEM_FILE}                  = $cfg->{files}->{system};
   $mc->{DISTRIBUTION}                 = $cfg->{files}->{distribution};
   $mc->{TEMP_DIRECTORY}               = $cfg->{files}->{temp_directory};
+  $mc->{MODEL_PREFIX}                 = $cfg->{files}->{model_prefix};
 
   my $md;
   #my $template_driver     = &fetch_rproject_simulation_driver_template();

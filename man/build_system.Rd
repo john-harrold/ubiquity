@@ -6,7 +6,8 @@
 \usage{
 build_system(system_file = "system.txt", distribution = "automatic",
   perlcmd = "perl", output_directory = file.path(".", "output"),
-  verbose = TRUE, debug = TRUE)
+  temporary_directory = file.path(".", "transient"), verbose = TRUE,
+  ubiquity_app = FALSE, debug = TRUE)
 }
 \arguments{
 \item{system_file}{name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt'), if the file does not exist a template will be created and compiled.}
@@ -20,7 +21,11 @@ will use the package. Otherwise, it will assume a \code{"sand alone"} distributi
 
 \item{output_directory}{location to store analysis outputs (\code{file.path(".", "output")})}
 
+\item{temporary_directory}{location to templates and otehr files after building the system (\code{file.path(".", "transient")})}
+
 \item{verbose}{enable verbose messaging   (\code{TRUE})}
+
+\item{ubiquity_app}{set to \code{TRUE} when building the system to be used with the ubiquty App (\code{FALSE})}
 
 \item{debug}{Boolean variable indicating if debugging information should be displayed (\code{TRUE})}
 }
@@ -29,6 +34,12 @@ Builds the specified system file creating the targets for R and other languages 
 }
 \examples{
 \donttest{
-cfg = build_system()
+fr = system_new(file_name        = "system.txt", 
+                system_file      = "mab_pk", 
+                overwrite        = TRUE, 
+                output_directory = tempdir())
+cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+      output_directory          = file.path(tempdir(), "output"),
+      temporary_directory       = tempdir())
 }
 }

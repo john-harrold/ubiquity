@@ -9,6 +9,8 @@ system_fetch_cfg = function(){
 #Creating the cfg variable
 cfg = list();
 
+c_libfile_base = "<MODEL_PREFIX>"
+
 # storing the location of the temporary directory and the distribution type
 cfg$options$misc$temp_directory = '<TEMP_DIRECTORY>'
 cfg$options$misc$distribution   = '<DISTRIBUTION>'
@@ -69,6 +71,7 @@ cfg$parameters$current_set = 'default';
 # misc options
 <FETCH_SYS_MISC>
 
+cfg$options$misc$c_libfile_base   = c_libfile_base
 
 # titration options
 cfg$titration$titrate = FALSE
@@ -87,8 +90,8 @@ cfg$options$simulation_options$integrate_with  = "r-file"
 cfg$options$simulation_options$initial_conditions = NA   
 
 # If the library has been loaded we switch to C
-if(is.null(getLoadedDLLs()$r_ode_model) == FALSE){
-  if(getLoadedDLLs()$r_ode_model[["dynamicLookup"]] == TRUE){
+if(is.null(getLoadedDLLs()[[c_libfile_base]]) == FALSE){
+  if(getLoadedDLLs()[[c_libfile_base]][["dynamicLookup"]] == TRUE){
     cfg$options$simulation_options$integrate_with  = "c-file"
   }
 }
@@ -112,7 +115,7 @@ cfg$options$stochastic$sub_file_sample  = 'with replacement'
 
 # default logging options
 cfg$options$logging$enabled   = TRUE 
-cfg$options$logging$file      = sprintf('transient%subiquity_log.txt', .Platform$file.sep)
+cfg$options$logging$file      = file.path(cfg$options$misc$temp_directory,"ubiquity_log.txt")
 cfg$options$logging$timestamp = TRUE 
 cfg$options$logging$ts_str    = "%Y-%m-%d %H:%M:%S"
 cfg$options$logging$debug     = FALSE

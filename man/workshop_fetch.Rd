@@ -4,12 +4,15 @@
 \alias{workshop_fetch}
 \title{Fetch Ubiquity Workshop Sections}
 \usage{
-workshop_fetch(section = "Simulation", overwrite = FALSE)
+workshop_fetch(section = "Simulation", overwrite = FALSE,
+  output_directory = getwd())
 }
 \arguments{
-\item{section}{Name of the section of workshop to retrieve}
+\item{section}{Name of the section of workshop to retrieve  ("Simulation")}
 
 \item{overwrite}{if \code{TRUE} the new system file will overwrite any existing files present}
+
+\item{output_directory}{directory where workshop files will be placed (getwd())}
 }
 \value{
 list
@@ -23,6 +26,6 @@ Valid sections are "Simulation", "Estimation", "Titration" "Reporting", and "NCA
 }
 \examples{
 \donttest{
-workshop_fetch("Estimation")
+workshop_fetch("Estimation", output_directory=tempdir(), overwrite=TRUE)
 }
 }

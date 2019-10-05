@@ -19,7 +19,7 @@ if(deploying){
 
 
 # Rebuilding the system (R scripts and compiling C code)
-cfg = build_system()
+cfg = build_system(ubiquity_app=TRUE)
 
 
 # Start Default:

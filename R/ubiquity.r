@@ -13,6 +13,7 @@
 #'@import rmarkdown
 #'@import rhandsontable
 #'@import rstudioapi
+#'@importFrom digest digest
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
@@ -33,21 +34,56 @@
 #' will use the package. Otherwise, it will assume a \code{"sand alone"} distribution.
 #'@param perlcmd system command to run perl ("perl")
 #'@param output_directory location to store analysis outputs (\code{file.path(".", "output")})
+#'@param temporary_directory location to templates and otehr files after building the system (\code{file.path(".", "transient")})
 #'@param verbose enable verbose messaging   (\code{TRUE})
+#'@param ubiquity_app set to \code{TRUE} when building the system to be used with the ubiquty App (\code{FALSE})
 #'@param debug Boolean variable indicating if debugging information should be displayed (\code{TRUE})
 #'@examples
 #' \donttest{
-#' cfg = build_system()
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'}
-build_system <- function(system_file       = "system.txt",
-                         distribution      = "automatic",
-                         perlcmd           = "perl",
-                         output_directory  = file.path(".", "output"),
-                         verbose           =  TRUE,
-                         debug             =  TRUE){
+build_system <- function(system_file          = "system.txt",
+                         distribution         = "automatic",
+                         perlcmd              = "perl",
+                         output_directory     = file.path(".", "output"),
+                         temporary_directory  = file.path(".", "transient"),
+                         verbose              =  TRUE,
+                         ubiquity_app         =  FALSE,
+                         debug                =  TRUE){
 
+# If we cannot find a system file we create an empty one 
+if(!file.exists(system_file)){
+  message(paste("#> Unable to find system file >",system_file, "<", sep=""))
+  message("#> --------------------------")
+  message("#> Creating an empty template")
+  message("#> --------------------------")
+  sys_new_res = system_new(system_file="template", file_name=system_file)
+}
 
  
+# model base file used for the c library
+if(ubiquity_app){
+  system_checksum = "app_base"
+} else {
+  system_checksum = as.character(digest::digest(system_file, algo=c("md5")))
+}
+
+c_libfile_base    =  paste("ubiquity_", system_checksum, sep="")
+c_libfile_base_c  =  paste("ubiquity_", system_checksum, ".c", sep="")
+c_libfile_base_o  =  paste("ubiquity_", system_checksum, ".o", sep="")
+
+temp_directory  = file.path(temporary_directory, system_checksum)
+
+# if the temporary directory does not exist we create it
+if(!dir.exists(temp_directory)){
+  dir.create(temp_directory, recursive=TRUE)
+}
 
 # If the distribution is set to automatic we see if the package is loaded
 # If not we see if the stand alone library file is present, lastly we try to
@@ -67,7 +103,6 @@ if(distribution == "automatic"){
     distribution = "stand alone" }
 }
 
-temp_directory  = file.path(getwd(), "transient")
 
 if(verbose == TRUE){
   message("#> Ubiquity: (https://ubiquity.tools)")
@@ -98,33 +133,15 @@ if(distribution == "package"){
 }
 
 
-# Basic commands:
-# system("cp transient/r_ode_model.c  .")
-# system("R CMD SHLIB r_ode_model.c")
-# dyn.load(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))
-# This will check to see if the library is loaded:
-# getLoadedDLLs()$r_ode_model[["dynamicLookup"]];
-  
-# turning off warnings so we don't get a lot of
-# stuff from the system commands below
-
 cfg = list()
 
-# If we cannot find a system file we create an empty one 
-if(!file.exists(system_file)){
-  message(paste("#> Unable to find system file >",system_file, "<", sep=""))
-  message("#> --------------------------")
-  message("#> Creating an empty template")
-  message("#> --------------------------")
-  sys_new_res = system_new(system_file="template", file_name=system_file)
-}
 
 if(file.exists(system_file)){
   if(verbose == TRUE){
     message(paste("#> Building the system:    ", system_file, sep=""))
   }
   
-  build_command = sprintf('%s "%s" "%s" "%s" "%s" "%s"', perlcmd, build_script_pl, system_file, temp_directory, templates, distribution)
+  build_command = sprintf('%s "%s" "%s" "%s" "%s" "%s" "%s"', perlcmd, build_script_pl, system_file, temp_directory, templates, distribution, c_libfile_base)
   output = system(build_command, intern=TRUE)
   
   # CFILE is used to indicate if we have compiled and loaded the CFILE successfully 
@@ -147,23 +164,23 @@ if(file.exists(system_file)){
   # Cleaning up any older versions of the C file
   #
   # if it's loaded we remove it from memory:
-  if(('r_ode_model' %in% names(getLoadedDLLs()))){
-    dyn.unload(getLoadedDLLs()$r_ode_model[["path"]])}
+  if((c_libfile_base %in% names(getLoadedDLLs()))){
+    dyn.unload(getLoadedDLLs()[[c_libfile_base]][["path"]])
+    }
   
   # making the output directory to store generated information
-  if(!file.exists('output')){
+  if(!file.exists(output_directory)){
     if(verbose == TRUE){
       message("#> Creating output directory")
     }
-    dir.create(output_directory)
+    dir.create(output_directory, recursive=TRUE)
   }
   
   #next we remove any files to make sure we start from scratch
-  if(file.exists(file.path(temp_directory, paste("r_ode_model", .Platform$dynlib.ext, sep = "")))){
-     file.remove(file.path(temp_directory, paste("r_ode_model", .Platform$dynlib.ext, sep = ""))) }
-  if(file.exists(file.path(temp_directory, "r_ode_model.o"))){
-     file.remove(file.path(temp_directory, "r_ode_model.o")) }
-  
+  if(file.exists(file.path(temp_directory, paste(c_libfile_base, .Platform$dynlib.ext, sep = "")))){
+     file.remove(file.path(temp_directory, paste(c_libfile_base, .Platform$dynlib.ext, sep = ""))) }
+  if(file.exists(file.path(temp_directory, c_libfile_base_o))){
+     file.remove(file.path(temp_directory, c_libfile_base_o)) }
   
   # Now we compile the C file
   if(verbose == TRUE){
@@ -174,10 +191,12 @@ if(file.exists(system_file)){
     # changing the working directory to the
     # temp directory to avoid weird issues
     # with spaces in file names and paths
-    mywd = getwd()
-    setwd(temp_directory)
+    # Copying the generated c file to the checksummed base file name
+    file.copy(from =file.path(temp_directory, "r_ode_model.c"), 
+              to   =file.path(temp_directory, c_libfile_base_c), 
+              overwrite=TRUE)
     # Compling the C file
-    output =  system('R CMD SHLIB r_ode_model.c', intern=TRUE) 
+    output =  system(paste('R CMD SHLIB "', file.path(temp_directory, c_libfile_base_c), '"', sep=""), intern=TRUE) 
     if("status" %in% names(attributes(output))){
       if(verbose == TRUE){
         if(debug == TRUE){
@@ -195,12 +214,8 @@ if(file.exists(system_file)){
       # Loading the shared library
       if(verbose == TRUE){
         message("#> Loading the shared C library") }
-      dyn.load(paste("r_ode_model", .Platform$dynlib.ext, sep = ""))
+      dyn.load(file.path(temp_directory, paste(c_libfile_base, .Platform$dynlib.ext, sep = "")))
     }
-    # Returning to the working directory
-    setwd(mywd)
-  
-  
     if(verbose == TRUE){
       message('#> System built, to fetch a new template use the following commands:')
       message('#>   fr = system_fetch_template(cfg, template = "Simulation")')
@@ -208,7 +223,7 @@ if(file.exists(system_file)){
     }
   }else{
     if(verbose == TRUE){
-      message(paste("#> Failed: file", file.path(temp_directory, "r_ode_model.c"), " not found "))
+      message(paste("#> Failed: file", file.path(temp_directory, c_libfile_base_c), " not found "))
     }
     CFILE = FALSE
   }
@@ -219,21 +234,20 @@ if(file.exists(system_file)){
       message("#> following command to debug:          ") 
       message(sprintf("#> system('R CMD SHLIB \"%s%sr_ode_model.c\"')", temp_directory, .Platform$file.sep))
     }
-    
-    }
+  }
   
   # Returning the ubiquity model object:
   if(file.exists(file.path(temp_directory, "auto_rcomponents.R"))){
     source(file.path(temp_directory, "auto_rcomponents.R"))
     eval(parse(text="cfg = system_fetch_cfg()"))
 
-    # Storing the output directory in the cfg variable
-    cfg$options$misc$output_directory = output_directory
+    # storing the output directory
+    cfg$options$misc$output_directory =  output_directory 
   } 
   
-  } else {
+} else {
   message(paste("#> Still unable to find system file >", system_file,"<", sep=""))
-  }
+}
 return(cfg)}
 
 # -------------------------------------------------------------------------
@@ -242,16 +256,19 @@ return(cfg)}
 #'@description With the ubiquity package this function can be used to fetch
 #' example files for different sections of the workshop.
 #'
-#'@param section Name of the section of workshop to retrieve 
+#'@param section Name of the section of workshop to retrieve  ("Simulation")
 #'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
+#'@param output_directory directory where workshop files will be placed (getwd())
 #'@details Valid sections are "Simulation", "Estimation", "Titration" "Reporting", and "NCA"
 #'
 #'@return list
 #'@examples
 #' \donttest{
-#' workshop_fetch("Estimation")
+#' workshop_fetch("Estimation", output_directory=tempdir(), overwrite=TRUE)
 #'}
-workshop_fetch <- function(section="Simulation", overwrite=FALSE){
+workshop_fetch <- function(section          = "Simulation", 
+                           overwrite        = FALSE,
+                           output_directory = getwd()){
   res = list()
   allowed = c("Simulation", "Estimation", "Titration", "Reporting", "Testing", "NCA")
 
@@ -347,7 +364,7 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
       # up an error.
       if(!overwrite){
         for(fidx in 1:length(destinations)){
-          if(file.exists(destinations[fidx])){
+          if(file.exists(file.path(output_directory, destinations[fidx]))){
             write_file[fidx] = FALSE 
           }
         }
@@ -361,11 +378,11 @@ workshop_fetch <- function(section="Simulation", overwrite=FALSE){
       # next we write the files that are TRUE
       for(fidx in 1:length(destinations)){
         if(write_file[fidx]){
-          file.copy(sources[fidx], destinations[fidx], overwrite=TRUE)
-          message(paste("#> Creating file:", destinations[fidx] ))
+          file.copy(sources[fidx], file.path(output_directory, destinations[fidx]), overwrite=TRUE)
+          message(paste("#> Creating file:", file.path(output_directory, destinations[fidx] )))
         } else {
           isgood = FALSE
-          message(paste("#> File:", destinations[fidx], "exists, and was not copied."))
+          message(paste("#> File:", file.path(output_directory, destinations[fidx]), "exists, and was not copied."))
           message(      "#> Set overwrite=TRUE to force this file to be copied.")
         }
       }
@@ -407,21 +424,30 @@ return(res)}
 #'@param file_name name of the new file to create   
 #'@param system_file name of the system file to copy
 #'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
+#'@param output_directory \code{getwd()} directory where system file will be placed
 #'
 #'@return \code{TRUE} if the new file was created and \code{FALSE} otherwise
 #'
 #'@examples
 #' \donttest{
 #' # To create an example system file named example_system.txt:
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#' system_new(system_file      = "mab_pk", 
+#'            file_name        = "system_example.txt", 
+#'            overwrite        = TRUE,  
+#'            output_directory = tempdir())
 #'}
-system_new  <- function(file_name="system.txt", system_file="template", overwrite=FALSE){
+system_new  <- function(file_name        = "system.txt", 
+                        system_file      ="template", 
+                        overwrite        = FALSE,  
+                        output_directory = getwd()){
 
  allowed = c("template",      "mab_pk",         "pbpk",          "pwc", 
              "tmdd",          "adapt",          "one_cmt_micro", "one_cmt_macro",  
              "two_cmt_micro", "two_cmt_macro",  "empty")
 
  isgood = FALSE
+
+ output_file = file.path(output_directory, file_name)
 
  # first we look to see if the package is installed, if it's not
  # we look for files in the stand alone distribution locations
@@ -444,15 +470,15 @@ system_new  <- function(file_name="system.txt", system_file="template", overwrit
  # if ovewrite is false we check to see if the destination file exists. If it
  # does exist, we ste write_file to false
  if(!overwrite){
-   if(file.exists(file_name)){
-     message(paste("#> Error the file >", file_name, "< exists set overwrite=TRUE to overwrite", sep=""))
+   if(file.exists(output_file)){
+     message(paste("#> Error the file >", output_file, "< exists set overwrite=TRUE to overwrite", sep=""))
      write_file = FALSE}
  }
 
   # if the source file exists and write_file is true then
   # we try to copy the file
   if(file.exists(file_path) & write_file){
-    isgood = file.copy(file_path, file_name, overwrite=TRUE)
+    isgood = file.copy(file_path, output_file, overwrite=TRUE)
   }
 isgood}
 # -------------------------------------------------------------------------
@@ -468,6 +494,7 @@ isgood}
 #'@param cfg ubiquity system object    
 #'@param template template type  
 #'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
+#'@param output_directory directory where workshop files will be placed (getwd())
 #'
 #'@return List with vectors of template \code{sources}, \code{destinations}
 #' and corresponding write success (\code{write_file}), also a list element
@@ -491,15 +518,22 @@ isgood}
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
 #'
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'
 #' # Creating a simulation template
-#' fr =  system_fetch_template(cfg, template="Simulation")
+#' fr =  system_fetch_template(cfg, 
+#'       template         = "Simulation", 
+#'       output_directory = tempdir())
 #'}
-system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
+system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, output_directory=getwd()){
 
  res = list()
  # These are the allowed templates:
@@ -594,7 +628,7 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
    # up an error.
    if(!overwrite){
      for(fidx in 1:length(destinations)){
-       if(file.exists(destinations[fidx])){
+       if(file.exists(file.path(output_directory, destinations[fidx]))){
          write_file[fidx] = FALSE 
        }
      }
@@ -609,11 +643,11 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE){
    # next we write the files that are TRUE
    for(fidx in 1:length(destinations)){
      if(write_file[fidx]){
-       file.copy(sources[fidx], destinations[fidx], overwrite=TRUE)
-       vp(cfg, sprintf("Creating file: %s", destinations[fidx] ))
+       file.copy(sources[fidx], file.path(output_directory, destinations[fidx]), overwrite=TRUE)
+       vp(cfg, sprintf("Creating file: %s", file.path(output_directory, destinations[fidx])))
      } else {
        isgood = FALSE
-       vp(cfg, sprintf("File: %s, exists, and was not copied.", destinations[fidx] ))
+       vp(cfg, sprintf("File: %s, exists, and was not copied.", file.path(output_directory, destinations[fidx])))
        vp(cfg, sprintf("Set overwrite=TRUE to force this file to be copied."))
      }
    }
@@ -706,10 +740,15 @@ system_load_data <- function(cfg, dsname, data_file, data_sheet){
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
 #' 
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #' 
 #' # Selecting the default parameter set
 #' cfg = system_select_set(cfg, "default")
@@ -859,10 +898,15 @@ return(cfg)
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
-#'
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'
 #' # Fetching the default parameter set
 #' parameters = system_fetch_parameters(cfg)
@@ -884,10 +928,15 @@ system_fetch_parameters <- function(cfg){
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
-#'
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'
 #' # Covariance term for ETACL and ETAVc
 #' val = system_fetch_iiv(cfg, IIV1="ETACL", IIV2="ETAVc")
@@ -933,10 +982,15 @@ return(VALUE)}
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
-#'
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'
 #' # Clear only infusion rates
 #' cfg = system_zero_inputs(cfg, bolus=TRUE, rates=FALSE)
@@ -983,10 +1037,15 @@ return(cfg)}
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
-#'
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'
 #' # Setting the covariate WT to 50
 #' cfg = system_set_covariate(cfg, 
@@ -1028,10 +1087,15 @@ return(cfg)}
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
-#'
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'
 #' # Clearing all inputs
 #' cfg = system_zero_inputs(cfg)
@@ -2130,10 +2194,15 @@ return(cfg)
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
-#'
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'
 #' # Clearing all inputs
 #' cfg = system_zero_inputs(cfg)
@@ -2141,7 +2210,7 @@ return(cfg)
 #' # SC dose of 200 mg
 #' cfg = system_set_bolus(cfg, state   ="At", 
 #'                             times   = c(  0.0),  #  day
-#'                             values  = c(400.0))  #  mg
+#'                             values  = c(200.0))  #  mg
 #'}
 #'@seealso \code{\link{system_zero_inputs}}
 system_set_bolus <- function(cfg, state, times, values){
@@ -2261,10 +2330,15 @@ return(cfg)}
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
-#'
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'
 #' # Clearing all inputs
 #' cfg = system_zero_inputs(cfg)
@@ -2371,7 +2445,17 @@ toc <- function()
 #'@examples
 #' # To log and display the current system information:
 #' \donttest{
-#' cfg = build_system()
+#' # Creating a system file from the mab_pk example
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
+#' # Building the system 
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
+#'
 #' vp(cfg, system_view(cfg))
 #' }
 system_view <- function(cfg,field="all") {
@@ -3141,7 +3225,7 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
           # If we're using the c-file we tell the spawned instances to load
           # them.
           if(cfg$options$simulation_options$integrate_with == "c-file"){
-            dyn.load(file.path(cfg$options$misc$temp_directory, paste("r_ode_model", .Platform$dynlib.ext, sep = "")))
+            dyn.load(file.path(cfg$options$misc$temp_directory, paste( cfg$options$misc$c_libfile_base, .Platform$dynlib.ext, sep = "")))
           }
     
           if(cfg$options$misc$distribution == "stand alone"){
@@ -3543,10 +3627,15 @@ generate_parameter = function (SIMINT_parameters, SIMINT_cfg, SIMINT_PARAMETER_T
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
-#'
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'
 #' # Initialzing the log file
 #' system_log_init(cfg)
@@ -3572,10 +3661,15 @@ return(cfg)
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
-#'
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'
 #' # Initialzing the log file
 #' system_log_entry(cfg, "Text of log entry")
@@ -3608,10 +3702,15 @@ if(cfg$options$logging$enabled ==  TRUE){
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
-#' system_new(system_file="mab_pk", file_name="system_example.txt", overwrite=TRUE)
-#'
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
 #' # Building the system 
-#' cfg = build_system("system_example.txt")
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
 #'
 #' # Initialzing the log file
 #' vp(cfg, "Message that will be logged")
@@ -4889,7 +4988,7 @@ SIMINT_simcommand = ' SIMINT_simout <- deSolve::ode(SIMINT_IC, SIMINT_output_tim
                                            func     = "derivs", 
                                            parms    = unlist(SIMINT_parameters),
                                            jacfunc  = NULL, 
-                                           dllname  = "r_ode_model",
+                                           dllname  = cfg$options$misc$c_libfile_base, 
                                            initfunc = "initparams", 
                                            initforc = "initforcs",
                                            forcings = SIMINT_forces, 
@@ -9683,8 +9782,13 @@ system_req <- function(pkgs){
       eval(parse(text=sprintf("res_pkg = require(%s, quietly=TRUE)", pkg))) 
       res_pkgs = c(res_pkgs, res_pkg)
     } else {
-    # otherwise we just return a Boolean value to see if the package is installed 
-      res_pkgs = c(res_pkgs, (pkg  %in% row.names(installed.packages())))
+      # otherwise we just return a Boolean value 
+      # indicating if the package is installed 
+      if(system.file(package=pkg) == ""){
+        res_pkgs = c(res_pkgs, FALSE)
+      } else {
+        res_pkgs = c(res_pkgs, TRUE)
+      }
     }
   }
 all(res_pkgs)}
