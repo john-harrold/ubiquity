@@ -1,6 +1,6 @@
 Package: ubiquity
 Type: Package
-Title: PKPD, PBPK, and Systems Pharmacology Modeling and Deployment Tools
+Title: PKPD, PBPK, and Systems Pharmacology Modeling Tools
 Version: 1.0.0
 Authors@R: c(person("John", "Harrold", role = c("aut", "cre"),
                      email = "john.m.harrold@gmail.com"))
