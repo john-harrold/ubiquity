@@ -17,7 +17,7 @@
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
-#'@importFrom utils installed.packages read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion
+#'@importFrom utils read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion
 #'@importFrom stats median qt
 #'@importFrom MASS mvrnorm
 
@@ -98,7 +98,7 @@ if(distribution == "automatic"){
 } else if(distribution == "package"){
   # If it's set to package we make sure the package is installed and
   # if ti's not we default to stand alone
-  if(!("ubiquity" %in% rownames(installed.packages()))){
+  if(system.file(package="ubiquity") == ""){
     message("#> Warning: package selected but not found")
     distribution = "stand alone" }
 }
@@ -274,7 +274,8 @@ workshop_fetch <- function(section          = "Simulation",
 
   isgood = TRUE
   # This function only works if we're using the package
-  if("ubiquity" %in% rownames(installed.packages())){
+  if(!(system.file(package="ubiquity") == "")){
+
     if(section %in% allowed){
     
       src_dir = system.file("ubinc", "scripts", package="ubiquity")
@@ -451,7 +452,7 @@ system_new  <- function(file_name        = "system.txt",
 
  # first we look to see if the package is installed, if it's not
  # we look for files in the stand alone distribution locations
- if("ubiquity" %in% rownames(installed.packages())){
+ if((system.file(package="ubiquity") != "")){
    if(system_file == "template"){
      file_path       = system.file("ubinc",    "templates", "system_template.txt", package="ubiquity")
    } else {
@@ -551,11 +552,11 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
  if(template %in% allowed){
    # first we look to see if the package is installed, if it's not
    # we look for the system_template.txt file 
-   if("ubiquity" %in% rownames(installed.packages())){
+   if((system.file(package="ubiquity") != "")){
      template_dir = system.file("ubinc", "templates", package="ubiquity")
    } 
    else {
-     template_dir    = file.path('library', 'templates')
+     template_dir = file.path('library', 'templates')
    }
    temp_directory = cfg$options$misc$temp_directory
 

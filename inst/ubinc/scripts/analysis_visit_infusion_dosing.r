@@ -2,6 +2,7 @@
 rm(list=ls())
 graphics.off()
 options(show.error.locations = TRUE)
+require("ggplot2")
 
 # If we are in a stand alone ubiquity distribution we run 
 # from there otherwise we try to load the package
