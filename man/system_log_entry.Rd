@@ -11,6 +11,9 @@ system_log_entry(cfg, entry)
 
 \item{entry}{string containing the log entry}
 }
+\value{
+Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+}
 \description{
 Appends a specified line to the analysis log
 }

@@ -3663,6 +3663,8 @@ return(cfg)
 #'@param cfg ubiquity system object    
 #'@param entry string containing the log entry
 #'
+#'@return Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+#'
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
@@ -3681,6 +3683,8 @@ return(cfg)
 #'}
 system_log_entry = function(cfg, entry){
 
+isgood = FALSE
+
 # if logging is disabled we don't do anything 
 if(cfg$options$logging$enabled ==  TRUE){
   # If the log file doesn't exist we initialize it
@@ -3694,9 +3698,9 @@ if(cfg$options$logging$enabled ==  TRUE){
   }
 
   # Now we dump it to the log file:
-  write(entry, file=cfg$options$logging$file, append=TRUE)
+  isgood = write(entry, file=cfg$options$logging$file, append=TRUE)
   }
-}
+isgood}
 
 #'@export
 #'@title Print and Log Messages
