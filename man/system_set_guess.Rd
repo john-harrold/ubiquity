@@ -18,7 +18,7 @@ system_set_guess(cfg, pname, value, lb = NULL, ub = NULL)
 \item{ub}{optionally change the upper bound (\code{NULL})}
 }
 \value{
-cfg - ubiquity system object with guess and bounds assigned
+cfg ubiquity system object with guess and bounds assigned
 }
 \description{
 Default values for parameters are taken from the \code{system.txt} file

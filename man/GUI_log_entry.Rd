@@ -11,6 +11,9 @@ GUI_log_entry(cfg, text)
 
 \item{text}{string to print/log}
 }
+\value{
+Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+}
 \description{
 Called from the ShinyApp to add a log entry with "App"
 prepended to the log entry

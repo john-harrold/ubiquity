@@ -36,6 +36,18 @@ system_nm_check_ds(cfg, DS = "DSNAME", col_ID = "ID",
 
 \item{OBS}{List mapping obseravation information in the dataset to names used in the system.txt file}
 }
+\value{
+list with the following elements 
+\itemize{
+\item{"isgood"} Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+\item{"mywarning"} Boolean variable indicating warnings (\code{TRUE}) or no warnings (\code{FALSE})
+\item{"dsraw"} Dataframe with the filtered raw data that was used
+\item{"input_records"} Rows from \code{dsraw} containing the input information
+\item{"obs_records"} Rows from \code{dsraw} containing the observation information
+\item{"sids"} Subject ids found in code{dsraw}
+\item{"TSsys"} system time scale used in the dataset
+}
+}
 \description{
 Checks the dataset against the information specified by \code{\link{system_define_cohorts_nm}} for validity
 }

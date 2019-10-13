@@ -11,6 +11,9 @@ tic(gcFirst = TRUE, type = c("elapsed", "user.self", "sys.self"))
 
 \item{type}{can be either \code{"elapsed"} \code{"user.self"} or \code{"sys.self"}}
 }
+\value{
+time tic was called
+}
 \description{
 Used in conjunction with \code{toc()} to find the elapsed time
 when code is executed. Adapted from:

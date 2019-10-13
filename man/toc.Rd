@@ -6,6 +6,9 @@
 \usage{
 toc()
 }
+\value{
+time in seconds since tic() was called
+}
 \description{
 Used in conjunction with \code{tic()} to find the elapsed time
 when code is executed. Adapted from:

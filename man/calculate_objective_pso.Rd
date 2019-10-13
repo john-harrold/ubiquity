@@ -11,6 +11,9 @@ calculate_objective_pso(pvect, cfg)
 
 \item{cfg}{ubiquity system object}
 }
+\value{
+objective function value
+}
 \description{
 The psoptim objective function assumes parameters will be a
 vector and this function converts it to a named list to be consistent with the

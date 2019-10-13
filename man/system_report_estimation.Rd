@@ -14,6 +14,9 @@ system_report_estimation(cfg, rptname = "default",
 
 \item{analysis_name}{string containing the name of the estimation analysis and used as a prefix to store the results}
 }
+\value{
+ubiquity system object with estimation report appended
+}
 \description{
 This will take the output generated during a parameter estimation and append those results to a specified report.
 }

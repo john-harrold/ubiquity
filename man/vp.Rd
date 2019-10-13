@@ -11,6 +11,9 @@ vp(cfg, str)
 
 \item{str}{sequence of strings to print}
 }
+\value{
+Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+}
 \description{
 Used to print messages to the screen and the log file.
 }

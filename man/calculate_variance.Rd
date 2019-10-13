@@ -16,6 +16,9 @@ calculate_variance(SIMINT_parameters, SIMINT_varstr, SIMINT_odchunk,
 
 \item{SIMINT_cfg}{ubiquity system object}
 }
+\value{
+Variance calculated for a given set of parameters in a model
+}
 \description{
 Takes the variance specified as a string and evaluates it
 locally, and returns that value

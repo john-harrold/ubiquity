@@ -11,6 +11,9 @@ archive_estimation(name, cfg)
 
 \item{cfg}{ubiquity system object}
 }
+\value{
+Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+}
 \description{
 Archives the estimation results by moving the output files to the same file
  names with \code{'name'} prepended to them. This prevents them from being

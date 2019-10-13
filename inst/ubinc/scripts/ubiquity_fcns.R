@@ -38,6 +38,7 @@
 #'@param verbose enable verbose messaging   (\code{TRUE})
 #'@param ubiquity_app set to \code{TRUE} when building the system to be used with the ubiquty App (\code{FALSE})
 #'@param debug Boolean variable indicating if debugging information should be displayed (\code{TRUE})
+#'@return initialized ubiquity system object
 #'@examples
 #' \donttest{
 #' fr = system_new(file_name        = "system.txt", 
@@ -2383,6 +2384,8 @@ return(cfg)}
 #'@param gcFirst controls garbage collection
 #'@param type can be either \code{"elapsed"} \code{"user.self"} or \code{"sys.self"} 
 #'
+#'@return time tic was called
+#'
 #'@examples
 #' tic()
 #' Sys.sleep(3)
@@ -2404,6 +2407,7 @@ tic <- function(gcFirst = TRUE, type=c("elapsed", "user.self", "sys.self"))
 #' when code is executed. Adapted from:
 #' http://stackoverflow.com/questions/1716012/stopwatch-function-in-r
 #'
+#'@return time in seconds since tic() was called
 #'
 #'@examples
 #' tic()
@@ -3700,6 +3704,9 @@ if(cfg$options$logging$enabled ==  TRUE){
 #'
 #'@param cfg ubiquity system object    
 #'@param str sequence of strings to print
+#'
+#'@return Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+#'
 #'@examples
 #' \donttest{
 #' # Creating a system file from the mab_pk example
@@ -3720,6 +3727,8 @@ vp <- function(cfg, str){
 # logging string 
 system_log_entry(cfg, str)
 
+isgood = FALSE
+
 # printing if verbose is enabled
 if('options' %in% names(cfg)){
 if('verbose' %in% names(cfg$options$logging)){
@@ -3727,8 +3736,9 @@ if(TRUE == cfg$options$logging$verbose){
   for(line in str){
     message(paste("#>", line))
   }
+  isgood = TRUE
   }}}
-}
+isgood}
 
 #'@export
 #'@keywords internal
@@ -3738,9 +3748,11 @@ if(TRUE == cfg$options$logging$verbose){
 #'
 #'@param cfg ubiquity system object    
 #'@param text string to print/log
+#'
+#'@return Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
 GUI_log_entry <-function(cfg, text){
-   system_log_entry(cfg, sprintf("App %s", text))
-}
+ isgood =   system_log_entry(cfg, sprintf("App %s", text))
+isgood}
 
 #'@export
 #'@keywords internal
@@ -4763,6 +4775,10 @@ return(parameters)
 #'@param SIMINT_varstr string containing variance calculation 
 #'@param SIMINT_odchunk chunk of observation details containing predictions, observations and the time
 #'@param SIMINT_cfg ubiquity system object    
+#'
+#'@return Variance calculated for a given set of parameters in a model
+#'
+#'
 calculate_variance <- function(SIMINT_parameters, SIMINT_varstr, SIMINT_odchunk, SIMINT_cfg){
 
   SIMINT_var = c()
@@ -5244,6 +5260,9 @@ return(df)
 #'@keywords internal
 #'@param pvect      system parameters
 #'@param cfg ubiquity system object    
+#'
+#'@return objective function value
+#'
 calculate_objective_pso <- function(pvect, cfg){
 # calculate_objective takes the parameters as a list, so we take the vector
 # provided by psoptim when it calls the objective function and repackage it as
@@ -5267,8 +5286,11 @@ calculate_objective_pso <- function(pvect, cfg){
 #' negative of the objective (turning the maximization into a minimization) 
 #'
 #'@keywords internal
-#'@param pvect      system parameters
+#'@param pvect system parameters
 #'@param cfg ubiquity system object    
+#'
+#'@return objective function value
+#'
 calculate_objective_ga  <- function(pvect, cfg){
 # calculate_objective takes the parameters as a list, so we take the vector
 # provided by psoptim when it calls the objective function and repackage it as
@@ -6204,7 +6226,7 @@ return(grobs)
 #'@param lb optionally change the lower bound (\code{NULL})
 #'@param ub optionally change the upper bound (\code{NULL}) 
 #'
-#'@return cfg - ubiquity system object with guess and bounds assigned   
+#'@return cfg ubiquity system object with guess and bounds assigned   
 #'
 #' @details 
 #'
@@ -6467,6 +6489,9 @@ return(files)
 #'
 #'@param name analysis name 
 #'@param cfg ubiquity system object    
+#'
+#'@return Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+#'
 archive_estimation <- function(name, cfg){
 
 
@@ -6499,7 +6524,7 @@ for(fidx in 1:length(f.source)){
     vp(cfg, sprintf('%s --> %s', f.source[fidx], f.destination[fidx]))
   }
 }
-}
+TRUE}
 #/archive_estimation
 #-----------------------------------------------------------
 
@@ -7975,6 +8000,17 @@ TSsys}
 #'@param filter List used to filter the dataset or \code{NULL} if the whole dataset is to be used (see filter rules or  \code{\link{nm_select_records}} or a description of how to use this option)
 #'@param INPUTS List mapping input information in the dataset to names used in the system.txt file
 #'@param OBS List mapping obseravation information in the dataset to names used in the system.txt file
+#'
+#'@return list with the following elements 
+#' \itemize{
+#'\item{"isgood"} Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+#'\item{"mywarning"} Boolean variable indicating warnings (\code{TRUE}) or no warnings (\code{FALSE})
+#'\item{"dsraw"} Dataframe with the filtered raw data that was used
+#'\item{"input_records"} Rows from \code{dsraw} containing the input information
+#'\item{"obs_records"} Rows from \code{dsraw} containing the observation information
+#'\item{"sids"} Subject ids found in code{dsraw}
+#'\item{"TSsys"} system time scale used in the dataset
+#'}
 system_nm_check_ds = function(cfg, 
                               DS        = 'DSNAME',
                               col_ID    = 'ID',
@@ -8435,6 +8471,8 @@ return(cfg)}
 #'@param rptname report name initialized with \code{system_report_init}
 #'@param output_file file name of saved report
 #'
+#'@return Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+#'
 #'@details If you don't specify an output file it will save the report either
 #'report.pptx or report.docx (depending on the type of report) in the current
 #'directory.
@@ -8543,7 +8581,7 @@ system_report_save = function (cfg,
     vp(cfg, sprintf("system_report_save()"))
     vp(cfg, sprintf("Report >%s< not saved.", rptname)) 
   }
-}
+isgood}
 # /system_report_save 
 # -------------------------------------------------------------------------
 # system_report_init 
@@ -8559,6 +8597,8 @@ system_report_save = function (cfg,
 #'@param rptname report name 
 #'@param rpttype type of report to create, can be either \code{NULL}, \code{"PowerPoint"} or \code{"Word"}
 #'@param meta list containing metadata identifying relevant indices for slide layouts
+#'
+#'@return ubiquity system object with estimation report initialized
 #'
 #'@details 
 #'   Either the rpttype can be specified or the template. If a report type is
@@ -9535,6 +9575,9 @@ cfg}
 #'@param cfg ubiquity system object    
 #'@param rptname report name 
 #'@param analysis_name string containing the name of the estimation analysis and used as a prefix to store the results
+#'
+#'@return ubiquity system object with estimation report appended
+#'
 #'@seealso \code{\link{system_report_init}}, the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 #'and the estimation vignette (\code{vignette("Estimation", package = "ubiquity")})
 system_report_estimation = function (cfg,

@@ -13,6 +13,9 @@ system_report_save(cfg, rptname = "default", output_file = NULL)
 
 \item{output_file}{file name of saved report}
 }
+\value{
+Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+}
 \description{
 Save the contents of \code{rptname} to the file \code{output_file}
 }

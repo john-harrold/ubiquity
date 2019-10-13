@@ -18,6 +18,9 @@ system_report_init(cfg, template = NULL, rptname = "default",
 
 \item{meta}{list containing metadata identifying relevant indices for slide layouts}
 }
+\value{
+ubiquity system object with estimation report initialized
+}
 \description{
 Creates a new officer report based either on the ubiquity
 template or one specified by the user. Once created, content can then be
