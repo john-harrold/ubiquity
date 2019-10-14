@@ -27,3 +27,9 @@ List with the following names
 \description{
 Determines the terminal halflife of a sequence of corresponding times and values with optional minimum and maximum times to censor data.
 }
+\examples{
+x     = c(0:100)
+y     = exp(-.1*x)
+th    = calculate_halflife(times=x, values=y)
+thalf = th$thalf 
+}

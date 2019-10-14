@@ -27,3 +27,17 @@ ggplot object
 Takes a ggplot object and alters the line thicknesses and makes
 other cosmetic changes to make it more appropriate for exporting.
 }
+\examples{
+library("ggplot2")
+df = data.frame(x = seq(0.01,10,.01),
+               y = seq(0.01,10,.01)^2)
+p       = ggplot(df, aes(x=x, y=y)) + geom_line()
+# pretty up the axes
+p       = prepare_figure(fo=p, purpose="print")
+# pretty log10 y-axis 
+p_logy  = gg_log10_yaxis(fo=p)
+# pretty log10 x-axis 
+p_logx  = gg_log10_xaxis(fo=p)
+# pretty log10 yx-axis 
+p_logxy = gg_axis(fo=p)
+}

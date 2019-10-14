@@ -33,6 +33,20 @@ ggplot object with formatted axis
 \description{
 used to convert the x and y-axis of a ggplot to a log 10 scale that is more visually satisfying than the ggplot default.
 }
+\examples{
+library("ggplot2")
+df = data.frame(x = seq(0.01,10,.01),
+               y = seq(0.01,10,.01)^2)
+p       = ggplot(df, aes(x=x, y=y)) + geom_line()
+# pretty up the axes
+p       = prepare_figure(fo=p, purpose="print")
+# pretty log10 y-axis 
+p_logy  = gg_log10_yaxis(fo=p)
+# pretty log10 x-axis 
+p_logx  = gg_log10_xaxis(fo=p)
+# pretty log10 yx-axis 
+p_logxy = gg_axis(fo=p)
+}
 \seealso{
 \code{\link{gg_log10_xaxis}} and \code{\link{gg_log10_yaxis}}
 }

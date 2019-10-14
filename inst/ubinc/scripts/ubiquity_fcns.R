@@ -7085,6 +7085,20 @@ res}
 #'@param x_tick_major Boolean value to control grid lines
 #'
 #'@return ggplot object 
+#'
+#'@examples
+#'library("ggplot2")
+#'df = data.frame(x = seq(0.01,10,.01),
+#'                y = seq(0.01,10,.01)^2)
+#'p       = ggplot(df, aes(x=x, y=y)) + geom_line()
+#'# pretty up the axes
+#'p       = prepare_figure(fo=p, purpose="print")
+#'# pretty log10 y-axis 
+#'p_logy  = gg_log10_yaxis(fo=p)
+#'# pretty log10 x-axis 
+#'p_logx  = gg_log10_xaxis(fo=p)
+#'# pretty log10 yx-axis 
+#'p_logxy = gg_axis(fo=p)
 prepare_figure = function(purpose="present", fo,
                           y_tick_minor = FALSE,
                           y_tick_major = FALSE,
@@ -7186,7 +7200,22 @@ return(fo)
 #'@param y_tick_label \code{TRUE} to show y tick labels, \code{FALSE} to hide the y tick labels
 #'
 #'@return ggplot object with formatted axis 
+#'
 #'@seealso \code{\link{gg_log10_xaxis}} and \code{\link{gg_log10_yaxis}}
+#'
+#'@examples
+#'library("ggplot2")
+#'df = data.frame(x = seq(0.01,10,.01),
+#'                y = seq(0.01,10,.01)^2)
+#'p       = ggplot(df, aes(x=x, y=y)) + geom_line()
+#'# pretty up the axes
+#'p       = prepare_figure(fo=p, purpose="print")
+#'# pretty log10 y-axis 
+#'p_logy  = gg_log10_yaxis(fo=p)
+#'# pretty log10 x-axis 
+#'p_logx  = gg_log10_xaxis(fo=p)
+#'# pretty log10 yx-axis 
+#'p_logxy = gg_axis(fo=p)
 gg_axis  = function(fo, 
                      yaxis_scale  = TRUE,
                      xaxis_scale  = TRUE,
@@ -7394,6 +7423,19 @@ fo}
 #'
 #'@return ggplot object with formatted axis 
 #'@seealso \code{\link{gg_axis}} and \code{\link{gg_log10_xaxis}}
+#'@examples
+#'library("ggplot2")
+#'df = data.frame(x = seq(0.01,10,.01),
+#'                y = seq(0.01,10,.01)^2)
+#'p       = ggplot(df, aes(x=x, y=y)) + geom_line()
+#'# pretty up the axes
+#'p       = prepare_figure(fo=p, purpose="print")
+#'# pretty log10 y-axis 
+#'p_logy  = gg_log10_yaxis(fo=p)
+#'# pretty log10 x-axis 
+#'p_logx  = gg_log10_xaxis(fo=p)
+#'# pretty log10 yx-axis 
+#'p_logxy = gg_axis(fo=p)
 gg_log10_yaxis = function(fo, 
                           ylim_min     = NULL, 
                           ylim_max     = NULL, 
@@ -7428,7 +7470,22 @@ fo}
 #'@param y_tick_label \code{TRUE} to show y tick labels, \code{FALSE} to hide the y tick labels
 #'
 #'@return ggplot object with formatted axis 
+#'
 #'@seealso \code{\link{gg_axis}} and \code{\link{gg_log10_xaxis}}
+#'
+#'@examples
+#'library("ggplot2")
+#'df = data.frame(x = seq(0.01,10,.01),
+#'                y = seq(0.01,10,.01)^2)
+#'p       = ggplot(df, aes(x=x, y=y)) + geom_line()
+#'# pretty up the axes
+#'p       = prepare_figure(fo=p, purpose="print")
+#'# pretty log10 y-axis 
+#'p_logy  = gg_log10_yaxis(fo=p)
+#'# pretty log10 x-axis 
+#'p_logx  = gg_log10_xaxis(fo=p)
+#'# pretty log10 yx-axis 
+#'p_logxy = gg_axis(fo=p)
 gg_log10_xaxis = function(fo, 
                           xlim_min     = NULL, 
                           xlim_max     = NULL, 
@@ -9074,7 +9131,7 @@ return(cfg)}
 #'@description Creates a report slide with a section break.
 #'@param cfg ubiquity system object    
 #'@param title                     string with slide title (\code{"Title"})
-#'@param sub_title                 string with slide sub title (code{NULL})
+#'@param sub_title                 string with slide sub title (\code{NULL})
 #'@param rptname                   report name initialized with \code{system_report_init}
 #'
 #'@return ubiquity system object with slide added to report
@@ -11067,6 +11124,11 @@ cfg}
 #'   \item{mod} Result of lm used to fit the log transformed data
 #'   \item{df} Dataframe with the data and predicted values at the time within tmin and tmax
 #' }
+#'@examples
+#' x     = c(0:100)
+#' y     = exp(-.1*x)
+#' th    = calculate_halflife(times=x, values=y)
+#' thalf = th$thalf 
 calculate_halflife = function(times = NULL,
                      values = NULL,
                      tmin = NULL,

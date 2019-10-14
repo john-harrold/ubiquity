@@ -12,7 +12,7 @@ system_report_slide_section(cfg, title = "Title", sub_title = NULL,
 
 \item{title}{string with slide title (\code{"Title"})}
 
-\item{sub_title}{string with slide sub title (code{NULL})}
+\item{sub_title}{string with slide sub title (\code{NULL})}
 
 \item{rptname}{report name initialized with \code{system_report_init}}
 }
