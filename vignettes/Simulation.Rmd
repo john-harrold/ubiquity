@@ -183,8 +183,10 @@ cfg = system_load_data(cfg,
 The format of the dataset is shown below. There needs to be an column for the subject ID (``SIMINT_ID``) and the simulation time (``SIMINT_TIME``). Next the subject level parameters can be specified where the column headers correspond to the parameter names. If a parameter is not specified, the default value will be taken from the ```parameters``` input. In this case ``MW`` was not specified in the dataset, so it will be taken from ``parameters``. 
 
 Optionally, covariates can also be specified by name as well. For time varying covariates, multiple records can be specified for the same subject (the parameter values for that subject should remain constant between records). In this example ``WT`` and ``SEX`` are covariates but only ``WT`` has been defined in the system file, so ``SEX`` will be ignored. The covariate ``DOSE`` is not defined so the default from the system file will be used. 
-```{r echo=FALSE}
-rhandsontable(cfg$data$SUBS$values, width=800, height=300)
+
+```{r echo=FALSE, eval=TRUE}
+SUBSCSV= read.csv(system.file("ubinc", "csv", "mab_pk_subjects.csv",  package = "ubiquity"))
+rhandsontable( SUBSCSV, width=800, height=300)
 ```
 
 With the dataset loaded, we need to link that subject file to the stochastic simulations using the dataset name (``SUBS``) and then we can tell the scripts how to handle sampling from the dataset:
@@ -203,6 +205,20 @@ Then we just use ``simulate_subjects`` to run the simulation as before:
 som  = simulate_subjects(parameters, cfg)
 ```
 
+## Parallelization 
+
+If you are using `simulate_subjects` to perform population simulations and have multiple cores on your computer you can utilize those cores by setting  the following options in the `"simulation"` group:
+
+```{r echo=TRUE, eval=FALSE}
+cfg=system_set_option(cfg, group  = "simulation",
+                           option = "parallel",    
+                           value  = "multicore")
+
+cfg=system_set_option(cfg, group  = "simulation",
+                           option = "compute_cores", 
+                           value  = detectCores() - 1)
+
+```
 
 ## Contents of ``system.txt``
 ```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}

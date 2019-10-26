@@ -4,13 +4,15 @@
 \alias{simulate_subjects}
 \title{Run Population Simulations}
 \usage{
-simulate_subjects(parameters, cfg,
+simulate_subjects(parameters, cfg, show_progress = TRUE,
   progress_message = "Simulating Subjects:")
 }
 \arguments{
 \item{parameters}{list containing the typical value of parameters}
 
 \item{cfg}{ubiquity system object}
+
+\item{show_progress}{Boolean value controlling the display of a progress indicator (\code{TRUE})}
 
 \item{progress_message}{text string to prepend when called from the ShinyApp}
 }
@@ -24,6 +26,11 @@ Used to run Population/Monte Carlo simulations with subjects
 generated from either provided variance/covariance information or a dataset.
 }
 \details{
+Failures due to numerical instability or other integration errors will be
+captured within the function. Data for those subjects will be removed from the
+output. Their IDs will be displayed as messages and stored in the output. 
+
+
 For more information on setting options for population simulation see the
 stochastic section of the \code{\link{system_set_option}} help file.
 }

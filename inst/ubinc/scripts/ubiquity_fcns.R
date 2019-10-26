@@ -2865,19 +2865,25 @@ return(str)}
 #'@param parameters list containing the typical value of parameters
 #'@param cfg ubiquity system object    
 #'@param progress_message text string to prepend when called from the ShinyApp
+#'@param show_progress Boolean value controlling the display of a progress indicator (\code{TRUE})
 #'
 #'@return Mapped simulation output with individual predictions, individual
 #' parameters, and summary statistics of the parameters. The Vignettes below
-#' details on the format of the output.
+#' details on the format of the output. 
 #'
 #'@details 
 #'
-#'For more information on setting options for population simulation see the
-#'stochastic section of the \code{\link{system_set_option}} help file.
+#' Failures due to numerical instability or other integration errors will be
+#' captured within the function. Data for those subjects will be removed from the
+#' output. Their IDs will be displayed as messages and stored in the output. 
+#'
+#'
+#' For more information on setting options for population simulation see the
+#' stochastic section of the \code{\link{system_set_option}} help file.
 #'
 #'
 #'@seealso Vignette on simulation (\code{vignette("Simulation", package = "ubiquity")}) titration (\code{vignette("Titration", package = "ubiquity")}) as well as \code{\link{som_to_df}}
-simulate_subjects = function (parameters, cfg, progress_message = "Simulating Subjects:"){
+simulate_subjects = function (parameters, cfg, show_progress = TRUE, progress_message = "Simulating Subjects:"){
 #function [predictions] = simulate_subjects(parameters, cfg)
 #
 # Inputs:
@@ -3005,7 +3011,6 @@ if("stochastic" %in% names(cfg$options)){
 }
 
 
-max_errors = 100;
 
 isgood = TRUE;
 
@@ -3188,11 +3193,13 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
       # Initialzing progress bar
       # If we're running as a script we display this in the console
       # otherwise we initialize a shiny onject
-      if(cfg$options$misc$operating_environment == 'script'){
-        pb = txtProgressBar(min=0, max=1, width=12, style=3, char='.') 
-        # JMH for parallel
-        myprogress <- function(n) setTxtProgressBar(pb, n)
-        }
+      if(show_progress){
+        if(cfg$options$misc$operating_environment == 'script'){
+          pb = txtProgressBar(min=0, max=1, width=12, style=3, char='.') 
+          # JMH for parallel
+          myprogress <- function(n) setTxtProgressBar(pb, n)
+          }
+      }
     
       if(cfg$options$misc$operating_environment == 'gui'){
         pb <- shiny::Progress$new()
@@ -3224,18 +3231,20 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
         somall <- foreach(sub_idx=1:nsub,
                           .verbose = FALSE,
                           .errorhandling='pass',
-                          .options.snow=list(progress = myprogress),
+                       #  .options.snow=list(progress = myprogress),
                           .packages=foreach_packages) %dopar% {
     
           # If we're using the c-file we tell the spawned instances to load
-          # them.
+          # the library 
           if(cfg$options$simulation_options$integrate_with == "c-file"){
             dyn.load(file.path(cfg$options$misc$temp_directory, paste( cfg$options$misc$c_libfile_base, .Platform$dynlib.ext, sep = "")))
           }
     
+          # If we're running a stand alone distribution we load the functions
           if(cfg$options$misc$distribution == "stand alone"){
             source(file.path("library","r_general","ubiquity.R"))}
     
+          # now we load the system specific functions
           source(file.path(cfg$options$misc$temp_directory, "auto_rcomponents.R"))
         
           # Pulling out subject level parameters
@@ -3260,19 +3269,46 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
         
           # Running either titration or normal simulation
           if(cfg$titration$titrate){
-            exec.time = system.time((som = run_simulation_titrate(parameters_subject, cfg_sub)))
-            #som = run_simulation_titrate(parameters_subject, cfg)
+            tcres = tryCatch(
+              { 
+               exec.time = system.time((som = run_simulation_titrate(parameters_subject, cfg_sub)))
+               list(exec.time = exec.time, som=som, msg="success")},
+             error = function(e) {
+               list(exec.time = NULL, som=NULL, error=NULL, msg="error")})
             }
           else{
-            exec.time = system.time((som = run_simulation_ubiquity(parameters_subject, cfg_sub)))
-            #som = run_simulation_ubiquity(parameters_subject, cfg)
+            tcres = tryCatch(
+              { 
+               exec.time = system.time((som = run_simulation_ubiquity(parameters_subject, cfg_sub)))
+               list(exec.time = exec.time, som=som, msg="success")},
+             error = function(e) {
+               list(exec.time = NULL, som=NULL, error=e, msg="error")})
             }
+
+
+          som       = tcres$som
+          msg       = tcres$msg
+
+          #tmp = run_simulation_ubiquity(parameters_subject, cfg_sub)
+
+          if(msg== "error"){
+          # Checking for integration failure
+            som$simout      = NULL
+            som$skip_reason = "Integration failure"
+          } else if(any(is.nan(as.matrix((som$simout))))){
+          # checking to see if any of the results returned NAN
+            som$simout      = NULL
+            som$skip_reason = "NAN values in simulation output"
+          }
         
           # Storing the subject id
-          som$sub_idx = sub_idx
+          som$sub_idx   = sub_idx
         
           # saving the execution time
-          som$exec.time = exec.time
+          som$exec.time = tcres$exec.time
+
+          # storing the result of trycatch error
+          som$error     = tcres$error
         
        #  if(cfg$options$misc$operating_environment == 'gui'){
        #    pb$inc(1/nsub, detail = sprintf('%d/%d (%d %%)', sub_idx, nsub, floor(100*sub_idx/nsub))) }
@@ -3318,26 +3354,53 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
         
           # Running either titration or normal simulation
           if(cfg$titration$titrate){
-            exec.time = system.time((som = run_simulation_titrate(parameters_subject, cfg_sub)))
-            #som = run_simulation_titrate(parameters_subject, cfg)
+            tcres = tryCatch(
+              { 
+               exec.time = system.time((som = run_simulation_titrate(parameters_subject, cfg_sub)))
+               list(exec.time = exec.time, som=som, msg="success")},
+             error = function(e) {
+               list(exec.time = NULL, error=NULL, som=NULL, msg="error")})
             }
           else{
-            exec.time = system.time((som = run_simulation_ubiquity(parameters_subject, cfg_sub)))
-            #som = run_simulation_ubiquity(parameters_subject, cfg)
+            tcres = tryCatch(
+              { 
+               exec.time = system.time((som = run_simulation_ubiquity(parameters_subject, cfg_sub)))
+               list(exec.time = exec.time, som=som, msg="success")},
+             error = function(e) {
+               list(exec.time = NULL, error=e, som=NULL, msg="error")})
             }
+          som       = tcres$som
+          msg       = tcres$msg
         
+          if(msg== "error"){
+          # Checking for integration failure
+            som$simout      = NULL
+            som$skip_reason = "Integration failure"
+          } else if(any(is.nan(as.matrix((som$simout))))){
+          # checking to see if any of the results returned NAN
+            som$simout      = NULL
+            som$skip_reason = "NAN values in simulation output"
+          }
+
           # Storing the subject id
           som$sub_idx = sub_idx
         
           # saving the execution time
-          som$exec.time = exec.time
+          som$exec.time = tcres$exec.time
+
+          # storing the result of trycatch error
+          som$error  = tcres$error
         
           # Updating progress indicators
-          if(cfg$options$misc$operating_environment == 'script'){
-            myprogress(sub_idx/nsub) }
+          if(show_progress){
+            if(cfg$options$misc$operating_environment == 'script'){
+              myprogress(sub_idx/nsub) }
+           }
         
-          if(cfg$options$misc$operating_environment == 'gui'){
-            pb$inc(1/nsub, detail = sprintf('%d/%d (%d %%)', sub_idx, nsub, floor(100*sub_idx/nsub))) }
+          if(show_progress){
+            if(cfg$options$misc$operating_environment == 'gui'){
+              pb$inc(1/nsub, detail = sprintf('%d/%d (%d %%)', sub_idx, nsub, floor(100*sub_idx/nsub))) }
+          }
         
           som }
       }
@@ -3373,28 +3436,76 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
        timescale_name = sprintf('ts.%s', timescale_name)
        p$times[[timescale_name]] = c(som$simout[[timescale_name]])
       }
+
+      subs_skipped = NULL
     
       for(som in somall){
         sub_idx = som$sub_idx
       
-        # storing the secondary parameters
-        p$subjects$secondary_parameters[sub_idx,] = som$simout[1,names(cfg$options$ssp)]
-    
-        # Storing the states, outputs and titration information
-        for(state_name   in state_names){
-          p$states[[state_name]][sub_idx,] = som$simout[[state_name]] }
-        
-        for(output_name   in output_names){
-          p$outputs[[output_name]][sub_idx,] = som$simout[[output_name]] }
-    
-        for(titration_name   in names(som$titration)){
-          p$titration[[titration_name]][sub_idx,] = som$titration[[titration_name]]}
+        # If som$simout is null it needs to be skipped 
+        # so we capture that information here:
+        if(is.null(som$simout)){
+         # Storing the id of the subject being skipped
+         subs_skipped = rbind(subs_skipped, 
+                   data.frame(id     = sub_idx,
+                              reason = som$skip_reason))
+        } else {
+          # storing the secondary parameters
+          p$subjects$secondary_parameters[sub_idx,] = som$simout[1,names(cfg$options$ssp)]
+         
+          # Storing the states, outputs and titration information
+          for(state_name   in state_names){
+            p$states[[state_name]][sub_idx,] = som$simout[[state_name]] }
+          
+          for(output_name   in output_names){
+            p$outputs[[output_name]][sub_idx,] = som$simout[[output_name]] }
+         
+          for(titration_name   in names(som$titration)){
+            p$titration[[titration_name]][sub_idx,] = som$titration[[titration_name]]}
+        }
         sub_idx = sub_idx + 1;
       }
+
+
+      #------------------------------------
+      # Processing skipped subjects
+      if(!is.null(subs_skipped)){
+        # Saving the parameter combinations that caused the problems
+        subs_skipped$parmaeters = p$subjects$parameters[as.numeric(subs_skipped$id),]
+
+        # Removing the rows associated with skipped subjects from the
+        # Parameters
+        p$subjects$parameters = p$subjects$parameters[-as.numeric(subs_skipped$id), ]
+        # Secondary parameters
+        p$subjects$secondary_parameters = p$subjects$secondary_parameters[-as.numeric(subs_skipped$id), ]
+        # States
+        for(state_name   in state_names){
+          p$states[[state_name]][-as.numeric(subs_skipped$id),]
+        }
+        # Outputs
+        for(output_name   in output_names){
+          p$outputs[[output_name]][-as.numeric(subs_skipped$id),]
+        }
+        # Titration names
+        for(titration_name   in  names(som$titration)){
+          p$titrations[[titration_name]][-as.numeric(subs_skipped$id),]
+        }
+
+        vp(cfg, "")
+        vp(cfg, "The following subjects were skipped")
+        for(sub_idx in subs_skipped$id){
+          vp(cfg, paste(" ", sub_idx, subs_skipped[subs_skipped$id == sub_idx, ]$reason))
+        }
+        vp(cfg, paste("The results will only include", nrow(p$subjects$parameters), "subjects"))
+      }
+      p$subs_skipped = subs_skipped
+      #------------------------------------
     
       # Cleaning up the progress bar objects
-      if(cfg$options$misc$operating_environment == 'script'){
-        close(pb)}
+      if(show_progress){
+        if(cfg$options$misc$operating_environment == 'script'){
+          close(pb)}
+      }
       if(cfg$options$misc$operating_environment == 'gui'){
           pb$close()}
       
@@ -3413,14 +3524,16 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
         }
       }
       for(state_name   in names(p$states)){
-        tc = timecourse_stats(p$states[[state_name]],ci)
+        mymat = p$states[[state_name]]
+        tc = timecourse_stats(mymat,ci)
         eval(parse(text=sprintf('p$tcsummary[["s.%s.lb_ci"]]   = tc$stats$lb_ci',   state_name))) 
         eval(parse(text=sprintf('p$tcsummary[["s.%s.ub_ci"]]   = tc$stats$ub_ci',   state_name))) 
         eval(parse(text=sprintf('p$tcsummary[["s.%s.mean"]]    = tc$stats$mean',    state_name))) 
         eval(parse(text=sprintf('p$tcsummary[["s.%s.median"]]  = tc$stats$median',  state_name))) 
         }
       for(output_name   in names(p$outputs)){
-        tc = timecourse_stats(p$outputs[[output_name]],ci)
+        mymat = p$outputs[[output_name]]
+        tc = timecourse_stats(mymat,ci)
         eval(parse(text=sprintf('p$tcsummary[["o.%s.lb_ci"]]   = tc$stats$lb_ci',   output_name))) 
         eval(parse(text=sprintf('p$tcsummary[["o.%s.ub_ci"]]   = tc$stats$ub_ci',   output_name))) 
         eval(parse(text=sprintf('p$tcsummary[["o.%s.mean"]]    = tc$stats$mean',    output_name))) 
@@ -5009,7 +5122,7 @@ SIMINT_simcommand = ' SIMINT_simout <- deSolve::ode(SIMINT_IC, SIMINT_output_tim
                                            func     = "derivs", 
                                            parms    = unlist(SIMINT_parameters),
                                            jacfunc  = NULL, 
-                                           dllname  = cfg$options$misc$c_libfile_base, 
+                                           dllname  = SIMINT_cfg$options$misc$c_libfile_base, 
                                            initfunc = "initparams", 
                                            initforc = "initforcs",
                                            forcings = SIMINT_forces, 

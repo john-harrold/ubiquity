@@ -1347,7 +1347,7 @@ generate_iiv <-function(input, output, session){
 #'@param layout of the multiplot
 #'@return multiplot object 
 multiplot <- function(..., plotlist=NULL, cols=1, layout=NULL) {
-  invisible(system_req("grid"))
+  require("grid")
   
   # Make a list from the ... arguments and plotlist
   plots <- c(list(...), plotlist)

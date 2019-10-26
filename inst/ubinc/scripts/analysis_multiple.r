@@ -47,7 +47,7 @@ cfg=system_set_option(cfg, group  = "stochastic",
                            
 
 # Uncomment the following to parallelize the simulations
-#
+# 
 # cfg=system_set_option(cfg, group  = "simulation",
 #                            option = "parallel",    
 #                            value  = "multicore")
@@ -55,7 +55,6 @@ cfg=system_set_option(cfg, group  = "stochastic",
 # cfg=system_set_option(cfg, group  = "simulation",
 #                            option = "compute_cores", 
 #                            value  = detectCores() - 1)
-  
 som  = simulate_subjects(parameters, cfg)
 
 graphics.off()
