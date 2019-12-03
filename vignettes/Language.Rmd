@@ -448,7 +448,7 @@ For example:
 
 Outputs that begin with ``QC``, like ``QC_CLtot`` above, will not be displayed in the ShinyApp. This is intended to make them available at the scripting level for quality control (QC) purposes.
 
-## Operators 
+## Function and Operators
 
 Most of the standard operators behave as expected (``+``, ``-``, ``*``, & ``/``) because most languages use these consistently. There are however certain operators and functions that differ between languages. For example, consider the power function ($a^b$). In FORTRAN this would be ``a**b``, in Matlab it is ``a^b``, and in C it is ``pow(a,b)``. Given the objectives here (write once and create multiple formats), this can be quite challenging. The solution used here is to convert language specific functions and operators into generic functions. So the power operator would be:
 
@@ -471,6 +471,29 @@ greater than or equal  | $a \ge b$ | ``SIMINT_GE[a][b]``
 equal                  | $a == b$  | ``SIMINT_EQ[a][b]``
 and                    | $a \& b$  | ``SIMINT_AND[a][b]``
 
+
+### Modeling Quasi-Equilibrium of Target-Mediated Drugs
+The free amount of a drug ``Cfree`` which is binding to a receptor with an affinity of ``KD`` given total values ``Ctot`` and ``Rtot`` the following can be calculated using the following equation: 
+
+$$
+C_{free}=\frac{1}{2}
+\left[
+(C_{tot}-R_{tot}-K_D)
++ \sqrt{(C_{tot}-R_{tot}-K_D)^2 + 4K_DC_{tot}}
+\right]
+$$
+
+This can be tedious, especially using the generic functions above. To make this easier you can use the following generic function:
+
+~~~
+<Ad> Cfree = SIMINT_QEQ[Ctot][Rtot][KD]
+~~~
+
+To get ``Rfree``, just switch the first two arguments:
+
+~~~
+<Ad> Rfree = SIMINT_QEQ[Rtot][Ctot][KD]
+~~~
 
 ## Timescales
 
@@ -627,8 +650,8 @@ To define the default output times for the ShinyApp and simulation scripts use t
 
 ## References
 
-* [DM] Dirks & Meibohm Clin. PK 2010 Oct 1;49(10):633-59
-* [VR] Vieira & Rajewsky Eur J Immunol. 1988 Feb;18(2):313-6
-
+* [DM] [Dirks & Meibohm Clin. PK 2010 Oct 1;49(10):633-59](https://doi.org/10.2165/11535960-000000000-00000)
+* [MK] [Mager, D.E. & Krzyzanski, W. Pharm Res (2005) 22: 1589.](https://doi.org/10.1007/s11095-005-6650-0)
+* [VR] [Vieira & Rajewsky Eur J Immunol. 1988 Feb;18(2):313-6](https://doi.org/10.1002/eji.1830180221) 
 
 [^1]: parameter set short names must start with a letter and containing only letters, numbers, and _

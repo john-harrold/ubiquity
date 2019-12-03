@@ -240,14 +240,21 @@ cfg$reporting$meta_docx$ph_content$HEADER_RIGHT$location = "header"
 cfg$reporting$meta_docx$ph_content$HEADER_RIGHT$content  = ""
 cfg$reporting$meta_docx$ph_content$FOOTER_LEFT$location  = "footer"
 cfg$reporting$meta_docx$ph_content$FOOTER_LEFT$content   = ""
+cfg$reporting$meta_docx$ph_content$FOOTER_RIGHT$location = "footer"
+cfg$reporting$meta_docx$ph_content$FOOTER_RIGHT$content  = ""
 cfg$reporting$meta_docx$styles$Normal                    = "Normal"
 cfg$reporting$meta_docx$styles$Default                   = "Default"
-cfg$reporting$meta_docx$styles$Title                     = "Title" 
-cfg$reporting$meta_docx$styles$Caption_Figure            = "Caption" 
-cfg$reporting$meta_docx$styles$Caption_Table             = "Caption" 
-cfg$reporting$meta_docx$styles$Heading_1                 = "Heading 1"
-cfg$reporting$meta_docx$styles$Heading_2                 = "Heading 2"
-cfg$reporting$meta_docx$styles$Heading_3                 = "Heading 3"
+cfg$reporting$meta_docx$styles$TOC                       = "toc 1" 
+cfg$reporting$meta_docx$styles$Heading_1                 = "heading 1"
+cfg$reporting$meta_docx$styles$Heading_2                 = "heading 2"
+cfg$reporting$meta_docx$styles$Heading_3                 = "heading 3"
+cfg$reporting$meta_docx$styles$Table                     = "Table Grid"
+cfg$reporting$meta_docx$styles$Table_Caption             = "table title"
+cfg$reporting$meta_docx$styles$Table_Caption_Location    = "top" 
+cfg$reporting$meta_docx$styles$Figure_Caption            = "graphic title" 
+cfg$reporting$meta_docx$styles$Figure_Caption_Location   = "bottom" 
+cfg$reporting$meta_docx$styles$Figure_Width              = 6.0
+cfg$reporting$meta_docx$styles$Figure_Height             = 5.0
 
 
 

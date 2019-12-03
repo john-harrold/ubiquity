@@ -2084,22 +2084,20 @@ initialize_session <- function(session) {
   # Default to integrating with r scripts
   cfg$options$simulation_options$integrate_with  = "r-file"
   # If the dynamic library exists we try to load it
-  if(file.exists(file.path("transient","app_base",  paste("r_ode_model", .Platform$dynlib.ext, sep = "")))){
+  if(file.exists(file.path("transient","app_base",  paste("ubiquity_app_base", .Platform$dynlib.ext, sep = "")))){
     GUI_log_entry(cfg, "Found dynamic library attempting to load")
-    dyn.load(file.path("transient", "app_base",  paste("r_ode_model", .Platform$dynlib.ext, sep = ""))) }
+    dyn.load(file.path("transient", "app_base",  paste("ubiquity_app_base", .Platform$dynlib.ext, sep = ""))) }
 
   # If the library has been loaded we switch to C
-  if(is.null(getLoadedDLLs()$r_ode_model) == FALSE){
-    if(getLoadedDLLs()$r_ode_model[["dynamicLookup"]] == TRUE){
+  if(is.null(getLoadedDLLs()$ubiquity_app_base) == FALSE){
+    if(getLoadedDLLs()$ubiquity_app_base[["dynamicLookup"]] == TRUE){
       GUI_log_entry(cfg, "Dynamic library seems to be loaded, setting")
       GUI_log_entry(cfg, "integration method to c-file")
       cfg$options$simulation_options$integrate_with  = "c-file"
     }
   }
-  
   # saving the cfg variable
   gui_save_cfg(cfg, session)
-
 }
 
 apply_overwrite <- function(cfg){

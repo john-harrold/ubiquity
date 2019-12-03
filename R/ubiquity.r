@@ -13,6 +13,7 @@
 #'@import rmarkdown
 #'@import rhandsontable
 #'@import rstudioapi
+#'@import stringr
 #'@importFrom digest digest
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
@@ -8525,24 +8526,39 @@ if(isgood){
     
     tab_example = data.frame( Number = c(1,2,3,4),
                               Text   = "Here")
+
+    list_exmaple = c(1, "Top level",
+                     1, "Also top level",
+                     2, "first sub bullet",
+                     2, "second sub bullet",
+                     1, "Third top level")
+
     # Pulling out the different styles
     lay_sum = styles_info(rpt)
     
-    # Looping through each layout
-    for(lidx in 1:length(lay_sum[,1])){
-      style_type   = lay_sum[lidx, ]$style_type
-      style_id     = lay_sum[lidx, ]$style_id
-      style_name   = lay_sum[lidx, ]$style_name
-    
-      # Paragraph styles
-      if(style_type %in% c("paragraph")){
-        str = paste("style_name: ", style_name)
-        rpt = body_add_par(x=rpt, value=str, style=style_name)
-      }
-    
-      # Table styles
-      if(style_type %in% c("table")){
-        rpt = body_add_table(x=rpt, value=tab_example, style = style_name)
+
+    disp_styles = c("paragraph", "character", "table")
+
+    for(style_type in disp_styles){
+      rpt = body_add_par(x=rpt, value="")
+      rpt = body_add_par(x=rpt, value=paste("STYLES: ", style_type))
+
+      tmp_lay_sum =  lay_sum[lay_sum$style_type == style_type, ]
+      for(lidx in 1:length(tmp_lay_sum[,1])){
+        #style_type   = tmp_lay_sum[lidx, ]$style_type
+        style_id     = tmp_lay_sum[lidx, ]$style_id
+        style_name   = tmp_lay_sum[lidx, ]$style_name
+
+        # Paragraph styles
+        if(style_type %in% c("paragraph", "charcter")){
+          rpt = body_add_par(x=rpt, value=paste("style_name: ", style_name), style=style_name)
+        }
+
+        # Table styles
+        if(style_type %in% c("table")){
+          rpt = body_add_par(x=rpt, value=paste("style_name: ", style_name))
+          rpt = body_add_table(x=rpt, value=tab_example, style = style_name)
+        }
       }
     }
   }
@@ -9569,42 +9585,46 @@ return(rpt)}
 #'@export
 #'@title Add content to Body of a Word Document Report
 #'@description Appends content to the body of a word document
-#'
-#' For example if you have <HEADER_LEFT> in the header of your document and you wanted to
-#' replace it with the text "Upper left" you would do the following:
-#'
-#' \code{
-#'   cfg = system_report_doc_set_ph(cfg, 
-#'         ph_content  = "Upper Left" ,
-#'         ph_name     = "HEADER_LEFT", 
-#'         ph_location = "header")}
-#'
-#' Notice the \code{ph_name} just has \code{HEADER_LEFT} and leaves off the \code{<>}
-#'
 #'@param cfg ubiquity system object    
 #'@param rptname        report name initialized with \code{system_report_init}
 #'@param content_type   name of the placeholder
 #'@param content        list containing content to add 
 #'
-#' For each content type listed below the following content is expected:
+#' For each content type listed below the different content is expected. Text
+#' can be specified in different formats: \code{"text"} indicates plain text,
+#' \code{"fpar"} is formatted text defined by the \code{fpar} command from the
+#' \code{officer} package, and \code{"md"} is text formatted in markdown
+#' format (\code{?md_to_officer} for markdown details.).
 #'
 #' \itemize{
-#'  \item \code{"text"} text string of information
-#'  \item \code{"list"} vector of paired values (indent level and text), eg.  c(1, "Main Bullet", 2 "Sub Bullet")
-#'  \item \code{"imagefile"} image from a file
+#'  \item \code{"toc"} content is (\code{NULL}) and a table of contents will be inserted here
+#'  \item \code{"text"} content is a list containing a paragraph of text with the following elements
+#'   \itemize{
+#'      \item \code{"text"} string containing the text content either a string or the output of \code{"fpar"} for formatted text.
+#'      \item \code{"style"} string containing the style either \code{"normal"}, \code{"h1"}, \code{"h2"}, \code{"h3"}
+#'      \item \code{"format"} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+#'    }
+#'  \item \code{"imagefile"} content is a list containing describing an image file with the following elements
 #'   \itemize{
 #'      \item \code{image} string containing path to image file
-#'      \item \code{caption} Text containing the caption of the image
+#'      \item \code{caption} caption of the image
+#'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+#'      \item \code{height} height of the image (\code{NULL})
+#'      \item \code{width} width of the image (\code{NULL})
 #'    }
-#'  \item \code{"ggplot"} ggplot object, eg. p = ggplot() + ....
+#'  \item \code{"ggplot"} content is a list containing an image from a ggplot object, (eg. p = ggplot() + ....) with the following elements
 #'   \itemize{
 #'      \item \code{image} ggplot object
-#'      \item \code{caption} Text containing the caption of the image
+#'      \item \code{caption} caption of the image
+#'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+#'      \item \code{height} height of the image (\code{NULL})
+#'      \item \code{width} width of the image (\code{NULL})
 #'    }
-#'  \item \code{"table"} list containing the table content and other options with the following elements (defaults in parenthesis):
+#'  \item \code{"table"} content list containing the table content and other options with the following elements (defaults in parenthesis):
 #'   \itemize{
-#'      \item \code{table} Data frame containing the tabular data
-#'      \item \code{caption} Text containing the caption of the table 
+#'      \item \code{table} data frame containing the tabular data
+#'      \item \code{caption} caption of the table 
+#'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
 #'      \item \code{header} Boolean variable to control displaying the header (\code{TRUE})
 #'      \item \code{first_row} Boolean variable to indicate that the first row contains header information (\code{TRUE})
 #'    }
@@ -9637,14 +9657,34 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
     vp(cfg, "Either the content or the content_type was not specified")
   } else {
     # Checking the content type
-    if(!(content_type %in% c("text", "list", "imagefile", "ggplot", "table"))){
+    if(!(content_type %in% c("text", "toc", "imagefile", "ggplot", "table", "flextable"))){
       vp(cfg, paste("the content type >", content_type, "< is not supported",sep=""))
       isgood = FALSE
     } else{
+      # Checking to make sure the text format is correct
+      if(content_type == "text"){
+        ok_styles = c("normal", "h1", "h2", "h3", "toc")
+        if(!(content$style %in% ok_styles)){
+          vp(cfg, paste("the content$style >", content$style, "< is not correct, it should be one of: ", paste(ok_styles, collapse=", "), sep=""))
+          isgood = FALSE
+        }
+      }
       # Checking to make sure the image file exists
       if(content_type == "imagefile"){
-        if(!file.exists(content)){
-          vp(cfg, paste("the imagefile >", content, "< does not exist",sep=""))
+        if(!file.exists(content$image)){
+          vp(cfg, paste("the imagefile >", content$image, "< does not exist", sep=""))
+          isgood = FALSE
+        }
+      }
+      if(content_type == "ggplot"){
+        if(!is.ggplot(content$image)){
+          vp(cfg, paste("the image data found in >content$image< is not a ggplot object",sep=""))
+          isgood = FALSE
+        }
+      }
+      if(content_type == "table"){
+        if(!is.data.frame(content$table)){
+          vp(cfg, paste("the tabular information found in >content$table< is not a data.frame object",sep=""))
           isgood = FALSE
         }
       }
@@ -9653,7 +9693,232 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
 
   # If all the checks have passed we add the content
   if(isgood){
+    # Pulling out the meta data for the report template
+    meta = cfg$reporting$reports[[rptname]]$meta 
+    # Pulling out the report to make it easier to deal with
+    tmprpt  = cfg$reporting$reports[[rptname]]$report
+
+
+    #-------
+    # Determining the current depth
+    if(is.null(cfg$reporting$reports[[rptname]]$depth)){
+      depth = 1 
+    } else {
+      depth = cfg$reporting$reports[[rptname]]$depth
+    }
+    #-------
+
+    Caption_Location = "none"
+    Caption_Format  = "text"
+    if("caption_format" %in% names(content)){
+      Caption_Format = content$caption_format
+    }
+
+    #------
+    # Figure options 
+    if(content_type == "ggplot" | content_type == "imagefile"){
+      Figure_Width =  meta$styles$Figure_Width
+      if("width" %in% names(content)){
+        Figure_Width = content$width
+      }
+      
+      Figure_Height =  meta$styles$Figure_Height
+      if("height" %in% names(content)){
+        Figure_Height = content$height
+      }
+      Caption_Location = meta$styles$Figure_Caption_Location 
+      Caption_Style    = meta$styles$Figure_Caption
+      Caption_Ref_str  =  paste("tmprpt = shortcuts$slip_in_plotref(tmprpt, depth =", depth, ")")
+    }
     
+    if(content_type == "table" | content_type == "flextable"){
+      Caption_Location = meta$styles$Table_Caption_Location 
+      Caption_Style    = meta$styles$Table_Caption
+      Caption_Ref_str  =  paste("tmprpt = shortcuts$slip_in_tableref(tmprpt, depth =", depth, ")")
+    }
+    #-------
+    # Table options
+    if(content_type == "table"){
+      header    = TRUE
+      if('header' %in% names(content)){
+        header = content$header
+      } 
+      first_row = TRUE
+      if('first_row' %in% names(content)){
+        first_row = content$first_row
+      } 
+    }
+    #-------
+    if(content_type == "flextable"){
+      # These are the default table options
+      # and they can be over written by specifying 
+      # the same fields of the content list
+      header_top              = NULL
+      header_middle           = NULL
+      header_bottom           = NULL
+      merge_header            = TRUE
+      table_body_alignment    ="center"
+      table_header_alignment  ="center"
+      table_autofit           = TRUE
+      table_theme             ="theme_vanilla"
+      cwidth                  = 0.75
+      cheight                 = 0.25
+
+      ftops = c("header_top",             "header_middle",    "header_bottom", 
+                "merge_header",           "table_theme",      "table_body_alignment",
+                "table_header_alignment", "table_autofit",    "cwidth", 
+                "cheight")
+
+
+      # Defining the user specified flextable options:
+      for(ftop in ftops){
+        if(!is.null(content[[ftop]])){
+          eval(parse(text=sprintf('%s = content[[ftop]]', ftop)))
+        }
+      }
+
+      # Creating the table
+      invisible(system_req("flextable"))
+      ft = flextable::regulartable(content$table,  cwidth = cwidth, cheight=cheight)
+      
+      # Adding headers
+      header_types = c("header_top", "header_middle", "header_bottom")
+      first_header = TRUE
+      for(header_type in header_types){
+       
+        if(!is.null(eval(parse(text=header_type)))){
+          eval(parse(text=sprintf("header =  %s", header_type)))
+          # Creating the header
+          if(!is.null(header)){
+            if(length(names(header)) > 0){
+              if(first_header){
+                first_header = FALSE
+                shstr = ' ft = set_header_labels(ft'
+              } else {
+                shstr = ' ft = add_header(ft'
+              }
+              for(hname in names(header)){
+                shstr = sprintf('%s, %s="%s"', shstr, hname, header[[hname]])
+              }
+              # The top=FALSE seems to be breaking things
+              #shstr = sprintf('%s, top=FALSE)', shstr)
+              shstr = sprintf('%s)', shstr)
+              eval(parse(text=shstr))
+            }
+          }
+        }
+      }
+      
+
+      # Setting the theme
+      if(!is.null(table_theme)){
+        eval(parse(text=sprintf('ft = %s(ft)', table_theme))) }
+      
+      # Merging headers
+      if(merge_header){
+        ft = merge_h(ft, part="header") }
+      
+      if(table_autofit){
+        ft = autofit(ft) }
+      
+      # Applying the aligment
+      ft = align(ft, align=table_header_alignment, part="header")
+      ft = align(ft, align=table_body_alignment,   part="body"  )
+      
+    }
+
+    #------
+    # Adding caption to the top of the object
+    if(!is.null(content$caption) & Caption_Location == "top"){
+      if(Caption_Format == "text"){
+        tmprpt = body_add_par(tmprpt, content$caption, style=Caption_Style)
+      } else if(Caption_Format == "fpar"){
+        tmprpt = body_add_fpar(tmprpt, value=content$text, style=Caption_Style)
+      } else if(Caption_Format == "md"){
+        mdout = md_to_officer(content$text)
+        for(pgraph in mdout){
+          tmprpt = body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=Caption_Style)
+        }
+      }
+      eval(parse(text=Caption_Ref_str))
+    }
+
+    # Adding the image/table
+    if(content_type == "ggplot"){
+      tmprpt = body_add_gg(tmprpt, value=content$image, width = Figure_Width, height = Figure_Height)
+    }
+    if(content_type == "imagefile"){
+      tmprpt = body_add_img(tmprpt, src=content$image, width = Figure_Width, height = Figure_Height)
+    }
+
+    if(content_type == "table"){
+     tmprpt = body_add_table(tmprpt, value=content$table, header=header, first_row=first_row, style=meta$styles$Table)
+    }
+
+    if(content_type == "flextable"){
+      tmprpt = flextable::body_add_flextable(x = tmprpt, value = ft)
+    }
+
+    # Adding caption to the bottom of the object
+    if(!is.null(content$caption) & Caption_Location == "bottom"){
+      if(Caption_Format == "text"){
+        tmprpt = body_add_par(tmprpt, content$caption, style=Caption_Style)
+      } else if(Caption_Format == "fpar"){
+        tmprpt = body_add_fpar(tmprpt, value=content$text, style=Caption_Style)
+      } else if(Caption_Format == "md"){
+        mdout = md_to_officer(content$text)
+        for(pgraph in mdout){
+          tmprpt = body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=Caption_Style)
+        }
+      }
+      eval(parse(text=Caption_Ref_str))
+    }
+    #------
+
+    if(content_type == "text"){
+      # defaulting to text format
+      Text_Format = "text"
+      if("format" %in% names(content)){
+        Text_Format = content$format
+      }
+
+      if(content$style == "normal"){
+        text_style = meta$styles$Normal
+      }
+      if(content$style == "h1"){
+        text_style = meta$styles$Heading_1
+        depth = 1
+      }
+      if(content$style == "h2"){
+        text_style = meta$styles$Heading_2
+        depth = 2
+      }
+      if(content$style == "h3"){
+        text_style = meta$styles$Heading_3
+        depth = 3
+      }
+
+      if(Text_Format == "text"){
+        tmprpt =  body_add_par(tmprpt, value=content$text, style=text_style)
+      } else if(Text_Format == "fpar"){
+        tmprpt = body_add_fpar(tmprpt, value=content$text, style=text_style)
+      } else if(Text_Format == "md"){
+        mdout = md_to_officer(content$text)
+        for(pgraph in mdout){
+          tmprpt = body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=text_style)
+        }
+      }
+    }
+
+    if(content_type == "toc"){
+      tmprpt = body_add_toc(tmprpt, style=meta$styles$TOC )
+    }
+
+    # Putting the report back into cfg
+    cfg$reporting$reports[[rptname]]$report = tmprpt
+    
+    # saving the depth
+    cfg$reporting$reports[[rptname]]$depth = depth
   
   }
   
@@ -9663,9 +9928,293 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
     vp(cfg, "Unable to add content to document, see above for details")
   }
   
-}
+cfg}
 # -------------------------------------------------------------------------
+# md_to_officer
+#'@export
+#'@title Parse Markdown for OfficeR
+#'@description Parses text in Markdown format and returns fpar command strings to be used with OfficeR
+#'@param str     string containing Markdown can contain the following elements:
+#' \itemize{
+#'  \item paragraph    Two or more new lines creates a paragraph
+#'  \item \code{"bold"}    Can be either \code{"*text in bold*"} or \code{"_text in bold_"}
+#'  \item \code{"italic"}  Can be either \code{"**text in bold**"} or \code{"__text in bold__"}
+#'  \item \code{"subscript"}  \code{"Normal~subscript~"} 
+#'  \item \code{"superscript"}  \code{"Normal^superscript^"} 
+#'}
+#'@return list with parsed paragraph elements ubiquity system object with the
+#' content added to the body, each paragraph can be found in a numbered list
+#' element (e.g. \code{pgraph_1}, \code{pgraph_2}, etc) each with the following
+#' elements:
+#' \itemize{
+#'  \item \code{locs} Dataframe showing the locations of markdown elements in the current paragraph
+#'  \item \code{pele} These are the individual parsed paragraph elements
+#'  \item \code{fpar_cmd} String containing the fpar_cmd that can be run using
+#'  \code{eval} to return the output of \code{fpar}. For example: 
+#' \preformatted{
+#'   myfpar = eval(parse(text=pgparse$pgraph_1$fpar_cmd))
+#'  }
+#'}
+md_to_officer = function(str){
 
+# First we find paragraphs:
+pgraphs = unlist(base::strsplit(str, split="(\r\n|\r|\n){2,}"))
+
+
+md_info = data.frame(
+  md_name = c( "subscript",         "superscript",     "bold_us",  "bold_st",     "italic",            "color",                     "shading_color",                     "font_family"             ),
+  pattern = c( "~.+?~",             "\\^.+?\\^",       "_.+?_",    "\\*.+?\\*",   "\\%\\%.+?\\%\\%",   "<color:\\S+?>.+?</color>",  "<shade:\\S+?>.+?</shade>",          "<ff:\\S+?>.+?</ff>"      ), 
+  start   = c( "~",                 "\\^",             "_",        "\\*",         "\\%\\%",            "<color:\\S+?>",             "<shade:\\S+?>",                     "<ff:\\S+?>"              ),
+  end     = c( "~",                 "\\^",             "_",        "\\*",         "\\%\\%",            "</color>",                  "</shade>",                          "</ff>"                   ),
+  prop    = c( "vertical.align",    "vertical.align",  "bold",     "bold",        "italic",            "color",                     "shading_color",                     "font.family"             ))
+
+
+pos_start = c()
+pos_stop  = c()
+
+# Saving the parsed paragraphs
+pgraphs_parse = list()
+
+  # Now we walk through each paragraph
+  pgraph_idx = 1
+  for(pgraph_raw in pgraphs){
+
+    # Removing all of the carriage returns in the paragraph:
+    pgraph = gsub(pattern="(\r\n|\r|\n)", replacement=" ", pgraph_raw)
+  
+    # Storing the locations of the markdown in the string
+    locs      = NULL
+
+    # Visual id of md elements to debug finding stuff 
+    md_visual = c()
+
+    # Converting the ** to %% to make it easier to distinguish between bold and
+    # italics
+    pgraph = gsub(pgraph, pattern="\\*\\*", replacement="%%")
+    pgraph = gsub(pgraph, pattern="__", replacement="%%")
+
+    # Finding the locations of the markdown elements
+    for(md_idx  in 1:nrow(md_info)){
+      pattern = as.character(md_info[md_idx, ]$pattern)
+      md_name = as.character(md_info[md_idx, ]$md_name)
+      tmplocs = stringr::str_locate_all(pgraph, pattern)[[1]]
+      if(nrow(tmplocs) > 0){
+        tmplocs = as.data.frame(tmplocs)
+        tmplocs$md_name = md_name
+        locs = rbind(locs, tmplocs)
+      }
+    }
+
+    
+    # if locs is NULL then no markdown elements were found in the current 
+    # current paragraph so we just raap that up
+    if(is.null(locs)){
+      pele     = list()
+      pele$p_1 = list(text      = pgraph,
+                      props     = c("NULL"),
+                      props_cmd = "prop=NULL")
+    } else {
+      # If locs isn't NULL we start working trough the markdown elements:
+
+      # We begin by grouping nested markdown elements
+      locs =locs[order(locs$start), ]
+      locs$group = 1
+      if(nrow(locs) > 1){
+        for(loc_idx in 2:nrow(locs)){
+          # If the current md element starts before the last one stops
+          # they are grouped together, otherwise they become part of a new group
+          if(locs[loc_idx,]$start < locs[loc_idx-1,]$end){
+            locs[loc_idx,]$group = locs[loc_idx-1,]$group
+          } else {
+            locs[loc_idx,]$group = locs[loc_idx-1,]$group + 1
+          }
+        }
+      }
+      
+      # Pulling out the separate paragraph elements
+      pele     = list()
+      pele_idx = 1
+      # Processing each group
+      for(group in unique(locs$group)){
+        # pulling out the markdown elements for that group
+        gr_md   = locs[locs$group == group, ]
+      
+        #----------
+        # if we're dealing with the first group and it starts after the first
+        # character then we add that first chunk of text
+        if(group == 1 & gr_md[1, ]$start > 1){
+          #pele_tmp = list(text = pgraph)
+          pele[[paste('p_', pele_idx, sep="")]] = 
+               list(text      = substr(pgraph, start=1, stop=(gr_md$start-1)),
+                    props     = c("NULL"),
+                    props_cmd = "prop=NULL")
+          pele_idx = pele_idx + 1
+        }
+        #----------
+        # If we're dealing with a group after the first we need to pull out any
+        # text between groups
+        if(group > 1){
+          # Previous group:
+          gr_md_prev   = locs[locs$group == group-1, ]
+      
+          # If there is more than 1 character difference between the last md
+          # element from the previous group and the first of the current group
+          # then we need to add that text
+          if(gr_md[1, ]$start-gr_md_prev[1, ]$end > 1){
+            pele[[paste('p_', pele_idx, sep="")]] = 
+                       list(text      = substr(pgraph, 
+                                               start =(gr_md_prev[1, ]$end + 1),
+                                               stop  =(gr_md[1, ]$start - 1)),
+                            props     = c("NULL"),
+                            props_cmd = "prop=NULL")
+            pele_idx = pele_idx + 1
+          }
+        }
+        #----------
+        # Processing the markdown for a group
+        # First we pull out the text from the inner most markdown element
+        md_text = substr(pgraph, 
+                         start =gr_md[nrow(gr_md), ]$start,
+                         stop  =gr_md[nrow(gr_md), ]$end)
+
+        # now we strip off the beginning and ending of the markdown 
+        md_name  = gr_md[nrow(gr_md), ]$md_name
+      
+        # patterns to strip off the beginning and end
+        md_start = paste("^", as.character(md_info[md_info$md_name == md_name, ]$start), sep="")
+        md_end   = paste(as.character(md_info[md_info$md_name == md_name, ]$end), "$", sep="")
+      
+        # Stripping those patterns off
+        md_text = sub(md_text, pattern=md_start, replacement="")
+        md_text = sub(md_text, pattern=md_end, replacement="")
+
+        if(group == 4){
+        #browser()
+        }
+      
+        # Now we save the text:
+        pele[[paste('p_', pele_idx, sep="")]] = 
+                   list(text      = md_text,
+                        props     = c(),
+                        props_cmd = NULL)
+      
+        tmp_props = c()
+        # Next we add the properties associated with the markdown
+        for(md_name in (gr_md$md_name)){
+          md_start = as.character(md_info[md_info$md_name == md_name, ]$start)
+          md_end   = as.character(md_info[md_info$md_name == md_name, ]$end)
+          md_prop  = as.character(md_info[md_info$md_name == md_name, ]$prop)
+      
+          # Setting properties based on the type of markdown selected
+          if(md_name == "bold_st" | md_name == "bold_us"){
+            tmp_props = c(tmp_props, "bold = TRUE")
+          }
+      
+          if(md_name == "italic"){
+            tmp_props = c(tmp_props, "italic = TRUE")
+          }
+      
+          if(md_name == "superscript"){
+            tmp_props = c(tmp_props, 'vertical.align = "superscript"')
+          }
+      
+          if(md_name == "subscript"){
+            tmp_props = c(tmp_props, 'vertical.align = "subscript"')
+          }
+      
+          if(md_name == "color"){
+            # pulling out the color markdown text. It uses the first entry so
+            # the outer most. There shouldn't be more than one. 
+            md_text = substr(pgraph, 
+                             start = gr_md[gr_md$md_name == "color", ]$start[1],
+                             stop  = gr_md[gr_md$md_name == "color", ]$end[1])
+
+            #extracting the color
+            color = stringr::str_extract(md_text, md_start)
+            color= gsub(color, pattern="<color:", replacement="") 
+            color= gsub(color, pattern=">", replacement="") 
+
+            tmp_props = c(tmp_props, paste('color = "', color, '"', sep=""))
+          }
+          if(md_name == "shading_color"){
+            # pulling out the color markdown text. It uses the first entry so
+            # the outer most. There shouldn't be more than one. 
+            md_text = substr(pgraph, 
+                             start = gr_md[gr_md$md_name == "shading_color", ]$start[1],
+                             stop  = gr_md[gr_md$md_name == "shading_color", ]$end[1])
+
+            #extracting the color
+            color = stringr::str_extract(md_text, md_start)
+            color= gsub(color, pattern="<shade:", replacement="") 
+            color= gsub(color, pattern=">", replacement="") 
+
+            tmp_props = c(tmp_props, paste('shading.color = "', color, '"', sep=""))
+          }
+
+          if(md_name == "font_family"){
+            md_text = substr(pgraph, 
+                             start = gr_md[gr_md$md_name == "font_family", ]$start[1],
+                             stop  = gr_md[gr_md$md_name == "font_family", ]$end[1])
+
+            #extracting the font family
+            ff = stringr::str_extract(md_text, md_start)
+            ff = gsub(ff, pattern="<ff:", replacement="") 
+            ff = gsub(ff, pattern=">", replacement="") 
+            tmp_props = c(tmp_props, paste('font.family = "', ff, '"', sep=""))
+          }
+      
+        }
+      
+        pele[[paste('p_', pele_idx, sep="")]]$props     = tmp_props
+        pele[[paste('p_', pele_idx, sep="")]]$props_cmd = paste("prop=officer::fp_text(", paste(tmp_props, collapse=", "), ")", sep="")
+      
+        pele_idx = pele_idx + 1
+      
+        #----------
+        # If we're at the last group and it doesn't go to the end we add the
+        # last part as well
+        if(group == max(unique(locs$group))){
+          # First we get the last piece of text:
+          text_end = substr(pgraph, start=(gr_md[1, ]$end+1), stop=nchar(pgraph))
+          # If that string isn't empty we add a paragraph element for it
+          if(text_end != ""){
+            pele[[paste('p_', pele_idx, sep="")]] = 
+                       list(text      = text_end,
+                            props     = c("NULL"),
+                            props_cmd = "prop=NULL")
+            pele_idx = pele_idx + 1
+          }
+        }
+        #----------
+      }
+      
+      for(loc_idx in 1:nrow(locs)){
+        tmpstr = paste(rep(" ", nchar(pgraph)), collapse="")
+        tmpstr = paste(tmpstr, ":",  locs[loc_idx, ]$md_name, sep="")
+        substr(tmpstr, locs[loc_idx, ]$start, locs[loc_idx, ]$start)  = "|"
+        substr(tmpstr, locs[loc_idx, ]$end  , locs[loc_idx, ]$end  )  = "|"
+        md_visual = c(md_visual, pgraph, tmpstr)
+      }
+    }
+
+
+  fpar_cmd = ""
+  for(tmpele in pele){
+    if(fpar_cmd != ""){
+     fpar_cmd = paste(fpar_cmd, ',\n') }
+    fpar_cmd = paste(fpar_cmd, 'ftext("', tmpele$text, '", ', tmpele$props_cmd, ')', sep="")
+  }
+  fpar_cmd = paste("fpar(", fpar_cmd, ")", sep="")
+
+  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$pele      = pele
+  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$locs      = locs
+  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$md_visual = md_visual
+  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$fpar_cmd  = fpar_cmd
+
+  pgraph_idx = pgraph_idx + 1
+  }
+pgraphs_parse}
+# /md_to_officer
 # -------------------------------------------------------------------------
 # system_report_doc_set_ph
 #'@export
@@ -10532,6 +11081,7 @@ system_nca_run = function(cfg,
         # This contains all of the rows for the current dose number
         TMP_SS_DN  = SUBDS[SUBDS$SI_DOSENUM == dosenum, ]
 
+
         # If this is a sparse sampling analysis we remove redundant time
         # points so we have one concentration per time point for the current
         # dose number
@@ -10584,7 +11134,7 @@ system_nca_run = function(cfg,
           Tmax            = signif(Tmax, digits)
         } 
 
-        # Calculating the predose conc to subtract from the concentration
+        # Finding the predose conc 
         # By default it's zero:
         PREDOSE_CONC = 0.0
         # first we look for observations with time values before the first
@@ -10592,10 +11142,13 @@ system_nca_run = function(cfg,
         if(any(SUBDS[[dsmap$TIME]] < min(SUBDS_DN[[dsmap$TIME]]))){
           # This gets the subject dataset leading up to the current subset
           PREDOSEDS = SUBDS[SUBDS[[dsmap$TIME]] < min(SUBDS_DN[[dsmap$TIME]]), ]
+
+          # Pulling out the values at the last time point
+          PREDOSEDS = PREDOSEDS[PREDOSEDS[[dsmap$TIME]] == max(PREDOSEDS[[dsmap$TIME]]), ]
+
           # Now we pluck off the last value:
           PREDOSE_CONC = PREDOSEDS[nrow(PREDOSEDS), ]$SI_CONC
         }
-
 
         # The nominal time of this point will be 0, but in a multiple dose
         # setting the clock time will be different:

@@ -56,7 +56,7 @@ This should provide you with the following scripts:
 Titration or rule-based simulations are run using the following functions:
 
 * ``system_new_tt_rule`` - Defines a new rule and the times when it is evaluated
-* ``system_new_tt_cond`` - Adds a condition to a rule and an associated action to perform when that condition is true
+* ``system_set_tt_cond`` - Adds a condition to a rule and an associated action to perform when that condition is true
 * ``run_simulation_titration`` - Runs an individual simulation using titration rules
 
 ## Repeated Bolus Dosing (``analysis_repeat_dosing.r``)
@@ -87,7 +87,7 @@ cfg=system_set_option(cfg,
                       value       = TRUE)
 ```
 
-Next we need to define a rule using ``system_new_tt_rule``. A rule contains a set of times (and the timescale) where we want to evaluate that rule. Here we create a rule called ``"ivdose"`` and we evaluate this rule at weeks 0, 2, 4, 6 and 8. Any timescale defined using ``<TS:?`` in the system file can be used:
+Next we need to define a rule using ``system_new_tt_rule``. A rule contains a set of times (and the timescale) where we want to evaluate that rule. Here we create a rule called ``"ivdose"`` and we evaluate this rule at weeks 0, 2, 4, 6 and 8. Any timescale defined using ``<TS:?>`` in the system file can be used:
 ```{r results="hide", message=FALSE}
 cfg=system_new_tt_rule(cfg,   
                        name       = "ivdose",
@@ -95,7 +95,7 @@ cfg=system_new_tt_rule(cfg,
                        timescale  = "weeks")
 ```
                                   
-Once a rule has been created you can attach conditions to that rule using ``system_set_tt_cond``. The name passed to this function is the name of the rule this condition applies. The ``cond`` argument is a string that will be evaluated internally. You put any kind of Boolean argument you want here, or even create a user definable function that returns a Boolean argument (eg, ``'myfunction(arguments)'``). When this condition evaluates as true the string in ``action`` will be evaluated. The string ``SI_TT_BOLUS`` is a prototype function used to modify dosing at the titration points. See the help (``?system_new_tt_cond``) for details on prototype functions and the variables available in the titration environment. This action will define the dosing into the specified state (as defined by ``<B:?>`` in the system file)  with the values and times shown. The units here are those specified in the system file and the times are relative to the titration time point. 
+Once a rule has been created you can attach conditions to that rule using ``system_set_tt_cond``. The name passed to this function is the name of the rule this condition applies. The ``cond`` argument is a string that will be evaluated internally. You put any kind of Boolean argument you want here, or even create a user definable function that returns a Boolean argument (eg, ``'myfunction(arguments)'``). When this condition evaluates as true the string in ``action`` will be evaluated. The string ``SI_TT_BOLUS`` is a prototype function used to modify dosing at the titration points. See the help (``?system_set_tt_cond``) for details on prototype functions and the variables available in the titration environment. This action will define the dosing into the specified state (as defined by ``<B:?>`` in the system file)  with the values and times shown. The units here are those specified in the system file and the times are relative to the titration time point. 
 ```{r results="hide", message=FALSE}
 cfg=system_set_tt_cond(cfg,       
                        name       = "ivdose",
