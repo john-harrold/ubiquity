@@ -448,7 +448,7 @@ For example:
 
 Outputs that begin with ``QC``, like ``QC_CLtot`` above, will not be displayed in the ShinyApp. This is intended to make them available at the scripting level for quality control (QC) purposes.
 
-## Functions and Operators
+## Functions and operators
 
 Most of the standard operators behave as expected (``+``, ``-``, ``*``, & ``/``) because most languages use these consistently. There are however certain operators and functions that differ between languages. For example, consider the power function ($a^b$). In FORTRAN this would be ``a**b``, in Matlab it is ``a^b``, and in C it is ``pow(a,b)``. Given the objectives here (write once and create multiple formats), this can be quite challenging. The solution used here is to convert language specific functions and operators into generic functions. So the power operator would be:
 
@@ -473,10 +473,10 @@ and                    | $a \& b$  | ``SIMINT_AND[a][b]``
 
 
 
-### Current Simulation Time
+### Current simulation time
 For some systems you will want to access the simulation time. To do this you can use the internal variable  ``SIMINT_TIME``.
 
-### Modeling Quasi-Equilibrium of Target-Mediated Drugs
+### Modeling quasi-equilibrium of target-mediated drugs
 The free amount of a drug ``Cfree`` which is binding to a receptor with an affinity of ``KD`` given total values ``Ctot`` and ``Rtot`` the following can be calculated using the following equation: 
 
 $$
@@ -583,11 +583,8 @@ To specify a conditional assignment use the statement:
 
 Here ``name`` is the name of the secondary parameter be defined and ``COND`` indicates
 that we have a Boolean condition that needs to be satisfied. The condition
-(``Boolean``) can be and, or, greater than, etc. relationships. 
-The parameter
-will be assigned to have the value when this Boolean relationship is true. These
-conditions can be a function of different elements of the system depending on
-whether or not name refers to a static or dynamic secondary parameter:
+(``boolean``) can be and, or, greater than, etc. relationships. 
+The parameter will be assigned to have the value when this Boolean relationship is true. These conditions can be a function of different elements of the system depending on whether or not name refers to a static or dynamic secondary parameter:
 
 * ``<As>`` function of system parameters, previously defined static secondary parameters and covariates that do not change for a given subject.
 * ``<Ad> `` function of system parameters, static secondary parameters, states, previously defined dynamic secondary parameters and covariates.

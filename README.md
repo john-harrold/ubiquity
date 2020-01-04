@@ -12,7 +12,7 @@ Briefly, install the following:
 * [Perl (Windows)](<http://strawberryperl.com/>)
 * [Rtools (Windows)](<https://cran.r-project.org/bin/windows/Rtools/>)
 
-To install from GitHub:
+To install the development version from GitHub:
 ```
 install.packages("devtools") 
 devtools::install_github("john-harrold/ubiquity",                                       
@@ -28,5 +28,5 @@ For more information on specific tasks see the vignettes:
 * Naive-pooled parameter estimation: ``vignette("Estimation", package = "ubiquity")``
 * Rule-based/titration simulations: ``vignette("Titration", package = "ubiquity")``
 * ShinyApp for running and deploying models: ``vignette("Deployment", package = "ubiquity")``
-* Inline generation of PowerPoint reports: ``vignette("Reporting", package = "ubiquity")``
+* Inline generation of PowerPoint and Word reports: ``vignette("Reporting", package = "ubiquity")``
 * Automated non-compartmental analysis with PKNCA: ``vignette("NCA", package = "ubiquity")``

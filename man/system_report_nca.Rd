@@ -10,7 +10,7 @@ system_report_nca(cfg, rptname = "default", analysis_name = "analysis",
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{rptname}{name of report to append results to (default \code{'default'})}
+\item{rptname}{report name (either PowerPoint or Word)}
 
 \item{analysis_name}{string containing the name of the analysis (default \code{'analysis'}) to archive to files and reference results later}
 

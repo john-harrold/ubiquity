@@ -2678,7 +2678,7 @@ system_view <- function(cfg,field="all") {
        for(ch_name   in names(cfg$cohorts)){
          msgs = c(msgs,sprintf(" Cohort: %s", ch_name))
          msgs = c(msgs, paste(replicate(20, "-"), collapse = ""))
-         msgs = c(msgs,sprintf(" dataset: %s", cfg$cohorts[[ch_name]]$dataset))
+         msgs = c(msgs,sprintf(" dataset: %s; (%s)", cfg$cohorts[[ch_name]]$dataset, cfg$data[[cfg$cohorts[[ch_name]]$dataset]]$data_file$name))
          msgs = c(msgs,sprintf(" Cohort options (options) "))
          #options
          if('options' %in% names(cfg$cohorts[[ch_name]])){
@@ -2701,7 +2701,7 @@ system_view <- function(cfg,field="all") {
          }
          msgs = c(msgs, " ")
 
-         msgs = c(msgs, " Cohort-specific parametrers (cp)")
+         msgs = c(msgs, " Cohort-specific parameters (cp)")
          if('cp' %in% names(cfg$cohorts[[ch_name]])){
            for(pname in names(cfg$cohorts[[ch_name]]$cp)){
              msgs = msgs(sprintf("     %s = %s", pname, toString(cfg$cohorts[[ch_name]]$cp[[pname]])))
@@ -3979,11 +3979,23 @@ return(cfg)}
 #' If the dataset has the headings \code{ID}, \code{DOSE} and \code{SEX}  and
 #' cohort filter had the following format:
 #'\preformatted{cohort$cf$ID   = c(1:4)
+#'
 #'cohort$cf$DOSE = c(5,10)
 #'cohort$cf$SEX  = c(1)}
 #'
 #'It would be translated into the boolean filter:
+#'
 #'\preformatted{((ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)}
+#'
+#' Optionally you may want to fix a system parameter to a different value for a
+#' given cohort. This can be done using the cohort parameter (\code{cp}) field.
+#' For example if you had the body weight defined as a system parameter 
+#' (\code{BW}}), and you wanted to fix the body weight to 70 for the current
+#' cohort you would do the following:
+#'
+#' \preformatted{cohort$cp$BW = 70}
+#'
+#' Note that you can only fix parameters that are not being estimated.
 #'
 #' Next we define the dosing for this cohort. It is only necessary to define
 #' those inputs that are non-zero. So if the data here were generated from
@@ -3991,6 +4003,7 @@ return(cfg)}
 #' using \code{<B:times>} and \code{<B:events>} dosing into the central
 #' compartment \code{Cp}, you would pass this information to the cohort in the
 #' following manner:
+#'
 #' \preformatted{cohort$inputs$bolus$Cp$AMT   = c(5)
 #'cohort$inputs$bolus$Cp$TIME  = c(0)}
 #'  
@@ -4011,6 +4024,7 @@ return(cfg)}
 #  estimation use \code{'1'}, to weight against the prediction squared use
 #  \code{'PRED^2'}, to incorporate the variance parameter \code{SLOPE} use
 #  something like \code{'SLOPE*PRED^2'}.
+#'
 #'\preformatted{cohort$outputs$ONAME$obs$time        = ’TIMECOL’      
 #'cohort$outputs$ONAME$obs$value       = ’OBSCOL’       
 #'cohort$outputs$ONAME$obs$missing     = -1         
@@ -4028,7 +4042,7 @@ return(cfg)}
 #'
 #' Lastly we define the cohort:
 #'
-#'@seealso Estimation vignette (\code{vignette("Estimation", package = "ubiquity")})
+#'@seealso Estimation vignette (\code{vignette("Estimation", package = "ubiquity")}) and \code{\link{system_select_set}
 system_define_cohort <- function(cfg, cohort){
   
  if('options' %in% names(cohort)){
@@ -5913,6 +5927,13 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
     # Saving the report information 
     pest$report = files
 
+    # appending a snapshot of the cohort information to the pest variable for archiving later 
+    pest$cohorts      = cfg$cohorts
+    pest$cohort_view  = system_view(cfg, "cohorts")
+
+    # appending the system file
+    pest$system_file = readLines(cfg$options$misc$system_file)
+
     for(pname in names(pest$estimate)){
       pindex = cfg$parameters$matrix$name == pname
       ptmp = c()
@@ -6279,10 +6300,7 @@ for(output in levels(erp$pred$OUTPUT)){
   if(output_scale == "log"){
      opds = opds[opds$PRED>0 & opds$OBS>0,] }
   
-  # overlaying the line of identity
-  LIDENT = data.frame(OBS  = c(min(opds$PRED, opds$OBS), max(opds$PRED, opds$OBS)),
-                      PRED = c(min(opds$PRED, opds$OBS), max(opds$PRED, opds$OBS)))
-  p = p + geom_line(data=LIDENT, aes(x=PRED, y=OBS), color='black')
+
 
   
   # setting the title to the output label
@@ -6293,8 +6311,24 @@ for(output in levels(erp$pred$OUTPUT)){
   p = p + theme(legend.position = 'bottom')     
 
   if(output_scale == "log"){
-    p = p + scale_x_log10()
-    p = p + scale_y_log10()}
+    if(!is.null(plot_opts$outputs[[output]]$ylim)){
+      p =  gg_axis(fo       = p,
+                   ylim_min = min(plot_opts$outputs[[output]]$ylim),
+                   ylim_max = max(plot_opts$outputs[[output]]$ylim),
+                   xlim_min = min(plot_opts$outputs[[output]]$ylim),
+                   xlim_max = max(plot_opts$outputs[[output]]$ylim))
+    } else {
+      p =  gg_axis(fo       = p,
+                   ylim_min = min(c(tds[!tds$SMOOTH, ]$OBS, tds[!tds$SMOOTH, ]$PRED)),
+                   ylim_max = max(c(tds[!tds$SMOOTH, ]$OBS, tds[!tds$SMOOTH, ]$PRED)),
+                   xlim_min = min(c(tds[!tds$SMOOTH, ]$OBS, tds[!tds$SMOOTH, ]$PRED)),
+                   xlim_max = max(c(tds[!tds$SMOOTH, ]$OBS, tds[!tds$SMOOTH, ]$PRED)))
+    }
+  }
+
+  # overlaying the line of identity
+  p = p + geom_abline(slope=1, intercept=0)
+  p = p + ylab("Observed") + xlab("Predicted")
 
   p = prepare_figure(p, purpose=def$purpose)
   eval(parse(text=sprintf('p = p + scale_colour_manual(values=c(%s))', color_string)))
@@ -7372,10 +7406,10 @@ gg_axis  = function(fo,
   
   }
 
-  if(xaxis_scale){
-    xlim_min = 10^floor(log10(xlim_min))
-    xlim_max = 10^ceiling(log10(xlim_max))
-  }
+ #if(xaxis_scale){
+ #  xlim_min = 10^floor(log10(xlim_min))
+ #  xlim_max = 10^ceiling(log10(xlim_max))
+ #}
 
   data_xlim = c(xlim_min, xlim_max)
 
@@ -7401,10 +7435,10 @@ gg_axis  = function(fo,
     }
   }
 
-  if(yaxis_scale){
-    ylim_min = 10^floor(log10(ylim_min))
-    ylim_max = 10^ceiling(log10(ylim_max))
-  }
+ #if(yaxis_scale){
+ #  ylim_min = 10^floor(log10(ylim_min))
+ #  ylim_max = 10^ceiling(log10(ylim_max))
+ #}
  
   data_ylim = c(ylim_min, ylim_max)
 
@@ -7447,16 +7481,16 @@ gg_axis  = function(fo,
         fo = fo + scale_y_continuous(breaks       = ytick_major,
                                      minor_breaks = ytick_minor,
                                      trans        = 'log10',
-                                     limits       = myylim,
                                      labels       = eval(parse(text="scales::trans_format('log10', scales::math_format(10^.x))")))
       }
       else{
         fo = fo + scale_y_continuous(breaks       = ytick_major,
                                      minor_breaks = ytick_minor,
                                      trans        = 'log10',
-                                     limits       = myylim,
                                      labels       = NULL)
       }
+
+      fo = fo + coord_cartesian(ylim=myylim)
     }
     fo = fo + annotation_logticks(sides='lr') 
     
@@ -7500,16 +7534,18 @@ gg_axis  = function(fo,
         fo = fo + scale_x_continuous(breaks       = xtick_major,
                                      minor_breaks = xtick_minor,
                                      trans        = 'log10',
-                                     limits       = myxlim,
+                                    #limits       = myxlim,
                                      labels       = eval(parse(text="scales::trans_format('log10', scales::math_format(10^.x))")))
       }
       else{
         fo = fo + scale_x_continuous(breaks       = xtick_major,
                                      minor_breaks = xtick_minor,
                                      trans        = 'log10',
-                                     limits       = myxlim,
+                                    #limits       = myxlim,
                                      labels       = NULL)
       }
+
+      fo = fo + coord_cartesian(xlim=myxlim)
     }
     fo = fo + annotation_logticks(sides='tb') 
   }
@@ -8720,7 +8756,7 @@ system_report_save = function (cfg,
       for(phn in names(cfg$reporting$reports[[rptname]]$meta$ph_content)){
         # Here we pull out the value (phv) and locatio (phl) of each
         # placeholder:
-        pht = paste("U__",phn,"__U", sep="") 
+        pht = paste(":::",phn,":::", sep="") 
         phv = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$content
         phl = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$location
         if(phl == "body"){
@@ -9448,7 +9484,7 @@ return(cfg)}
 #'  \item \code{"flextable"} list containing flextable content and other options with the following elements (defaults in parenthesis):
 #'   \itemize{
 #'      \item \code{table} Data frame containing the tabular data
-#'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list the same names as the data frame names containing the tabular data and values with the header text to show in the table
+#'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
 #'      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
 #'      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
 #'      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
@@ -9526,7 +9562,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       ft = flextable::regulartable(content$table,  cwidth = cwidth, cheight=cheight)
       
       # Adding headers
-      header_types = c("header_top", "header_middle", "header_bottom")
+      header_types = c("header_bottom", "header_middle", "header_top")
       first_header = TRUE
       for(header_type in header_types){
        
@@ -9594,20 +9630,24 @@ return(rpt)}
 #' can be specified in different formats: \code{"text"} indicates plain text,
 #' \code{"fpar"} is formatted text defined by the \code{fpar} command from the
 #' \code{officer} package, and \code{"md"} is text formatted in markdown
-#' format (\code{?md_to_officer} for markdown details.).
+#' format (\code{?md_to_officer} for markdown details).
 #'
 #' \itemize{
-#'  \item \code{"toc"} content is (\code{NULL}) and a table of contents will be inserted here
+#'  \item \code{"break"} page break, content is (\code{NULL}) and a page break will be inserted here
+#'  \item \code{"toc"} generates the table of contents, and content is a list 
+#'   \itemize{
+#'      \item \code{"level"} number indicating the depth of the contents to display (\code{3})
+#'    }
 #'  \item \code{"text"} content is a list containing a paragraph of text with the following elements
 #'   \itemize{
 #'      \item \code{"text"} string containing the text content either a string or the output of \code{"fpar"} for formatted text.
-#'      \item \code{"style"} string containing the style either \code{"normal"}, \code{"h1"}, \code{"h2"}, \code{"h3"}
+#'      \item \code{"style"} string containing the style either \code{"normal"}, \code{"code"}, \code{"h1"}, \code{"h2"}, \code{"h3"}
 #'      \item \code{"format"} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
 #'    }
 #'  \item \code{"imagefile"} content is a list containing describing an image file with the following elements
 #'   \itemize{
 #'      \item \code{image} string containing path to image file
-#'      \item \code{caption} caption of the image
+#'      \item \code{caption} caption of the image (\code{NULL})  
 #'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
 #'      \item \code{height} height of the image (\code{NULL})
 #'      \item \code{width} width of the image (\code{NULL})
@@ -9615,18 +9655,29 @@ return(rpt)}
 #'  \item \code{"ggplot"} content is a list containing an image from a ggplot object, (eg. p = ggplot() + ....) with the following elements
 #'   \itemize{
 #'      \item \code{image} ggplot object
-#'      \item \code{caption} caption of the image
+#'      \item \code{caption} caption of the image (\code{NULL})  
 #'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
 #'      \item \code{height} height of the image (\code{NULL})
 #'      \item \code{width} width of the image (\code{NULL})
 #'    }
-#'  \item \code{"table"} content list containing the table content and other options with the following elements (defaults in parenthesis):
+#'  \item \code{"table"} content list containing the table content and other options with the following elements:
 #'   \itemize{
 #'      \item \code{table} data frame containing the tabular data
-#'      \item \code{caption} caption of the table 
+#'      \item \code{caption} caption of the table (\code{NULL})  
 #'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
 #'      \item \code{header} Boolean variable to control displaying the header (\code{TRUE})
 #'      \item \code{first_row} Boolean variable to indicate that the first row contains header information (\code{TRUE})
+#'    }
+#'  \item \code{"flextable"} list containing flextable content and other options with the following elements (defaults in parenthesis):
+#'   \itemize{
+#'      \item \code{table} Data frame containing the tabular data
+#'      \item \code{caption} caption of the table (\code{NULL})  
+#'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+#'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
+#'      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
+#'      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
+#'      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
+#'      \item \code{table_theme} (\code{"theme_vanilla"}) Table theme
 #'    }
 #'}
 #'@return cfg ubiquity system object with the content added to the body
@@ -9634,6 +9685,9 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
 
   isgood = TRUE
 
+ if(content_type == "break"){
+  content = list()
+ }
 
   # Checking things
   if(cfg$reporting$enabled){
@@ -9657,13 +9711,13 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
     vp(cfg, "Either the content or the content_type was not specified")
   } else {
     # Checking the content type
-    if(!(content_type %in% c("text", "toc", "imagefile", "ggplot", "table", "flextable"))){
+    if(!(content_type %in% c("break", "text", "toc", "imagefile", "ggplot", "table", "flextable"))){
       vp(cfg, paste("the content type >", content_type, "< is not supported",sep=""))
       isgood = FALSE
     } else{
       # Checking to make sure the text format is correct
       if(content_type == "text"){
-        ok_styles = c("normal", "h1", "h2", "h3", "toc")
+        ok_styles = c("normal", "code", "h1", "h2", "h3", "toc")
         if(!(content$style %in% ok_styles)){
           vp(cfg, paste("the content$style >", content$style, "< is not correct, it should be one of: ", paste(ok_styles, collapse=", "), sep=""))
           isgood = FALSE
@@ -9782,7 +9836,7 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       ft = flextable::regulartable(content$table,  cwidth = cwidth, cheight=cheight)
       
       # Adding headers
-      header_types = c("header_top", "header_middle", "header_bottom")
+      header_types = c("header_bottom", "header_middle", "header_top")
       first_header = TRUE
       for(header_type in header_types){
        
@@ -9874,7 +9928,6 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       eval(parse(text=Caption_Ref_str))
     }
     #------
-
     if(content_type == "text"){
       # defaulting to text format
       Text_Format = "text"
@@ -9884,6 +9937,9 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
 
       if(content$style == "normal"){
         text_style = meta$styles$Normal
+      }
+      if(content$style == "code"){
+        text_style = meta$styles$Code  
       }
       if(content$style == "h1"){
         text_style = meta$styles$Heading_1
@@ -9911,7 +9967,16 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
     }
 
     if(content_type == "toc"){
-      tmprpt = body_add_toc(tmprpt, style=meta$styles$TOC )
+      if("level" %in% content){
+        level = content$level
+      } else {
+        level = 3
+      }
+      tmprpt = body_add_toc(tmprpt, style=meta$styles$TOC, level=level)
+    }
+
+    if(content_type == "break"){
+      tmprpt = body_add_break(tmprpt)
     }
 
     # Putting the report back into cfg
@@ -9929,6 +9994,98 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
   }
   
 cfg}
+# /system_report_doc_add_content
+# -------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+# JMH
+# system_report_doc_format_section
+#'@export
+#'@title Formats the Current Document Section  
+#'@description Sets the section format for the content added since the last section content type was defined.  This is a wrapper for the body_end_section* functions in officer.
+#'@param cfg ubiquity system object    
+#'@param rptname        report name initialized with \code{system_report_init}
+#'@param section_type   type of section to apply, either \code{"columns"},  \code{"continuous"}, \code{"landscape"}, \code{"portrait"}, \code{"columns"},  or  \code{"columns_landscape"}
+#'@param w              width  in inches of the section of the page (\code{NULL})
+#'@param h              height in inches of the section of the page (\code{NULL})
+#'@param widths         column widths in inches, number of columns set by number of values (\code{NULL})   
+#'@param spaces         space in inches between columns (\code{NULL})    
+#'@param sep            Boolean value controlling line separating columns (\code{FALSE})
+#'@return cfg ubiquity system object with the section added to the body
+system_report_doc_format_section = function(cfg, rptname="default", 
+  section_type = NULL,  w      = NULL, h     = NULL,
+  sep          = FALSE, widths = NULL, space = NULL){
+  isgood = TRUE
+
+  allowed_sections = c("columns",  "continuous", "landscape", 
+                       "portrait", "columns",    "columns_landscape")
+
+  allowed_args = list(
+     continuous           = c(),
+     landscape            = c("w",      "h"),
+     portrait             = c("w",      "h"),
+     columns              = c("widths", "space", "sep"),
+     columns_landscape    = c("widths", "space", "sep", "w", "h")
+  )
+
+  if(cfg$reporting$enabled){
+    if(rptname %in% names(cfg$reporting$reports)){
+      if( "Word" != cfg$reporting$reports[[rptname]]$rpttype){
+        isgood = FALSE
+        vp(cfg, paste("Error: Trying to add Word content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
+      }
+    } else {
+      isgood = FALSE
+      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
+    }
+  } else {
+    isgood = FALSE
+    vp(cfg, "Error: Reporting not enabled")
+  }
+
+  if(is.null(section_type)){
+    isgood = FALSE
+    vp(cfg, paste('Error; you myst specify a section_type of either: "',  paste(allowed_sections, collapse = '", "'), '"', sep=""))
+  }
+
+
+
+  if(isgood){
+    # Pulling out the meta data for the report template
+    meta = cfg$reporting$reports[[rptname]]$meta 
+    # Pulling out the report to make it easier to deal with
+    tmprpt  = cfg$reporting$reports[[rptname]]$report
+
+    # Creating function arguments
+    fcnargs = c("x=tmprpt")
+
+    if("sep" %in% allowed_args[[section_type]]){
+      if(!is.null(sep)){
+         fcnargs = c(fcnargs, paste("sep=",sep, sep="")) }
+    }
+    if("w" %in% allowed_args[[section_type]]){
+     if(!is.null(w)){
+        fcnargs = c(fcnargs, paste("w=",w, sep="")) }
+    }
+    if("h" %in% allowed_args[[section_type]]){
+      if(!is.null(h)){
+         fcnargs = c(fcnargs, paste("h=",h, sep="")) }
+    }
+    if("widths" %in% allowed_args[[section_type]]){
+      if(!is.null(widths)){
+         fcnargs = c(fcnargs, paste("widths=c(",toString(widths), ")", sep="")) }
+    }
+
+    fcn = paste("body_end_section_", section_type, sep="")
+
+    fcncall = paste("tmprpt = ", fcn, "(", paste(fcnargs, collapse = ", "), ")", sep="")
+
+    eval(parse(text=fcncall))
+
+    # Putting the report back into cfg
+    cfg$reporting$reports[[rptname]]$report = tmprpt
+  }
+cfg}
+# /system_report_doc_format
 # -------------------------------------------------------------------------
 # md_to_officer
 #'@export
@@ -10296,7 +10453,7 @@ cfg}
 #'@description This will take the output generated during a parameter estimation and append those results to a specified report.
 #'
 #'@param cfg ubiquity system object    
-#'@param rptname report name 
+#'@param rptname report name (either PowerPoint or Word) 
 #'@param analysis_name string containing the name of the estimation analysis and used as a prefix to store the results
 #'
 #'@return ubiquity system object with estimation report appended
@@ -10310,7 +10467,7 @@ system_report_estimation = function (cfg,
   output_directory = cfg$options$misc$output_directory 
 
   isgood = TRUE
-  rpttypes = c("PowerPoint")
+  rpttypes = c("PowerPoint", "Word")
 
   if(is.null(analysis_name)){
    isgood = FALSE
@@ -10321,7 +10478,7 @@ system_report_estimation = function (cfg,
     rpttype = cfg$reporting$reports[[rptname]]$rpttype
     if(!(rpttype %in% rpttypes)){
       isgood = FALSE
-      vp(cfg, paste("Estimation reporting does not support this format >", rpttype, ">", sep=""))
+      vp(cfg, paste("Estimation reporting does not support this format >", rpttype, "<", sep=""))
     }
   } else {
     isgood = FALSE
@@ -10331,56 +10488,69 @@ system_report_estimation = function (cfg,
 
   if(isgood){
 
-    # Powerpoint Reporting
-    if("PowerPoint" == rpttype){
-      vp(cfg, "")
-      vp(cfg, paste("Appending estimation results to report"))
-      vp(cfg, paste("  Report:   ", rptname,            sep=""))
-      vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
+    # File names where the estimation results should be stored:
+    fname_estimate = file.path(output_directory, paste(analysis_name, ".RData",    sep=""))
+    fname_grobs    = file.path(output_directory, paste(analysis_name, "_pr.RData", sep=""))
+    vp(cfg, "")
+    vp(cfg, paste("Appending estimation results to report"))
+    vp(cfg, paste("  Report:   ", rptname,            sep=""))
+    vp(cfg, paste("  Type:     ", rpttype,            sep=""))
+    vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
+    #---------------------------
+    pe    = NULL
+    pest  = NULL
+    grobs = NULL
+    if(file.exists(fname_estimate)){
+      vp(cfg, paste("Loading estimation results from file:", fname_estimate))
+      # Loads the variable pe and pest
+      load(fname_estimate)
+    } else {
+      vp(cfg, paste("Unable to load the estimate results from file:", fname_estimate))
+    }
+    if(file.exists(fname_grobs)){
+      vp(cfg, paste("Loading the figures from file:", fname_grobs))
+      # Loads the variablegrobs 
+      load(fname_grobs)
+    } else {
+      vp(cfg, paste("Unable to load the figures from file:", fname_grobs))
+    }
+
+    #---------------------------
+    # Parameter estimate table
+    petab = NULL
+    if(!is.null(pe$report$parameters_est)){
+      # pulling out the parameters table
+      petab = as.data.frame(pe$report$parameters_est)
+      # Trimming off the last row and last column
+      petab = petab[1:(nrow(petab)-1),1:(ncol(petab)-1)]
+      # Removing the guess column
+      petab = petab[,c(1,3:ncol(petab))]
     
-      # File names where the estimation results should be stored:
-      fname_estimate = file.path(output_directory, paste(analysis_name, ".RData",    sep=""))
-      fname_grobs    = file.path(output_directory, paste(analysis_name, "_pr.RData", sep=""))
+      ptab       = list()
+      ptab$table = petab
+      ptab$header_top = list(pname    = "Parameter", 
+                             estimate = "Estimate",
+                             cvpct    = "CV Percent", 
+                             cilb     = "Lower Bound", 
+                             ciub     = "Upper Bound", 
+                             units    = "Units")
+    }
+    #---------------------------
+    if("PowerPoint" == rpttype){
       if(file.exists(fname_estimate)){
-        vp(cfg, paste("Loading estimation results from file:", fname_estimate))
-        # Loads the variable pe and pest
-        pe   = NULL
-        pest = NULL
-        load(fname_estimate)
         #
         # Adding a slide with the parameter estimates:
         #  this is triggered when confidence intervals were able to be
         #  calculated 
         if(!is.null(pe$report$parameters_est)){
-          # pulling out the parameters table
-          petab = as.data.frame(pe$report$parameters_est)
-          # Trimming off the last row and last column
-          petab = petab[1:(nrow(petab)-1),1:(ncol(petab)-1)]
-          # Removing the guess column
-          petab = petab[,c(1,3:ncol(petab))]
-    
-          ptab       = list()
-          ptab$table = petab
-          ptab$header_top = list(pname    = "Parameter", 
-                                 estimate = "Estimate",
-                                 cvpct    = "CV Percent", 
-                                 cilb     = "Lower Bound", 
-                                 ciub     = "Upper Bound", 
-                                 units    = "Units")
           cfg = system_report_slide_content(cfg, 
                 title        = "Parameter Estimates",
                 rptname      = rptname,
                 content_type = "flextable",
                 content      = ptab)
         }
-      } else {
-        vp(cfg, paste("Unable to load the estimate results from file:", fname_estimate))
       }
       if(file.exists(fname_grobs)){
-        vp(cfg, paste("Loading the figures from file:", fname_grobs))
-        # Loads the variable pr
-        grobs = NULL
-        load(fname_grobs)
         # Looping through each output and creating a slide for the timecourse
         # and the obs vs pred figures
         for(output in grobs$outputs){
@@ -10394,10 +10564,133 @@ system_report_estimation = function (cfg,
                   right_content      = grobs$obs_pred[[output]])
           }
         }
-      } else {
-        vp(cfg, paste("Unable to load the figures from file:", fname_grobs))
       }
     }
+    #---------------------------
+    if("Word" == rpttype){
+      #---------------------------
+      # Parameter estiamtes
+      if(file.exists(fname_estimate)){
+        # Adding a table with the parameter estimates:
+        if(!is.null(pe$report$parameters_est)){
+          cfg = system_report_doc_add_content(cfg, 
+            content_type  = "text",
+            content       = list(style   = "normal",
+                                 text    = "Parameter Estimates"))
+          cfg = system_report_doc_add_content(cfg=cfg, 
+            rptname       = rptname,
+            content_type  = "flextable",
+            content       = ptab)
+          cfg = system_report_doc_add_content(cfg=cfg, 
+              rptname       = rptname,  
+              content_type  = "break")
+        }
+      }
+
+      #---------------------------
+      # VPCs
+      if(file.exists(fname_grobs)){
+        # Looping through each output and creating a slide for the timecourse
+        # and the obs vs pred figures
+        for(output in grobs$outputs){
+          if(is.ggplot(grobs$timecourse[[output]]) & is.ggplot(grobs$obs_pred[[output]])){
+            cfg = system_report_doc_add_content(cfg, 
+              rptname       = rptname,  
+              content_type  = "ggplot",
+              content       = list(image   = grobs$timecourse[[output]],
+                                   height  = 4.7))
+
+            cfg = system_report_doc_add_content(cfg, 
+              rptname       = rptname,  
+              content_type  = "ggplot",
+              content       = list(image   = grobs$obs_pred[[output]], 
+                                   height  = 4.7))
+          }
+        }
+        cfg = system_report_doc_add_content(cfg=cfg, 
+            rptname       = rptname,  
+            content_type  = "break")
+      }
+
+      #---------------------------
+      # variance/covariance matrix 
+      if(!is.null(pe$statistics_est$covariance)){
+        # If the column headers get too big we switch to landscape:
+        if(stringr::str_length(paste(names(pe$estimate), collapse=" ")) > 40){
+          cfg = system_report_doc_format_section(cfg, section_type="continuous")
+        }
+
+        vcv =  signif(pe$statistics_est$covariance, digits=3)
+        colnames(vcv) <- names(pe$estimate)
+        rownames(vcv) <- names(pe$estimate)
+        vcv = as.data.frame(vcv)
+
+        tcontent = list()
+        tcontent$table     =  vcv
+        tcontent$header    = TRUE 
+        tcontent$first_row = TRUE 
+        tcontent$caption   = "Variance/Covariance Matrix"
+        
+        cfg = system_report_doc_add_content(cfg, 
+          content_type  = "table",
+          content       = tcontent)        
+
+        # If the column headers get too big we switch to landscape:
+        if(stringr::str_length(paste(names(pe$estimate), collapse=" ")) > 40){
+          cfg = system_report_doc_format_section(cfg, section_type="landscape", h=8, w=10)
+        } else {
+          cfg = system_report_doc_add_content(cfg=cfg, 
+              rptname       = rptname,  
+              content_type  = "break")
+        }
+      }
+
+      #---------------------------
+      # Estimation metadata
+        cfg = system_report_doc_add_content(cfg, 
+          content_type  = "text",
+          content       = list(style   = "h1",
+                               text    = "Estimation Details"))
+        cfg = system_report_doc_add_content(cfg, 
+          content_type  = "text",
+          content       = list(style   = "normal",
+                               text    = "Loaded from files:"))
+
+        cfg = system_report_doc_add_content(cfg, 
+          content_type  = "text",
+          content       = list(style   = "code",
+                               text    = fname_estimate))
+
+        cfg = system_report_doc_add_content(cfg, 
+          content_type  = "text",
+          content       = list(style   = "code",
+                               text    = fname_grobs))
+
+      # Appending cohort details
+      cfg = system_report_doc_add_content(cfg, 
+        content_type  = "text",
+        content       = list(style   = "h2",
+                             text    = "Cohort Overview:"))
+      for(line in pe$cohort_view){
+        cfg = system_report_doc_add_content(cfg, 
+          content_type  = "text",
+          content       = list(style   = "code",
+                               text    = line))
+      }
+
+      # Appending contents of system file
+      cfg = system_report_doc_add_content(cfg, 
+        content_type  = "text",
+        content       = list(style   = "h2",
+                             text    = "System File:"))
+      for(line in pe$system_file){
+        cfg = system_report_doc_add_content(cfg, 
+          content_type  = "text",
+          content       = list(style   = "code",
+                               text    = line))
+      }
+    }
+    #---------------------------
   }
 
   if(!isgood){
@@ -11044,7 +11337,20 @@ system_nca_run = function(cfg,
 
     # Storing these strings to be used in reporting:
     cfg$nca[[analysis_name]]$text$ID_label = ID_label
-    
+
+    # Storing all of the analysis inputs to be available when reporting
+    cfg$nca[[analysis_name]]$ana_opts$dsname          =  dsname              
+    cfg$nca[[analysis_name]]$ana_opts$dscale          =  dscale             
+    cfg$nca[[analysis_name]]$ana_opts$NCA_min         =  NCA_min            
+    cfg$nca[[analysis_name]]$ana_opts$analysis_name   =  analysis_name      
+    cfg$nca[[analysis_name]]$ana_opts$dsfilter        =  dsfilter           
+    cfg$nca[[analysis_name]]$ana_opts$extrap_C0       =  extrap_C0          
+    cfg$nca[[analysis_name]]$ana_opts$extrap_N        =  extrap_N           
+    cfg$nca[[analysis_name]]$ana_opts$sparse          =  sparse             
+    cfg$nca[[analysis_name]]$ana_opts$dsmap           =  dsmap              
+    cfg$nca[[analysis_name]]$ana_opts$digits          =  digits             
+    cfg$nca[[analysis_name]]$ana_opts$dsinc           =  dsinc              
+
     # Looping through each subject ID
     subs  = unique(DS$SI_ID)
 
@@ -11067,7 +11373,7 @@ system_nca_run = function(cfg,
       }
 
       ptmp = prepare_figure(fo=ptmp, purpose="present")
-      ptmp = gg_log10_yaxis(fo=ptmp, ylim_max=ylim_max, ylim_min=ylim_min)
+      ptmp = gg_log10_yaxis(fo=ptmp) #, ylim_max=ylim_max, ylim_min=ylim_min)
 
       # Next we process each of the doses   
       dosenum_all = unique(SUBDS$SI_DOSENUM)
@@ -11345,12 +11651,15 @@ system_nca_run = function(cfg,
                       1, paste("AUC (0-last):"             , var2string(tmpsum$AUClast    , nsig_e=2, nsig_f=2) ), 
                       1, paste("AUC (0-inf, predicted):"   , var2string(tmpsum$AUCinf_pred, nsig_e=2, nsig_f=2) ), 
                       1, paste("AUC (0-inf, observed):"    , var2string(tmpsum$AUCinf_obs , nsig_e=2, nsig_f=2) ))
+
+            all = data.frame(c1=matrix(ncol=2, data=lctmp, byrow=TRUE)[,2], c2=matrix(ncol=2, data=rctmp, byrow=TRUE)[,2])
             
             # storing the actual values to be used in the reporting
             rptobjs[[sub_str]][[dosenum_str]]$dosenum = dosenum
             rptobjs[[sub_str]][[dosenum_str]]$sub     = sub    
-            rptobjs[[sub_str]][[dosenum_str]]$lc = lctmp
-            rptobjs[[sub_str]][[dosenum_str]]$rc = rctmp
+            rptobjs[[sub_str]][[dosenum_str]]$lc      = lctmp
+            rptobjs[[sub_str]][[dosenum_str]]$rc      = rctmp
+            rptobjs[[sub_str]][[dosenum_str]]$all     = all
             
             tmpsum = as.data.frame(tmpsum)
             if(is.null(NCA_sum)){
@@ -11432,7 +11741,7 @@ cfg}
 #'@description Appends the results of NCA to a report
 #'
 #'@param cfg ubiquity system object
-#'@param rptname name of report to append results to (default \code{'default'})
+#'@param rptname report name (either PowerPoint or Word) 
 #'@param analysis_name string containing the name of the analysis (default \code{'analysis'}) to archive to files and reference results later
 #'@param rows_max maximum number of rows per slide when generating tabular data
 #'@param table_headers Boolean variable to add descriptive headers to output tables (default \code{TRUE})
@@ -11444,14 +11753,14 @@ system_report_nca = function(cfg,
                           rows_max      = 10,
                           table_headers = TRUE){
   # Supported report types
-  rpttypes = c("PowerPoint")
+  rpttypes = c("PowerPoint", "Word")
   isgood = TRUE
 
   if(rptname %in% names(cfg$reporting$reports)){
     rpttype = cfg$reporting$reports[[rptname]]$rpttype
     if(!(rpttype %in% rpttypes)){
       isgood = FALSE
-      vp(cfg, paste("NCA reporting does not support this format >", rpttype, ">", sep=""))
+      vp(cfg, paste("NCA reporting does not support this format >", rpttype, "<", sep=""))
     }
   } else {
     isgood = FALSE
@@ -11460,15 +11769,19 @@ system_report_nca = function(cfg,
     vp(cfg, paste("cfg = system_report_init(cfg, rptname='", rptname, "')", sep=""))
   }
 
-  if((analysis_name %in% names(cfg$nca))& isgood){
-    vp(cfg, "")
-    vp(cfg, "Appending NCA results to report")
-    vp(cfg, paste("  Report:   ", rptname,      sep=""))
-    vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
-  } else {
-    isgood = FALSE
-    vp(cfg, paste("The NCA analysis >", analysis_name, "< was not found", sep=""))
+  if(isgood){
+    if((analysis_name %in% names(cfg$nca))){
+      vp(cfg, "")
+      vp(cfg, "Appending NCA results to report")
+      vp(cfg, paste("  Report:   ", rptname,            sep=""))
+      vp(cfg, paste("  Type:     ", rpttype,            sep=""))
+      vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
+    } else {
+      isgood = FALSE
+      vp(cfg, paste("The NCA analysis >", analysis_name, "< was not found", sep=""))
+    }
   }
+
 
   if(isgood){
     # Defining the elements to be used locally
@@ -11476,24 +11789,81 @@ system_report_nca = function(cfg,
     grobs_sum =  cfg$nca[[analysis_name]]$grobs_sum
     NCA_sum   =  cfg$nca[[analysis_name]]$NCA_sum
     ID_label  =  cfg$nca[[analysis_name]]$text$ID_label
+    ana_opts  =  cfg$nca[[analysis_name]]$ana_opts
 
+    if(ana_opts$sparse){
+      ana_type = "Naive-pooled NCA"      
+    } else {
+      ana_type = "NCA of individual data"
+    }
+
+    overview = paste(ana_type, " from ", ana_opts$dsname, " (", 
+    cfg$data[[ana_opts$dsname]]$data_file$name, "). For each ", tolower(ID_label),
+    " and dose the NCA parameters will be summarized. For each  ", tolower(ID_label), 
+    " the full time-course will be shown in grey, the data used for each analysis will be shown in green, and extrapolated values and data used for extrapolation will be shown in orange",
+    sep="")
+
+    if(rpttype == "PowerPoint"){
+      cfg = system_report_slide_content(cfg, rptname=rptname,
+                title         = "NCA Overview",
+                content_type  = "text",
+                content        = overview)
+    } else if(rpttype == "Word"){
+      cfg = system_report_doc_add_content(cfg, 
+        content_type  = "text",
+        content       = list(style   = "normal",
+                             text    = overview))
+
+      cfg = system_report_doc_add_content(cfg, 
+        content_type  = "text",
+        content       = list(style   = "h1",
+                             text    = paste("NCA broken down by", ID_label, "and dose")))
+    }
     # Creating subject level slides for each dose and a summary plot
     for(sub_str in names(rptobjs)){
+      #---------------------------------
+      # First we add the summary level information for the current dose
       for(dosenum_str in names(rptobjs[[sub_str]])){
         dosenum = rptobjs[[sub_str]][[dosenum_str]]$dosenum
         sub     = rptobjs[[sub_str]][[dosenum_str]]$sub
-        cfg = system_report_slide_two_col(cfg, rptname=rptname,
-                  title         = paste(ID_label,": ", sub, ",  Dose: ", dosenum, sep=""),
-                  content_type  = "list",
-                  left_content  = rptobjs[[sub_str]][[dosenum_str]]$lc,
-                  right_content = rptobjs[[sub_str]][[dosenum_str]]$rc)
+        if(rpttype == "PowerPoint"){
+          cfg = system_report_slide_two_col(cfg, rptname=rptname,
+                    title         = paste(ID_label,": ", sub, ",  Dose: ", dosenum, sep=""),
+                    content_type  = "list",
+                    left_content  = rptobjs[[sub_str]][[dosenum_str]]$lc,
+                    right_content = rptobjs[[sub_str]][[dosenum_str]]$rc)
+        } else if(rpttype == "Word"){
+          tcontent = list()
+          tcontent$table     = rptobjs[[sub_str]][[dosenum_str]]$all 
+          tcontent$header    = FALSE
+          tcontent$first_row = FALSE
+          tcontent$caption   = paste(ID_label,": ", sub, ",  Dose: ", dosenum, sep="")
+          cfg = system_report_doc_add_content(cfg, 
+            content_type  = "table",
+            content       = tcontent)
+        }
       }
-      cfg = system_report_slide_content(cfg, rptname=rptname,
-                title         = paste(ID_label,": ", sub, sep=""),
-                content_type  = "ggplot",
-                content       = grobs_sum[[sub_str]])
+      #---------------------------------
+      # Now we plot the timecourse for visual confirmation
+        if(rpttype == "PowerPoint"){
+          cfg = system_report_slide_content(cfg, rptname=rptname,
+                    title         = paste(ID_label,": ", sub, sep=""),
+                    content_type  = "ggplot",
+                    content       = grobs_sum[[sub_str]])
+        } else if(rpttype == "Word"){
+          cfg = system_report_doc_add_content(cfg, 
+            content_type  = "ggplot",
+            content       = list(image   = grobs_sum[[sub_str]],
+                                 height  = 4.0,
+                                 width   = 6,
+                                 caption = paste(ID_label,": ", sub, sep="")))
+             
+          cfg = system_report_doc_add_content(cfg=cfg, 
+              rptname       = rptname,  
+              content_type  = "break")
+        }
+      #---------------------------------
     }
-
 
     # Cleaning up the summary level information
     NCA_sum$Dose_Number =  as.factor(NCA_sum$Dose_Number)
@@ -11509,6 +11879,8 @@ system_report_nca = function(cfg,
     NCA_sum$AUCinf_pred = var2string(NCA_sum$AUCinf_pred, nsig_e=2, nsig_f=2)
     NCA_sum$AUCinf_obs  = var2string(NCA_sum$AUCinf_obs , nsig_e=2, nsig_f=2)
 
+    #-----------------------------------
+    # Tabular results in PowerPoint
     # Stepping through the results 
     offset = 0
     while(offset < nrow(NCA_sum)){
@@ -11583,18 +11955,88 @@ system_report_nca = function(cfg,
                   AUCinf_pred = "Inf(Pred)" ,
                   AUCinf_obs  = "Inf(Obs)" )
       }
+
+
       
       # Splitting the table across two slides
-      cfg = system_report_slide_content(cfg, rptname=rptname,
-                 title         = paste("NCA Summary"),
-                 content_type  = "flextable",
-                 content       = tab1)
-      
-      cfg = system_report_slide_content(cfg, rptname=rptname,
-                 title         = paste("NCA Summary"),
-                 content_type  = "flextable",
-                 content       = tab2)
+      if(rpttype == "PowerPoint"){
+        cfg = system_report_slide_content(cfg, rptname=rptname,
+                   title         = paste("NCA Summary"),
+                   content_type  = "flextable",
+                   content       = tab1)
+        
+        cfg = system_report_slide_content(cfg, rptname=rptname,
+                   title         = paste("NCA Summary"),
+                   content_type  = "flextable",
+                   content       = tab2)
+
+      }
+
     }
+    #-----------------------------------
+    # Tabular results in Word
+    if(rpttype == "Word"){
+      taball = list()
+      taball$table = NCA_sum[,c(1:4,6:17) ]
+      if(table_headers){
+        taball$merge_header  = FALSE
+        taball$table_autofit = TRUE
+        taball$table_theme   ='theme_zebra'
+        taball$caption = "NCA Summary"
+        taball$header_top = list(
+                  ID          = ID_label    , 
+                  Nobs        = "N"         ,
+                  Dose_Number = "Dose"      ,
+                  Dose        = "Dose"      ,
+              #   Dose_CU     = "Dose"      ,
+                  Cmax        = "Cmax"      ,
+                  Tmax        = "Tmax"      , 
+                  halflife    = "Halflife"  ,
+                  Vp_obs      = "Vp"        ,
+                  Vss_obs     = "Vss"       ,
+                  Vss_pred    = "Vss"       ,
+                  C0          = "C0"        ,
+                  CL_obs      = "CL"        ,
+                  CL_pred     = "CL"        ,
+                  AUClast     = "AUC"       ,
+                  AUCinf_pred = "AUC"       ,
+                  AUCinf_obs  = "AUC"       )
+
+        
+        taball$header_middle = list(
+                  ID          = ""          ,
+                  Nobs        = "Obs"       ,
+                  Dose_Number = "Number"    ,
+                  Dose        = ""          ,
+               #  Dose_CU     = "CU"        ,
+                  Cmax        = ""          ,
+                  Tmax        = ""          , 
+                  halflife    = ""          ,
+                  Vp_obs      = "Obs"       ,
+                  Vss_obs     = "Obs"       ,
+                  Vss_pred    = "Pred"      ,
+                  C0          = "Extrap"    , 
+                  CL_obs      = "Obs"       ,
+                  CL_pred     = "Pred"      ,
+                  AUClast     = "Last"      ,
+                  AUCinf_pred = "Inf(Pred)" ,
+                  AUCinf_obs  = "Inf(Obs)" )
+      }
+
+     # Flipping to landscape because this will be a pretty wide table.
+     cfg = system_report_doc_format_section(cfg, section_type="continuous")
+     cfg = system_report_doc_add_content(cfg, 
+       content_type  = "text",
+       content       = list(style   = "h1",
+                            text    = paste("Summarized results for each", ID_label)))
+     cfg = system_report_doc_add_content(cfg, 
+       content_type  = "flextable",
+       content       = taball)
+     cfg = system_report_doc_format_section(cfg, section_type="landscape")
+    }
+    #-----------------------------------
+
+
  
   } else {
      vp(cfg, "system_report_nca()")

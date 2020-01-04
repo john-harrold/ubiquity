@@ -47,13 +47,23 @@ cfg = build_system(system_file="system.txt")
 #                                           DOSENUM  = NULL),
 #                      digits        = 3)
 
-                 
-# Creating an empty PowerPoint report
-# cfg = system_report_init(cfg)
-
-# Appending the NCA results to the report
-# cfg = system_report_nca(cfg, analysis_name = "analysis")
-
-# Writing the results to a PowerPoint report
-# system_report_save(cfg=cfg, output_file=file.path("output", "analysis-report.pptx"))
+# -------------------------------------------------------------------------
+# Writing output to PowerPoint
+#  # Creating an empty report
+#  cfg = system_report_init(cfg, rpttype="PowerPoint")
+#  # Giving the report a title slide
+#  cfg = system_report_slide_title(cfg, title = "NCA in ubiquity")
+#  # Appending the NCA results to the report
+#  cfg = system_report_nca(cfg, analysis_name = "analysis")
+#  # Writing the results to a PowerPoint file
+#  system_report_save(cfg=cfg, output_file=file.path("output", "analysis-report.pptx"))
+# -------------------------------------------------------------------------
+# Writing output to Word
+#  # Creating an empty report
+#  cfg = system_report_init(cfg, rpttype="Word")
+#  # Appending the NCA results to the report
+#  cfg = system_report_nca(cfg, analysis_name = "analysis")
+#  # Writing the results to a Word file
+#  system_report_save(cfg=cfg, output_file=file.path("output", "analysis-report.docx"))
+# -------------------------------------------------------------------------
 

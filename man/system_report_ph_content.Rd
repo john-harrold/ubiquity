@@ -45,7 +45,7 @@ For each content type listed below the following content is expected:
  \item \code{"flextable"} list containing flextable content and other options with the following elements (defaults in parenthesis):
   \itemize{
      \item \code{table} Data frame containing the tabular data
-     \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list the same names as the data frame names containing the tabular data and values with the header text to show in the table
+     \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})

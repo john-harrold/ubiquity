@@ -131,9 +131,14 @@ plot_opts$outputs$Metabolite$yscale   = 'linear'
 # plot_opts$outputs$ONAME$xlim     = c(0,1) # NULL
 
 system_plot_cohorts(erp, plot_opts, cfg, analysis_name=analysis_name)
-
+#-------------------------------------------------------
 # Writing the results to a PowerPoint report
-# cfg = system_report_init(cfg)
-# cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
-# cfg = system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.pptx", sep="")))
-
+  cfg = system_report_init(cfg, rpttype="PowerPoint")
+  cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
+  system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.pptx", sep="")))
+#-------------------------------------------------------
+# Writing the results to a Word report
+  cfg = system_report_init(cfg, rpttype="Word")
+  cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
+  system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.docx", sep="")))
+#-------------------------------------------------------

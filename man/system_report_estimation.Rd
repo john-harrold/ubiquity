@@ -10,7 +10,7 @@ system_report_estimation(cfg, rptname = "default",
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{rptname}{report name}
+\item{rptname}{report name (either PowerPoint or Word)}
 
 \item{analysis_name}{string containing the name of the estimation analysis and used as a prefix to store the results}
 }

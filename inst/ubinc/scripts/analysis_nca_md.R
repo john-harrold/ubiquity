@@ -31,15 +31,22 @@ cfg = system_nca_run(cfg, dsname        = "PKDATA",
                                                EXTRAP  = "EXTRAP"),
                           digits        = 3)
             
-
-# Creating an empty PowerPoint report
-cfg = system_report_init(cfg)
-
+# -------------------------------------------------------------------------
+# Writing output to PowerPoint
+# Creating an empty report
+cfg = system_report_init(cfg, rpttype="PowerPoint")
 # Giving the report a title slide
 cfg = system_report_slide_title(cfg, title = "NCA of Multiple Dose PK")
-
 # Appending the NCA results to the report
 cfg = system_report_nca(cfg, analysis_name = "pk_multiple_dose")
-
-# Writing the results to a PowerPoint report
+# Writing the results to a PowerPoint file
 system_report_save(cfg=cfg, output_file=file.path("output", "pk_multiple_dose-report.pptx"))
+# -------------------------------------------------------------------------
+# Writing output to Word
+# Creating an empty report
+cfg = system_report_init(cfg, rpttype="Word")
+# Appending the NCA results to the report
+cfg = system_report_nca(cfg, analysis_name = "pk_multiple_dose")
+# Writing the results to a Word file
+system_report_save(cfg=cfg, output_file=file.path("output", "pk_multiple_dose-report.docx"))
+# -------------------------------------------------------------------------

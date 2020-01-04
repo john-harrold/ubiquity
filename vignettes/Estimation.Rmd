@@ -262,6 +262,42 @@ ggsave(filename="Estimation-parent-op.png", plot=estout$op, height=4, width=7, u
 ![Observed vs Predicted](Estimation-parent-op.png){width=80%}
 
 
+### Automated Reporting
+
+The outputs above provide components for generating presentations and other
+documents. Coping and pasting these figures and tables into documents can be
+tedious. It can be convenient to automate this process and this is
+accomplished with the function ``system_report_estimation``. 
+
+
+#### PowerPoint
+
+To append the results of an analysis to a PowerPoint document simply
+initialize a new report (``rpttype="PowerPoint"``), call
+``system_report_estiamtion`` with the appropriate  ``analysis_name``, and the
+results of the analysis will be attached as slides. 
+
+```{r results="hide", echo=TRUE, eval=FALSE}
+cfg = system_report_init(cfg, rpttype="PowerPoint")
+cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
+system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.pptx", sep="")))
+```
+
+This will then save the analysis results to the ``output`` directory.
+
+#### Word
+
+The process for a Word document is the same. Just make sure that the
+``rpttype`` is set to ``"Word"`` when the report is initialized:
+
+```{r results="hide", echo=TRUE, eval=FALSE}
+cfg = system_report_init(cfg, rpttype="Word")
+cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
+system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.docx", sep="")))
+```
+
+For more information on integrated report generation see the ``Reporting`` vignette. 
+
 ## Maximum likelihood/two outputs (``analysis_parent_metabolite.r``)
 
 This example is similar to the last except we are analyzing two different outputs (parent and metabolite) and we have a proportional variance model. So now we can estimate the parameters associated with those outputs as well as the variance parameters:

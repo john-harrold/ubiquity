@@ -1,8 +1,15 @@
 
-# Use this function to define the meta information for an organizations 
-# PowerPoint template file. First create a PowerPoint template as described in
-# the Reporting vignette. If your organizational template is stored in
-# myOrg.pptx you can do the following:
+# Use this file to define functions for the meta information for an organizations 
+# PowerPoint or Word template file. 
+
+
+
+
+org_pptx_meta = function(){
+#--------------------------------------------------------------------
+# First create a PowerPoint template as described in the Reporting vignette.
+# If your organizational template is stored in myOrg.pptx you can do the
+# following:
 #
 # First you will need a system file. This will create a minimal system file in
 # the current working directory:
@@ -11,7 +18,7 @@
 #
 # Next initialize a report using your organizational template:
 #
-# cfg = system_report_init(cfg, tempalte="myOrg.pptx")
+# cfg = system_report_init(cfg, rpttype="PowerPoint", template="myOrg.pptx")
 #
 # Now generate an annotated layout of your template:
 #
@@ -19,8 +26,6 @@
 #
 # Open the layout.pptx file in PowerPoint and fill in the information below
 # for each of the slide masters:
-
-org_pptx_meta = function(){
 #--------------------------------------------------------------------
 # default reporting options
 # 
@@ -127,3 +132,60 @@ meta$two_col$ph_labels$text_right             = "Content Placeholder 3"
 return(meta)}
 
 
+org_docx_meta = function(){
+#--------------------------------------------------------------------
+# First create a Word template as described in the Reporting vignette. If your
+# organizational template is stored in myOrg.docx you can do the following:
+#
+# First you will need a system file. This will create a minimal system file in
+# the current working directory:
+#
+# system_new(system_file="empty")
+#
+# Next initialize a report using your organizational template:
+#
+# cfg = system_report_init(cfg, rpttype="Word", template="myOrg.docx")
+#
+# Now generate an annotated layout of your template:
+#
+# system_report_view_layout(cfg, output_file="layout.docx")
+#
+# Open the layout.docx file in Word and fill in the information below for each
+# of the placeholders and styles
+meta = list()
+
+
+# If your document contains placeholders you can put default values for those
+# placeholders here. 
+#
+# The ph_content field should be the placeholder without the surrounding
+# offset characters. So for example if you had U__HEADER_LEFT__U in your
+# doucment template you would use the following to replace that with empty
+# content by default:
+#
+# For each placeholder there should be a location and a content element. The
+# location can be either "header", "footer" or "body", and the content will be
+# the default value. 
+meta$ph_content$HeaderLeft$location   = "header"
+meta$ph_content$HeaderLeft$content    = ""
+
+# You'll need to create a template with the following styles defined.
+meta$styles$Normal                    = "Normal"
+meta$styles$Code                      = "Code"
+meta$styles$TOC                       = "toc 1" 
+meta$styles$Heading_1                 = "heading 1"
+meta$styles$Heading_2                 = "heading 2"
+meta$styles$Heading_3                 = "heading 3"
+meta$styles$Table                     = "Table Grid"
+meta$styles$Table_Caption             = "table title"
+meta$styles$Figure_Caption            = "graphic title" 
+
+# Locations can be either top or bottom
+meta$styles$Table_Caption_Location    = "top" 
+meta$styles$Figure_Caption_Location   = "bottom" 
+
+# This sets the default figure width and height in inches for the document:
+meta$styles$Figure_Width              = 6.0
+meta$styles$Figure_Height             = 5.0
+
+return(meta)}
