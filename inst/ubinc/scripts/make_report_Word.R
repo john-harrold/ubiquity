@@ -29,7 +29,6 @@ cfg = system_fetch_cfg()
 cfg = system_report_init(cfg, rpttype="Word")
 
 
-
 #
 # Dumping the layout of the  current report
 #

@@ -23,7 +23,7 @@ system_report_doc_format_section(cfg, rptname = "default",
 
 \item{widths}{column widths in inches, number of columns set by number of values (\code{NULL})}
 
-\item{spaces}{space in inches between columns (\code{NULL})}
+\item{space}{space in inches between columns (\code{NULL})}
 }
 \value{
 cfg ubiquity system object with the section added to the body

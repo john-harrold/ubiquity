@@ -1,6 +1,5 @@
 #'@import deSolve
 #'@import doParallel
-#'@import doRNG
 #'@import flextable
 #'@import foreach
 #'@import gdata
@@ -1386,12 +1385,6 @@ system_set_option <- function(cfg, group, option, value){
           errormsgs = c(errormsgs, "Unable to load the foreach package")
           errormsgs = c(errormsgs, 'install.packages("foreach")')
         }
-        if(!system_req("doRNG")){
-          isgood = FALSE
-          errormsgs =  c(errormsgs, "Unable to load the doRNG package")
-          errormsgs =  c(errormsgs, 'install.packages("doRNG")')
-        }
-
         if(!isgood){
           errormsgs = c(errormsgs, "Unable to load one or more packages needed for the  multicore option") }
       }
@@ -3966,9 +3959,10 @@ return(cfg)}
 #'@details 
 #' Each cohort has a name (eg \code{d5mpk}), and the dataset containing the
 #' information for this cohort is identified (the name defined in \code{\link{system_load_data}})
+#'
 #' \preformatted{cohort  = c()
-#'cohort$name    = ’d5mpk’
-#'cohort$dataset = ’pmdata’}
+#'cohort$name    = "d5mpk"
+#'cohort$dataset = "pmdata"}
 #'
 #' Next it is necessary to define a filter (\code{cf} field) that can be
 #' applied to the dataset to only return values relevant to this cohort. For
@@ -3985,12 +3979,12 @@ return(cfg)}
 #'
 #'It would be translated into the boolean filter:
 #'
-#'\preformatted{((ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)}
+#'\preformatted{(ID==1) | (ID==2) | (ID==3) | (ID==4)) & ((DOSE == 5) | (DOSE==10)) & (SEX == 1)}
 #'
 #' Optionally you may want to fix a system parameter to a different value for a
 #' given cohort. This can be done using the cohort parameter (\code{cp}) field.
 #' For example if you had the body weight defined as a system parameter 
-#' (\code{BW}}), and you wanted to fix the body weight to 70 for the current
+#' (\code{BW}), and you wanted to fix the body weight to 70 for the current
 #' cohort you would do the following:
 #'
 #' \preformatted{cohort$cp$BW = 70}
@@ -4042,7 +4036,7 @@ return(cfg)}
 #'
 #' Lastly we define the cohort:
 #'
-#'@seealso Estimation vignette (\code{vignette("Estimation", package = "ubiquity")}) and \code{\link{system_select_set}
+#'@seealso Estimation vignette (\code{vignette("Estimation", package = "ubiquity")}) and \code{\link{system_select_set}}
 system_define_cohort <- function(cfg, cohort){
   
  if('options' %in% names(cohort)){
@@ -7456,8 +7450,7 @@ gg_axis  = function(fo,
       # Expanding the major tick labels beyond the current axis to make sure the
       # minor tick labels get filled out.
       ytick_major = c(min(ytick_major)/10, ytick_major, max(ytick_major)*10)
-     
-     
+
       # defining the axis limits
       myylim = 10^(c(data_ylim))
      
@@ -10008,7 +10001,7 @@ cfg}
 #'@param w              width  in inches of the section of the page (\code{NULL})
 #'@param h              height in inches of the section of the page (\code{NULL})
 #'@param widths         column widths in inches, number of columns set by number of values (\code{NULL})   
-#'@param spaces         space in inches between columns (\code{NULL})    
+#'@param space          space in inches between columns (\code{NULL})    
 #'@param sep            Boolean value controlling line separating columns (\code{FALSE})
 #'@return cfg ubiquity system object with the section added to the body
 system_report_doc_format_section = function(cfg, rptname="default", 

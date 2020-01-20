@@ -21,7 +21,7 @@ require(rhandsontable)
 ```
 
 ## Introduction
-The workshop (http://workshop.ubiquity.grok.tv) provides several examples of performing parameter estimation in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
+The workshop (https://workshop.ubiquity.tools) provides several examples of performing parameter estimation in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
 ```{r eval=FALSE}
 library(ubiquity)

@@ -22,7 +22,7 @@ require(rhandsontable)
 
 ## Introduction
 
-The workshop (http://workshop.ubiquity.grok.tv) provides several examples of how to perform simulations in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
+The workshop (http://workshop.ubiquity.tools) provides several examples of how to perform simulations in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
 ```{r, message=FALSE}
 library(ubiquity)
