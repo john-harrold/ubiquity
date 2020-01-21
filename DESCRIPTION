@@ -17,7 +17,6 @@ Imports:
    deSolve,
    digest,
    doParallel,
-   doRNG,
    flextable,
    foreach,
    gridExtra,
