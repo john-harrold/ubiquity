@@ -8,7 +8,6 @@ require(ggplot2)
 require(gdata)
 require(foreach)
 require(doParallel)
-require(doRNG)
 require(rhandsontable)
 
 #
