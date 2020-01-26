@@ -320,7 +320,7 @@ workshop_fetch <- function(section          = "Simulation",
                           file.path(src_dir, "make_report_Word.R"), 
                           file.path(sys_dir, "system-mab_pk.txt"))
          destinations = c("make_report_PowerPoint.R",
-                          "make_report_Word", 
+                          "make_report_Word.R", 
                           "system.txt")
          write_file   = c(TRUE, TRUE, TRUE)
       } else if(section=="Titration") {
