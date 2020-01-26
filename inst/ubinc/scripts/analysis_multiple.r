@@ -44,10 +44,9 @@ cfg=system_set_option(cfg, group  = "simulation",
 cfg=system_set_option(cfg, group  = "stochastic",
                            option = "nsub",
                            value  = 200)
-                           
 
 # Uncomment the following to parallelize the simulations
-# 
+# library(doParallel)
 # cfg=system_set_option(cfg, group  = "simulation",
 #                            option = "parallel",    
 #                            value  = "multicore")
@@ -56,6 +55,8 @@ cfg=system_set_option(cfg, group  = "stochastic",
 #                            option = "compute_cores", 
 #                            value  = detectCores() - 1)
 som  = simulate_subjects(parameters, cfg)
+
+source("library/r_general/ubiquity.R")
 
 graphics.off()
 library(ggplot2)
@@ -72,7 +73,7 @@ myfig = ggplot(som$tcsummary, aes(x=ts.days, y=o.C_ng_ml.mean)) +
                guides(fill=FALSE) 
 
 
-myfig = gg_log10_yaxis(myfig, ylim_min=1e3, ylim_max=3e5)
+myfig = gg_log10_yaxis(myfig , ylim_min=1e3, ylim_max=3e5)
 myfig = prepare_figure("print", myfig)
 print(myfig)
 

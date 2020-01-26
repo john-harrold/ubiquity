@@ -3227,6 +3227,11 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
                           .errorhandling='pass',
                        #  .options.snow=list(progress = myprogress),
                           .packages=foreach_packages) %dopar% {
+
+
+          # Setting the seed based on the subject ID and the 
+          # user specified seed: this applies to subject level 
+          set.seed(cfg$options$stochastic$seed + sub_idx)
     
           # If we're using the c-file we tell the spawned instances to load
           # the library 
@@ -3324,8 +3329,7 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
         
           # Setting the seed based on the subject ID and the 
           # user specified seed: this applies to subject level 
-          # measurement error 
-          # set.seed(seed+sub_idx)
+          set.seed(cfg$options$stochastic$seed + sub_idx)
         
           # Pulling out subject level parameters
           parameters_subject = p$subjects$parameters[sub_idx,]
@@ -3762,6 +3766,59 @@ system_log_init = function (cfg){
 return(cfg)
 }
 
+#-------------------------------------------------------------------------
+#'@export
+#'@title Save variables to files     
+#'@description Triggered when debugging is enabled, this function will save
+#' all of the supplied inputs to the specified file name in the ubiquity
+#' temporary directory 
+#'@param cfg ubiquity system object    
+#'@param file_name name of the save file without the ".RData" extension
+#'@param values named list of variables to save
+#'
+#'@return Boolean variable indicating success 
+#'
+#'@examples
+#' \donttest{
+#' # Creating a system file from the mab_pk example
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "mab_pk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#'
+#' # Building the system 
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
+#'
+#' # enable debugging:
+#' cfg=system_set_option(cfg,group = "logging", 
+#'                          option = "debug", 
+#'                          value  = TRUE)
+#'
+#' # Saving the cfg variable 
+#' system_log_debug_save(cfg, 
+#'    file_name = 'my_file',
+#'    values = list(cfg=cfg))
+#'
+#'}
+system_log_debug_save = function (cfg, file_name = "my_file", values = NULL){
+
+   isgood = TRUE
+
+   if(cfg$options$logging$debug){
+     if(is.null(values)){
+       isgood = FALSE
+       vp(cfg, 'system_log_debug_save()')
+       vp(cfg, "values set to NULL")
+     
+     } else if(!is.null(values)){
+       save(values, file=file.path(cfg$options$misc$temp_directory, paste(file_name, ".RData", sep="")))
+     }
+   }
+
+isgood}
+#-------------------------------------------------------------------------
 #'@export
 #'@title Add Log Entry
 #'@description Appends a specified line to the analysis log
@@ -7373,13 +7430,10 @@ gg_axis  = function(fo,
   if(any(is.null(ylim_min),is.null(ylim_min),is.null(xlim_min), is.null(xlim_max))){
     fob = ggplot_build(fo) }
 
-
-
   #
   # Finding the xlim values
   #
   if(any(is.null(xlim_min), is.null(xlim_max))){
-    fob = ggplot_build(fo)
     # looping through the figure object and pulling out all of the y data
     # to get the bounds on the y data
     xdata = c()
@@ -7396,14 +7450,7 @@ gg_axis  = function(fo,
     if(is.null(xlim_max)){
       xlim_max = max(xdata)
     }
-    
-  
   }
-
- #if(xaxis_scale){
- #  xlim_min = 10^floor(log10(xlim_min))
- #  xlim_max = 10^ceiling(log10(xlim_max))
- #}
 
   data_xlim = c(xlim_min, xlim_max)
 
@@ -7415,7 +7462,18 @@ gg_axis  = function(fo,
     # to get the bounds on the y data
     ydata = c()
     for(didx in 1:length(fob$data)){
-      ydata = c(ydata, fob$data[[didx]]$y)
+      # For geom_line/geom_point data
+      if("y" %in% names(fob$data[[didx]])){
+        ydata = c(ydata, fob$data[[didx]]$y)
+      }
+
+      # For geom_ribbon data
+      if("ymin" %in% names(fob$data[[didx]])){
+        ydata = c(ydata, fob$data[[didx]]$ymin)
+      }
+      if("ymax" %in% names(fob$data[[didx]])){
+        ydata = c(ydata, fob$data[[didx]]$ymax)
+      }
     }
  
     # Getting only thge positive y data
@@ -7429,14 +7487,7 @@ gg_axis  = function(fo,
     }
   }
 
- #if(yaxis_scale){
- #  ylim_min = 10^floor(log10(ylim_min))
- #  ylim_max = 10^ceiling(log10(ylim_max))
- #}
- 
   data_ylim = c(ylim_min, ylim_max)
-
-
 
   #
   # Formatting the y axis
@@ -7445,7 +7496,7 @@ gg_axis  = function(fo,
     if(!is.null(data_ylim)){
     
       # Creating the major ticks
-      ytick_major =  10^(log10(data_ylim[1]):log10(data_ylim[2]))
+      ytick_major =  10^(floor(log10(data_ylim[1])):ceiling(log10(data_ylim[2])))
      
       # Expanding the major tick labels beyond the current axis to make sure the
       # minor tick labels get filled out.
@@ -7498,7 +7549,7 @@ gg_axis  = function(fo,
   if(xaxis_scale){
     if(!is.null(data_xlim)){
       # Creating the major ticks
-      xtick_major =  10^(log10(data_xlim[1]):log10(data_xlim[2]))
+      xtick_major =  10^(floor(log10(data_xlim[1])):ceiling(log10(data_xlim[2])))
 
       # Expanding the major tick labels beyond the current axis to make sure the
       # minor tick labels get filled out.
@@ -7543,10 +7594,6 @@ gg_axis  = function(fo,
     fo = fo + annotation_logticks(sides='tb') 
   }
 
-
-
-
-
 fo}
 #/gg_axis
 #---------------------------------------------------------------------------
@@ -7584,7 +7631,6 @@ gg_log10_yaxis = function(fo,
                           ylim_max     = NULL, 
                           y_tick_label = TRUE,
                           x_tick_label = TRUE){
-
 
  fo =  gg_axis(fo=fo,
                yaxis_scale  = TRUE,
@@ -13263,3 +13309,5 @@ system_glp_scenario = function(cfg,
 
 cfg }
 #-------------------------------------------------------------------------
+
+

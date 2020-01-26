@@ -125,6 +125,7 @@ som = run_simulation_ubiquity(parameters, cfg)
 #                            value  = "with replacement")
 #
 # # To parallelize the simulations uncomment the following:
+#  library(doParallel)
 #  cfg=system_set_option(cfg, group  = "simulation",
 #                             option = "parallel",    
 #                             value  = "multicore")

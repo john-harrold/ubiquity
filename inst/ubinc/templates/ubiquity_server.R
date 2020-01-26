@@ -1965,6 +1965,9 @@ update_simulation <- function(input, output, session) {
     # If check_variability is true
     # then we run stochastic simulations
     tic()
+    system_log_debug_save(cfg, 
+       file_name = 'app_pre_sim',
+       values    = list(cfg=cfg, parameters=parameters))
     if(cfg$gui$check_variability){
       user_log_entry(cfg, "Beginning simulations")
       user_log_entry(cfg,         " -> type: stochastic  ")
@@ -1988,6 +1991,9 @@ update_simulation <- function(input, output, session) {
       eval(parse(text=paste(sysel["sim"]))) 
       pb$close()
     }
+    system_log_debug_save(cfg, 
+       file_name = 'app_post_sim',
+       values    = list(cfg=cfg, parameters=parameters, som=som))
 
     # If we're not in admin mode we trim off any initialization times,
     # otherwise we include them

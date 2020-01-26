@@ -61,8 +61,7 @@ cfg=system_set_option(cfg, group  = "stochastic",
 
 
 # Uncomment the following to parallelize the simulations
-#
-#
+# library(doParallel)
 # cfg=system_set_option(cfg, group  = "simulation",
 #                            option = "parallel",    
 #                            value  = "multicore")

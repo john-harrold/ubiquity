@@ -11,11 +11,15 @@ if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else
 cfg = build_system()
 
 Rmdfile = "system_report.Rmd"
-load("transient/rgui/default/gui_som.RData")
-load("transient/rgui/default/gui_state.RData")
+
+# If you run the app, put in the values you want in terms of parameters and
+# dosing then run the simulation it should save the following file with a
+# snapshot of the values that will be sent into the report for generation:
+load(file.path("transient", "app_base", "app_post_sim.RData"))
 params = list()
-params$cfg = cfg
-params$som = som
+params$cfg        = values$cfg
+params$som        = values$som
+params$parameters = values$parameters
 
 # This is needed for debugging
 cfg$options$misc$operating_environment = 'script'

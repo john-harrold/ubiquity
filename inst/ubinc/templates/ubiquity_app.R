@@ -71,7 +71,13 @@ cfg$gui$sim_starttime = 0
 cfg$gui$colors$solid      = c("darkblue",    "firebrick1", "darkgreen",  "darkorange4" )
 cfg$gui$colors$region     = c("cadetblue1",  "pink"      , "olivedrab2", "darkorange"  )
 
+
+
 # Set options here:
+# If we're not deploying the app we enable debugging
+cfg=system_set_option(cfg,group = "logging", 
+                         option = "debug", 
+                         value  = !deploying)
 #  cfg=system_set_option(cfg,group = "simulation", 
 #                           option = "solver", 
 #                           value = "lsoda")

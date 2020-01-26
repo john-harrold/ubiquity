@@ -217,7 +217,7 @@ And this will be translated in to the following differential equations:
 
 The rates (e.g. ``kdeg``) need to be defined as either a system or secondary parameter. This is where you can put saturable terms, such as Michaelis-Menten kinetics.
 
-###Equilibrium relationships ``<=kforward:kreverse=>``
+### Equilibrium relationships ``<=kforward:kreverse=>``
 
 Forward and reverse reaction rates can be written separately:
 
@@ -342,7 +342,7 @@ Then we can specify the initial value of the target as:
 Inputs into the model include typical interventions such as bolus dosing or continuous infusions. However inputs here refers to mathematical inputs. Typically covariates may be attributes of the system (such as gender, or a specific genotype), but are treated here as inputs. When defining inputs it is necessary to provide typical/placeholder values. These provide default values for both the ShinyApp interface as well as the scripting level (Matlab and R) where they can be overwritten by the user. 
 
 
-###Bolus dosing ``<B:times>``, ``<B:events>``
+### Bolus dosing ``<B:times>``, ``<B:events>``
 
 The ``<B:?>`` descriptor is used to define bolus dosing.  Dosing information
 is broken down into a list of ``times`` when bolus injections occur and a list
@@ -382,7 +382,7 @@ These two entries create the infusion rate called ``myrate``. This can be used i
 
 ### Covariates  ``<CV:?>``, ``<CVSET:?:?>``
 
-###Simple covariates 
+### Simple covariates 
 For simulation purposes covariates (normally found in a dataset) need to be defined. Covariates can be either constant or change with time. The times values *must be the same scale as the system*. The following defines the value for the covariate ``RACE``:
 
 ~~~
