@@ -22,7 +22,10 @@ archive_results = TRUE
 
 # -------------------------------------------------------------------------
 # Rebuilding the system (R scripts and compiling C code)
-cfg = build_system(system_file="<SYSTEM_FILE>")
+cfg = build_system(system_file="<SYSTEM_FILE>",
+                   output_directory     = file.path(".", "output"),
+                   temporary_directory  = file.path(".", "transient"))
+
 
 # Initializing the log file ./transient/ubiquity.log
 cfg = system_log_init(cfg)

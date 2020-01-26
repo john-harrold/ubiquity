@@ -12,7 +12,9 @@ if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else
 # http://presentation.ubiquity.grok.tv
 
 # Rebuilding the system (R scripts and compiling C code)
-cfg = build_system(system_file="<SYSTEM_FILE>")
+cfg = build_system(system_file="<SYSTEM_FILE>",
+                   output_directory     = file.path(".", "output"),
+                   temporary_directory  = file.path(".", "transient"))
 
 <PSETS>
 cfg = system_select_set(cfg, "default")

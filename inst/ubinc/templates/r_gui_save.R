@@ -31,7 +31,9 @@ cfg = system_fetch_cfg()
 # if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
 # {source(file.path('library', 'r_general', 'ubiquity.R')) }
 # # Rebuilding the system (R scripts and compiling C code)
-# cfg = build_system(system_file="<system_file>")
+# cfg = build_system(system_file="<system_file>",
+#                    output_directory     = file.path(".", "output"),
+#                    temporary_directory  = file.path(".", "transient"))
 # --------------------------------------------------------------
 
 cfg = system_select_set(cfg, "<pset>")

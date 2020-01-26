@@ -8,7 +8,8 @@ library("ggplot2")
 if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
 {source(file.path('library', 'r_general', 'ubiquity.R')) }
 
-cfg = build_system()
+cfg = build_system(output_directory     = file.path(".", "output"),
+                   temporary_directory  = file.path(".", "transient"))
 
 Rmdfile = "system_report.Rmd"
 

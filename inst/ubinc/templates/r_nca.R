@@ -10,8 +10,9 @@ if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else
 # -------------------------------------------------------------------------
 # Use system_new(system_file="empty") to create a minimal system file
 # Build the system 
-cfg = build_system(system_file="system.txt")
-
+cfg = build_system(system_file="system.txt",
+                   output_directory     = file.path(".", "output"),
+                   temporary_directory  = file.path(".", "transient"))
 # -------------------------------------------------------------------------
 # Loading Datasets
 #

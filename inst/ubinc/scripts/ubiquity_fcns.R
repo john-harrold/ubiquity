@@ -54,9 +54,9 @@ build_system <- function(system_file          = "system.txt",
                          perlcmd              = "perl",
                          output_directory     = file.path(".", "output"),
                          temporary_directory  = file.path(".", "transient"),
-                         verbose              =  TRUE,
-                         ubiquity_app         =  FALSE,
-                         debug                =  TRUE){
+                         verbose              = TRUE,
+                         ubiquity_app         = FALSE,
+                         debug                = TRUE){
 
 # If we cannot find a system file we create an empty one 
 if(!file.exists(system_file)){

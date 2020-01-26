@@ -11,7 +11,9 @@ if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
   library(ubiquity) }
 
 # Rebuilding the system (R scripts and compiling C code)
-cfg = build_system()
+cfg = build_system(output_directory     = file.path(".", "output"),
+                   temporary_directory  = file.path(".", "transient"))
+
 
 # set name   | Description
 # -------------------------------------------------------
@@ -54,6 +56,7 @@ cfg=system_set_option(cfg, group  = "stochastic",
 # cfg=system_set_option(cfg, group  = "simulation",
 #                            option = "compute_cores", 
 #                            value  = detectCores() - 1)
+# 
 som  = simulate_subjects(parameters, cfg)
 
 source("library/r_general/ubiquity.R")
