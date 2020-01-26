@@ -317,8 +317,11 @@ workshop_fetch <- function(section          = "Simulation",
          write_file   = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
       } else if(section=="Reporting") {
          sources      = c(file.path(src_dir, "make_report_PowerPoint.R"), 
+                          file.path(src_dir, "make_report_Word.R"), 
                           file.path(sys_dir, "system-mab_pk.txt"))
-         destinations = c("make_report_PowerPoint.R", "system.txt")
+         destinations = c("make_report_PowerPoint.R",
+                          "make_report_Word", 
+                          "system.txt")
          write_file   = c(TRUE, TRUE)
       } else if(section=="Titration") {
          sources      = c(file.path(src_dir, "analysis_repeat_dosing.r"                     ),

@@ -59,8 +59,6 @@ cfg=system_set_option(cfg, group  = "stochastic",
 # 
 som  = simulate_subjects(parameters, cfg)
 
-source("library/r_general/ubiquity.R")
-
 graphics.off()
 library(ggplot2)
 myfig = ggplot(som$tcsummary, aes(x=ts.days, y=o.C_ng_ml.mean)) +
