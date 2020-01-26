@@ -10,6 +10,7 @@ options(show.error.locations = TRUE)
 graphics.off()
 
 library(ggplot2)
+library(officer)
 # If we cannot load the ubiquity package we try the stand alone distribution
 if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
 {source(file.path("library", "r_general", "ubiquity.R")) }
