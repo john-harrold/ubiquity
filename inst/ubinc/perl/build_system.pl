@@ -364,8 +364,12 @@ MAIN:
   # dumping matlab
   &dump_matlab($cfg);
 
-  # dumping rproject
+  # dumping r
   &dump_rproject($cfg);
+
+  # dumping julia
+  &dump_julia($cfg);
+
 
   # creating the targets for each set of parameters
   foreach $name (keys(%{$cfg->{parameter_sets}})){
@@ -426,10 +430,13 @@ my $cfg;
   $cfg->{files}->{potterswheel3}                     = 'target_pw_3';
 
   # rproject
-  $cfg->{files}->{rproject}->{components}           = 'auto_rcomponents.R';
-  $cfg->{files}->{rproject}->{simulation_driver}    = 'auto_simulation_driver.R';
-  $cfg->{files}->{rproject}->{compiled}             = 'r_ode_model.c';
-  $cfg->{files}->{rproject}->{analysis_estimation}  = 'auto_analysis_estimation.R';
+  $cfg->{files}->{rproject}->{components}            = 'auto_rcomponents.R';
+  $cfg->{files}->{rproject}->{simulation_driver}     = 'auto_simulation_driver.R';
+  $cfg->{files}->{rproject}->{compiled}              = 'r_ode_model.c';
+  $cfg->{files}->{rproject}->{analysis_estimation}   = 'auto_analysis_estimation.R';
+
+  # Julia
+  $cfg->{files}->{julia}->{je}                       = 'jl_de.jl';
 
   # berkeley_madonna output
   $cfg->{files}->{berkeley_madonna}                  = 'target_berkeley_madonna';
@@ -680,6 +687,120 @@ sub dump_reserved_words
   open(FH, '>', &catfile( $cfg->{files}->{temp_directory}, $cfg->{files}->{reserved_words}));
   print FH $output_file;
   close(FH);
+
+}
+
+sub dump_julia
+{
+  my ($cfg) = @_;
+  my $counter;
+  my $parameter;
+  my $pname;
+  my $field;
+  my $state;
+  my $sname;
+
+  my $m_je;
+  my $template_je   = &fetch_template_file($cfg, 'jl_de.jl');
+  $m_je->{SYSTEM_PARAM}          = '';
+  $m_je->{SS_PARAM}              = '';
+  $m_je->{STATES}                = '';
+  $m_je->{DS_PARAM}              = '';
+  $m_je->{ODES}                  = '';
+  $m_je->{ODES_REMAP}            = '';
+
+
+
+  #
+  #  System parameters
+  #
+  if(scalar @{$cfg->{parameters_index}} > 0){
+    $counter = 1;
+    $m_je->{SYSTEM_PARAM}  .= "# System Parameters \n";
+    foreach $parameter (@{$cfg->{parameters_index}}){
+      $pname = $parameter;
+      $m_je->{SYSTEM_PARAM}  .= $pname.&fetch_padding($pname, $cfg->{parameters_length}).' = SIMINT_p['.$counter."]\n";
+      $counter = $counter + 1;
+    }
+  }
+
+
+  #
+  #  outputs
+  #
+  #  foreach $output    (@{$cfg->{outputs_index}}){
+  #    $sname = $output;
+  #  }
+
+  #
+  #  static secondary parameters
+  #
+  if ((@{$cfg->{static_secondary_parameters_index}})){
+    $m_je->{SS_PARAM}      .= "\n# Static Secondary Parameters \n";
+    foreach $parameter    (@{$cfg->{static_secondary_parameters_index}}){
+      $pname = $parameter;
+      $m_je->{SS_PARAM} .= $pname.&fetch_padding($pname, $cfg->{parameters_length})." = ";
+      $m_je->{SS_PARAM} .= &apply_format($cfg, $cfg->{static_secondary_parameters}->{$pname}, 'julia')." \n"; 
+      if(defined($cfg->{if_conditional}->{$pname})){
+        $m_je->{SS_PARAM} .= &extract_conditional($cfg, $pname, 'julia');
+      }
+    }
+  }
+
+  #
+  #  dynamic secondary parameters
+  #
+  if ((@{$cfg->{dynamic_secondary_parameters_index}})){
+    $m_je->{DS_PARAM}      .= "\n# Dynamic Secondary Parameters \n";
+    foreach $parameter    (@{$cfg->{dynamic_secondary_parameters_index}}){
+      $pname = $parameter;
+      $m_je->{DS_PARAM} .= $pname.&fetch_padding($pname, $cfg->{parameters_length})." = ";
+      $m_je->{DS_PARAM} .= &apply_format($cfg, $cfg->{dynamic_secondary_parameters}->{$pname}, 'julia')." \n"; 
+      if(defined($cfg->{if_conditional}->{$pname})){
+        $m_je->{DS_PARAM} .= &extract_conditional($cfg, $pname, 'julia');
+      }
+    }
+  }
+  #
+  #  states and odes
+  #
+  $counter = 1;
+  $m_je->{STATES}         .= "\n# Mapping states in SIMINT_u to their named values\n";
+  foreach $state     (@{$cfg->{species_index}}){
+    $sname = $state;
+    $m_je->{STATES}         .= $sname.&fetch_padding($sname, $cfg->{species_length})." = SIMINT_u[$counter]\n";
+    $m_je->{ODES}           .= "SIMINT_d$sname".&fetch_padding("SIMINT_d$sname", $cfg->{species_length})." = ".&make_ode($cfg, $sname, 'rproject')."\n";
+    $m_je->{ODES_REMAP}     .= "SIMINT_du[$counter] = SIMINT_d$sname \n";
+
+    $counter = $counter + 1;
+  }
+
+  #
+  # Infusion rates
+  #
+  #  if((@{$cfg->{input_rates_index}})){
+  #    foreach $rate  (@{$cfg->{input_rates_index}}){
+  #      $rname = $rate;
+  #    }
+  #  }
+
+  #
+  # Covariates 
+  #
+  #  if((@{$cfg->{covariates_index}})){
+  #    foreach $covariate  (@{$cfg->{covariates_index}}){
+  #      $cname = $covariate; 
+  #    }
+  #  }  
+
+
+  foreach $field     (keys(%{$m_je})){
+      $template_je   =~ s#<$field>#$m_je->{$field}#g;
+  }
+  open(FH, '>', &ftf($cfg, $cfg->{files}->{julia}->{je}));
+  print FH $template_je;
+  close(FH);
+
 
 }
 
@@ -1061,7 +1182,9 @@ if(keys(%{$cfg->{iiv}})){
 
 
 
+#
 # infusion rates
+#
 if((@{$cfg->{input_rates_index}})){
   $mo->{OUTPUTS_REMAP}      .= "/* Infusion Rates */\n";
   # simulation driver
@@ -1110,7 +1233,9 @@ if((@{$cfg->{input_rates_index}})){
 
 $mo->{OUTPUTS_REMAP}      .= "/* Covariates */\n";
 
+#
 # covariates    
+#
 if((@{$cfg->{covariates_index}})){
   $md->{COVARIATES} .= "# Covariates are set using the system_set_covariate statement.\n";
   $md->{COVARIATES} .= "# The default values are listed here, and they may be \n";
@@ -4162,6 +4287,7 @@ sub apply_format
  $patterns->{qeq}->{monolix}                    =  '0.5*((SIMINT_ARG_0 - SIMINT_ARG_1 - SIMINT_ARG_2) -         ((SIMINT_ARG_0 - SIMINT_ARG_1 - SIMINT_ARG_2)^(2.0)  + 4.0*SIMINT_ARG_0*SIMINT_ARG_2)^(0.5))'; 
  $patterns->{qeq}->{nonmem}                     =  '0.5*((SIMINT_ARG_0 - SIMINT_ARG_1 - SIMINT_ARG_2) -         ((SIMINT_ARG_0 - SIMINT_ARG_1 - SIMINT_ARG_2)**(2.0) + 4.0*SIMINT_ARG_0*SIMINT_ARG_2)**(0.5))'; 
  $patterns->{qeq}->{rproject}                   =  '0.5*((SIMINT_ARG_0 - SIMINT_ARG_1 - SIMINT_ARG_2) -         ((SIMINT_ARG_0 - SIMINT_ARG_1 - SIMINT_ARG_2)^(2.0)  + 4.0*SIMINT_ARG_0*SIMINT_ARG_2)^(0.5))'; 
+ $patterns->{qeq}->{julia}                      =  '0.5*((SIMINT_ARG_0 - SIMINT_ARG_1 - SIMINT_ARG_2) -         ((SIMINT_ARG_0 - SIMINT_ARG_1 - SIMINT_ARG_2)^(2.0)  + 4.0*SIMINT_ARG_0*SIMINT_ARG_2)^(0.5))'; 
 
  #my $occurance_index;
 
@@ -4175,6 +4301,7 @@ sub apply_format
  $patterns->{power}->{monolix}                  =  '(SIMINT_ARG_0)^(SIMINT_ARG_1)';
  $patterns->{power}->{nonmem}                   =  '(SIMINT_ARG_0)**(SIMINT_ARG_1)';
  $patterns->{power}->{rproject}                 =  '(SIMINT_ARG_0)^(SIMINT_ARG_1)';
+ $patterns->{power}->{julia}                    =  '(SIMINT_ARG_0)^(SIMINT_ARG_1)';
 
 
  # error functions
@@ -4188,6 +4315,7 @@ sub apply_format
  $patterns->{erf}->{monolix}                  =  'erf(SIMINT_ARG_1)';
  $patterns->{erf}->{nonmem}                   =  'ERF(SIMINT_ARG_1)';
  $patterns->{erf}->{rproject}                 =  'erf(SIMINT_ARG_1)';
+ $patterns->{erf}->{julia}                    =  'erf(SIMINT_ARG_1)';
 
  $patterns->{erfc}->{pattern}                  =  'SIMINT_ERFC[';
  $patterns->{erfc}->{number_arguments}         =  1;
@@ -4199,6 +4327,7 @@ sub apply_format
  $patterns->{erfc}->{monolix}                  =  'erfc(SIMINT_ARG_1)';
  $patterns->{erfc}->{nonmem}                   =  'ERFC(SIMINT_ARG_1)';
  $patterns->{erfc}->{rproject}                 =  'erfc(SIMINT_ARG_1)';
+ $patterns->{erfc}->{julia}                    =  'erfc(SIMINT_ARG_1)';
 
  # log and exp
  $patterns->{logn}->{pattern}                   =  'SIMINT_LOGN[';
@@ -4211,6 +4340,7 @@ sub apply_format
  $patterns->{logn}->{monolix}                   =  'ln(SIMINT_ARG_0)';
  $patterns->{logn}->{nonmem}                    =  'LOG(SIMINT_ARG_0)';
  $patterns->{logn}->{rproject}                  =  'log(SIMINT_ARG_0)';
+ $patterns->{logn}->{julia}                     =  'log(SIMINT_ARG_0)';
 
 
  $patterns->{log10}->{pattern}                  =  'SIMINT_LOG10[';
@@ -4223,6 +4353,7 @@ sub apply_format
  $patterns->{log10}->{monolix}                  =  'log(SIMINT_ARG_0)';
  $patterns->{log10}->{nonmem}                   =  'LOG10(SIMINT_ARG_0)';
  $patterns->{log10}->{rproject}                 =  'log10(SIMINT_ARG_0)';
+ $patterns->{log10}->{julia}                    =  'log10(SIMINT_ARG_0)';
 
  $patterns->{exp}->{pattern}                    =  'SIMINT_EXP[';
  $patterns->{exp}->{number_arguments}           =  1;
@@ -4234,6 +4365,7 @@ sub apply_format
  $patterns->{exp}->{monolix}                    =  'exp(SIMINT_ARG_0)';
  $patterns->{exp}->{nonmem}                     =  'exp(SIMINT_ARG_0)';
  $patterns->{exp}->{rproject}                   =  'exp(SIMINT_ARG_0)';
+ $patterns->{exp}->{julia}                      =  'exp(SIMINT_ARG_0)';
 
 
  $patterns->{SEQ}->{pattern}                    =  'SIMINT_SEQ[';
@@ -4246,6 +4378,7 @@ sub apply_format
  $patterns->{SEQ}->{monolix}                    =  'linspace(SIMINT_ARG_0, SIMINT_ARG_1, (SIMINT_ARG_1-SIMINT_ARG_0)/SIMINT_ARG_2)';
  $patterns->{SEQ}->{nonmem}                     =  'NO_FUNC(SIMINT_ARG_0, SIMINT_ARG_1, SIMINT_ARG_2)';
  $patterns->{SEQ}->{rproject}                   =  'seq(SIMINT_ARG_0, SIMINT_ARG_1, SIMINT_ARG_2)';
+ $patterns->{SEQ}->{julia}                      =  'range(SIMINT_ARG_0, step=SIMINT_ARG_2, stop=SIMINT_ARG_1)';
 
 #$patterns->{?}->{pattern}                  =  ;# 'SIMINT_[';
 #$patterns->{?}->{number_arguments}         =  ;# 2;
@@ -4268,6 +4401,7 @@ sub apply_format
  $patterns->{LT}->{monolix}                  =  '(SIMINT_ARG_0) <  (SIMINT_ARG_1)';
  $patterns->{LT}->{nonmem}                   =  '(SIMINT_ARG_0).LT.(SIMINT_ARG_1)';
  $patterns->{LT}->{rproject}                 =  '(SIMINT_ARG_0) <  (SIMINT_ARG_1)';
+ $patterns->{LT}->{julia}                    =  '(SIMINT_ARG_0) <  (SIMINT_ARG_1)';
 
 
  $patterns->{LE}->{pattern}                  =   'SIMINT_LE[';   
@@ -4280,6 +4414,7 @@ sub apply_format
  $patterns->{LE}->{monolix}                  =  '(SIMINT_ARG_0) <= (SIMINT_ARG_1)';
  $patterns->{LE}->{nonmem}                   =  '(SIMINT_ARG_0).LE.(SIMINT_ARG_1)';
  $patterns->{LE}->{rproject}                 =  '(SIMINT_ARG_0) <= (SIMINT_ARG_1)';
+ $patterns->{LE}->{julia}                    =  '(SIMINT_ARG_0) <= (SIMINT_ARG_1)';
 
  $patterns->{GT}->{pattern}                  =   'SIMINT_GT[';   
  $patterns->{GT}->{number_arguments}         =   2;
@@ -4291,6 +4426,7 @@ sub apply_format
  $patterns->{GT}->{monolix}                  =  '(SIMINT_ARG_0) >  (SIMINT_ARG_1)';
  $patterns->{GT}->{nonmem}                   =  '(SIMINT_ARG_0).GT.(SIMINT_ARG_1)';
  $patterns->{GT}->{rproject}                 =  '(SIMINT_ARG_0) >  (SIMINT_ARG_1)';
+ $patterns->{GT}->{julia}                    =  '(SIMINT_ARG_0) >  (SIMINT_ARG_1)';
 
  $patterns->{GE}->{pattern}                  =   'SIMINT_GE[';   
  $patterns->{GE}->{number_arguments}         =   2;
@@ -4302,6 +4438,7 @@ sub apply_format
  $patterns->{GE}->{monolix}                  =  '(SIMINT_ARG_0) >= (SIMINT_ARG_1)';
  $patterns->{GE}->{nonmem}                   =  '(SIMINT_ARG_0).GE.(SIMINT_ARG_1)';
  $patterns->{GE}->{rproject}                 =  '(SIMINT_ARG_0) >= (SIMINT_ARG_1)';
+ $patterns->{GE}->{julia}                    =  '(SIMINT_ARG_0) >= (SIMINT_ARG_1)';
 
  $patterns->{EQ}->{pattern}                  =   'SIMINT_EQ[';   
  $patterns->{EQ}->{number_arguments}         =   2;
@@ -4313,6 +4450,7 @@ sub apply_format
  $patterns->{EQ}->{monolix}                  =  '(SIMINT_ARG_0) == (SIMINT_ARG_1)';
  $patterns->{EQ}->{nonmem}                   =  '(SIMINT_ARG_0).EQ.(SIMINT_ARG_1)';
  $patterns->{EQ}->{rproject}                 =  '(SIMINT_ARG_0) == (SIMINT_ARG_1)';
+ $patterns->{EQ}->{julia}                    =  '(SIMINT_ARG_0) == (SIMINT_ARG_1)';
 
 
  $patterns->{NE}->{pattern}                  =   'SIMINT_NE[';   
@@ -4325,6 +4463,7 @@ sub apply_format
  $patterns->{NE}->{monolix}                  =  '(SIMINT_ARG_0) ~= (SIMINT_ARG_1)';
  $patterns->{NE}->{nonmem}                   =   '(SIMINT_ARG_0).NE.(SIMINT_ARG_1)';
  $patterns->{NE}->{rproject}                 =  '(SIMINT_ARG_0) != (SIMINT_ARG_1)';
+ $patterns->{NE}->{julia}                    =  '(SIMINT_ARG_0) != (SIMINT_ARG_1)';
 
  $patterns->{OR}->{pattern}                  =   'SIMINT_OR[';   
  $patterns->{OR}->{number_arguments}         =   2;
@@ -4336,6 +4475,7 @@ sub apply_format
  $patterns->{OR}->{monolix}                  =  '(SIMINT_ARG_0) |  (SIMINT_ARG_1)';
  $patterns->{OR}->{nonmem}                   =  '(SIMINT_ARG_0).OR.(SIMINT_ARG_1)';
  $patterns->{OR}->{rproject}                 =  '(SIMINT_ARG_0) || (SIMINT_ARG_1)';
+ $patterns->{OR}->{julia}                    =  '(SIMINT_ARG_0) |  (SIMINT_ARG_1)';
 
  $patterns->{AND}->{pattern}                  =   'SIMINT_AND[';   
  $patterns->{AND}->{number_arguments}         =   2;
@@ -4347,6 +4487,7 @@ sub apply_format
  $patterns->{AND}->{monolix}                  =  '(SIMINT_ARG_0) &  (SIMINT_ARG_1)';
  $patterns->{AND}->{nonmem}                   =  '(SIMINT_ARG_0).AND.(SIMINT_ARG_1)';
  $patterns->{AND}->{rproject}                 =  '(SIMINT_ARG_0) && (SIMINT_ARG_1)';
+ $patterns->{AND}->{julia}                    =  '(SIMINT_ARG_0) && (SIMINT_ARG_1)';
 
  $patterns->{NOT}->{pattern}                  =   'SIMINT_NOT[';   
  $patterns->{NOT}->{number_arguments}         =   1;
@@ -4357,7 +4498,8 @@ sub apply_format
  $patterns->{NOT}->{fortran}                  =   '.NOT.SIMINT_ARG_0';
  $patterns->{NOT}->{monolix}                  =  '~(SIMINT_ARG_0)';
  $patterns->{NOT}->{nonmem}                   =   '.NOT.SIMINT_ARG_0';
- $patterns->{NOT}->{matlab}                   =  '(!SIMINT_ARG_0)';
+ $patterns->{NOT}->{rproject}                 =  '!(SIMINT_ARG_0)';
+ $patterns->{NOT}->{julia}                    =  '!(SIMINT_ARG_0)';
 
 
  # if we're working with nonmem we need to first amtify 
@@ -5962,8 +6104,12 @@ sub extract_conditional{
            else{
              $return_text .= "}else if($tmp_cond){\n  $parameter = $tmp_value  \n"; } 
          }
-   
-   
+         elsif($output_type eq 'julia'){
+           if($tmp_cond_idx eq 0){
+             $return_text .= "if $tmp_cond \n  $parameter = $tmp_value  \n"; }
+           else{
+             $return_text .= "elseif $tmp_cond  \n  $parameter = $tmp_value  \n"; } 
+         }
          $tmp_cond_idx = $tmp_cond_idx + 1;
        }
    
@@ -5995,6 +6141,8 @@ sub extract_conditional{
         }
        elsif($output_type eq 'rproject'){
          $return_text .= "}else{ \n  $parameter = $tmp_value \n}\n"; }
+       elsif($output_type eq 'julia'){
+         $return_text .= "else  \n  $parameter = $tmp_value \nend\n"; }
      }
 
    return $return_text;

@@ -85,6 +85,8 @@ cfg=system_set_option(cfg,
 \item \code{"integrate_with"} - Specify if the ODE solver should use the Rscript (\code{"r-file"}) or compiled C (\code{"c-file"}), if the build process can compile and load the C version it will be the default otherwise it will switch over to the R script.
 \item \code{"output_times"} - Vector of times to evaulate the simulation (default \code{seq(0,100,1)}).
 \item \code{"solver"} - Selects the ODE solver: \code{"lsoda"} (default), \code{"lsode"}, \code{"vode"}, etc.; see the documentation for \code{\link[deSolve]{deSolve}} for an exhaustive list.
+\item \code{"sample_bolus_delta"} - Spacing used when sampling around bolus events (default \code{1e-6}). 
+\item \code{"sample_forcing_delta"} - Spacing used when sampling around forcing functions (infusion rates, covariates, etc) (default \code{1e-3}). 
 }
 
 \bold{\code{group="stochastic"}}

@@ -4,7 +4,8 @@
 \alias{make_forcing_function}
 \title{Makes Forcing Function From Times and Values}
 \usage{
-make_forcing_function(times, values, type, output_times)
+make_forcing_function(times, values, type, output_times,
+  sample_delta_mult = 0.001)
 }
 \arguments{
 \item{times}{time values for the forcing function}
@@ -18,6 +19,8 @@ make_forcing_function(times, values, type, output_times)
        }}
 
 \item{output_times}{vector of simulation output times}
+
+\item{sample_delta_mult}{multiplier used to control the magnitude of spacing around event times}
 }
 \value{
 matrix with two columns: first column is a vector of times and the second column is a vector of values

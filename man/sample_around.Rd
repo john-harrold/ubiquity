@@ -4,12 +4,14 @@
 \alias{sample_around}
 \title{Define Sample Times Around Events}
 \usage{
-sample_around(tvals, ot)
+sample_around(tvals, ot, sample_delta_mult = 1e-06)
 }
 \arguments{
 \item{tvals}{vector of event times}
 
 \item{ot}{simualtion output times}
+
+\item{sample_delta_mult}{multiplier used to control the magnitude of spacing around and following event times}
 }
 \value{
 vector of event times and added samples

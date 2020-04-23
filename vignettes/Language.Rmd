@@ -383,6 +383,7 @@ These two entries create the infusion rate called ``myrate``. This can be used i
 ### Covariates  ``<CV:?>``, ``<CVSET:?:?>``
 
 ### Simple covariates 
+
 For simulation purposes covariates (normally found in a dataset) need to be defined. Covariates can be either constant or change with time. The times values *must be the same scale as the system*. The following defines the value for the covariate ``RACE``:
 
 ~~~

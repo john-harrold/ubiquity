@@ -2,8 +2,9 @@
 
 system_fetch_cfg = function(){
 #
-# This function stores all of the information about the system including
-# parameter values, system indices used, iniital condition assignments, etc.
+# This function returns a list that stores all of the information about the
+# system including parameter values, system indices used, initial condition
+# assignments, etc.
 #
 
 #Creating the cfg variable

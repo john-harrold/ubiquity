@@ -1207,6 +1207,8 @@ return(cfg)}
 #' \item \code{"integrate_with"} - Specify if the ODE solver should use the Rscript (\code{"r-file"}) or compiled C (\code{"c-file"}), if the build process can compile and load the C version it will be the default otherwise it will switch over to the R script.
 #' \item \code{"output_times"} - Vector of times to evaulate the simulation (default \code{seq(0,100,1)}).
 #' \item \code{"solver"} - Selects the ODE solver: \code{"lsoda"} (default), \code{"lsode"}, \code{"vode"}, etc.; see the documentation for \code{\link[deSolve]{deSolve}} for an exhaustive list.
+#' \item \code{"sample_bolus_delta"} - Spacing used when sampling around bolus events (default \code{1e-6}). 
+#' \item \code{"sample_forcing_delta"} - Spacing used when sampling around forcing functions (infusion rates, covariates, etc) (default \code{1e-3}). 
 #' }
 #'
 #' \bold{\code{group="stochastic"}}
@@ -5028,6 +5030,8 @@ SIMINT_simulation_options$solver_opts$rtol               = 1e-6
 SIMINT_simulation_options$initial_conditions             = NA  
 SIMINT_simulation_options$parallel                       = "no"
 SIMINT_simulation_options$compute_cores                  = 1
+SIMINT_simulation_options$sample_bolus_delta             = 1e-6
+SIMINT_simulation_options$sample_forcing_delta           = 1e-3
 
 SIMINT_solver_opts = ""
 if(length(SIMINT_cfg$options$simulation_options$solver_opts)>0){
@@ -5050,7 +5054,7 @@ for(SIMINT_option in names(SIMINT_cfg$options$simulation_options)){
 # are observed. The way bolus values are handled means 
 # the system will be evaluated at each bolus event. However
 # other events must be accounted for explicitly. This includes 
-# the time varying inputs like infusion_rates and timevarying.
+# the time varying inputs like infusion_rates and timevarying parameters.
 # The times these events occur are stored in the 
 # important_times variable
 SIMINT_important_times = SIMINT_simulation_options$output_times
@@ -5098,7 +5102,8 @@ for(SIMINT_rate_name in names(SIMINT_cfg$options$inputs$infusion_rates)){
   SIMINT_my_ff = make_forcing_function(SIMINT_my_rate$times$values*SIMINT_rate_time_scale,
                                        SIMINT_my_rate$levels$values*SIMINT_rate_values_scale,
                                        "step", 
-                                       SIMINT_simulation_options$output_times)
+                                       SIMINT_simulation_options$output_times,
+                                       SIMINT_simulation_options$sample_forcing_delta)
   
   eval(parse(text=sprintf("SIMINT_forces$%s = SIMINT_my_ff", SIMINT_rate_name)))
 
@@ -5119,7 +5124,8 @@ for(SIMINT_cv_name in names(SIMINT_cfg$options$inputs$covariates)){
   SIMINT_my_ff = make_forcing_function(SIMINT_my_cv$times$values,
                                        SIMINT_my_cv$values$values,
                                        SIMINT_my_cv$cv_type, 
-                                       SIMINT_simulation_options$output_times)
+                                       SIMINT_simulation_options$output_times,
+                                       SIMINT_simulation_options$sample_forcing_delta)
   eval(parse(text=sprintf("SIMINT_forces$%s = SIMINT_my_ff", SIMINT_cv_name)))
   # adding the time values to important times
   SIMINT_important_times =   c(SIMINT_my_ff[,1], SIMINT_important_times)
@@ -5128,7 +5134,8 @@ for(SIMINT_cv_name in names(SIMINT_cfg$options$inputs$covariates)){
   SIMINT_my_ff = make_forcing_function(SIMINT_my_cv$times$values[1],
                                        SIMINT_my_cv$values$values[1],
                                        SIMINT_my_cv$cv_type, 
-                                       SIMINT_simulation_options$output_times)
+                                       SIMINT_simulation_options$output_times,
+                                       SIMINT_simulation_options$sample_forcing_delta)
   eval(parse(text=sprintf("SIMINT_forces$SIMINT_CVIC_%s = SIMINT_my_ff", SIMINT_cv_name)))
   # adding the time values to important times
   SIMINT_important_times =   c(SIMINT_my_ff[,1], SIMINT_important_times)
@@ -5143,7 +5150,10 @@ for(SIMINT_cv_name in names(SIMINT_cfg$options$inputs$covariates)){
 SIMINT_eventdata = eval(parse(text="system_prepare_inputs(SIMINT_cfg, SIMINT_parameters, SIMINT_force_times)"))
 
 # adding sample times around the bolus times to the important times
-SIMINT_important_times =   c(sample_around(SIMINT_eventdata$time, SIMINT_simulation_options$output_times), SIMINT_important_times)
+SIMINT_important_times =   c(sample_around(SIMINT_eventdata$time, 
+                                           SIMINT_simulation_options$output_times,
+                                           SIMINT_simulation_options$sample_bolus_delta), 
+                             SIMINT_important_times)
  
 
 # If important times were selected to be included then we set the output times
@@ -10771,9 +10781,10 @@ run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
 #'       \item  \code{"linear"} to linearly interpolate between the points
 #'        }
 #'@param output_times vector of simulation output times
+#'@param sample_delta_mult multiplier used to control the magnitude of spacing around event times
 #'
 #'@return matrix with two columns: first column is a vector of times and the second column is a vector of values
-make_forcing_function = function(times, values, type, output_times){
+make_forcing_function = function(times, values, type, output_times, sample_delta_mult=1e-3){
 
 if("step" == type){
 
@@ -10782,7 +10793,7 @@ if("step" == type){
  delta         = 250000*.Machine$double.eps
  if(length(times) > 1){
     offsets = ( times[2:length(times)] - times[1:length(times)-1])
-    delta = 0.001*min(offsets)
+    delta = sample_delta_mult*min(offsets)
  } 
 
  counter = 1
@@ -10833,6 +10844,7 @@ return(myforce)
 #' 
 #'@param tvals vector of event times
 #'@param ot    simualtion output times
+#'@param sample_delta_mult multiplier used to control the magnitude of spacing around and following event times
 #'
 #'@return vector of event times and added samples
 #'
@@ -10842,7 +10854,7 @@ return(myforce)
 #'stochastic section of the \code{\link{system_set_option}} help file.
 #'
 #'
-sample_around = function(tvals, ot){
+sample_around = function(tvals, ot, sample_delta_mult=1e-6){
 
 # removing any duplicates
 tvals = unique(tvals)
@@ -10850,7 +10862,7 @@ tvals = unique(tvals)
 # and using that as a basis for simulations
 tlength = abs(max(ot) - min(ot))
 tsample = tvals #c()
-delta   = 1e-6*tlength
+delta   = sample_delta_mult*tlength
 ffollow = 0.10 # percent to follow effects of event
 nfollow = 40   # number of sample times
 vfollow = seq(0, tlength*ffollow, tlength*ffollow/nfollow)
