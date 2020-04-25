@@ -137,9 +137,9 @@ cfg = system_report_doc_add_content(cfg,
                        text    = "Formatting Text"))
 
 fpartext = fpar(
-ftext("Formatted text can be created using the ", prop=NULL),
+ftext("Formatted text can be created using the ", prop=officer::fp_text()),
 ftext("fpar ", prop=officer::fp_text(color="green")),
-ftext("command from the officer package.", prop=NULL))
+ftext("command from the officer package.", prop=officer::fp_text()))
 
 cfg = system_report_doc_add_content(cfg, 
   content_type  = "text",

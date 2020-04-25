@@ -9554,18 +9554,20 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
     else if(content_type == "list"){
       mcontent = matrix(data = content, ncol=2, byrow=TRUE)
       
-      # Initializing the placeholder
-      #rpt   = ph_empty(x=rpt, location=ph_location_type(type=type), index=index)
-      rpt   = ph_empty(x=rpt, location=ph_location_label(ph_label=ph_label), index=index)
-
-      # Getting the id_chr 
-      ss    = slide_summary(rpt)
-      id_chr= ss[length(ss[,1]),]$id
-      # Adding the bullets
+      # constructing the elements for unordered_list below
+      level_list  = c()
+      str_list    = c()
       for(lidx in 1:length(mcontent[,1])){
-        rpt = ph_add_par( x=rpt, id_chr= id_chr, level = as.numeric(mcontent[lidx, 1]))
-        rpt = ph_add_text(x=rpt, id_chr= id_chr, str   = mcontent[lidx, 2]) 
+        level_list  = c(level_list,  as.numeric(mcontent[lidx, 1]))
+        str_list    = c(str_list, mcontent[lidx, 2])
       }
+
+      # packing the list pieces into the ul object
+      ul = unordered_list(level_list = level_list, str_list = str_list)
+      # adding it to the report
+      rpt = ph_with(x  = rpt,  
+             location  = ph_location_label(ph_label=ph_label),
+             value     = ul) 
     }
     else if(content_type == "imagefile"){
       rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=external_img(src=content)) 
@@ -10182,6 +10184,9 @@ md_info = data.frame(
 pos_start = c()
 pos_stop  = c()
 
+no_props_str = "officer::fp_text()"
+no_props     = officer::fp_text()
+
 # Saving the parsed paragraphs
 pgraphs_parse = list()
 
@@ -10221,8 +10226,8 @@ pgraphs_parse = list()
     if(is.null(locs)){
       pele     = list()
       pele$p_1 = list(text      = pgraph,
-                      props     = c("NULL"),
-                      props_cmd = "prop=NULL")
+                      props     = c(no_props_str),
+                      props_cmd = paste("prop=", no_props_str, sep=""))
     } else {
       # If locs isn't NULL we start working trough the markdown elements:
 
@@ -10256,8 +10261,8 @@ pgraphs_parse = list()
           #pele_tmp = list(text = pgraph)
           pele[[paste('p_', pele_idx, sep="")]] = 
                list(text      = substr(pgraph, start=1, stop=(gr_md$start-1)),
-                    props     = c("NULL"),
-                    props_cmd = "prop=NULL")
+                    props     = c(no_props_str),
+                    props_cmd = paste("prop=", no_props_str, sep=""))
           pele_idx = pele_idx + 1
         }
         #----------
@@ -10275,8 +10280,8 @@ pgraphs_parse = list()
                        list(text      = substr(pgraph, 
                                                start =(gr_md_prev[1, ]$end + 1),
                                                stop  =(gr_md[1, ]$start - 1)),
-                            props     = c("NULL"),
-                            props_cmd = "prop=NULL")
+                            props     = c(no_props_str),
+                            props_cmd = paste("prop=", no_props_str, sep=""))
             pele_idx = pele_idx + 1
           }
         }
@@ -10299,14 +10304,13 @@ pgraphs_parse = list()
         md_text = sub(md_text, pattern=md_end, replacement="")
 
         if(group == 4){
-        #browser()
         }
       
         # Now we save the text:
         pele[[paste('p_', pele_idx, sep="")]] = 
                    list(text      = md_text,
-                        props     = c(),
-                        props_cmd = NULL)
+                        props     = no_props,
+                        props_cmd = no_props)
       
         tmp_props = c()
         # Next we add the properties associated with the markdown
@@ -10390,8 +10394,8 @@ pgraphs_parse = list()
           if(text_end != ""){
             pele[[paste('p_', pele_idx, sep="")]] = 
                        list(text      = text_end,
-                            props     = c("NULL"),
-                            props_cmd = "prop=NULL")
+                            props     = c(no_props_str),
+                            props_cmd = paste("prop=", no_props_str, sep=""))
             pele_idx = pele_idx + 1
           }
         }
