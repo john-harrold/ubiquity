@@ -3,13 +3,52 @@
 # System Units:
 #                
 #   mass          [=] ?
-#   volume        [=] ?
+#   volume        [=] ml
 #   concentration [=] ?
-#   time          [=] ?
+#   time          [=] hr 
 
 # #-------------#
 # | References  |
 # #-------------#
+#
+#
+# This system file contains the parameters from the following model:
+#
+#   Shah, D. K., & Betts, A. M. (2012). Towards a platform PBPK model to
+#   characterize the plasma and tissue disposition of monoclonal antibodies in
+#   preclinical species and human. Journal of pharmacokinetics and
+#   biopharmaceutics, 39(1), 67-86. #
+#
+# This contains all of the species using the following nomenclature:
+#
+#  MO - mouse
+#  RA - rat
+#  RH - rhesus monkey
+#  HU - human
+#
+# This is provided to demonstrate how parameter sets and mathematical sets can
+# be used to switch between species easily. Slight modifications have been
+# made. Namely the other ("OT") tissue compartment is calculated instead of
+# being specified explicitly. The Total provided represent the values of all
+# components provided in the original reference and the other is the total
+# minus the sum of the components. This is done to prevent artifacts
+# associated with rounding when the parameters were presented in the
+# publication. 
+#
+#
+# The following control parameters are used as internal switches:
+#
+#  EN_SP_XX where X is the species above.
+#
+# To switch between species simply set the human (default species) to zero and
+# the species you want to 1. For example to specify rat as the species:
+#
+#  EN_SP_HU  = 0
+#  EN_SP_RA  = 1
+#
+# This should be done using the PSET notation below or at the scripting level.
+# Its not a good idea to change the defaults below.
+#
 #
 # Common conversions
 #
