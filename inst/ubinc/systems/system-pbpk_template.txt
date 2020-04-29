@@ -1,0 +1,851 @@
+# Author: name <email>
+#
+# System Units:
+#                
+#   mass          [=] ?
+#   volume        [=] ?
+#   concentration [=] ?
+#   time          [=] ?
+
+# #-------------#
+# | References  |
+# #-------------#
+#
+# Common conversions
+#
+# Half-life to rate:
+#
+#        ln(2)
+#  kel = -----
+#        thalf
+#
+# Convert ng/ml to nM
+#
+#    ng   1000 ml        nmoles
+#  X -- x ------- x --------------- = X/MW (KDA)
+#    ml    1L       MW (KDA)*1000 ng
+# 
+# Convert from nM to ng/ml:
+#
+# X nM  ===> X*MW(KDA) 
+# 
+# Converting dose in mpk to nmoles
+#
+#   mg            1e6 ng    1 nmole
+# X -- x BW(kg) x ------ x -----------------  =>  X*1e3*BW/MW
+#   kg            1 mg      MW (KDA) * 1000
+#
+#
+# Converting dose in mpk to nM    
+#
+#   mg            1e6 ng    1 nmole             1
+# X -- x BW(kg) x ------ x ----------------- x ---  =>  X*1e3*BW/MW/Vp
+#   kg            1 mg      MW (KDA) * 1000    V(L)
+#
+
+# Define Sets
+#
+# <SET:SETNAME>  E1; E2; E3
+
+# #-------------#
+# | Parameters  |
+# #-------------#
+#
+# System parameters
+#     name                   value               lower             upper    units   editable    grouping
+#                                                bound             bound            
+# Mathematical sets
+# All tissues for normal organs defined in the system parameters
+<SET:ATI> AD; BO; BR; HE; KI; LI; LU; LV; MU; PA; SI; SK; SP; TH; TOT
+# All tissues for normal organs defined in the system parameters
+# Except the TOT tissue. This is used to define the parameters
+# for the other (OT) tissue
+<SET:ATI_NO_TOT> AD; BO; BR; HE; KI; LI; LU; LV; MU; PA; SI; SK; SP; TH
+# Normal organ tissues (same as ATI but with TOT removed and OT (other) added
+<SET:TI> AD; BO; BR; HE; KI; LI; LU; LV; MU; PA; SI; SK; SP; TH; OT
+# Species
+<SET:SP> HU; MO; RA; RH
+# All system parameter names for normal organs
+<SET:APN> V_TOT; V_PL; V_BC; V_IN; V_EN; V_CL; Q_PL; Q_BC
+#   Name            Value        Lower Bound  Upper Bound  Units        Editable     Grouping     
+# Species control parameters
+<P> EN_SP_HU        1.0000       0            1            ---          no           SP_Control   
+<P> EN_SP_MO        0            0            1            ---          no           SP_Control   
+<P> EN_SP_RA        0            0            1            ---          no           SP_Control   
+<P> EN_SP_RH        0            0            1            ---          no           SP_Control   
+# Mouse : General
+<P> BW_MO           0.0280       eps          inf          kg           no           General      
+<P> BW_R_MO         0.0280       eps          inf          kg           no           General      
+<P> V_TOT_LN_MO     0.1130       eps          inf          ml           no           General      
+<P> V_CL_LN_MO      0.1130       eps          inf          ml           no           General      
+<P> Q_PL_LN_MO      1.6500       eps          inf          ml/hr        no           General      
+<P> Q_BC_LN_MO      1.3500       eps          inf          ml/hr        no           General      
+<P> V_TOT_BC_MO     0.7730       eps          inf          ml           no           General      
+<P> Q_BC_MO         305.0000     eps          inf          ml/hr        no           General      
+<P> V_TOT_PL_MO     0.9440       eps          inf          ml           no           General      
+<P> Q_PL_MO         373.0000     eps          inf          ml/hr        no           General      
+# Mouse : Adipose
+<P> V_TOT_AD_MO     1.98         eps          inf          ml           no           Adipose      
+<P> V_PL_AD_MO      0.0218       eps          inf          ml           no           Adipose      
+<P> V_BC_AD_MO      0.298        eps          inf          ml           no           Adipose      
+<P> V_IN_AD_MO      0.337        eps          inf          ml           no           Adipose      
+<P> V_EN_AD_MO      0.00991      eps          inf          ml           no           Adipose      
+<P> V_CL_AD_MO      1.6          eps          inf          ml           no           Adipose      
+<P> Q_PL_AD_MO      13.4         eps          inf          ml/hr        no           Adipose      
+<P> Q_BC_AD_MO      11           eps          inf          ml/hr        no           Adipose      
+# Mouse : Bone
+<P> V_TOT_BO_MO     2.82         eps          inf          ml           no           Bone         
+<P> V_PL_BO_MO      0.0621       eps          inf          ml           no           Bone         
+<P> V_BC_BO_MO      0.378        eps          inf          ml           no           Bone         
+<P> V_IN_BO_MO      0.525        eps          inf          ml           no           Bone         
+<P> V_EN_BO_MO      0.0141       eps          inf          ml           no           Bone         
+<P> V_CL_BO_MO      2.17         eps          inf          ml           no           Bone         
+<P> Q_PL_BO_MO      15.2         eps          inf          ml/hr        no           Bone         
+<P> Q_BC_BO_MO      12.4         eps          inf          ml/hr        no           Bone         
+# Mouse : Brain
+<P> V_TOT_BR_MO     0.485        eps          inf          ml           no           Brain        
+<P> V_PL_BR_MO      0.0107       eps          inf          ml           no           Brain        
+<P> V_BC_BR_MO      0.041        eps          inf          ml           no           Brain        
+<P> V_IN_BR_MO      0.0873       eps          inf          ml           no           Brain        
+<P> V_EN_BR_MO      0.00243      eps          inf          ml           no           Brain        
+<P> V_CL_BR_MO      0.376        eps          inf          ml           no           Brain        
+<P> Q_PL_BR_MO      11.8         eps          inf          ml/hr        no           Brain        
+<P> Q_BC_BR_MO      9.64         eps          inf          ml/hr        no           Brain        
+# Mouse : Heart
+<P> V_TOT_HE_MO     0.152        eps          inf          ml           no           Heart        
+<P> V_PL_HE_MO      0.00585      eps          inf          ml           no           Heart        
+<P> V_BC_HE_MO      0.0323       eps          inf          ml           no           Heart        
+<P> V_IN_HE_MO      0.0217       eps          inf          ml           no           Heart        
+<P> V_EN_HE_MO      0.00076      eps          inf          ml           no           Heart        
+<P> V_CL_HE_MO      0.119        eps          inf          ml           no           Heart        
+<P> Q_PL_HE_MO      36.5         eps          inf          ml/hr        no           Heart        
+<P> Q_BC_HE_MO      29.9         eps          inf          ml/hr        no           Heart        
+# Mouse : Kidney
+<P> V_TOT_KI_MO     0.525        eps          inf          ml           no           Kidney       
+<P> V_PL_KI_MO      0.0289       eps          inf          ml           no           Kidney       
+<P> V_BC_KI_MO      0.108        eps          inf          ml           no           Kidney       
+<P> V_IN_KI_MO      0.0788       eps          inf          ml           no           Kidney       
+<P> V_EN_KI_MO      0.00263      eps          inf          ml           no           Kidney       
+<P> V_CL_KI_MO      0.391        eps          inf          ml           no           Kidney       
+<P> Q_PL_KI_MO      68.5         eps          inf          ml/hr        no           Kidney       
+<P> Q_BC_KI_MO      56.1         eps          inf          ml/hr        no           Kidney       
+# Mouse : Lg_INT
+<P> V_TOT_LI_MO     0.314        eps          inf          ml           no           Lg_INT       
+<P> V_PL_LI_MO      0.005        eps          inf          ml           no           Lg_INT       
+<P> V_BC_LI_MO      0.0375       eps          inf          ml           no           Lg_INT       
+<P> V_IN_LI_MO      0.0545       eps          inf          ml           no           Lg_INT       
+<P> V_EN_LI_MO      0.00157      eps          inf          ml           no           Lg_INT       
+<P> V_CL_LI_MO      0.248        eps          inf          ml           no           Lg_INT       
+<P> Q_PL_LI_MO      17.3         eps          inf          ml/hr        no           Lg_INT       
+<P> Q_BC_LI_MO      14.1         eps          inf          ml/hr        no           Lg_INT       
+# Mouse : Lung
+<P> V_TOT_LU_MO     0.204        eps          inf          ml           no           Lung         
+<P> V_PL_LU_MO      0.0295       eps          inf          ml           no           Lung         
+<P> V_BC_LU_MO      0.189        eps          inf          ml           no           Lung         
+<P> V_IN_LU_MO      0.0384       eps          inf          ml           no           Lung         
+<P> V_EN_LU_MO      0.00102      eps          inf          ml           no           Lung         
+<P> V_CL_LU_MO      0.111        eps          inf          ml           no           Lung         
+<P> Q_PL_LU_MO      373          eps          inf          ml/hr        no           Lung         
+<P> Q_BC_LU_MO      305          eps          inf          ml/hr        no           Lung         
+# Mouse : Liver
+<P> V_TOT_LV_MO     1.93         eps          inf          ml           no           Liver        
+<P> V_PL_LV_MO      0.164        eps          inf          ml           no           Liver        
+<P> V_BC_LV_MO      1.1          eps          inf          ml           no           Liver        
+<P> V_IN_LV_MO      0.385        eps          inf          ml           no           Liver        
+<P> V_EN_LV_MO      0.00963      eps          inf          ml           no           Liver        
+<P> V_CL_LV_MO      1.23         eps          inf          ml           no           Liver        
+<P> Q_PL_LV_MO      10.3         eps          inf          ml/hr        no           Liver        
+<P> Q_BC_LV_MO      8.4          eps          inf          ml/hr        no           Liver        
+# Mouse : Muscle
+<P> V_TOT_MU_MO     11.3         eps          inf          ml           no           Muscle       
+<P> V_PL_MU_MO      0.249        eps          inf          ml           no           Muscle       
+<P> V_BC_MU_MO      2.19         eps          inf          ml           no           Muscle       
+<P> V_IN_MU_MO      1.47         eps          inf          ml           no           Muscle       
+<P> V_EN_MU_MO      0.0566       eps          inf          ml           no           Muscle       
+<P> V_CL_MU_MO      9.34         eps          inf          ml           no           Muscle       
+<P> Q_PL_MU_MO      86.1         eps          inf          ml/hr        no           Muscle       
+<P> Q_BC_MU_MO      70.5         eps          inf          ml/hr        no           Muscle       
+# Mouse : Pancreas
+<P> V_TOT_PA_MO     0.097        eps          inf          ml           no           Pancreas     
+<P> V_PL_PA_MO      0.00534      eps          inf          ml           no           Pancreas     
+<P> V_BC_PA_MO      0.0448       eps          inf          ml           no           Pancreas     
+<P> V_IN_PA_MO      0.0169       eps          inf          ml           no           Pancreas     
+<P> V_EN_PA_MO      0.000485     eps          inf          ml           no           Pancreas     
+<P> V_CL_PA_MO      0.0699       eps          inf          ml           no           Pancreas     
+<P> Q_PL_PA_MO      6.24         eps          inf          ml/hr        no           Pancreas     
+<P> Q_BC_PA_MO      5.1          eps          inf          ml/hr        no           Pancreas     
+# Mouse : Sm_Int
+<P> V_TOT_SI_MO     0.728        eps          inf          ml           no           Sm_Int       
+<P> V_PL_SI_MO      0.0116       eps          inf          ml           no           Sm_Int       
+<P> V_BC_SI_MO      0.0651       eps          inf          ml           no           Sm_Int       
+<P> V_IN_SI_MO      0.127        eps          inf          ml           no           Sm_Int       
+<P> V_EN_SI_MO      0.00364      eps          inf          ml           no           Sm_Int       
+<P> V_CL_SI_MO      0.577        eps          inf          ml           no           Sm_Int       
+<P> Q_PL_SI_MO      58.1         eps          inf          ml/hr        no           Sm_Int       
+<P> Q_BC_SI_MO      47.5         eps          inf          ml/hr        no           Sm_Int       
+# Mouse : Skin
+<P> V_TOT_SK_MO     5.02         eps          inf          ml           no           Skin         
+<P> V_PL_SK_MO      0.188        eps          inf          ml           no           Skin         
+<P> V_BC_SK_MO      1.53         eps          inf          ml           no           Skin         
+<P> V_IN_SK_MO      1.66         eps          inf          ml           no           Skin         
+<P> V_EN_SK_MO      0.0251       eps          inf          ml           no           Skin         
+<P> V_CL_SK_MO      3            eps          inf          ml           no           Skin         
+<P> Q_PL_SK_MO      27.8         eps          inf          ml/hr        no           Skin         
+<P> Q_BC_SK_MO      22.8         eps          inf          ml/hr        no           Skin         
+# Mouse : Spleen
+<P> V_TOT_SP_MO     0.127        eps          inf          ml           no           Spleen       
+<P> V_PL_SP_MO      0.0154       eps          inf          ml           no           Spleen       
+<P> V_BC_SP_MO      0.274        eps          inf          ml           no           Spleen       
+<P> V_IN_SP_MO      0.0254       eps          inf          ml           no           Spleen       
+<P> V_EN_SP_MO      0.000635     eps          inf          ml           no           Spleen       
+<P> V_CL_SP_MO      0.073        eps          inf          ml           no           Spleen       
+<P> Q_PL_SP_MO      8.18         eps          inf          ml/hr        no           Spleen       
+<P> Q_BC_SP_MO      6.7          eps          inf          ml/hr        no           Spleen       
+# Mouse : Thymus
+<P> V_TOT_TH_MO     0.009        eps          inf          ml           no           Thymus       
+<P> V_PL_TH_MO      5e-04        eps          inf          ml           no           Thymus       
+<P> V_BC_TH_MO      0.00432      eps          inf          ml           no           Thymus       
+<P> V_IN_TH_MO      0.00153      eps          inf          ml           no           Thymus       
+<P> V_EN_TH_MO      5e-05        eps          inf          ml           no           Thymus       
+<P> V_CL_TH_MO      0.00653      eps          inf          ml           no           Thymus       
+<P> Q_PL_TH_MO      1.19         eps          inf          ml/hr        no           Thymus       
+<P> Q_BC_TH_MO      0.97         eps          inf          ml/hr        no           Thymus       
+# Mouse : Total
+<P> V_TOT_TOT_MO    26.156       eps          inf          ml           no           Total        
+<P> V_PL_TOT_MO     0.81719      eps          inf          ml           no           Total        
+<P> V_BC_TOT_MO     6.50102      eps          inf          ml           no           Total        
+<P> V_IN_TOT_MO     4.90823      eps          inf          ml           no           Total        
+<P> V_EN_TOT_MO     0.13089      eps          inf          ml           no           Total        
+<P> V_CL_TOT_MO     19.6594      eps          inf          ml           no           Total        
+<P> Q_PL_TOT_MO     744.51       eps          inf          ml/hr        no           Total        
+<P> Q_BC_TOT_MO     609.02       eps          inf          ml/hr        no           Total        
+# Rat : General
+<P> BW_RA           0.2800       eps          inf          kg           no           General      
+<P> BW_R_RA         0.2800       eps          inf          kg           no           General      
+<P> V_TOT_LN_RA     1.1500       eps          inf          ml           no           General      
+<P> V_CL_LN_RA      1.1500       eps          inf          ml           no           General      
+<P> Q_PL_LN_RA      16.8000      eps          inf          ml/hr        no           General      
+<P> Q_BC_LN_RA      13.8000      eps          inf          ml/hr        no           General      
+<P> V_TOT_BC_RA     7.4100       eps          inf          ml           no           General      
+<P> Q_BC_RA         2.409e+03    eps          inf          ml/hr        no           General      
+<P> V_TOT_PL_RA     9.0600       eps          inf          ml           no           General      
+<P> Q_PL_RA         2.945e+03    eps          inf          ml/hr        no           General      
+# Rat : Adipose
+<P> V_TOT_AD_RA     33.1         eps          inf          ml           no           Adipose      
+<P> V_PL_AD_RA      0.364        eps          inf          ml           no           Adipose      
+<P> V_BC_AD_RA      0.298        eps          inf          ml           no           Adipose      
+<P> V_IN_AD_RA      5.63         eps          inf          ml           no           Adipose      
+<P> V_EN_AD_RA      0.166        eps          inf          ml           no           Adipose      
+<P> V_CL_AD_RA      26.7         eps          inf          ml           no           Adipose      
+<P> Q_PL_AD_RA      224          eps          inf          ml/hr        no           Adipose      
+<P> Q_BC_AD_RA      184          eps          inf          ml/hr        no           Adipose      
+# Rat : Bone
+<P> V_TOT_BO_RA     21           eps          inf          ml           no           Bone         
+<P> V_PL_BO_RA      0.462        eps          inf          ml           no           Bone         
+<P> V_BC_BO_RA      0.378        eps          inf          ml           no           Bone         
+<P> V_IN_BO_RA      3.9          eps          inf          ml           no           Bone         
+<P> V_EN_BO_RA      0.105        eps          inf          ml           no           Bone         
+<P> V_CL_BO_RA      16.1         eps          inf          ml           no           Bone         
+<P> Q_PL_BO_RA      61.4         eps          inf          ml/hr        no           Bone         
+<P> Q_BC_BO_RA      50.2         eps          inf          ml/hr        no           Bone         
+# Rat : Brain
+<P> V_TOT_BR_RA     2.28         eps          inf          ml           no           Brain        
+<P> V_PL_BR_RA      0.0502       eps          inf          ml           no           Brain        
+<P> V_BC_BR_RA      0.041        eps          inf          ml           no           Brain        
+<P> V_IN_BR_RA      0.41         eps          inf          ml           no           Brain        
+<P> V_EN_BR_RA      0.0114       eps          inf          ml           no           Brain        
+<P> V_CL_BR_RA      1.77         eps          inf          ml           no           Brain        
+<P> Q_PL_BR_RA      65.3         eps          inf          ml/hr        no           Brain        
+<P> Q_BC_BR_RA      53.5         eps          inf          ml/hr        no           Brain        
+# Rat : Heart
+<P> V_TOT_HE_RA     1.02         eps          inf          ml           no           Heart        
+<P> V_PL_HE_RA      0.0394       eps          inf          ml           no           Heart        
+<P> V_BC_HE_RA      0.0323       eps          inf          ml           no           Heart        
+<P> V_IN_HE_RA      0.146        eps          inf          ml           no           Heart        
+<P> V_EN_HE_RA      0.00512      eps          inf          ml           no           Heart        
+<P> V_CL_HE_RA      0.801        eps          inf          ml           no           Heart        
+<P> Q_PL_HE_RA      151          eps          inf          ml/hr        no           Heart        
+<P> Q_BC_HE_RA      124          eps          inf          ml/hr        no           Heart        
+# Rat : Kidney
+<P> V_TOT_KI_RA     2.41         eps          inf          ml           no           Kidney       
+<P> V_PL_KI_RA      0.132        eps          inf          ml           no           Kidney       
+<P> V_BC_KI_RA      0.108        eps          inf          ml           no           Kidney       
+<P> V_IN_KI_RA      0.361        eps          inf          ml           no           Kidney       
+<P> V_EN_KI_RA      0.012        eps          inf          ml           no           Kidney       
+<P> V_CL_KI_RA      1.79         eps          inf          ml           no           Kidney       
+<P> Q_PL_KI_RA      365          eps          inf          ml/hr        no           Kidney       
+<P> Q_BC_KI_RA      298          eps          inf          ml/hr        no           Kidney       
+# Rat : Lg_INT
+<P> V_TOT_LI_RA     2.87         eps          inf          ml           no           Lg_INT       
+<P> V_PL_LI_RA      0.0458       eps          inf          ml           no           Lg_INT       
+<P> V_BC_LI_RA      0.0375       eps          inf          ml           no           Lg_INT       
+<P> V_IN_LI_RA      0.5          eps          inf          ml           no           Lg_INT       
+<P> V_EN_LI_RA      0.0144       eps          inf          ml           no           Lg_INT       
+<P> V_CL_LI_RA      2.28         eps          inf          ml           no           Lg_INT       
+<P> Q_PL_LI_RA      158          eps          inf          ml/hr        no           Lg_INT       
+<P> Q_BC_LI_RA      130          eps          inf          ml/hr        no           Lg_INT       
+# Rat : Lung
+<P> V_TOT_LU_RA     1.4          eps          inf          ml           no           Lung         
+<P> V_PL_LU_RA      0.231        eps          inf          ml           no           Lung         
+<P> V_BC_LU_RA      0.189        eps          inf          ml           no           Lung         
+<P> V_IN_LU_RA      0.263        eps          inf          ml           no           Lung         
+<P> V_EN_LU_RA      0.007        eps          inf          ml           no           Lung         
+<P> V_CL_LU_RA      0.71         eps          inf          ml           no           Lung         
+<P> Q_PL_LU_RA      2945         eps          inf          ml/hr        no           Lung         
+<P> Q_BC_LU_RA      2409         eps          inf          ml/hr        no           Lung         
+# Rat : Liver
+<P> V_TOT_LV_RA     15.7         eps          inf          ml           no           Liver        
+<P> V_PL_LV_RA      1.34         eps          inf          ml           no           Liver        
+<P> V_BC_LV_RA      1.1          eps          inf          ml           no           Liver        
+<P> V_IN_LV_RA      2.56         eps          inf          ml           no           Liver        
+<P> V_EN_LV_RA      0.0787       eps          inf          ml           no           Liver        
+<P> V_CL_LV_RA      10.7         eps          inf          ml           no           Liver        
+<P> Q_PL_LV_RA      21.1         eps          inf          ml/hr        no           Liver        
+<P> Q_BC_LV_RA      17.3         eps          inf          ml/hr        no           Liver        
+# Rat : Muscle
+<P> V_TOT_MU_RA     122          eps          inf          ml           no           Muscle       
+<P> V_PL_MU_RA      2.68         eps          inf          ml           no           Muscle       
+<P> V_BC_MU_RA      2.19         eps          inf          ml           no           Muscle       
+<P> V_IN_MU_RA      15.8         eps          inf          ml           no           Muscle       
+<P> V_EN_MU_RA      0.608        eps          inf          ml           no           Muscle       
+<P> V_CL_MU_RA      100          eps          inf          ml           no           Muscle       
+<P> Q_PL_MU_RA      925          eps          inf          ml/hr        no           Muscle       
+<P> Q_BC_MU_RA      757          eps          inf          ml/hr        no           Muscle       
+# Rat : Pancreas
+<P> V_TOT_PA_RA     1            eps          inf          ml           no           Pancreas     
+<P> V_PL_PA_RA      0.0547       eps          inf          ml           no           Pancreas     
+<P> V_BC_PA_RA      0.0448       eps          inf          ml           no           Pancreas     
+<P> V_IN_PA_RA      0.173        eps          inf          ml           no           Pancreas     
+<P> V_EN_PA_RA      0.00498      eps          inf          ml           no           Pancreas     
+<P> V_CL_PA_RA      0.717        eps          inf          ml           no           Pancreas     
+<P> Q_PL_PA_RA      63.4         eps          inf          ml/hr        no           Pancreas     
+<P> Q_BC_PA_RA      51.8         eps          inf          ml/hr        no           Pancreas     
+# Rat : Sm_Int
+<P> V_TOT_SI_RA     4.99         eps          inf          ml           no           Sm_Int       
+<P> V_PL_SI_RA      0.0795       eps          inf          ml           no           Sm_Int       
+<P> V_BC_SI_RA      0.0651       eps          inf          ml           no           Sm_Int       
+<P> V_IN_SI_RA      0.867        eps          inf          ml           no           Sm_Int       
+<P> V_EN_SI_RA      0.0249       eps          inf          ml           no           Sm_Int       
+<P> V_CL_SI_RA      3.95         eps          inf          ml           no           Sm_Int       
+<P> Q_PL_SI_RA      398          eps          inf          ml/hr        no           Sm_Int       
+<P> Q_BC_SI_RA      325          eps          inf          ml/hr        no           Sm_Int       
+# Rat : Skin
+<P> V_TOT_SK_RA     49.9         eps          inf          ml           no           Skin         
+<P> V_PL_SK_RA      1.87         eps          inf          ml           no           Skin         
+<P> V_BC_SK_RA      1.53         eps          inf          ml           no           Skin         
+<P> V_IN_SK_RA      16.5         eps          inf          ml           no           Skin         
+<P> V_EN_SK_RA      0.249        eps          inf          ml           no           Skin         
+<P> V_CL_SK_RA      29.8         eps          inf          ml           no           Skin         
+<P> Q_PL_SK_RA      200          eps          inf          ml/hr        no           Skin         
+<P> Q_BC_SK_RA      163          eps          inf          ml/hr        no           Skin         
+# Rat : Spleen
+<P> V_TOT_SP_RA     2.77         eps          inf          ml           no           Spleen       
+<P> V_PL_SP_RA      0.335        eps          inf          ml           no           Spleen       
+<P> V_BC_SP_RA      0.274        eps          inf          ml           no           Spleen       
+<P> V_IN_SP_RA      0.554        eps          inf          ml           no           Spleen       
+<P> V_EN_SP_RA      0.0138       eps          inf          ml           no           Spleen       
+<P> V_CL_SP_RA      1.59         eps          inf          ml           no           Spleen       
+<P> Q_PL_SP_RA      179          eps          inf          ml/hr        no           Spleen       
+<P> Q_BC_SP_RA      146          eps          inf          ml/hr        no           Spleen       
+# Rat : Thymus
+<P> V_TOT_TH_RA     0.096        eps          inf          ml           no           Thymus       
+<P> V_PL_TH_RA      0.00528      eps          inf          ml           no           Thymus       
+<P> V_BC_TH_RA      0.00432      eps          inf          ml           no           Thymus       
+<P> V_IN_TH_RA      0.0163       eps          inf          ml           no           Thymus       
+<P> V_EN_TH_RA      0.00048      eps          inf          ml           no           Thymus       
+<P> V_CL_TH_RA      0.0696       eps          inf          ml           no           Thymus       
+<P> Q_PL_TH_RA      12.2         eps          inf          ml/hr        no           Thymus       
+<P> Q_BC_TH_RA      10           eps          inf          ml/hr        no           Thymus       
+# Rat : Total
+<P> V_TOT_TOT_RA    266.626      eps          inf          ml           no           Total        
+<P> V_PL_TOT_RA     7.94488      eps          inf          ml           no           Total        
+<P> V_BC_TOT_RA     6.50102      eps          inf          ml           no           Total        
+<P> V_IN_TOT_RA     48.7203      eps          inf          ml           no           Total        
+<P> V_EN_TOT_RA     1.33128      eps          inf          ml           no           Total        
+<P> V_CL_TOT_RA     201.528      eps          inf          ml           no           Total        
+<P> Q_PL_TOT_RA     5873.4       eps          inf          ml/hr        no           Total        
+<P> Q_BC_TOT_RA     4804.4       eps          inf          ml/hr        no           Total        
+# Rhesus : General
+<P> BW_RH           6.2000       eps          inf          kg           no           General      
+<P> BW_R_RH         6.2000       eps          inf          kg           no           General      
+<P> V_TOT_LN_RH     25.1000      eps          inf          ml           no           General      
+<P> V_CL_LN_RH      25.1000      eps          inf          ml           no           General      
+<P> Q_PL_LN_RH      363.0000     eps          inf          ml/hr        no           General      
+<P> Q_BC_LN_RH      297.0000     eps          inf          ml/hr        no           General      
+<P> V_TOT_BC_RH     153.0000     eps          inf          ml           no           General      
+<P> Q_BC_RH         1.836e+04    eps          inf          ml/hr        no           General      
+<P> V_TOT_PL_RH     187.0000     eps          inf          ml           no           General      
+<P> Q_PL_RH         2.243e+04    eps          inf          ml/hr        no           General      
+# Rhesus : Adipose
+<P> V_TOT_AD_RH     154          eps          inf          ml           no           Adipose      
+<P> V_PL_AD_RH      1.7          eps          inf          ml           no           Adipose      
+<P> V_BC_AD_RH      1.39         eps          inf          ml           no           Adipose      
+<P> V_IN_AD_RH      26.3         eps          inf          ml           no           Adipose      
+<P> V_EN_AD_RH      0.772        eps          inf          ml           no           Adipose      
+<P> V_CL_AD_RH      124          eps          inf          ml           no           Adipose      
+<P> Q_PL_AD_RH      139          eps          inf          ml/hr        no           Adipose      
+<P> Q_BC_AD_RH      113          eps          inf          ml/hr        no           Adipose      
+# Rhesus : Bone
+<P> V_TOT_BO_RH     952          eps          inf          ml           no           Bone         
+<P> V_PL_BO_RH      20.9         eps          inf          ml           no           Bone         
+<P> V_BC_BO_RH      17.1         eps          inf          ml           no           Bone         
+<P> V_IN_BO_RH      177          eps          inf          ml           no           Bone         
+<P> V_EN_BO_RH      4.76         eps          inf          ml           no           Bone         
+<P> V_CL_BO_RH      732          eps          inf          ml           no           Bone         
+<P> Q_PL_BO_RH      248          eps          inf          ml/hr        no           Bone         
+<P> Q_BC_BO_RH      203          eps          inf          ml/hr        no           Bone         
+# Rhesus : Brain
+<P> V_TOT_BR_RH     94           eps          inf          ml           no           Brain        
+<P> V_PL_BR_RH      2.07         eps          inf          ml           no           Brain        
+<P> V_BC_BR_RH      1.69         eps          inf          ml           no           Brain        
+<P> V_IN_BR_RH      16.9         eps          inf          ml           no           Brain        
+<P> V_EN_BR_RH      0.47         eps          inf          ml           no           Brain        
+<P> V_CL_BR_RH      72.9         eps          inf          ml           no           Brain        
+<P> Q_PL_BR_RH      1508         eps          inf          ml/hr        no           Brain        
+<P> Q_BC_BR_RH      1234         eps          inf          ml/hr        no           Brain        
+# Rhesus : Heart
+<P> V_TOT_HE_RH     28.3         eps          inf          ml           no           Heart        
+<P> V_PL_HE_RH      1.09         eps          inf          ml           no           Heart        
+<P> V_BC_HE_RH      0.892        eps          inf          ml           no           Heart        
+<P> V_IN_HE_RH      4.05         eps          inf          ml           no           Heart        
+<P> V_EN_HE_RH      0.142        eps          inf          ml           no           Heart        
+<P> V_CL_HE_RH      22.2         eps          inf          ml           no           Heart        
+<P> Q_PL_HE_RH      696          eps          inf          ml/hr        no           Heart        
+<P> Q_BC_HE_RH      570          eps          inf          ml/hr        no           Heart        
+# Rhesus : Kidney
+<P> V_TOT_KI_RH     27.3         eps          inf          ml           no           Kidney       
+<P> V_PL_KI_RH      1.5          eps          inf          ml           no           Kidney       
+<P> V_BC_KI_RH      1.23         eps          inf          ml           no           Kidney       
+<P> V_IN_KI_RH      4.09         eps          inf          ml           no           Kidney       
+<P> V_EN_KI_RH      0.136        eps          inf          ml           no           Kidney       
+<P> V_CL_KI_RH      20.3         eps          inf          ml           no           Kidney       
+<P> Q_PL_KI_RH      3237         eps          inf          ml/hr        no           Kidney       
+<P> Q_BC_KI_RH      2649         eps          inf          ml/hr        no           Kidney       
+# Rhesus : Lg_INT
+<P> V_TOT_LI_RH     140          eps          inf          ml           no           Lg_INT       
+<P> V_PL_LI_RH      2.24         eps          inf          ml           no           Lg_INT       
+<P> V_BC_LI_RH      1.83         eps          inf          ml           no           Lg_INT       
+<P> V_IN_LI_RH      24.4         eps          inf          ml           no           Lg_INT       
+<P> V_EN_LI_RH      0.702        eps          inf          ml           no           Lg_INT       
+<P> V_CL_LI_RH      111          eps          inf          ml           no           Lg_INT       
+<P> Q_PL_LI_RH      3571         eps          inf          ml/hr        no           Lg_INT       
+<P> Q_BC_LI_RH      2921         eps          inf          ml/hr        no           Lg_INT       
+# Rhesus : Lung
+<P> V_TOT_LU_RH     35.7         eps          inf          ml           no           Lung         
+<P> V_PL_LU_RH      1.96         eps          inf          ml           no           Lung         
+<P> V_BC_LU_RH      1.61         eps          inf          ml           no           Lung         
+<P> V_IN_LU_RH      10.7         eps          inf          ml           no           Lung         
+<P> V_EN_LU_RH      0.179        eps          inf          ml           no           Lung         
+<P> V_CL_LU_RH      21.2         eps          inf          ml           no           Lung         
+<P> Q_PL_LU_RH      22433        eps          inf          ml/hr        no           Lung         
+<P> Q_BC_LU_RH      18355        eps          inf          ml/hr        no           Lung         
+# Rhesus : Liver
+<P> V_TOT_LV_RH     187          eps          inf          ml           no           Liver        
+<P> V_PL_LV_RH      15.9         eps          inf          ml           no           Liver        
+<P> V_BC_LV_RH      13           eps          inf          ml           no           Liver        
+<P> V_IN_LV_RH      37.4         eps          inf          ml           no           Liver        
+<P> V_EN_LV_RH      0.934        eps          inf          ml           no           Liver        
+<P> V_CL_LV_RH      120          eps          inf          ml           no           Liver        
+<P> Q_PL_LV_RH      1251         eps          inf          ml/hr        no           Liver        
+<P> Q_BC_LV_RH      1023         eps          inf          ml/hr        no           Liver        
+# Rhesus : Muscle
+<P> V_TOT_MU_RH     3273         eps          inf          ml           no           Muscle       
+<P> V_PL_MU_RH      72           eps          inf          ml           no           Muscle       
+<P> V_BC_MU_RH      58.9         eps          inf          ml           no           Muscle       
+<P> V_IN_MU_RH      426          eps          inf          ml           no           Muscle       
+<P> V_EN_MU_RH      16.4         eps          inf          ml           no           Muscle       
+<P> V_CL_MU_RH      2701         eps          inf          ml           no           Muscle       
+<P> Q_PL_MU_RH      3944         eps          inf          ml/hr        no           Muscle       
+<P> Q_BC_MU_RH      3227         eps          inf          ml/hr        no           Muscle       
+# Rhesus : Pancreas
+<P> V_TOT_PA_RH     12.5         eps          inf          ml           no           Pancreas     
+<P> V_PL_PA_RH      0.685        eps          inf          ml           no           Pancreas     
+<P> V_BC_PA_RH      0.56         eps          inf          ml           no           Pancreas     
+<P> V_IN_PA_RH      2.17         eps          inf          ml           no           Pancreas     
+<P> V_EN_PA_RH      0.0623       eps          inf          ml           no           Pancreas     
+<P> V_CL_PA_RH      8.98         eps          inf          ml           no           Pancreas     
+<P> Q_PL_PA_RH      399          eps          inf          ml/hr        no           Pancreas     
+<P> Q_BC_PA_RH      327          eps          inf          ml/hr        no           Pancreas     
+# Rhesus : Sm_Int
+<P> V_TOT_SI_RH     98.7         eps          inf          ml           no           Sm_Int       
+<P> V_PL_SI_RH      1.57         eps          inf          ml           no           Sm_Int       
+<P> V_BC_SI_RH      1.29         eps          inf          ml           no           Sm_Int       
+<P> V_IN_SI_RH      17.2         eps          inf          ml           no           Sm_Int       
+<P> V_EN_SI_RH      0.494        eps          inf          ml           no           Sm_Int       
+<P> V_CL_SI_RH      78.2         eps          inf          ml           no           Sm_Int       
+<P> Q_PL_SI_RH      3432         eps          inf          ml/hr        no           Sm_Int       
+<P> Q_BC_SI_RH      2808         eps          inf          ml/hr        no           Sm_Int       
+# Rhesus : Skin
+<P> V_TOT_SK_RH     674          eps          inf          ml           no           Skin         
+<P> V_PL_SK_RH      25.2         eps          inf          ml           no           Skin         
+<P> V_BC_SK_RH      20.6         eps          inf          ml           no           Skin         
+<P> V_IN_SK_RH      223          eps          inf          ml           no           Skin         
+<P> V_EN_SK_RH      3.37         eps          inf          ml           no           Skin         
+<P> V_CL_SK_RH      403          eps          inf          ml           no           Skin         
+<P> Q_PL_SK_RH      2492         eps          inf          ml/hr        no           Skin         
+<P> Q_BC_SK_RH      2039         eps          inf          ml/hr        no           Skin         
+# Rhesus : Spleen
+<P> V_TOT_SP_RH     5.95         eps          inf          ml           no           Spleen       
+<P> V_PL_SP_RH      0.72         eps          inf          ml           no           Spleen       
+<P> V_BC_SP_RH      0.589        eps          inf          ml           no           Spleen       
+<P> V_IN_SP_RH      1.19         eps          inf          ml           no           Spleen       
+<P> V_EN_SP_RH      0.0298       eps          inf          ml           no           Spleen       
+<P> V_CL_SP_RH      3.42         eps          inf          ml           no           Spleen       
+<P> Q_PL_SP_RH      185          eps          inf          ml/hr        no           Spleen       
+<P> Q_BC_SP_RH      151          eps          inf          ml/hr        no           Spleen       
+# Rhesus : Thymus
+<P> V_TOT_TH_RH     2.09         eps          inf          ml           no           Thymus       
+<P> V_PL_TH_RH      0.115        eps          inf          ml           no           Thymus       
+<P> V_BC_TH_RH      0.0941       eps          inf          ml           no           Thymus       
+<P> V_IN_TH_RH      0.355        eps          inf          ml           no           Thymus       
+<P> V_EN_TH_RH      0.0105       eps          inf          ml           no           Thymus       
+<P> V_CL_TH_RH      1.52         eps          inf          ml           no           Thymus       
+<P> Q_PL_TH_RH      125          eps          inf          ml/hr        no           Thymus       
+<P> Q_BC_TH_RH      103          eps          inf          ml/hr        no           Thymus       
+# Rhesus : Total
+<P> V_TOT_TOT_RH    5816.54      eps          inf          ml           no           Total        
+<P> V_PL_TOT_RH     153.21       eps          inf          ml           no           Total        
+<P> V_BC_TOT_RH     125.325      eps          inf          ml           no           Total        
+<P> V_IN_TOT_RH     993.455      eps          inf          ml           no           Total        
+<P> V_EN_TOT_RH     29.1236      eps          inf          ml           no           Total        
+<P> V_CL_TOT_RH     4518.62      eps          inf          ml           no           Total        
+<P> Q_PL_TOT_RH     44505        eps          inf          ml/hr        no           Total        
+<P> Q_BC_TOT_RH     36414        eps          inf          ml/hr        no           Total        
+# Human : General
+<P> BW_HU           71.0000      eps          inf          kg           no           General      
+<P> BW_R_HU         71.0000      eps          inf          kg           no           General      
+<P> V_TOT_LN_HU     274.0000     eps          inf          ml           no           General      
+<P> V_CL_LN_HU      274.0000     eps          inf          ml           no           General      
+<P> Q_PL_LN_HU      3.670e+03    eps          inf          ml/hr        no           General      
+<P> Q_BC_LN_HU      3.002e+03    eps          inf          ml/hr        no           General      
+<P> V_TOT_BC_HU     2.558e+03    eps          inf          ml           no           General      
+<P> Q_BC_HU         1.488e+05    eps          inf          ml/hr        no           General      
+<P> V_TOT_PL_HU     3.126e+03    eps          inf          ml           no           General      
+<P> Q_PL_HU         1.819e+05    eps          inf          ml/hr        no           General      
+# Human : Adipose
+<P> V_TOT_AD_HU     13465        eps          inf          ml           no           Adipose      
+<P> V_PL_AD_HU      148          eps          inf          ml           no           Adipose      
+<P> V_BC_AD_HU      121          eps          inf          ml           no           Adipose      
+<P> V_IN_AD_HU      2289         eps          inf          ml           no           Adipose      
+<P> V_EN_AD_HU      67.3         eps          inf          ml           no           Adipose      
+<P> V_CL_AD_HU      10840        eps          inf          ml           no           Adipose      
+<P> Q_PL_AD_HU      11233        eps          inf          ml/hr        no           Adipose      
+<P> Q_BC_AD_HU      9191         eps          inf          ml/hr        no           Adipose      
+# Human : Bone
+<P> V_TOT_BO_HU     10165        eps          inf          ml           no           Bone         
+<P> V_PL_BO_HU      224          eps          inf          ml           no           Bone         
+<P> V_BC_BO_HU      183          eps          inf          ml           no           Bone         
+<P> V_IN_BO_HU      1891         eps          inf          ml           no           Bone         
+<P> V_EN_BO_HU      50.8         eps          inf          ml           no           Bone         
+<P> V_CL_BO_HU      7817         eps          inf          ml           no           Bone         
+<P> Q_PL_BO_HU      2591         eps          inf          ml/hr        no           Bone         
+<P> Q_BC_BO_HU      2120         eps          inf          ml/hr        no           Bone         
+# Human : Brain
+<P> V_TOT_BR_HU     1450         eps          inf          ml           no           Brain        
+<P> V_PL_BR_HU      31.9         eps          inf          ml           no           Brain        
+<P> V_BC_BR_HU      26.1         eps          inf          ml           no           Brain        
+<P> V_IN_BR_HU      261          eps          inf          ml           no           Brain        
+<P> V_EN_BR_HU      7.25         eps          inf          ml           no           Brain        
+<P> V_CL_BR_HU      1124         eps          inf          ml           no           Brain        
+<P> Q_PL_BR_HU      21453        eps          inf          ml/hr        no           Brain        
+<P> Q_BC_BR_HU      17553        eps          inf          ml/hr        no           Brain        
+# Human : Heart
+<P> V_TOT_HE_HU     341          eps          inf          ml           no           Heart        
+<P> V_PL_HE_HU      13.1         eps          inf          ml           no           Heart        
+<P> V_BC_HE_HU      10.8         eps          inf          ml           no           Heart        
+<P> V_IN_HE_HU      48.8         eps          inf          ml           no           Heart        
+<P> V_EN_HE_HU      1.71         eps          inf          ml           no           Heart        
+<P> V_CL_HE_HU      267          eps          inf          ml           no           Heart        
+<P> Q_PL_HE_HU      7752         eps          inf          ml/hr        no           Heart        
+<P> Q_BC_HE_HU      6342         eps          inf          ml/hr        no           Heart        
+# Human : Kidney
+<P> V_TOT_KI_HU     332          eps          inf          ml           no           Kidney       
+<P> V_PL_KI_HU      18.2         eps          inf          ml           no           Kidney       
+<P> V_BC_KI_HU      14.9         eps          inf          ml           no           Kidney       
+<P> V_IN_KI_HU      49.8         eps          inf          ml           no           Kidney       
+<P> V_EN_KI_HU      1.66         eps          inf          ml           no           Kidney       
+<P> V_CL_KI_HU      247          eps          inf          ml           no           Kidney       
+<P> Q_PL_KI_HU      36402        eps          inf          ml/hr        no           Kidney       
+<P> Q_BC_KI_HU      29784        eps          inf          ml/hr        no           Kidney       
+# Human : Lg_INT
+<P> V_TOT_LI_HU     548          eps          inf          ml           no           Lg_INT       
+<P> V_PL_LI_HU      8.74         eps          inf          ml           no           Lg_INT       
+<P> V_BC_LI_HU      7.15         eps          inf          ml           no           Lg_INT       
+<P> V_IN_LI_HU      95.3         eps          inf          ml           no           Lg_INT       
+<P> V_EN_LI_HU      2.74         eps          inf          ml           no           Lg_INT       
+<P> V_CL_LI_HU      434          eps          inf          ml           no           Lg_INT       
+<P> Q_PL_LI_HU      12867        eps          inf          ml/hr        no           Lg_INT       
+<P> Q_BC_LI_HU      10527        eps          inf          ml/hr        no           Lg_INT       
+# Human : Lung
+<P> V_TOT_LU_HU     1000         eps          inf          ml           no           Lung         
+<P> V_PL_LU_HU      55           eps          inf          ml           no           Lung         
+<P> V_BC_LU_HU      45           eps          inf          ml           no           Lung         
+<P> V_IN_LU_HU      300          eps          inf          ml           no           Lung         
+<P> V_EN_LU_HU      5            eps          inf          ml           no           Lung         
+<P> V_CL_LU_HU      595          eps          inf          ml           no           Lung         
+<P> Q_PL_LU_HU      181913       eps          inf          ml/hr        no           Lung         
+<P> Q_BC_LU_HU      148838       eps          inf          ml/hr        no           Lung         
+# Human : Liver
+<P> V_TOT_LV_HU     2143         eps          inf          ml           no           Liver        
+<P> V_PL_LV_HU      183          eps          inf          ml           no           Liver        
+<P> V_BC_LV_HU      149          eps          inf          ml           no           Liver        
+<P> V_IN_LV_HU      429          eps          inf          ml           no           Liver        
+<P> V_EN_LV_HU      10.7         eps          inf          ml           no           Liver        
+<P> V_CL_LV_HU      1371         eps          inf          ml           no           Liver        
+<P> Q_PL_LV_HU      13210        eps          inf          ml/hr        no           Liver        
+<P> Q_BC_LV_HU      10808        eps          inf          ml/hr        no           Liver        
+# Human : Muscle
+<P> V_TOT_MU_HU     30078        eps          inf          ml           no           Muscle       
+<P> V_PL_MU_HU      662          eps          inf          ml           no           Muscle       
+<P> V_BC_MU_HU      541          eps          inf          ml           no           Muscle       
+<P> V_IN_MU_HU      3910         eps          inf          ml           no           Muscle       
+<P> V_EN_MU_HU      150          eps          inf          ml           no           Muscle       
+<P> V_CL_MU_HU      24815        eps          inf          ml           no           Muscle       
+<P> Q_PL_MU_HU      33469        eps          inf          ml/hr        no           Muscle       
+<P> Q_BC_MU_HU      27383        eps          inf          ml/hr        no           Muscle       
+# Human : Pancreas
+<P> V_TOT_PA_HU     104          eps          inf          ml           no           Pancreas     
+<P> V_PL_PA_HU      5.7          eps          inf          ml           no           Pancreas     
+<P> V_BC_PA_HU      4.66         eps          inf          ml           no           Pancreas     
+<P> V_IN_PA_HU      18           eps          inf          ml           no           Pancreas     
+<P> V_EN_PA_HU      0.518        eps          inf          ml           no           Pancreas     
+<P> V_CL_PA_HU      74.7         eps          inf          ml           no           Pancreas     
+<P> Q_PL_PA_HU      3056         eps          inf          ml/hr        no           Pancreas     
+<P> Q_BC_PA_HU      2500         eps          inf          ml/hr        no           Pancreas     
+# Human : Sm_Int
+<P> V_TOT_SI_HU     385          eps          inf          ml           no           Sm_Int       
+<P> V_PL_SI_HU      6.15         eps          inf          ml           no           Sm_Int       
+<P> V_BC_SI_HU      5.03         eps          inf          ml           no           Sm_Int       
+<P> V_IN_SI_HU      67.1         eps          inf          ml           no           Sm_Int       
+<P> V_EN_SI_HU      1.93         eps          inf          ml           no           Sm_Int       
+<P> V_CL_SI_HU      305          eps          inf          ml           no           Sm_Int       
+<P> Q_PL_SI_HU      12368        eps          inf          ml/hr        no           Sm_Int       
+<P> Q_BC_SI_HU      10120        eps          inf          ml/hr        no           Sm_Int       
+# Human : Skin
+<P> V_TOT_SK_HU     3408         eps          inf          ml           no           Skin         
+<P> V_PL_SK_HU      127          eps          inf          ml           no           Skin         
+<P> V_BC_SK_HU      104          eps          inf          ml           no           Skin         
+<P> V_IN_SK_HU      1125         eps          inf          ml           no           Skin         
+<P> V_EN_SK_HU      17           eps          inf          ml           no           Skin         
+<P> V_CL_SK_HU      2035         eps          inf          ml           no           Skin         
+<P> Q_PL_SK_HU      11626        eps          inf          ml/hr        no           Skin         
+<P> Q_BC_SK_HU      9512         eps          inf          ml/hr        no           Skin         
+# Human : Spleen
+<P> V_TOT_SP_HU     221          eps          inf          ml           no           Spleen       
+<P> V_PL_SP_HU      26.8         eps          inf          ml           no           Spleen       
+<P> V_BC_SP_HU      21.9         eps          inf          ml           no           Spleen       
+<P> V_IN_SP_HU      44.3         eps          inf          ml           no           Spleen       
+<P> V_EN_SP_HU      1.11         eps          inf          ml           no           Spleen       
+<P> V_CL_SP_HU      127          eps          inf          ml           no           Spleen       
+<P> Q_PL_SP_HU      6343         eps          inf          ml/hr        no           Spleen       
+<P> Q_BC_SP_HU      5189         eps          inf          ml/hr        no           Spleen       
+# Human : Thymus
+<P> V_TOT_TH_HU     6.41         eps          inf          ml           no           Thymus       
+<P> V_PL_TH_HU      0.353        eps          inf          ml           no           Thymus       
+<P> V_BC_TH_HU      0.288        eps          inf          ml           no           Thymus       
+<P> V_IN_TH_HU      1.09         eps          inf          ml           no           Thymus       
+<P> V_EN_TH_HU      0.0321       eps          inf          ml           no           Thymus       
+<P> V_CL_TH_HU      4.65         eps          inf          ml           no           Thymus       
+<P> Q_PL_TH_HU      353          eps          inf          ml/hr        no           Thymus       
+<P> Q_BC_TH_HU      289          eps          inf          ml/hr        no           Thymus       
+# Human : Total
+<P> V_TOT_TOT_HU    68498.4      eps          inf          ml           no           Total        
+<P> V_PL_TOT_HU     1713.94      eps          inf          ml           no           Total        
+<P> V_BC_TOT_HU     1400.83      eps          inf          ml           no           Total        
+<P> V_IN_TOT_HU     11360.4      eps          inf          ml           no           Total        
+<P> V_EN_TOT_HU     342.05       eps          inf          ml           no           Total        
+<P> V_CL_TOT_HU     53682.4      eps          inf          ml           no           Total        
+<P> Q_PL_TOT_HU     360157       eps          inf          ml/hr        no           Total        
+<P> Q_BC_TOT_HU     294673       eps          inf          ml/hr        no           Total        
+<PSET:default> Human
+<PSET:MO>Mouse
+<PSET:MO:EN_SP_HU>   0
+<PSET:MO:EN_SP_MO>   1
+<PSET:RA>Rat
+<PSET:RA:EN_SP_HU>   0
+<PSET:RA:EN_SP_RA>   1
+<PSET:RH>Rhesus
+<PSET:RH:EN_SP_HU>   0
+<PSET:RH:EN_SP_RH>   1
+
+# 
+# Covariates
+# ---------
+# For running simulations, we create covariates that are assocaited with the
+# default parameter set
+# #     name      times/values  values   units
+#   <CV:cvname>  ; times;      [ 0 10];    weeks
+#   <CV:cvname>  ; values;     [70 55];    kg     
+#
+# These can either be interpolated linearly or as step funcitons
+# #         name    
+#   <CVTYPE:cvname> linear
+#   <CVTYPE:cvname> step
+#
+
+# Interindividual Variability
+# ---------------------------
+# <IIV:ETANAME>    0.1            # Variance/diagonal element
+# <IIV:ETANAME:LN> PNAME          # Lognormal distirbution (LN) applied to parameter PNAME 
+# <IIVCOR:ETANAME1:ETANAME2> 0.01 # Covariance between ETANAME1 and ETANAME2
+
+#
+# Alernate Paramter Sets
+# ----------------------
+#
+#<PSET:psetname>       Pset Description
+#<PSET:psetname:name>  0.0
+#
+# By default the covariates will take on the value specified using <CV> above,
+# but they can be overwritten at the parameter set level
+#   <CVSET:psetname:cvname>  ; times;   [ 0 10]
+#   <CVSET:psetname:cvname>  ; values;  [60 55]
+
+# Static Secondary Parameters
+#--------------------------------------------=
+# Defining parameters for the selected species
+
+# General parameters (like BW) and "liquid" organ parameters (lymph, plasma
+# and blood cells)
+<As> BW              = SIMINT_SET_SUM[SP][BW_{SP}*EN_SP_{SP}]
+<As> BW_R            = SIMINT_SET_SUM[SP][BW_R_{SP}*EN_SP_{SP}]
+<As> V_TOT_LN        = SIMINT_SET_SUM[SP][V_TOT_LN_{SP}*EN_SP_{SP}]
+<As> V_CL_LN         = SIMINT_SET_SUM[SP][V_CL_LN_{SP}*EN_SP_{SP}]
+<As> Q_PL_LN         = SIMINT_SET_SUM[SP][Q_PL_LN_{SP}*EN_SP_{SP}]
+<As> Q_BC_LN         = SIMINT_SET_SUM[SP][Q_BC_LN_{SP}*EN_SP_{SP}]
+<As> V_TOT_BC        = SIMINT_SET_SUM[SP][V_TOT_BC_{SP}*EN_SP_{SP}]
+<As> Q_BC            = SIMINT_SET_SUM[SP][Q_BC_{SP}*EN_SP_{SP}]
+<As> V_TOT_PL        = SIMINT_SET_SUM[SP][V_TOT_PL_{SP}*EN_SP_{SP}]
+<As> Q_PL            = SIMINT_SET_SUM[SP][Q_PL_{SP}*EN_SP_{SP}]
+
+# Defining the "solid" organ parameters:
+<As> {APN}_{ATI} = SIMINT_SET_SUM[SP][{APN}_{ATI}_{SP}*EN_SP_{SP}]
+
+
+# Defining the other tissue as what remains when the other organs are 
+# subtracted from the total
+
+<As> {APN}_OT = {APN}_TOT - SIMINT_SET_SUM[ATI_NO_TOT][{APN}_{ATI_NO_TOT}]
+#--------------------------------------------=
+
+# Dynamic Secondary Parameters
+# ----------------------------
+# <Ad> param_name = right hand side
+
+# #-------------------#
+# |Input Information |
+# #-------------------#
+#
+# Bolus Events
+# ------------
+# # times/events state   values        scale      units
+# <B:times>;             [  0  ];      ?;          ???
+# <B:events>;      ??;   [1.0  ];      ?;          ???    
+
+# Infusion Rate 
+# ------------
+# #  name     time/levels  values  scale    units
+# <R:name>;    times;     [0  1];     1;    ????
+# <R:name>;    levels;    [1  0];     1;    ????
+#
+
+# #-----------------------------#
+# | ODEs, and State Information |
+# #-----------------------------#
+
+# Initial Conditions
+# ------------------
+# define the non-zero initial conditions
+# <I> name = name0
+
+# ODEs
+# ----
+# <ODE:state> right hand side
+<ODE:TMP> 0.0
+
+# Tissue Distribution
+# -------------------
+# state; compartment_volume; rate  <C> state; compartment_volume; rate
+
+# Rate Equation
+# -------------
+# state1 + state2 =rate=> state3 + state4
+
+# Equilibrium
+# -----------
+# state1 + state2 <=rate_forward:rate_reverse=> state3 + state4
+
+# Sources & Sinks
+# ---------------
+# production/source          elimination/sink
+# rate1; rate2      <S:name>  rate3; rate4 
+
+# #---------#
+# | Outputs |
+# #---------#
+# Outputs that begin with QC will not be displayed in the GUI
+#
+# <O> outputname  = right hand side
+<O> TMP_OBS     = 0.0
+
+# #------------#
+# | Estimation |
+# #------------#
+ 
+# Variance Parameters
+# --------------------
+#     name       value     lower  upper    units  editable  Label
+#                          bound  bound
+# <VP> name      -1        eps    inf       --    no        Variance
+
+# Default Dataset
+# ---------------
+# <DATA:FILE:CSV> data/mydata.csv
+# <DATA:HEADER:AUTOMATIC>
+# <DATA:HEADER:MANUAL>   col1; col2; col3;
+
+# #---------#
+# | Options #
+# #---------#
+
+# General Options:
+# specify different time scales
+# <TS:name>  scaling factor
+
+# Specify the index of state 'name' to be 'number' in the different targets
+# <INDEX:STATE:name> number
+# 
+# Specify the index of output 'name' to be 'number' in the different targets
+# <INDEX:OUTPUT:name> number
+
+# Only relevant in Matlab and R
+# -----------------------------
+# Output Times  
+# <OPT:output_times> SIMINT_SEQ[0][100][1]
+# default time scale
+# <OPT:TS>  name                            
+# <OPT:ylim>  [ymin ymax]
+# <OPT:ylim>  [ymin ymax]
+#
+# GUI Callback
+# <OPT:callback_gui> [SIMINT_simulation_options] = update_dosing(SIMINT_cfg, SIMINT_simulation_options, SIMINT_handles);
+
+# guides
+# <GUIDE>  type; name; value, marker, color
+
+
+# <AMTIFY> CONC; AMT; REL
+
+# NONMEM options:
+# <NONMEM:INPUT:DROP:dataset_column_name>
+# <NONMEM:INPUT:RENAME:dataset_column_name> new_column_name
+
+# Adapt Options
+# Variance Model      
+# --------------
+# <VE:OUTPUT> expression
+# <VE:OUTPUT>   Slope*SIMINT_POWER[PRED][2.0]
+
+
+
+

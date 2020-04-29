@@ -3776,8 +3776,8 @@ return(cfg)
 #'@export
 #'@title Save variables to files     
 #'@description Triggered when debugging is enabled, this function will save
-#' all of the supplied inputs to the specified file name in the ubiquity
-#' temporary directory 
+#' the contents of values to the specified file name in the ubiquity temporary
+#' directory.
 #'@param cfg ubiquity system object    
 #'@param file_name name of the save file without the ".RData" extension
 #'@param values named list of variables to save
@@ -3817,9 +3817,11 @@ system_log_debug_save = function (cfg, file_name = "my_file", values = NULL){
        isgood = FALSE
        vp(cfg, 'system_log_debug_save()')
        vp(cfg, "values set to NULL")
-     
      } else if(!is.null(values)){
-       save(values, file=file.path(cfg$options$misc$temp_directory, paste(file_name, ".RData", sep="")))
+       # file name to hold the debugging information
+       fn = file=file.path(cfg$options$misc$temp_directory, paste(file_name, ".RData", sep=""))
+       system_log_entry(cfg, paste("Debugging file:", fn))
+       save(values, file=fn)
      }
    }
 

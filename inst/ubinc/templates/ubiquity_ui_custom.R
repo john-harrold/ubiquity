@@ -10,7 +10,7 @@ if(file.exists("REBUILD")){
 
 #---------------------------------------------------------------------------
 # Loading the system information
-load(file=file.path(getwd(), "transient", "rgui","gui_state.RData"))
+load(file=file.path(getwd(), "transient", "app_base", "rgui","gui_state.RData"))
 #---------------------------------------------------------------------------
 
 

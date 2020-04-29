@@ -25,7 +25,7 @@ if("ubiquity" %in% (.packages())){
   ubiquity_distribution = "package"
 }
 
-source(file.path("transient", "auto_rcomponents.R"))
+source(file.path("transient", "app_base", "auto_rcomponents.R"))
 
 
 #-----------------------------------------
@@ -52,12 +52,20 @@ gui_fetch_cfg  <-function(session){
   return(cfg)}
 
 #-----------------------------------------
-# Here we look to see if user information is present.
-# If it is then we return that user name. If not we 
-# assume we're working on a local install and return
-# 'default'
-find_user_dir <- function(session) {
-
+# This function finds a place to store the user information for the current
+# session. If the user variable is set, we use that to store the user session,
+# otherwise we use the session token. If for some reason those fail we store
+# them in 'default'
+#
+# If full is FALSE then we just get the name of the user specific directory.
+# If full is TRUE we return the full path to that directory.
+#
+# To do this we need to figure out if the app is deployed. This is triggered
+# by the looking at the file "DEPLOYING" in transient/app_base. If that file
+# has the word TRUE, then we store everything in the session temporary
+# directory. If the app isn't deployed then we store everything in the working
+# directory to allow for debugging later.
+find_user_dir <- function(session, full=TRUE) {
 
   # Trying to determine where to store the user information
   # First we see if the session$user exists, if not we look for the
@@ -70,8 +78,31 @@ find_user_dir <- function(session) {
     user = 'default'  
   }
 
-  # returning the full path to the user directory
-  user = file.path(getwd(),"transient", "rgui", user)
+  if(full){
+    # First we set deploying to false
+    DEPLOYING = FALSE
+    # Next we try to open the file that contains the deploying switch. It's
+    # created at the end of the ubiquity_app.R file:
+    DEPINFO_file = file.path(getwd(), "transient", "app_base" ,"DEPLOYING")
+    if(file.exists(DEPINFO_file)){
+      # This file should contain a single line with either TRUE if the app is
+      # being deployed and false if it's not
+      DEPLOYINGConn<-file(file.path(getwd(), "transient", "app_base" ,"DEPLOYING"))
+      if(readLines(DEPINFO_file)[1] == "TRUE"){
+        DEPLOYING = TRUE
+      }
+      close(DEPLOYINGConn)
+    } 
+    
+    if(DEPLOYING){
+        # If we're deploying we store the user files in the temporary
+        # directory:
+        user = file.path(tempdir(),"transient", "app_base", "rgui", user) 
+      } else {
+        # otherwise we store them locally 
+        user = file.path(getwd(),"transient", "app_base", "rgui", user) 
+      }
+  }
 
   return(user)
 }
@@ -87,9 +118,9 @@ initialize_session <- function(session) {
   
   # now we create the user directory and copy the default 
   # cfg variable into it
-  dir.create(user_dir)
+  dir.create(user_dir, recursive=TRUE)
 
-  file.copy(file.path(getwd(), "transient", "rgui", "gui_state.RData"), file.path(user_dir, "gui_state.RData"))
+  file.copy(file.path(getwd(), "transient", "app_base", "rgui", "gui_state.RData"), file.path(user_dir, "gui_state.RData"))
 
   # loading the cfg variable
   cfg=gui_fetch_cfg(session)

@@ -19,7 +19,7 @@ if(deploying){
 
 
 # Rebuilding the system (R scripts and compiling C code)
-cfg = build_system()
+cfg = build_system(ubiquity_app=TRUE)
 
 
 # Start Default:
@@ -35,10 +35,10 @@ cfg              = system_select_set(cfg, 'default')
 
 #----------------------------------------
 # Do not make changes below this piont
-cfg$gui$wd                   = mywd
+cfg$gui$wd                       = mywd
 
 # Setting deployment option
-cfg$gui$deployed = deploying
+cfg$gui$deployed                 = deploying
 
 # Default app status
 cfg$gui$app_status               = 'Initialization'
@@ -315,6 +315,16 @@ dir.create(file.path(cfg$options$misc$temp_directory, 'rgui'), recursive=TRUE, s
 
   
 # Saving the system inforamtion/state to a file
-save(cfg, file=file.path(cfg$options$misc$temp_directory, 'rgui', 'gui_state.RData'))
+save(cfg, file=file.path(cfg$options$misc$temp_directory, "rgui", "gui_state.RData"))
+# saving the deploying flag to a file in the temporary directory:
+# transient/app_base/DEPLOYING
+fileConn<-file(file.path(cfg$options$misc$temp_directory,"DEPLOYING"))
+if(deploying){
+  writeLines(c("TRUE"), fileConn)
+} else {
+  writeLines(c("FALSE"), fileConn)
+}
+close(fileConn)
+
 if(!deploying){
   runApp(mywd)} 

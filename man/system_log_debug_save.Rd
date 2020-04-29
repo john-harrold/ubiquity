@@ -18,8 +18,8 @@ Boolean variable indicating success
 }
 \description{
 Triggered when debugging is enabled, this function will save
-all of the supplied inputs to the specified file name in the ubiquity
-temporary directory
+the contents of values to the specified file name in the ubiquity temporary
+directory.
 }
 \examples{
 \donttest{
