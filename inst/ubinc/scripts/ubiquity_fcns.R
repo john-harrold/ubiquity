@@ -18,7 +18,7 @@
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
 #'@importFrom utils read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion
-#'@importFrom stats median qt
+#'@importFrom stats median qt var
 #'@importFrom MASS mvrnorm
 
 
@@ -11084,6 +11084,7 @@ res}
 #' Nedelman, J. R., Gibiansky, E., & Lau, D. T. (1995). Applying Bailer's
 #' method for AUC confidence intervals to sparse sampling Pharmaceutical
 #' Research, 12(1), 124-128.
+#'
 #'@param conc_data data frame containing the sparse data 
 #'@param dsmap list with names specifying the columns:
 #' \itemize{
@@ -11093,22 +11094,34 @@ res}
 #' }
 #'@return list with the following elements
 #' \itemize{
-#'  \item \code{isgood} Boolean value indicating the result of the function call
-#'  \item \code{msg}    String contianing a description of any problems 
+#'  \item \code{isgood}   Boolean value indicating the result of the function call
+#'  \item \code{AUC}      Mean AUC
+#'  \item \code{var_AUC}  Variance of the AUC
+#'  \item \code{msgs}     Sequence of strings contianing a description of any problems 
+#'  \item \code{obss}     Internal of observations
+#'  \item \code{times}    Sequence of time corresponding to the rows of \code{obs}
+#'  \item \code{r}        number of observations at each time point (rows correspond to rows of \code{obs})
 #' }
 AUC_Bailers_method = function(conc_data  = NULL, 
                               dsmap      = list(NTIME       = "NTIME", 
                                                 CONC        = "CONC", 
                                                 ID          = "ID")){
-res    = list() 
-msg    = ''
-isgood = TRUE
+res     = list() 
+msgs    = c()
+isgood  = TRUE
+        
+AUC     = NULL
+var_AUC = NULL 
+r       = NULL
+obs     = NULL
+times   = NULL
+
 
 
 # Making sure that the conc_data input is a data frame
-if(is.data.frame(conc_data)){
+if(!is.data.frame(conc_data)){
   isgood = FALSE
-  msg = paste(msg, "conc_data must be a data frame")
+  msgs = c(msgs, "conc_data must be a data frame")
 }
     
 
@@ -11118,7 +11131,7 @@ req_cols = c("NTIME", "CONC", "ID")
 for(cname in req_cols){
   if(!(cname %in% names(dsmap))){
     isgood = FALSE 
-    msg = paste(msg, "column: >", cname, "< not foundin dsmap", sep="")
+    msgs = c(msgs, paste("column: >", cname, "< not foundin dsmap", sep=""))
   }
 }
 
@@ -11127,21 +11140,95 @@ if(isgood){
   for(cname in names(dsmap)){
     if(!(dsmap[[cname]] %in% names(conc_data))){
       isgood = FALSE
-      msg = paste(msg, "column: >", dsmap[[cname]], "< not found in conc_data", sep = "")
+      msgs = c( msgs, paste("column: >", dsmap[[cname]], "< not found in conc_data", sep = ""))
     }
   }
 }
 
 # Calculating the AUC
 if(isgood){
+  IDs     = unique(conc_data[[dsmap$ID]])
+  IDs_str = paste("sub_", IDs, sep="")
+  Times   = sort(unique(conc_data[[dsmap$NTIME]]))
 
+  K = length(Times)
+  R = length(IDs)
+
+  # Putting the data into sparse matrix form:
+  #  - A column for each ID
+  #  - Row for each time
+
+
+  obs   = matrix(ncol=R, nrow=K, data = -1)
+  colnames(obs) <- IDs_str
+
+  # Walking through the data to populating the concentrations
+  for(ID in IDs){
+    ID_str = paste("sub_", ID, sep="")
+    for(Time in Times){
+      if(nrow(conc_data[conc_data[[dsmap$NTIME]] == Time & conc_data[[dsmap$ID]] == ID, ]) == 1){
+         concval = conc_data[conc_data[[dsmap$NTIME]] == Time & conc_data[[dsmap$ID]] == ID, ][[dsmap$CONC]]
+         obs[Times == Time, ID_str] = concval
+      }
+      if(nrow(conc_data[conc_data[[dsmap$NTIME]] == Time & conc_data[[dsmap$ID]] ==  ID, ]) > 1){
+         isgood = FALSE
+         msgs = c(msgs, paste("At time", Time, " subject ", ID, " had more than 1 observation", sep="" ))
+      }
+    }
+  }
+
+
+  # calculating the weight vector
+  # 
+  #   w1 = (t(2)   -   t(1)  )/2 
+  #   wk = (t(k+1) -   t(k-1))/2    k = [2,K-1];
+  #   wk = (t(K)   -   t(K-1))/2 
+
+  
+  w   = rep(0, K)
+  r   = rep(0, K)
+  u   = rep(0, K)
+  ssq = rep(0, K)
+
+  w[1] = (Times[2]-Times[1  ])/2
+  w[K] = (Times[K]-Times[K-1])/2
+
+  for(k_idx in c(1:K)){
+
+    # Calculating the weights for the numbers in between
+    # the first and last elements
+    if((k_idx > 1) & (k_idx < K)){
+      w[k_idx] = (Times[k_idx+1]-Times[k_idx-1])/2
+    }
+    # nonzero elements for the row:
+    nz_elements =  as.numeric(obs[k_idx, obs[k_idx,] > 0 ])
+
+    # number of samples per time point
+    r[k_idx] = length(nz_elements)
+
+    # mean concentration for the current time point
+    u[k_idx] = mean(nz_elements)
+
+    # variance of the time point
+    ssq[k_idx] = var(nz_elements)
+
+  }
+
+  AUC     = sum(w*u)
+  var_AUC = sum(w^2*ssq/r)
 }
 
 if(!isgood){
-  msg = paste(msg, "AUC_Bailers_method()")
+  msgs = c(msgs, "AUC_Bailers_method()")
 }
 
-res$isgood = isgood
+res$AUC     = AUC
+res$var_AUC = var_AUC
+res$r       = r
+res$isgood  = isgood
+res$msgs    = msgs
+res$obs     = obs
+res$times   = times
 
 res}
 
@@ -11493,7 +11580,9 @@ system_nca_run = function(cfg,
         # subset
         tmpsum = NULL  
 
-        # Tmax and Cmax are taken directly from the dataset
+        # Tmax and Cmax are taken directly from the dataset. The min() below
+        # selects the first time that Cmax is observed if there are multiple
+        # occurrences of the Cmax
         Cmax            = max(SUBDS_DN$SI_CONC)
         Tmax            = min(SUBDS_DN[SUBDS_DN$SI_CONC == Cmax, ][[dsmap$NTIME]])
         if(!is.null(digits)){
@@ -11568,8 +11657,6 @@ system_nca_run = function(cfg,
           C0 = -1
         }
         
-        # Getting the Cmax and Tmax the min() below selects the first time
-        # that tmax is observed if there are multiple occurances of the tmax
         tmpsum$ID              = sub
         tmpsum$Nobs            = nrow(SUBDS_DN)
         tmpsum$Dose_Number     = dosenum
@@ -11588,7 +11675,30 @@ system_nca_run = function(cfg,
         tmpsum$AUCinf_pred     = -1
         tmpsum$AUCinf_obs      = -1
 
+        # If we're performing a sparse analysis we add the elements 
+        # to hold the results from Bailer's analysis
+        if(sparse){
+          tmpsum$AUCBailer       = -1
+          tmpsum$AUCBailer_var   = -1
+        }
+
+
         if(PROC_SUBDN){
+          if(sparse){
+            # Performing sparse analysis using Bailers method 
+            # The data frame used here is TMP_SS_DN which is all of the data
+            # for the current dose number 
+            res_Bailers  =  AUC_Bailers_method(conc_data  = TMP_SS_DN, 
+                                               dsmap      = list(NTIME       = dsmap$NTIME,
+                                                                 CONC        = dsmap$CONC, 
+                                                                 ID          = dsmap$ID))
+            # Appending the results to the summary table
+            if(res_Bailers$isgood){
+              tmpsum$AUCBailer       = res_Bailers$AUC
+              tmpsum$AUCBailer_var   = res_Bailers$var_AUC
+            }
+
+          }
           # Creating data frames for NCA
           if(extrap_C0){
             # If we have extrapolation selected we add the first time point to
@@ -11625,15 +11735,7 @@ system_nca_run = function(cfg,
 
           time_start = min(NCA_CONCDS$NTIME) 
           time_stop  = max(NCA_CONCDS$NTIME)
-         
-         #tryCatch(
-         # { 
-         #  NCA.conc = PKNCA::PKNCAconc(NCA_CONCDS, CONC~NTIME|ID)
-         # },
-         #  error = function(e) {
-         #  browser()
-         # })
-         #
+
           # Checking for duplicated times
           if(any(duplicated(NCA_CONCDS$NTIME))){
             vp(cfg, paste(ID_label, ": >", sub, "< Dose ", dosenum, " the following time values were repeated", sep="")) 
@@ -11696,22 +11798,27 @@ system_nca_run = function(cfg,
             
             # Summarizing everything for the current subject/dose to be used in
             # report generation later
-            lctmp = c(1, paste("Number of observations:"   , var2string(tmpsum$Nobs       , nsig_e=2, nsig_f=0) ),
-                      1, paste("Dose: "                    , var2string(tmpsum$Dose       , nsig_e=2, nsig_f=2) ), 
-                      1, paste("Dose concentration units: ", var2string(tmpsum$Dose_CU    , nsig_e=2, nsig_f=2) ), 
-                      1, paste("Cmax: "                    , var2string(tmpsum$Cmax       , nsig_e=2, nsig_f=2) ), 
-                      1, paste("C0: "                      , var2string(tmpsum$C0         , nsig_e=2, nsig_f=2) ), 
-                      1, paste("Tmax: "                    , var2string(tmpsum$Tmax       , nsig_e=2, nsig_f=2) ), 
-                      1, paste("Halflife: "                , var2string(tmpsum$halflife   , nsig_e=2, nsig_f=2) ),
-                      1, paste("Time interval: "           , toString(time_start), '-', toString(time_stop))) 
-            rctmp = c(1, paste("Vp  (observed):"           , var2string(tmpsum$Vp_obs     , nsig_e=2, nsig_f=2) ),
-                      1, paste("Vss (observed):"           , var2string(tmpsum$Vss_obs    , nsig_e=2, nsig_f=2) ),
-                      1, paste("Vss (predicted):"          , var2string(tmpsum$Vss_pred   , nsig_e=2, nsig_f=2) ), 
-                      1, paste("CL  (observed):"           , var2string(tmpsum$CL_obs     , nsig_e=2, nsig_f=2) ), 
-                      1, paste("CL  (predicted):"          , var2string(tmpsum$CL_pred    , nsig_e=2, nsig_f=2) ), 
-                      1, paste("AUC (0-last):"             , var2string(tmpsum$AUClast    , nsig_e=2, nsig_f=2) ), 
-                      1, paste("AUC (0-inf, predicted):"   , var2string(tmpsum$AUCinf_pred, nsig_e=2, nsig_f=2) ), 
-                      1, paste("AUC (0-inf, observed):"    , var2string(tmpsum$AUCinf_obs , nsig_e=2, nsig_f=2) ))
+            lctmp = c(1, paste("Number of observations:"        , var2string(tmpsum$Nobs           , nsig_e=2, nsig_f=0) ),
+                      1, paste("Dose: "                         , var2string(tmpsum$Dose           , nsig_e=2, nsig_f=2) ), 
+                      1, paste("Dose concentration units: "     , var2string(tmpsum$Dose_CU        , nsig_e=2, nsig_f=2) ), 
+                      1, paste("Cmax: "                         , var2string(tmpsum$Cmax           , nsig_e=2, nsig_f=2) ), 
+                      1, paste("C0: "                           , var2string(tmpsum$C0             , nsig_e=2, nsig_f=2) ), 
+                      1, paste("Tmax: "                         , var2string(tmpsum$Tmax           , nsig_e=2, nsig_f=2) ), 
+                      1, paste("Halflife: "                     , var2string(tmpsum$halflife       , nsig_e=2, nsig_f=2) ),
+                      1, paste("Time interval: "                , toString(time_start), '-', toString(time_stop))) 
+            rctmp = c(1, paste("Vp  (observed):"                , var2string(tmpsum$Vp_obs         , nsig_e=2, nsig_f=2) ),
+                      1, paste("Vss (observed):"                , var2string(tmpsum$Vss_obs        , nsig_e=2, nsig_f=2) ),
+                      1, paste("Vss (predicted):"               , var2string(tmpsum$Vss_pred       , nsig_e=2, nsig_f=2) ), 
+                      1, paste("CL  (observed):"                , var2string(tmpsum$CL_obs         , nsig_e=2, nsig_f=2) ), 
+                      1, paste("CL  (predicted):"               , var2string(tmpsum$CL_pred        , nsig_e=2, nsig_f=2) ), 
+                      1, paste("AUC (0-last):"                  , var2string(tmpsum$AUClast        , nsig_e=2, nsig_f=2) ), 
+                      1, paste("AUC (0-inf, predicted):"        , var2string(tmpsum$AUCinf_pred    , nsig_e=2, nsig_f=2) ), 
+                      1, paste("AUC (0-inf, observed):"         , var2string(tmpsum$AUCinf_obs     , nsig_e=2, nsig_f=2) ))
+
+            if(sparse){                                        
+              lctmp = c(lctmp, 1,  paste("AUC (Bailer):"       , var2string(tmpsum$AUCBailer      , nsig_e=2, nsig_f=2)))
+              rctmp = c(rctmp, 1,  paste("var(AUC (Bailer)):"  , var2string(tmpsum$AUCBailer_var  , nsig_e=2, nsig_f=2)))
+            }
 
             all = data.frame(c1=matrix(ncol=2, data=lctmp, byrow=TRUE)[,2], c2=matrix(ncol=2, data=rctmp, byrow=TRUE)[,2])
             

@@ -20,8 +20,13 @@ AUC_Bailers_method(conc_data = NULL, dsmap = list(NTIME = "NTIME", CONC
 \value{
 list with the following elements
 \itemize{
- \item \code{isgood} Boolean value indicating the result of the function call
- \item \code{msg}    String contianing a description of any problems 
+ \item \code{isgood}   Boolean value indicating the result of the function call
+ \item \code{AUC}      Mean AUC
+ \item \code{var_AUC}  Variance of the AUC
+ \item \code{msgs}     Sequence of strings contianing a description of any problems 
+ \item \code{obss}     Internal of observations
+ \item \code{times}    Sequence of time corresponding to the rows of \code{obs}
+ \item \code{r}        number of observations at each time point (rows correspond to rows of \code{obs})
 }
 }
 \description{
