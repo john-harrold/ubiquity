@@ -9395,19 +9395,19 @@ system_report_slide_section = function (cfg,
     if(!is.null(title)){
       if(meta$section$type$title == "ctrTitle"){
         tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "ctrTitle"), value=title) 
-       } else if (meta$section$type$title == "body" & !is.null(meta$section$indices$title)) {
-        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "body"), index = meta$section$indices$title, value=title) 
        } else {
-         isgood = FALSE
+         tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = meta$section$type$title), 
+                                     index    = meta$section$indices$title, 
+                                     value    = title) 
        }
      } 
     if(!is.null(sub_title)){
       if(meta$section$type$sub_title == "subTitle"){
         tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "subTitle"), value=sub_title) 
-       } else if (meta$section$type$sub_title == "body" & !is.null(meta$section$indices$sub_title)) {
-        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "body"), index = meta$section$indices$sub_title, value=sub_title) 
        } else {
-         isgood = FALSE
+        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = meta$section$type$sub_title), 
+                                    index    = meta$section$indices$sub_title, 
+                                    value    = sub_title) 
        }
      }
 
@@ -9478,18 +9478,18 @@ system_report_slide_title   = function (cfg,
     # Adding Slide title/subtitle information
     if(meta$title$type$title == "ctrTitle"){
       tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "ctrTitle"), value=title) 
-     } else if (meta$title$type$title == "body" & !is.null(meta$title$indices$title)) {
-      tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "body"), index = meta$section$indices$title, value=title) 
      } else {
-       isgood = FALSE
+      tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = meta$title$type$title), 
+                                  index    = meta$title$indices$title, 
+                                  value    = title) 
      }
     if(!is.null(sub_title)){
       if(meta$title$type$sub_title == "subTitle"){
         tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "subTitle"), value=sub_title) 
-       } else if (meta$title$type$sub_title == "body" & !is.null(meta$title$indices$sub_title)) {
-        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "body"), index = meta$section$indices$sub_title, value=sub_title) 
        } else {
-         isgood = FALSE
+        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = meta$title$type$sub_title), 
+                                    index    = meta$title$indices$sub_title, 
+                                    value    = sub_title) 
        }
      }
 
