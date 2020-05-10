@@ -1,0 +1,62 @@
+# Implementation of the transit model in
+#
+# Lobo, E.D., Balthasar, J.P. Pharmacodynamic modeling of chemotherapeutic
+# effects: Application of a transit compartment model to characterize
+# methotrexate effects in vitro. AAPS J 4, 212–222 (2002).
+# https://doi.org/10.1208/ps040442
+#
+#
+#
+# Initial cell concentrations were taken from the figures 
+#  C0 Ehriich ascites: 2.5e3 cells
+#  C0 Sarcoma 180:     1.2e3 cells
+
+#
+# Sets
+#
+<SET:TRIN>    K; K1; K2; K3
+<SET:TROUT>  K1; K2; K3; K4 
+
+# System parameters
+#name     value    lower upper units     edit Grouping 
+<P> M      1.0     eps   inf   mcg/ml    yes  System 
+<P> kng    0.02    eps   inf   1/hr      yes  System 
+<P> tau   34.1     eps   inf   hr        yes  System 
+<P> Kmax   0.29    eps   inf   1/hr      yes  System 
+<P> EC50   0.1     eps   inf   mcg/ml    yes  System 
+<P> C0     2.5e3   eps   inf   mcg/ml    yes  System 
+                   
+<PSET:default> Ehrlich Ascites Data
+
+<PSET:sarcoma> Sarcoma 180 Data
+<PSET:sarcoma:kng>        0.035
+<PSET:sarcoma:tau>       30.0
+<PSET:sarcoma:Kmax>       0.34
+<PSET:sarcoma:EC50>       0.32
+<PSET:sarcoma:C0>         1.2e3 
+
+# Here we calculate the kon as a secondary parameter
+# for each koff and corresponding KD
+<Ad> K = Kmax*M/(EC50 + M)
+
+
+# Initial number of cells: 
+<I> C     = C0
+
+# First we define the transit compartments:
+# The following:
+SIMINT_SET_ALIGN[TRIN;TROUT][<ODE:{TROUT}> 1.0/tau*({TRIN}-{TROUT})]
+
+# Will expand to:
+# <ODE:K1> 1.0/tau*(K-K1)
+# <ODE:K2> 1.0/tau*(K1-K2)
+# <ODE:K3> 1.0/tau*(K2-K3)
+# <ODE:K4> 1.0/tau*(K3-K4)
+
+<ODE:C> kng*C - K4*C
+
+<O> Ncells = C
+
+<TS:hours> 1.0
+<TS:days>  1.0/24.0
+
