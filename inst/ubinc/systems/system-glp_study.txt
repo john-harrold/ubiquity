@@ -116,8 +116,8 @@ Ct; Vt; ktp <C> Cp; Vp; kpt
 
 # specify different time scales
 <TS:hours> 1.0
-<TS:days>  1/24
-<TS:weeks> 1/24/7
+<TS:days>  1.0/24.0
+<TS:weeks> 1.0/24.0/7.0
 
 # output times 
 <OPT:output_times> SIMINT_SEQ[0][2*7*24][10]

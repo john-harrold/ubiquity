@@ -849,7 +849,8 @@
 
 # General Options:
 # specify different time scales
-# <TS:name>  scaling factor
+<TS:hours> 1.0
+ling factor
 
 # Specify the index of state 'name' to be 'number' in the different targets
 # <INDEX:STATE:name> number
@@ -866,12 +867,6 @@
 # <OPT:ylim>  [ymin ymax]
 # <OPT:ylim>  [ymin ymax]
 #
-# GUI Callback
-# <OPT:callback_gui> [SIMINT_simulation_options] = update_dosing(SIMINT_cfg, SIMINT_simulation_options, SIMINT_handles);
-
-# guides
-# <GUIDE>  type; name; value, marker, color
-
 
 # <AMTIFY> CONC; AMT; REL
 

@@ -72,7 +72,7 @@
 #
 # Bolus Events
 # times/events state   values              scale    units
-<B:times>;           [  0.0, 7, 14 ];          1;   day
+<B:times>;           [  0.0, 7, 14 ];          1;   days
 <B:events>;   At;    [400.0, 0, 0  ];     1e3/MW;   mg     
 <B:events>;   Cc;    [  0.0, 0, 0  ];  1e3/MW/Vc;   mg     
 
@@ -106,7 +106,8 @@
 # #---------#
 # General Options:
 # specify different time scales
-<TS:days>  1
-<TS:hours> 24
-<TS:weeks> 1/7
-<TS:months> 1/7/4
+<TS:min>   24.0*60.0
+<TS:days>  1.0
+<TS:hours> 24.0
+<TS:weeks> 1.0/7.0
+<TS:months> 1.0/7.0/4.0

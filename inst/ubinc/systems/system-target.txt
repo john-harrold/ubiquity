@@ -89,3 +89,6 @@ Tt; Vt; ktp <C> Tp; Vp; kpt
 
 <O> Tissue = Tt
 
+# System time scale
+<TS:hours> 1.0
+

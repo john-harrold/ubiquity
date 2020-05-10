@@ -39,3 +39,6 @@ D_{TSi} + {TSk}   <=kon:koff=> {TSk}_D_{TSi}
 
 # Molar amount contributing to assay signal
 <O> Signal = TL_D_TB + TB_D_TL
+
+# Defining the system time
+<TS:hours> 1.0

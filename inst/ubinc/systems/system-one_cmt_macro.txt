@@ -56,15 +56,15 @@
 # Bolus Events
 # ------------
 # times/events state   values        scale      units
-<B:times>;             [  0  ];      1;          hr 
+<B:times>;             [  0  ];      1;         hours
 <B:events>;      Cp;   [1.0  ];      1/Vp;       mg     
 <B:events>;      At;   [0.0  ];      1;          mg     
 
 # Infusion Rate 
 # ------------
 # #  name     time/levels  values  scale    units
-<R:Dinf>;     times;       [0];     1;    hr  
-<R:Dinf>;     levels;      [0];     1;    mg/hr
+<R:Dinf>;     times;       [0];     1;    hours
+<R:Dinf>;     levels;      [0];     1;    mg/hour
 
 # #-----------------------------#
 # | ODEs, and State Information |

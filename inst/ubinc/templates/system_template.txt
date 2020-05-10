@@ -178,6 +178,8 @@
 # General Options:
 # specify different time scales
 # <TS:name>  scaling factor
+# Replace sys_time with the appropriate system time scale
+<TS:sys_time> 1.0
 
 # Specify the index of state 'name' to be 'number' in the different targets
 # <INDEX:STATE:name> number
@@ -191,15 +193,6 @@
 # <OPT:output_times> SIMINT_SEQ[0][100][1]
 # default time scale
 # <OPT:TS>  name                            
-# <OPT:ylim>  [ymin ymax]
-# <OPT:ylim>  [ymin ymax]
-#
-# GUI Callback
-# <OPT:callback_gui> [SIMINT_simulation_options] = update_dosing(SIMINT_cfg, SIMINT_simulation_options, SIMINT_handles);
-
-# guides
-# <GUIDE>  type; name; value, marker, color
-
 
 # <AMTIFY> CONC; AMT; REL
 

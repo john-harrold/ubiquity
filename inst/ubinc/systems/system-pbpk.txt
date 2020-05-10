@@ -413,7 +413,7 @@
 #           kg   1000 mg  150,000 g          
 #                                            
 # times/events  state         values        scale                       units
-<B:times>;                    [  0  ];      24.0;                         day 
+<B:times>;                    [  0  ];      24.0;                        days
 <B:events>;       C_PLASMA;   [  8  ];      BW*6.67e-9/V_TOT_PLASMA;    mg/kg
 
 # Infusion Rate 

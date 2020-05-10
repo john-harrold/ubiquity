@@ -1,6 +1,8 @@
 #
 # Parent/Metabolite example taken from Section 9.3 of the ADAPT5 Users Manual
 #
+# https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf
+#
 <P> Vp    10.0   1e-5   100  L        yes       System     
 <P> Vt    10.0   1e-5   100  L        yes       System     
 <P> Vm    30.0   1e-5   100  L        yes       System
@@ -23,8 +25,8 @@
 <O> Cpblood     = Mpb/Vp
 <O> Cmblood     = Mmb/Vm   
 
-<TS:hours> 1
-<TS:days>  1/24
+<TS:hours> 1.0
+<TS:days>  1.0/24.0
 
 <IIV:ETAVp>    0.08       
 <IIV:ETAVp:LN> Vp     

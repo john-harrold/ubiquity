@@ -415,15 +415,17 @@ return(res)}
 #'
 #' \itemize{
 #'   \item \code{"template"} - Empty system file template
+#'   \item \code{"adapt"} - Parent/metabolite model taken from the adapt manual used in estimation examples [ADAPT]
 #'   \item \code{"two_cmt_macro"} - Two compartment model parameterized in terms of clearances (macro constants)
 #'   \item \code{"one_cmt_macro"} - One compartment model parameterized in terms of clearances (macro constants)
 #'   \item \code{"two_cmt_micro"} - Two compartment model parameterized in terms of rates (micro constants)
 #'   \item \code{"one_cmt_micro"} - One compartment model parameterized in terms of rates (micro constants)
-#'   \item \code{"adapt"} - Parent/metabolite model taken from the adapt manual used in estimation examples
-#'   \item \code{"mab_pk"} - General compartmental model of mAb PK from Davda 2014 http://doi.org/10.4161/mabs.29095
-#'   \item \code{"pbpk"} - PBPK model of mAb disposition in mice from Shah 2012 
-#'   \item \code{"tmdd"} - Model of antibody with target-mediated drug disposition
+#'   \item \code{"mab_pk"} - General compartmental model of mAb PK from Davda 2014 [DG]
+#'   \item \code{"pbpk"} - PBPK model of mAb disposition in mice from Shah 2012 [SB]
+#'   \item \code{"pbpk_template"} - System parameters from Shah 2012 [SB] have been defined for all species along with the set notation to be used as a template for developing models with physiological parameters
 #'   \item \code{"pwc"} - Example showing how to make if/then or piece-wise continuous variables  
+#'   \item \code{"tmdd"} - Model of antibody with target-mediated drug disposition
+#'   \item \code{"tumor"} - Transit tumor growth model taken from Lobo 2002 [LB] 
 #'   \item \code{"empty"} - Minimal system file used to perform other analyses (e.g, NCA)
 #' }
 #'
@@ -433,6 +435,19 @@ return(res)}
 #'@param output_directory \code{getwd()} directory where system file will be placed
 #'
 #'@return \code{TRUE} if the new file was created and \code{FALSE} otherwise
+#'
+#' @details 
+#'
+#' References
+#'
+#' \itemize{
+#' \item{[ADAPT]} Adapt 5 Users Guide \url{https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf}
+#' \item{[DG]} Davda et. al. mAbs (2014) 6(4):1094-1102  \url{http://doi.org/10.4161/mabs.29095}
+#' \item{[LB]} Lobo, E.D. & Balthasar, J.P. AAPS J (2002) 4, 212-222  \url{https://doi.org/10.1208/ps040442}
+#' \item{[SB]} Shah, D.K. & Betts, A.M. JPKPD (2012) 39 (1), 67-86 \url{https://doi.org/10.1007/s10928-011-9232-2}
+#'}
+#'
+#'
 #'
 #'@examples
 #' \donttest{
@@ -448,6 +463,7 @@ system_new  <- function(file_name        = "system.txt",
                         output_directory = getwd()){
 
  allowed = c("template",      "mab_pk",         "pbpk",          "pwc", 
+             "pbpk_template", "tumor",  
              "tmdd",          "adapt",          "one_cmt_micro", "one_cmt_macro",  
              "two_cmt_micro", "two_cmt_macro",  "empty")
 
@@ -520,6 +536,7 @@ isgood}
 #'  \item{"Berkeley Madonna"} produces \code{system_berkeley_madonna.txt}: text file with the model and the currently selected parameter set in Berkeley Madonna format
 #'  \item{"Adapt"}            produces \code{system_adapt.for} and \code{system_adapt.prm}: Fortran and parameter files for the currently selected parameter set in Adapt format.
 #'}
+#'
 #'
 #'@examples
 #' \donttest{
@@ -920,6 +937,54 @@ return(cfg)
 system_fetch_parameters <- function(cfg){
   return(cfg$parameters$values)}
 
+#'@export
+#'@title Fetch Mathematical Set 
+#'
+#'@description
+#' Fetch the elements of the specified mathematical set that was defined in the system file.
+#'
+#'@param cfg ubiquity system object    
+#'@param set_name name of mathematical set
+#'
+#'@return A sequence containing the elements of the parameter set or NULL if if there was a problem.
+#'
+#'@examples
+#' \donttest{
+#' # Creating a system file from the pbpk example
+#' fr = system_new(file_name        = "system.txt", 
+#'                 system_file      = "pbpk", 
+#'                 overwrite        = TRUE, 
+#'                 output_directory = tempdir())
+#' 
+#' # Building the system 
+#' cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+#'       output_directory          = file.path(tempdir(), "output"),
+#'       temporary_directory       = tempdir())
+#'
+#' # Fetching the contents of the ORG mathematical set
+#' ORG_elements = system_fetch_set(cfg, "ORG")
+#'}
+system_fetch_set <- function(cfg, set_name=NULL){
+  set_contents = NULL
+  isgood = TRUE
+
+  if(set_name %in% names(cfg$options$math_sets)){
+    set_contents = cfg$options$math_sets[[set_name]]
+  } else {
+    isgood = FALSE
+    vp(cfg, paste("Error: mathematical set: >", set_name ,"< was not defined", sep=""))
+    if(length(names(cfg$options$math_sets)) > 0){
+      vp(cfg, paste("The following sets are defined for this sytem")) 
+      vp(cfg, paste(names(cfg$options$math_sets), collapse=", "))
+    } else {
+      vp(cfg, "There are no sets defined for this system") }
+  }
+
+  if(!isgood){
+    vp(cfg, "system_fetch_set()")
+  }
+  
+  return(set_contents)}
 
 #'@export
 #'@title Fetch Variability Terms

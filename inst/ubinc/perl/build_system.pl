@@ -114,7 +114,7 @@ MAIN:
 
     #
     # First Pass through system file to detect 
-    # any sets that may be present
+    # any mathematical sets that may be present
     #
     $comment_trigger = 0;
     foreach $line (@lines){
@@ -131,7 +131,6 @@ MAIN:
         $cfg->{comments} .= $tmp_line;
       }
       else{$comment_trigger = 1;}
-      
 
       #stripping out comments
       $line =~ s/#.*$//;
@@ -145,11 +144,9 @@ MAIN:
       }
     }
 
-    #
-    # Second pass to expand lines with sets
-    # to the different permutations that are
-    # possible
-    #
+    # Second pass: 
+    # Expand set functions  
+    # SIMINT_SET_SUM[]  SIMINT_SET_PRODUCT[]
     @lines_expanded = ();
     foreach $line (@lines){
       # Check for summation and product
@@ -157,6 +154,28 @@ MAIN:
       # if they exist then expand them to account for all entries
       $line = &apply_set_functions($cfg, $line);
 
+      push @lines_expanded, $line;
+    }
+
+    
+    # Third pass:
+    # Apply alignment sets
+    # SIMINT_SET_ALIGN[]  
+    @lines = @lines_expanded;
+    @lines_expanded = ();
+    foreach $line (@lines){
+      if($line =~ m#SIMINT_SET_ALIGN\[#){
+        push @lines_expanded, &apply_set_align($cfg, $line);
+      } else {
+      push @lines_expanded, $line; 
+      }
+    }
+
+    # Fourth pass:
+    # Expand all possible permutations of remaining sets
+    @lines = @lines_expanded;
+    @lines_expanded = ();
+    foreach $line (@lines){
       # checking to see if the line has any set information
       # basically looking for some string enclosed in curly braces:
       # {sometext}
@@ -173,7 +192,7 @@ MAIN:
     }
 
     #
-    # processing system file
+    # processing system file with all of the mathematical set options applied
     # 
     foreach $line (@lines_expanded){
     #
@@ -845,7 +864,6 @@ sub dump_rproject
 
   my $indent     = '   ';
   my $mc;
-  #my $template_components = &fetch_rproject_components_template();
   my $template_components = &fetch_template_file($cfg, 'r_components.R');
   $mc->{COMMENTS}                     = '';
   $mc->{FETCH_SYS_PARAMS}             = '';
@@ -860,6 +878,7 @@ sub dump_rproject
   $mc->{FETCH_SYS_TS}                 = '';
   $mc->{FETCH_SYS_DATA}               = '';
   $mc->{FETCH_SYS_MISC}               = '';
+  $mc->{FETCH_SYS_OPTIONS}            = '';
   $mc->{FETCH_SYS_BOLUS}              = '';
   $mc->{FETCH_SYS_INFUSIONS}          = '';
   $mc->{FETCH_SYS_COVARIATES}         = '';
@@ -881,7 +900,6 @@ sub dump_rproject
   $mc->{MODEL_PREFIX}                 = $cfg->{files}->{model_prefix};
 
   my $md;
-  #my $template_driver     = &fetch_rproject_simulation_driver_template();
   my $template_driver     = &fetch_template_file($cfg, 'r_simulation_driver.R');
   $md->{PSETS}                 = '';
   $md->{BOLUS}                 = '';
@@ -912,7 +930,6 @@ sub dump_rproject
   }
 
   my $mo;
-  #my $template_compiled   = &fetch_rproject_compiled_template();
   my $template_compiled   = &fetch_template_file($cfg, 'r_odes.c');
   $mo->{SYSTEM_PARAM}          = '';
   $mo->{VARIABLE_INIT}         = '';
@@ -1113,12 +1130,17 @@ foreach $parameter (@{$cfg->{parameters_index}}){
 
 }
 
-
-# IIV
-
 my $set_id ;
 
+# Mathematical sets
+if(keys(%{$cfg->{sets}})){
+  $mc->{FETCH_SYS_OPTIONS} .= "# Mathematical sets \n";
+  foreach $set_id (keys %{$cfg->{sets}}){
+    $mc->{FETCH_SYS_OPTIONS} .= 'cfg$options$math_sets$'.$set_id.'=c("'.join('", "', @{$cfg->{sets}->{$set_id}}).'")'."\n";
+  }
+}
 
+# IIV
 if(keys(%{$cfg->{iiv}})){
   $mc->{FETCH_SYS_INDICES} .= "# iiv \n";
   foreach $set_id (keys %{$cfg->{iiv_index}}){
@@ -1460,8 +1482,8 @@ if (defined($cfg->{bolus_inputs}->{entries})){
 
     # simulation driver
     $md->{BOLUS} .= '# cfg = system_set_bolus(cfg, state   ="'.$state.'", '."\n" ;
-    $md->{BOLUS} .= '#                             times   = c('.$field_times.'),  #  '.$cfg->{bolus_inputs}->{times}->{units}."\n";
-    $md->{BOLUS} .= '#                             values  = c('.$field_state.'))  #  '.$cfg->{bolus_inputs}->{entries}->{$state}->{units}."\n";
+    $md->{BOLUS} .= '#                             times   = c('.join(', ', &extract_elements($field_times)).'),  #  '.$cfg->{bolus_inputs}->{times}->{units}."\n";
+    $md->{BOLUS} .= '#                             values  = c('.join(', ', &extract_elements($field_state)).'))  #  '.$cfg->{bolus_inputs}->{entries}->{$state}->{units}."\n";
     
     # analysis estimation
     $ma->{BOLUS}          .= 'cohort$inputs$bolus$'.$state.'$TIME'.&fetch_padding($state,19).'= c()'." # $cfg->{bolus_inputs}->{times}->{units} \n";
@@ -4786,12 +4808,12 @@ sub find_bracketed_arguments
 
 
  # finding where the function begins and ends
+
  $result->{function_start}  = index($test_string, $start_pattern);
  $result->{function_stop}   = length($start_pattern) + $result->{function_start};
  my $argument_offset = 0;
  my $bracket_counter = 1;
  my $letter;
-
 
  # finding the arguments for the function:
  for ($argument_idx =1; $argument_idx <= $num_arguments; $argument_idx ++){
@@ -4838,6 +4860,106 @@ sub find_bracketed_arguments
  return $result;
 }
 
+sub apply_set_align
+{
+
+    my ($cfg, $line) = @_;
+    my $function_components;
+    my $tmp_line  = '';        # temp copy of the line of code being processed
+    my $tmp_ph    = '';        # holder for the placeholder text used for substitutions 
+    my @sets      = ();        # names of sets to be aligned
+    my $set_name  = '';       
+    my @lines     = ();       
+    my $isgood    = 1;         # boolean variable to track errors
+    my $setlength = -1;
+    my $set_idx   = 0;
+
+
+    #initializing the error to 0, it will be overwritten with subsequent iterations
+    $function_components->{error}    = 0;
+
+    $function_components = &find_bracketed_arguments($line, 'SIMINT_SET_ALIGN[', 2);
+    if($function_components->{error} < 1){
+      # pulling out the mathematical sets
+      @sets = split(/;/, $function_components->{arguments}[0]);
+
+      if(scalar(@sets) >=2 ){
+        # checking the sets to make sure they have they exist
+        foreach $set_name (@sets){
+          if(not(exists($cfg->{sets}->{$set_name}))){
+            $isgood = 0;
+            &mywarn("Mathematical set -->".$set_name."<-- does not exist.");
+            &mywarn("Define it in the system file with:");
+            &mywarn("<SET:".$set_name."> ....");
+          }
+        }
+        
+        # checking the sets to make sure they have the same length
+        if($isgood){
+          # First we loop through the sets to compare lengths:
+          foreach $set_name (@sets){
+            # for the first set we define the baseline length:
+            if($setlength == -1){
+              $setlength =  scalar(@{$cfg->{sets}->{$set_name}});
+            } else {
+              if($setlength != scalar(@{$cfg->{sets}->{$set_name}})){
+                $isgood = 0;
+              }
+            }
+          }
+
+          if($isgood == 1){
+            # If everything is good (sets exists, set lengths are all the
+            # same, etc) then we create a new line for each index:
+            $set_idx = 0;
+            while($set_idx < $setlength){
+              # Making a copy of the argument containing the text containing
+              # the placeholders to be substituted
+              $tmp_ph = $function_components->{arguments}[1];
+              foreach $set_name (@sets){
+                $tmp_ph =~ s#{$set_name}#$cfg->{sets}->{$set_name}[$set_idx]#g;
+              }
+              # Making a copy of the line for the current set element
+              $tmp_line = $line;
+              # Substituting the argument with the placeholders replaced
+              substr($tmp_line, 
+                     $function_components->{function_start}, 
+                    ($function_components->{argument_end}-$function_components->{function_start}), 
+                    $tmp_ph);
+
+               # Adding the new line to the lines to be returned
+               push @lines, $tmp_line ;
+              $set_idx = $set_idx + 1;
+            }
+          } else {
+            # If there is a difference in set lengths we dump them out here
+            &mywarn("Aligned sets must have the same length.");
+            &mywarn("The following set lengths were found:");
+            foreach $set_name (@sets){
+               &mywarn($set_name."(".scalar(@{$cfg->{sets}->{$set_name}}).")");
+            }
+          }
+        }
+      } else {
+       $isgood = 0;
+       &mywarn("You need to specify at least 2 sets");
+      }
+    } else{
+      $isgood = 0;
+    }
+
+    if($isgood == 0){
+      &mywarn("Error processing SIMINT_SET_ALIGN ");
+      &mywarn($line);
+    }
+
+
+
+ return @lines
+}
+
+
+
 sub apply_set_functions
 {
     my ($cfg, $line) = @_;
@@ -4863,8 +4985,6 @@ sub apply_set_functions
     #initializing the error to 0, it will be overwritten with subsequent iterations
     $function_components->{error}    = 0;
 
-    #$patterns->{prod} = 'SIMINT_SET_PROD[';
-    #
 
     foreach $set_type (keys(%{$patterns})){
       while(index($line, $patterns->{$set_type}->{pattern})>-1 and ($function_components->{error} <1) ){
@@ -6196,6 +6316,7 @@ sub system_check{
   my ($cfg) = @_;
 
   my $name       = '';
+  my $found      = 0;
   my $set_name   = '';
   my $cond_name  = '';
   my @nmdatacols = ();
@@ -6345,6 +6466,56 @@ sub system_check{
     }
     }
 
+  # Checking time scales
+  if(exists($cfg->{time_scales})){
+     # Checking to make sure there is a timescale defined 
+     # for the system time scale. This will be a timescale 
+     # equal to 1.0
+     $found = 0;
+     foreach $name (keys(%{$cfg->{time_scales}})){
+       if(eval($cfg->{time_scales}->{$name}) == 1){
+         $found = 1;
+       }
+     }
+     if(1 != $found){
+       &mywarn("Unable to determine the timescale of the system time."); 
+       &mywarn("You need to define a timescale equal to 1. For example,"); 
+       &mywarn("if the system time is days you would add the following"); 
+       &mywarn("to your system file:"); 
+       &mywarn("<TS:days> 1.0 "); 
+     }
+     # Checking bolus_inputs
+     # We want to see if there is a timescale defined for the timescale used
+     # for bolus dosing:
+     if(exists($cfg->{bolus_inputs}->{times})){
+       if(!exists($cfg->{time_scales}->{$cfg->{bolus_inputs}->{times}->{units}})){
+         &mywarn("Bolus dosing is defined, but there is no timescale defined with the"); 
+         &mywarn("same units as the bolus dosing times. You should define this in the");
+         &mywarn("system file. Add the following with the appropriate value for SCALE:");
+         &mywarn("<TS:".$cfg->{bolus_inputs}->{times}->{units}."> SCALE "); 
+       }
+     }
+     # Checking infusion_rates
+     # We want to see if there is a timescale defined for the timescale used
+     # for continuous infusions 
+     if(exists($cfg->{input_rates})){
+       foreach $name (keys(%{$cfg->{input_rates}})){
+        if(!exists($cfg->{time_scales}->{$cfg->{input_rates}->{$name}->{times}->{units}})){
+         &mywarn("For the infusion rate input >".$name."< there is no timescale defined with the"); 
+         &mywarn("same units as the infusion rate times. You should define this in the");
+         &mywarn("system file. Add the following with the appropriate value for SCALE:");
+         &mywarn("<TS:".$cfg->{input_rates}->{$name}->{times}->{units}."> SCALE "); 
+        }
+       }
+     }
+  } else {
+    &mywarn("Currently there are no timescales defined. Generally you should "); 
+    &mywarn("define timescales for the units of:                             "); 
+    &mywarn("    - system time                                               "); 
+    &mywarn("    - bolus dosing times                                        "); 
+    &mywarn("    - infusion rate switching times                             "); 
+    &mywarn("See the <TS:?> ? descriptor  for more information               "); 
+  }
 
 
 }

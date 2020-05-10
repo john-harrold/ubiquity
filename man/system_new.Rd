@@ -24,16 +24,28 @@ Copy a blank template (\code{system_file="template"}) file to the working direct
 
 \itemize{
   \item \code{"template"} - Empty system file template
+  \item \code{"adapt"} - Parent/metabolite model taken from the adapt manual used in estimation examples [ADAPT]
   \item \code{"two_cmt_macro"} - Two compartment model parameterized in terms of clearances (macro constants)
   \item \code{"one_cmt_macro"} - One compartment model parameterized in terms of clearances (macro constants)
   \item \code{"two_cmt_micro"} - Two compartment model parameterized in terms of rates (micro constants)
   \item \code{"one_cmt_micro"} - One compartment model parameterized in terms of rates (micro constants)
-  \item \code{"adapt"} - Parent/metabolite model taken from the adapt manual used in estimation examples
-  \item \code{"mab_pk"} - General compartmental model of mAb PK from Davda 2014 http://doi.org/10.4161/mabs.29095
-  \item \code{"pbpk"} - PBPK model of mAb disposition in mice from Shah 2012 
-  \item \code{"tmdd"} - Model of antibody with target-mediated drug disposition
+  \item \code{"mab_pk"} - General compartmental model of mAb PK from Davda 2014 [DG]
+  \item \code{"pbpk"} - PBPK model of mAb disposition in mice from Shah 2012 [SB]
+  \item \code{"pbpk_template"} - System parameters from Shah 2012 [SB] have been defined for all species along with the set notation to be used as a template for developing models with physiological parameters
   \item \code{"pwc"} - Example showing how to make if/then or piece-wise continuous variables  
+  \item \code{"tmdd"} - Model of antibody with target-mediated drug disposition
+  \item \code{"tumor"} - Transit tumor growth model taken from Lobo 2002 [LB] 
   \item \code{"empty"} - Minimal system file used to perform other analyses (e.g, NCA)
+}
+}
+\details{
+References
+
+\itemize{
+\item{[ADAPT]} Adapt 5 Users Guide \url{https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf}
+\item{[DG]} Davda et. al. mAbs (2014) 6(4):1094-1102  \url{http://doi.org/10.4161/mabs.29095}
+\item{[LB]} Lobo, E.D. & Balthasar, J.P. AAPS J (2002) 4, 212-222  \url{https://doi.org/10.1208/ps040442}
+\item{[SB]} Shah, D.K. & Betts, A.M. JPKPD (2012) 39 (1), 67-86 \url{https://doi.org/10.1007/s10928-011-9232-2}
 }
 }
 \examples{

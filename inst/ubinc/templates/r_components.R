@@ -72,6 +72,8 @@ cfg$parameters$current_set = 'default';
 # misc options
 <FETCH_SYS_MISC>
 
+<FETCH_SYS_OPTIONS>
+
 cfg$options$misc$c_libfile_base   = c_libfile_base
 
 # titration options

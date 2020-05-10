@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-At its core, ubiquity is a modeling language and a set of scripts meant to facilitate model development and deployment. The focus of this vignette is on the model description language. This is a plain text file, referred to as a **system file**. Each line contains a descriptor (e.g. ``<P>``) which defines an aspect of the model, and comments are made with the hash sign (``#``). What follows is an overview of the different components of the language that can be used to create a system file.
+At its core, ubiquity is a modeling language and a set of scripts meant to facilitate model development and deployment. The focus of this document is on the model description language. This is a plain text file, referred to as a **system file**. Each line contains a descriptor (e.g. ``<P>``) which defines an aspect of the model, and comments are made with the hash sign (``#``). What follows is an overview of the different components of the language that can be used to create a system file.
 
 
 ## Parameters 
@@ -574,6 +574,66 @@ D_{TSi} + {TSk} <=kon:koff=> {TSk}_D_{TSi}
 
 This statement contains two different sets (``TSi`` and ``TSk``). When multiple sets are encountered, every possible combination is evaluated
 
+#### Aligning Sets
+
+By default sets will interpreted by evaulating every possible permutation as shown above. However, it may be desireable to pair or align sets. Take for example the transit compartments implemented by Lobo and Balthasar to delay the onset of drug effect on cancer cells [LB]. The traisnt compartment are implemented using a series of differential equations:
+
+$$
+  \frac{dK1}{dt} = (K-K1)\frac{1}{\tau} \\
+  \frac{dK2}{dt} = (K1-K2)\frac{1}{\tau} \\
+  \frac{dK3}{dt} = (K2-K3)\frac{1}{\tau} \\
+  \frac{dK4}{dt} = (K3-K4)\frac{1}{\tau} 
+$$
+
+It's possible to code each of these individually, but it's also possible to define these using mathematical set notation. We see that in the first equation K is paired or aligned with K1, and in the second it's K1 and K2, etc. So first we define two sets of equal length whose elements are aligned:
+
+```
+<SET:TRIN>    K; K1; K2; K3
+<SET:TROUT>  K1; K2; K3; K4 
+```
+Next we write the ``<ODE:?>?`` statment in terms of these sets, but we use the ``SIMINT_SET_ALIGN`` function:
+
+```
+SIMINT_SET_ALIGN[TRIN;TROUT][<ODE:{TROUT}> 1.0/tau*({TRIN}-{TROUT})]
+```
+
+The first argument is the name sets to align separated by a simicolon ``;`` and the second argment is the system file descriptor written in terms of these sets. This will be expanded internall into:
+
+```
+<ODE:K1> 1.0/tau*(K-K1)
+<ODE:K2> 1.0/tau*(K1-K2)
+<ODE:K3> 1.0/tau*(K2-K3)
+<ODE:K4> 1.0/tau*(K3-K4)
+```
+
+#### Set Functions 
+
+It can be useful to perform operations over sets. To do this you can use the following functions:
+
+* ``SIMINT_SET_SUM`` is the mathematical equivalent of $\sum_{SET}$
+* ``SIMINT_SET_PRODUCT`` is the mathematical equivalent of $\prod_{SET}$
+
+These functions take two bracketed arguments. The first argument is set name and the second argument is the mathematical relationship to be expanded. For example, consider a system that has been parameterized for several species. The variable ``EN_Mouse`` is 1 if the species is mouse and 0 otherwise. Similarly for ``EN_Human``, ``EN_Monkey``, etc. We have also defined the body weights as system parameters: ``BW_Mouse`` for the mouse, ``BW_Human`` for human, etc. Now we want to assign ``BW`` to the value of the currently seleted species (where ``EN`` for that species is 1). First we would define the species parameter set:
+
+```
+<SET:SP> Mouse; Rat; Monkey; Human
+```
+Next we would define the secondary parameter ``BW`` by summing the product of the Boolean species parameter and the body weight for that species:
+
+```
+<As> BW = SIMINT_SET_SUM[SP][EN_{SP}*BW_{SP}]
+```
+
+
+
+#### Set Evaluation
+
+Sets are evaulated in the following order:
+
+* First set functions (``SIMINT_SET_SUM`` and ``SIMINT_SET_PRODUCT``) are evaulated.
+* Next aligned sets are applied (``SIMINT_SET_ALIGN``)
+* Lastly, remaining sets are evaulated for every permutation 
+
 ## Piecewise-continuous functions/parameters ``<IF:?:?>``
 
 To specify a conditional assignment use the statement:
@@ -648,10 +708,32 @@ To define the default output times for the ShinyApp and simulation scripts use t
 <OPT:output_times> SIMINT_SEQ[0][100][1]
 ~~~
 
+## Example system files
+
+These example system files can be found in the examples directory of the stand-alone analysis template ([ubiquity_template.zip](http://template.ubiquity.tools)). Most can also be loaded form the R package (see the help for system_new).
+
+
+* ``system-adapt.txt`` - Parent/metabolite structural model taken from the ADAPT5 Users Manual [ADAPT]. This sytem is used in the estmation examples of the ubiquity workshop.
+* ``system-glp_study.txt`` - PK model paramterized for humans and NHPs, used as an example for GLP tox study design.
+* ``system-mab_pk.txt`` - Linear model of mAb PK for humans taken from [DM]. This model is used in the simulation examples of the ubiquity workshop.
+* ``system-one_cmt_macro.txt``  - One compartment model parameterizedf or macro constants (clearances and volumes).
+* ``system-one_cmt_micro.txt`` - One compartment model parameterizedf or micro constants (rates).
+* ``system-pbpk.txt`` - Implementation of large molecule PBPK model by Shah and Betts [SB]. This model provides good examples of how to use mathematical set notation.
+* ``system-pbpk_template.txt`` - Template containing the species parameter from [SB]. This can be used to construct systems parameterized for multiple species. 
+* ``system-pwc.txt`` - Example of how to construct piece-wise secondary parameters (i.e. using if/then/else statements).
+* ``system-sets.txt`` - Example of how to parameterize systems with multiple parameter sets.
+* ``system-tmdd.txt`` - Example of how to code a TMDD model using either ODEs or process descriptors. 
+* ``system-tumor.txt`` - Implementation of transit effect model in cancer cell inhibition from [LB]. This demonstrates how to use aligned mathematical sets. 
+* ``system-two_cmt_macro.txt`` - Two compartment model parameterizedf or macro constants (clearances and volumes)
+* ``system-two_cmt_micro.txt`` - Two compartment model parameterizedf or micro constants (rates)
+
 ## References
 
-* [DM] [Dirks & Meibohm Clin. PK 2010 Oct 1;49(10):633-59](https://doi.org/10.2165/11535960-000000000-00000)
+* [ADAPT][https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf](https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf)
+* [DM] [Dirks & Meibohm Clin. PK (2010) Oct 1;49(10):633-59](https://doi.org/10.2165/11535960-000000000-00000)
+* [LB] [Lobo, E.D. & Balthasar, J.P. AAPS J (2002) 4, 212-222](https://doi.org/10.1208/ps040442)
 * [MK] [Mager, D.E. & Krzyzanski, W. Pharm Res (2005) 22: 1589.](https://doi.org/10.1007/s11095-005-6650-0)
-* [VR] [Vieira & Rajewsky Eur J Immunol. 1988 Feb;18(2):313-6](https://doi.org/10.1002/eji.1830180221) 
+* [SB] [Shah, D.K. & Betts, A.M. JPKPD (2012) 39 (1), 67-86](https://doi.org/10.1007/s10928-011-9232-2)
+* [VR] [Vieira & Rajewsky Eur J Immunol. (1988) Feb;18(2):313-6](https://doi.org/10.1002/eji.1830180221) 
 
 [^1]: parameter set short names must start with a letter and containing only letters, numbers, and _
