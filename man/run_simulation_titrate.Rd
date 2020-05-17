@@ -4,12 +4,14 @@
 \alias{run_simulation_titrate}
 \title{Simulate With Titration or Rule-Based Inputs}
 \usage{
-run_simulation_titrate(SIMINT_p, SIMINT_cfg)
+run_simulation_titrate(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst = TRUE)
 }
 \arguments{
 \item{SIMINT_p}{list of system parameters}
 
 \item{SIMINT_cfg}{ubiquity system object}
+
+\item{SIMINT_dropfirst}{when \code{TRUE} it will drop the first sample point (prevents bolus doses from starting at 0)}
 }
 \value{
 som

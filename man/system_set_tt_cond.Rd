@@ -155,7 +155,7 @@ model as well as internal variables used to control the titration.
 \bold{States and Parameters}
 
 System parameters (\code{<P>}), static secondary parameters (\code{<As>}) and 
-the initial value of covariates are available. Also the state values and 
+the initial value of covariates are available. Also the state values 
 (at the current titration time) can be used. These are all available as 
 the names specified in the \code{system.txt} file. Since system resets
 (\code{SI_TT_STATE}) are processed first, any changes made to states are 

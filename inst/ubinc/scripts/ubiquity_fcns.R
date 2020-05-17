@@ -1791,7 +1791,7 @@ return(cfg)
 #' \bold{States and Parameters}
 #'
 #' System parameters (\code{<P>}), static secondary parameters (\code{<As>}) and 
-#' the initial value of covariates are available. Also the state values and 
+#' the initial value of covariates are available. Also the state values 
 #' (at the current titration time) can be used. These are all available as 
 #' the names specified in the \code{system.txt} file. Since system resets
 #' (\code{SI_TT_STATE}) are processed first, any changes made to states are 
@@ -10835,11 +10835,12 @@ cfg}
 #'  to start and stop simulations and apply rules to control dosing and state-resets.
 #'@param SIMINT_p list of system parameters
 #'@param SIMINT_cfg ubiquity system object    
+#'@param SIMINT_dropfirst when \code{TRUE} it will drop the first sample point (prevents bolus doses from starting at 0)
 #'
 #'@return som
 #'@seealso \code{\link{system_new_tt_rule}}, \code{\link{system_set_tt_cond}} and the titration vignette (\code{vignette("Titration", package = "ubiquity")})
-run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
-  return(eval(parse(text="auto_run_simulation_titrate(SIMINT_p, SIMINT_cfg)")))
+run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=TRUE){
+  return(eval(parse(text="auto_run_simulation_titrate(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst)")))
 }
 
 #-------------------------------------------------------------------------
