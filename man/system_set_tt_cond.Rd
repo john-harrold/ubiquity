@@ -145,6 +145,7 @@ can create your own user function and place the function call within the
 brackets above.
 
 \bold{Titration Environment}
+
 The \code{cond}, \code{action}, and \code{value} statements can use any variables available in
 the titration environment. If you want to perform complicated actions, you can
 simply create a user defined functions and pass it the variables from the
@@ -153,20 +154,23 @@ model as well as internal variables used to control the titration.
 
 \bold{States and Parameters}
 
-The state values (at the current titration time), system parameters (\code{<P>}),
-static secondary parameters (\code{<As>}) and the initial value of covariates are
-available as the names specified in the \code{system.txt} file. Since system resets
-(\code{SI_TT_STATE}) are processed first, any changes made to states are the values
-that are active for other actions.
+System parameters (\code{<P>}), static secondary parameters (\code{<As>}) and 
+the initial value of covariates are available. Also the state values and 
+(at the current titration time) can be used. These are all available as 
+the names specified in the \code{system.txt} file. Since system resets
+(\code{SI_TT_STATE}) are processed first, any changes made to states are 
+the values that are active for other actions.
 
 \bold{Internal Simulation Variables}
 
 Internal variables are used to control titration activities. These variables can also be used in the conditions and actions.
+
 \itemize{
   \item \code{SIMINT_p} - list of system parameters
   \item \code{SIMINT_cfg} - system configuration sent into the titration routine
-  \item \code{SIMINT_cfgtt}-systemconfigurationatthecurrenttitrationeventtime
+  \item \code{SIMINT_cfgtt}- system configuration at the current titration event time
   \item \code{SIMINT_ttimes} - vector of titration times (in simulation units)
+  \item \code{SIMINT_ttime} - current titration time  (in simulation units)
   \item \code{SIMINT_tt_ts} - list of time scales for the current titration
   \item \code{SIMINT_history} - data frame tracking the history of conditions that evaluated true with the following structure:
   \item \itemize{
@@ -179,7 +183,7 @@ Internal variables are used to control titration activities. These variables can
 
 \bold{Individual Simulations}
 
-To run an individual titration simulation use the follwoing:
+To run an individual titration simulation use the following:
 
 \preformatted{
 som = run_simulation_titrate(parameters, cfg)

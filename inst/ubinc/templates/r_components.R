@@ -430,7 +430,7 @@ return(SIMINT_all_ICs);
 
 
 
-auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
+auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=TRUE){
 #
 # This runs titration or rule based simulations 
 #
@@ -649,6 +649,7 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
 
   # Adding a point just before the last point so that when we add the results
   # together before we will sample smoothly across titration points
+  SIMINT_pre = c()
   if(SIMINT_ttidx < length(SIMINT_ttimes)){
    SIMINT_pre  = (max(SIMINT_ottr) - 1e-8*(max(SIMINT_ottr) - min(SIMINT_ottr))) }
   
@@ -664,7 +665,9 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg){
 
 
   # Simulating the system forward in time
-  SIMINT_somtt = run_simulation_ubiquity(SIMINT_p, SIMINT_cfgtt)
+  SIMINT_somtt = run_simulation_ubiquity(SIMINT_parameters = SIMINT_p, 
+                                         SIMINT_cfg        = SIMINT_cfgtt, 
+                                         SIMINT_dropfirst  = SIMINT_dropfirst)
 
   # adding the titration history information 
   # pulling out the number of observations

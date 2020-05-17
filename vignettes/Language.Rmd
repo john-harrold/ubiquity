@@ -204,7 +204,7 @@ $$ H_2O_2 \xrightarrow{k_{deg}} H_2O + \frac{1}{2}O_2 $$
 In the system format this would be written in the following manner:
 
 ~~~
-H2O2 =kdeg=> H2O + [1/2]O2
+H2O2 =kdeg=> H2O + [0.5]O2
 ~~~
 
 And this will be translated in to the following differential equations:
@@ -545,8 +545,7 @@ descriptors used to construct a system.
 For example, the initial conditions for each of the target states are
 defined as parameters (``T0_TL``, ``T0_TS``, ``T0_TB``) in the model. These have
 to be identified as initial conditions using the ``<I>`` notation, and can be
-done with a single statement:
-This line:
+done with a single statement. This line:
 
 ~~~
 <I> {TSi} = T0_{TSi} 
@@ -597,7 +596,7 @@ Next we write the ``<ODE:?>?`` statment in terms of these sets, but we use the `
 SIMINT_SET_ALIGN[TRIN;TROUT][<ODE:{TROUT}> 1.0/tau*({TRIN}-{TROUT})]
 ```
 
-The first argument is the name sets to align separated by a simicolon ``;`` and the second argment is the system file descriptor written in terms of these sets. This will be expanded internall into:
+The first argument is the names of sets to align separated by a simicolon ``;`` and the second argment is the system file descriptor written in terms of these sets. This will be expanded internally into:
 
 ```
 <ODE:K1> 1.0/tau*(K-K1)
@@ -613,7 +612,7 @@ It can be useful to perform operations over sets. To do this you can use the fol
 * ``SIMINT_SET_SUM`` is the mathematical equivalent of $\sum_{SET}$
 * ``SIMINT_SET_PRODUCT`` is the mathematical equivalent of $\prod_{SET}$
 
-These functions take two bracketed arguments. The first argument is set name and the second argument is the mathematical relationship to be expanded. For example, consider a system that has been parameterized for several species. The variable ``EN_Mouse`` is 1 if the species is mouse and 0 otherwise. Similarly for ``EN_Human``, ``EN_Monkey``, etc. We have also defined the body weights as system parameters: ``BW_Mouse`` for the mouse, ``BW_Human`` for human, etc. Now we want to assign ``BW`` to the value of the currently seleted species (where ``EN`` for that species is 1). First we would define the species parameter set:
+These functions take two bracketed arguments. The first argument is the set name and the second argument is the mathematical relationship to be expanded. For example, consider a system that has been parameterized for several species. The variable ``EN_Mouse`` is 1 if the species is mouse and 0 otherwise. Similarly for ``EN_Human``, ``EN_Monkey``, etc. We have also defined the body weights as system parameters: ``BW_Mouse`` for the mouse, ``BW_Human`` for human, etc. Now we want to assign ``BW`` to the value of the currently seleted species (where ``EN`` for that species is 1). First we would define the species parameter set:
 
 ```
 <SET:SP> Mouse; Rat; Monkey; Human
