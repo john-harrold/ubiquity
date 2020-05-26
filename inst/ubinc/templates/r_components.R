@@ -17,13 +17,14 @@ cfg$options$misc$temp_directory = '<TEMP_DIRECTORY>'
 cfg$options$misc$distribution   = '<DISTRIBUTION>'
 cfg$options$misc$system_file    = '<SYSTEM_FILE>'
 
+
+
 if(cfg$options$misc$distribution  == "stand alone"){
   cfg$options$misc$templates      = file.path(getwd(), 'library', 'templates')
 } else {
   package_dir                = system.file("", package="ubiquity")
   cfg$options$misc$templates = file.path(package_dir, 'ubinc', "templates")
 }
-
 
 # System parameter information
 <FETCH_SYS_PARAMS>
@@ -36,6 +37,8 @@ if(cfg$options$misc$distribution  == "stand alone"){
 
 # Indices mapping state, parameter, etc. names
 # to their index in the different vectors
+cfg$options$mi = list()
+
 <FETCH_SYS_INDICES>
 
 <FETCH_SYS_INDICES_ODE_OUTPUT>
@@ -71,6 +74,7 @@ cfg$parameters$current_set = 'default';
 
 # misc options
 <FETCH_SYS_MISC>
+
 
 <FETCH_SYS_OPTIONS>
 

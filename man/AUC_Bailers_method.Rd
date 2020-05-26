@@ -4,8 +4,10 @@
 \alias{AUC_Bailers_method}
 \title{AUC for sparse data}
 \usage{
-AUC_Bailers_method(conc_data = NULL, dsmap = list(NTIME = "NTIME", CONC
-  = "CONC", ID = "ID"))
+AUC_Bailers_method(
+  conc_data = NULL,
+  dsmap = list(NTIME = "NTIME", CONC = "CONC", ID = "ID")
+)
 }
 \arguments{
 \item{conc_data}{data frame containing the sparse data}

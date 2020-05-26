@@ -4,8 +4,14 @@
 \alias{apply_sub_file_COV}
 \title{Extracts Covariates for a Subject from a Subject Data File}
 \usage{
-apply_sub_file_COV(tmpcfg, cov_found, sub_dataset, sub_ID_col,
-  sub_TIME_col, file_ID)
+apply_sub_file_COV(
+  tmpcfg,
+  cov_found,
+  sub_dataset,
+  sub_ID_col,
+  sub_TIME_col,
+  file_ID
+)
 }
 \arguments{
 \item{tmpcfg}{ubiquity system object}

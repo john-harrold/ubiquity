@@ -4,8 +4,10 @@
 \alias{system_check_requirements}
 \title{Check For Perl and C Tools}
 \usage{
-system_check_requirements(checklist = list(perl = list(check = TRUE,
-  perlcmd = "perl"), C = list(check = TRUE)), verbose = TRUE)
+system_check_requirements(
+  checklist = list(perl = list(check = TRUE, perlcmd = "perl"), C = list(check = TRUE)),
+  verbose = TRUE
+)
 }
 \arguments{
 \item{checklist}{list with names corresponding to elements of the system to check.}

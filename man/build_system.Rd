@@ -4,10 +4,16 @@
 \alias{build_system}
 \title{Building The System}
 \usage{
-build_system(system_file = "system.txt", distribution = "automatic",
-  perlcmd = "perl", output_directory = file.path(".", "output"),
-  temporary_directory = file.path(".", "transient"), verbose = TRUE,
-  ubiquity_app = FALSE, debug = TRUE)
+build_system(
+  system_file = "system.txt",
+  distribution = "automatic",
+  perlcmd = "perl",
+  output_directory = file.path(".", "output"),
+  temporary_directory = file.path(".", "transient"),
+  verbose = TRUE,
+  ubiquity_app = FALSE,
+  debug = TRUE
+)
 }
 \arguments{
 \item{system_file}{name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt'), if the file does not exist a template will be created and compiled.}

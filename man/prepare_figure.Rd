@@ -4,8 +4,14 @@
 \alias{prepare_figure}
 \title{Make ggplot Figure Pretty}
 \usage{
-prepare_figure(purpose = "present", fo, y_tick_minor = FALSE,
-  y_tick_major = FALSE, x_tick_minor = FALSE, x_tick_major = FALSE)
+prepare_figure(
+  purpose = "present",
+  fo,
+  y_tick_minor = FALSE,
+  y_tick_major = FALSE,
+  x_tick_minor = FALSE,
+  x_tick_major = FALSE
+)
 }
 \arguments{
 \item{purpose}{either \code{"present"} (default), \code{"print"} or \code{"shiny"}}

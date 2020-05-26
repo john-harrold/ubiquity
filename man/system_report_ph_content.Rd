@@ -4,8 +4,15 @@
 \alias{system_report_ph_content}
 \title{Populate Placeholder In Officer Report}
 \usage{
-system_report_ph_content(cfg, rpt, content_type, content, type, index,
-  ph_label)
+system_report_ph_content(
+  cfg,
+  rpt,
+  content_type,
+  content,
+  type,
+  index,
+  ph_label
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

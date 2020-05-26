@@ -4,8 +4,12 @@
 \alias{system_report_glp}
 \title{Report GLP Study}
 \usage{
-system_report_glp(cfg, study_title = "Study Title",
-  study_name = "default", rptname = "default")
+system_report_glp(
+  cfg,
+  study_title = "Study Title",
+  study_name = "default",
+  rptname = "default"
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

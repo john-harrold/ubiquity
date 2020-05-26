@@ -4,8 +4,13 @@
 \alias{generate_parameter}
 \title{Generates a Parameter Based on \code{<IIV:?>} in the System File}
 \usage{
-generate_parameter(SIMINT_parameters, SIMINT_cfg, SIMINT_PARAMETER_TV,
-  SIMINT_IIV_VALUE, SIMINT_equation)
+generate_parameter(
+  SIMINT_parameters,
+  SIMINT_cfg,
+  SIMINT_PARAMETER_TV,
+  SIMINT_IIV_VALUE,
+  SIMINT_equation
+)
 }
 \arguments{
 \item{SIMINT_parameters}{parameters vector containing the typical values}

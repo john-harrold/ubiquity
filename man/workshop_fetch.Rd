@@ -4,8 +4,11 @@
 \alias{workshop_fetch}
 \title{Fetch Ubiquity Workshop Sections}
 \usage{
-workshop_fetch(section = "Simulation", overwrite = FALSE,
-  output_directory = getwd())
+workshop_fetch(
+  section = "Simulation",
+  overwrite = FALSE,
+  output_directory = getwd()
+)
 }
 \arguments{
 \item{section}{Name of the section of workshop to retrieve  ("Simulation")}

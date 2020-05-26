@@ -4,8 +4,13 @@
 \alias{system_report_doc_set_ph}
 \title{Sets Placeholder Content for Word Document Report}
 \usage{
-system_report_doc_set_ph(cfg, rptname = "default", ph_name = NULL,
-  ph_content = NULL, ph_location = "body")
+system_report_doc_set_ph(
+  cfg,
+  rptname = "default",
+  ph_name = NULL,
+  ph_content = NULL,
+  ph_location = "body"
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

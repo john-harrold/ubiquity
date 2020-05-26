@@ -4,8 +4,14 @@
 \alias{system_plot_cohorts}
 \title{Plot Estimation Results}
 \usage{
-system_plot_cohorts(erp, plot_opts = c(), cfg,
-  analysis_name = "analysis", archive_results = TRUE, prefix = NULL)
+system_plot_cohorts(
+  erp,
+  plot_opts = c(),
+  cfg,
+  analysis_name = "analysis",
+  archive_results = TRUE,
+  prefix = NULL
+)
 }
 \arguments{
 \item{erp}{output from \code{system_simulate_estimation_results}}

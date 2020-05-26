@@ -4,8 +4,7 @@
 \alias{system_report_estimation}
 \title{Generate a Report from Parameter Estimation}
 \usage{
-system_report_estimation(cfg, rptname = "default",
-  analysis_name = NULL)
+system_report_estimation(cfg, rptname = "default", analysis_name = NULL)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

@@ -4,8 +4,13 @@
 \alias{system_report_nca}
 \title{Report NCA}
 \usage{
-system_report_nca(cfg, rptname = "default", analysis_name = "analysis",
-  rows_max = 10, table_headers = TRUE)
+system_report_nca(
+  cfg,
+  rptname = "default",
+  analysis_name = "analysis",
+  rows_max = 10,
+  table_headers = TRUE
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

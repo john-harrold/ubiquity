@@ -4,8 +4,12 @@
 \alias{system_report_slide_title}
 \title{Generate Title Slide}
 \usage{
-system_report_slide_title(cfg, title = "Title", sub_title = NULL,
-  rptname = "default")
+system_report_slide_title(
+  cfg,
+  title = "Title",
+  sub_title = NULL,
+  rptname = "default"
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

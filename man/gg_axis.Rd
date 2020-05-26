@@ -4,9 +4,17 @@
 \alias{gg_axis}
 \title{Make Pretty ggplot x- or y-Axis Log 10 Scale}
 \usage{
-gg_axis(fo, yaxis_scale = TRUE, xaxis_scale = TRUE, ylim_min = NULL,
-  ylim_max = NULL, xlim_min = NULL, xlim_max = NULL,
-  x_tick_label = TRUE, y_tick_label = TRUE)
+gg_axis(
+  fo,
+  yaxis_scale = TRUE,
+  xaxis_scale = TRUE,
+  ylim_min = NULL,
+  ylim_max = NULL,
+  xlim_min = NULL,
+  xlim_max = NULL,
+  x_tick_label = TRUE,
+  y_tick_label = TRUE
+)
 }
 \arguments{
 \item{fo}{ggplot figure object}

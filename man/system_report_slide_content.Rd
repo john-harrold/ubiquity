@@ -4,8 +4,14 @@
 \alias{system_report_slide_content}
 \title{Add Slide With Main Body of Content}
 \usage{
-system_report_slide_content(cfg, title = "Title", sub_title = NULL,
-  rptname = "default", content_type = "text", content = "Text")
+system_report_slide_content(
+  cfg,
+  title = "Title",
+  sub_title = NULL,
+  rptname = "default",
+  content_type = "text",
+  content = "Text"
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

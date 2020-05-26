@@ -2,7 +2,7 @@
 rm(list=ls())
 graphics.off()
 options(show.error.locations = TRUE)
-require("ggplot")
+require("ggplot2")
 require("doParallel")
 
 # If we are in a stand alone ubiquity distribution we run 

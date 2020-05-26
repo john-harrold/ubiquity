@@ -4,8 +4,13 @@
 \alias{system_report_init}
 \title{Initialize a New Officer Report}
 \usage{
-system_report_init(cfg, template = NULL, rptname = "default",
-  rpttype = NULL, meta = NULL)
+system_report_init(
+  cfg,
+  template = NULL,
+  rptname = "default",
+  rpttype = NULL,
+  meta = NULL
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

@@ -4,8 +4,12 @@
 \alias{system_estimate_parameters}
 \title{Control Estimation Process}
 \usage{
-system_estimate_parameters(cfg, flowctl = "plot guess",
-  analysis_name = "my_analysis", archive_results = TRUE)
+system_estimate_parameters(
+  cfg,
+  flowctl = "plot guess",
+  analysis_name = "my_analysis",
+  archive_results = TRUE
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

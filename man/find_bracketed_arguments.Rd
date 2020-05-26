@@ -4,8 +4,7 @@
 \alias{find_bracketed_arguments}
 \title{Parse Prototype Functions for Arguments}
 \usage{
-find_bracketed_arguments(str, pattern, replace = "", narg, op = "[",
-  cp = "]")
+find_bracketed_arguments(str, pattern, replace = "", narg, op = "[", cp = "]")
 }
 \arguments{
 \item{str}{string containing the prototype function call}

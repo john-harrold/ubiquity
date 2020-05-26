@@ -4,10 +4,21 @@
 \alias{system_nm_check_ds}
 \title{Check NONMEM Dataset for Automatic Definitions}
 \usage{
-system_nm_check_ds(cfg, DS = "DSNAME", col_ID = "ID",
-  col_CMT = "CMT", col_DV = "DV", col_TIME = "TIME",
-  col_AMT = "AMT", col_RATE = "RATE", col_EVID = "EVID",
-  col_GROUP = NULL, filter = NULL, INPUTS = NULL, OBS = NULL)
+system_nm_check_ds(
+  cfg,
+  DS = "DSNAME",
+  col_ID = "ID",
+  col_CMT = "CMT",
+  col_DV = "DV",
+  col_TIME = "TIME",
+  col_AMT = "AMT",
+  col_RATE = "RATE",
+  col_EVID = "EVID",
+  col_GROUP = NULL,
+  filter = NULL,
+  INPUTS = NULL,
+  OBS = NULL
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

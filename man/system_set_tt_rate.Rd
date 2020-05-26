@@ -4,8 +4,17 @@
 \alias{system_set_tt_rate}
 \title{Actual Function Called by \code{SI_TT_RATE}}
 \usage{
-system_set_tt_rate(cfg, rate, times, levels, tt_ts, tsinfo,
-  repdose = "none", interval = 1, number = 0)
+system_set_tt_rate(
+  cfg,
+  rate,
+  times,
+  levels,
+  tt_ts,
+  tsinfo,
+  repdose = "none",
+  interval = 1,
+  number = 0
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

@@ -4,8 +4,13 @@
 \alias{make_forcing_function}
 \title{Makes Forcing Function From Times and Values}
 \usage{
-make_forcing_function(times, values, type, output_times,
-  sample_delta_mult = 0.001)
+make_forcing_function(
+  times,
+  values,
+  type,
+  output_times,
+  sample_delta_mult = 0.001
+)
 }
 \arguments{
 \item{times}{time values for the forcing function}

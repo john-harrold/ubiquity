@@ -4,8 +4,12 @@
 \alias{system_new}
 \title{Create New \code{system.txt} File}
 \usage{
-system_new(file_name = "system.txt", system_file = "template",
-  overwrite = FALSE, output_directory = getwd())
+system_new(
+  file_name = "system.txt",
+  system_file = "template",
+  overwrite = FALSE,
+  output_directory = getwd()
+)
 }
 \arguments{
 \item{file_name}{name of the new file to create}

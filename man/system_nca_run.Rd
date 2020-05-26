@@ -4,12 +4,21 @@
 \alias{system_nca_run}
 \title{Automatic NCA}
 \usage{
-system_nca_run(cfg, dsname = "PKDS", dscale = 1, NCA_min = 4,
-  analysis_name = "analysis", dsfilter = NULL, extrap_C0 = TRUE,
-  extrap_N = 2, sparse = FALSE, dsmap = list(TIME = "TIME", NTIME =
-  "NTIME", CONC = "CONC", DOSE = "DOSE", ID = "ID", ROUTE = "ROUTE",
-  DOSENUM = NULL, BACKEXTRAP = NULL, SPARSEGROUP = NULL), digits = 3,
-  dsinc = NULL)
+system_nca_run(
+  cfg,
+  dsname = "PKDS",
+  dscale = 1,
+  NCA_min = 4,
+  analysis_name = "analysis",
+  dsfilter = NULL,
+  extrap_C0 = TRUE,
+  extrap_N = 2,
+  sparse = FALSE,
+  dsmap = list(TIME = "TIME", NTIME = "NTIME", CONC = "CONC", DOSE = "DOSE", ID = "ID",
+    ROUTE = "ROUTE", DOSENUM = NULL, BACKEXTRAP = NULL, SPARSEGROUP = NULL),
+  digits = 3,
+  dsinc = NULL
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

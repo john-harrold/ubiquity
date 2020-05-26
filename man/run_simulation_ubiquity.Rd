@@ -4,8 +4,7 @@
 \alias{run_simulation_ubiquity}
 \title{Simulate Individual Response}
 \usage{
-run_simulation_ubiquity(SIMINT_parameters, SIMINT_cfg,
-  SIMINT_dropfirst = TRUE)
+run_simulation_ubiquity(SIMINT_parameters, SIMINT_cfg, SIMINT_dropfirst = TRUE)
 }
 \arguments{
 \item{SIMINT_parameters}{vector of parameters}

@@ -4,8 +4,12 @@
 \alias{system_fetch_template}
 \title{Create New Template After Building System File}
 \usage{
-system_fetch_template(cfg, template = "Simulation", overwrite = FALSE,
-  output_directory = getwd())
+system_fetch_template(
+  cfg,
+  template = "Simulation",
+  overwrite = FALSE,
+  output_directory = getwd()
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

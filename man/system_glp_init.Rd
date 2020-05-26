@@ -4,8 +4,7 @@
 \alias{system_glp_init}
 \title{Initialize GLP study design}
 \usage{
-system_glp_init(cfg, study_title = "Study Title",
-  study_name = "default")
+system_glp_init(cfg, study_title = "Study Title", study_name = "default")
 }
 \arguments{
 \item{cfg}{ubiquity system object}

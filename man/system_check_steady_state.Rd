@@ -4,10 +4,16 @@
 \alias{system_check_steady_state}
 \title{Verify System Steady State}
 \usage{
-system_check_steady_state(cfg, parameters = NULL, zero_rates = TRUE,
-  zero_bolus = TRUE, output_times = seq(0, 100, 1),
+system_check_steady_state(
+  cfg,
+  parameters = NULL,
+  zero_rates = TRUE,
+  zero_bolus = TRUE,
+  output_times = seq(0, 100, 1),
   offset_tol = .Machine$double.eps * 100,
-  derivative_tol = .Machine$double.eps * 100, derivative_time = 0)
+  derivative_tol = .Machine$double.eps * 100,
+  derivative_time = 0
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

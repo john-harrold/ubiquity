@@ -4,8 +4,7 @@
 \alias{calculate_halflife}
 \title{Calculate the halflife of data}
 \usage{
-calculate_halflife(times = NULL, values = NULL, tmin = NULL,
-  tmax = NULL)
+calculate_halflife(times = NULL, values = NULL, tmin = NULL, tmax = NULL)
 }
 \arguments{
 \item{times}{- sequence of times}

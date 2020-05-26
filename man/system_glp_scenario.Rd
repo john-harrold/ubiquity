@@ -4,18 +4,38 @@
 \alias{system_glp_scenario}
 \title{Design GLP Study For a Scenario}
 \usage{
-system_glp_scenario(cfg, output_Conc = NULL, output_AUC = NULL,
-  timescale = NULL, units_Conc = "", units_AUC = "",
-  study_scenario = "Tox Study", human_sim_times = NULL,
-  study_name = "default", human_parameters = NULL,
-  human_bolus = NULL, human_ndose = 1, human_dose_interval = 1,
-  human_Cmin = NULL, human_AUC = NULL, human_sample_interval = NULL,
-  human_sim_doses = NULL, human_sim_samples = NULL,
-  tox_species = "Tox", tox_sim_times = NULL, tox_parameters = NULL,
-  tox_bolus = NULL, tox_ndose = 1, tox_dose_interval = 1,
-  tox_Cmax_multiple = 10, tox_AUC_multiple = 10,
-  tox_sample_interval = NULL, tox_sim_doses = NULL,
-  tox_sim_samples = NULL, annotate_plots = TRUE)
+system_glp_scenario(
+  cfg,
+  output_Conc = NULL,
+  output_AUC = NULL,
+  timescale = NULL,
+  units_Conc = "",
+  units_AUC = "",
+  study_scenario = "Tox Study",
+  human_sim_times = NULL,
+  study_name = "default",
+  human_parameters = NULL,
+  human_bolus = NULL,
+  human_ndose = 1,
+  human_dose_interval = 1,
+  human_Cmin = NULL,
+  human_AUC = NULL,
+  human_sample_interval = NULL,
+  human_sim_doses = NULL,
+  human_sim_samples = NULL,
+  tox_species = "Tox",
+  tox_sim_times = NULL,
+  tox_parameters = NULL,
+  tox_bolus = NULL,
+  tox_ndose = 1,
+  tox_dose_interval = 1,
+  tox_Cmax_multiple = 10,
+  tox_AUC_multiple = 10,
+  tox_sample_interval = NULL,
+  tox_sim_doses = NULL,
+  tox_sim_samples = NULL,
+  annotate_plots = TRUE
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

@@ -4,8 +4,12 @@
 \alias{system_report_slide_section}
 \title{Generate Slide with Section Break}
 \usage{
-system_report_slide_section(cfg, title = "Title", sub_title = NULL,
-  rptname = "default")
+system_report_slide_section(
+  cfg,
+  title = "Title",
+  sub_title = NULL,
+  rptname = "default"
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

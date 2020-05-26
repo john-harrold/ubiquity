@@ -4,8 +4,13 @@
 \alias{system_glp_save}
 \title{Save results from a GLP Study design}
 \usage{
-system_glp_save(cfg, study_name = "default", rptname = "default",
-  output_directory = NULL, prefix = NULL)
+system_glp_save(
+  cfg,
+  study_name = "default",
+  rptname = "default",
+  output_directory = NULL,
+  prefix = NULL
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

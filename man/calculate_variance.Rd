@@ -4,8 +4,12 @@
 \alias{calculate_variance}
 \title{Calculates the Variance in od_general}
 \usage{
-calculate_variance(SIMINT_parameters, SIMINT_varstr, SIMINT_odchunk,
-  SIMINT_cfg)
+calculate_variance(
+  SIMINT_parameters,
+  SIMINT_varstr,
+  SIMINT_odchunk,
+  SIMINT_cfg
+)
 }
 \arguments{
 \item{SIMINT_parameters}{system parameters}

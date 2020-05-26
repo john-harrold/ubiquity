@@ -4,9 +4,16 @@
 \alias{system_report_doc_format_section}
 \title{Formats the Current Document Section}
 \usage{
-system_report_doc_format_section(cfg, rptname = "default",
-  section_type = NULL, w = NULL, h = NULL, sep = FALSE,
-  widths = NULL, space = NULL)
+system_report_doc_format_section(
+  cfg,
+  rptname = "default",
+  section_type = NULL,
+  w = NULL,
+  h = NULL,
+  sep = FALSE,
+  widths = NULL,
+  space = NULL
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

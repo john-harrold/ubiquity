@@ -4,8 +4,12 @@
 \alias{system_report_doc_add_content}
 \title{Add content to Body of a Word Document Report}
 \usage{
-system_report_doc_add_content(cfg, rptname = "default",
-  content_type = NULL, content = NULL)
+system_report_doc_add_content(
+  cfg,
+  rptname = "default",
+  content_type = NULL,
+  content = NULL
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}

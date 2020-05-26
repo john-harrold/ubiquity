@@ -4,12 +4,21 @@
 \alias{system_report_slide_two_col}
 \title{Generate Slide with Two Column Layout}
 \usage{
-system_report_slide_two_col(cfg, title = "Title", sub_title = NULL,
-  rptname = "default", content_type = "text", left_content = NULL,
-  left_content_type = NULL, right_content = NULL,
-  right_content_type = NULL, left_content_header = NULL,
-  left_content_header_type = "text", right_content_header = NULL,
-  right_content_header_type = "text")
+system_report_slide_two_col(
+  cfg,
+  title = "Title",
+  sub_title = NULL,
+  rptname = "default",
+  content_type = "text",
+  left_content = NULL,
+  left_content_type = NULL,
+  right_content = NULL,
+  right_content_type = NULL,
+  left_content_header = NULL,
+  left_content_header_type = "text",
+  right_content_header = NULL,
+  right_content_header_type = "text"
+)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
