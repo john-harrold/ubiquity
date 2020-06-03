@@ -12,19 +12,102 @@ cfg = list();
 
 c_libfile_base = "<MODEL_PREFIX>"
 
+
+# Initializing the top level elements of cfg
+cfg[["options"]]       = list(mi                  = list(),
+                              misc                = list(),
+                              time_scales         = list(),
+                              inputs              = list(),
+                              simulation_options  = list(),
+                              stochastic          = list(),
+                              logging             = list())
+                       
+cfg[["parameters"]]    = list(sets        = list(),
+                              matrix      = NULL,
+                              current_set = NULL,
+                              values      = NULL)
+
+cfg[["titration"]]     = list(titrate = NULL,
+                              times   = c(),
+                              rules   = list())
+
+cfg[["iiv"]]           = list(sets        = list(), 
+                              current_set = NULL,
+                              iivs        = list(),
+                              parameters  = list(),
+                              values      = NULL)
+
+cfg[["estimation"]]    = list(options        = list(),
+                              parameters     = list(),
+                              objective_type = list(),
+                              mi             = list())
+
+
+cfg[["reporting"]]                    = list(meta_pptx      = list(),
+                                             meta_docx      = list())
+                                    
+cfg[["reporting"]][["meta_pptx"]]     = 
+                         list(title          = list(),
+                              section        = list(),
+                              content        = list(),
+                              two_col        = list())
+
+cfg[["reporting"]][["meta_docx"]]     = 
+                         list(ph_content     = list(),
+                              styles         = list())
+
+cfg[["ve"]]            = list()
+
+
+# JMH initialize the following:
+# cfg[["data"]]
+# cfg[["cohorts"]]
+
+
 # storing the location of the temporary directory and the distribution type
-cfg$options$misc$temp_directory = '<TEMP_DIRECTORY>'
-cfg$options$misc$distribution   = '<DISTRIBUTION>'
-cfg$options$misc$system_file    = '<SYSTEM_FILE>'
+cfg[["options"]][["misc"]][["temp_directory"]] = '<TEMP_DIRECTORY>'
+cfg[["options"]][["misc"]][["distribution"]]   = '<DISTRIBUTION>'
+cfg[["options"]][["misc"]][["system_file"]]    = '<SYSTEM_FILE>'
 
 
+# storing the base file name of the compiled C file
+cfg[["options"]][["misc"]][["c_libfile_base"]] = c_libfile_base
 
-if(cfg$options$misc$distribution  == "stand alone"){
-  cfg$options$misc$templates      = file.path(getwd(), 'library', 'templates')
+# Finding the location of the template directory
+if(cfg[["options"]][["misc"]][["distribution"]]  == "stand alone"){
+   cfg[["options"]][["misc"]][["templates"]]      = file.path(getwd(), "library", "templates")
 } else {
   package_dir                = system.file("", package="ubiquity")
-  cfg$options$misc$templates = file.path(package_dir, 'ubinc', "templates")
+  cfg[["options"]][["misc"]][["templates"]] = file.path(package_dir, "ubinc", "templates")
 }
+
+# By default we will indicate that we're running at the 
+# scripting level. This will be altered at the Shiny App level
+cfg[["options"]][["misc"]][["operating_environment"]] = "script"
+
+# defaulting to integrating with r file
+#cfg[["options"]][["simulation_options"]][["integrate_with"]]  = "r-file"
+
+# default simulation options
+cfg[["options"]][["simulation_options"]] =
+           list(parallel           = "No",            # No parallelization
+                compute_cores      = 1,
+                integrate_with     = "r-file",        # Integrating with R file
+                initial_conditions = NA,              # No specified initial conditions
+                solver_opts         = list())
+
+
+# If the library has been loaded we switch to C
+if(is.null(getLoadedDLLs()[[c_libfile_base]]) == FALSE){
+  if(getLoadedDLLs()[[c_libfile_base]][["dynamicLookup"]] == TRUE){
+    cfg[["options"]][["simulation_options"]][["integrate_with"]]  = "c-file"
+  }
+}
+
+
+# defaulting to no specified initial condition
+#cfg[["options"]][["simulation_options"]][["initial_conditions"]] = NA   
+
 
 # System parameter information
 <FETCH_SYS_PARAMS>
@@ -37,7 +120,6 @@ if(cfg$options$misc$distribution  == "stand alone"){
 
 # Indices mapping state, parameter, etc. names
 # to their index in the different vectors
-cfg$options$mi = list()
 
 <FETCH_SYS_INDICES>
 
@@ -58,7 +140,7 @@ cfg$options$mi = list()
 
 
 # identifying that the current set is the default
-cfg$parameters$current_set = 'default';
+cfg[["parameters"]][["current_set"]] = "default";
 
 # Nonzero initial conditions
 <FETCH_SYS_IC>   
@@ -75,67 +157,45 @@ cfg$parameters$current_set = 'default';
 # misc options
 <FETCH_SYS_MISC>
 
+# Defaulting output times to gui output times
+cfg[["options"]][["simulation_options"]][["output_times"]] =  
+           eval(parse(text=cfg[["options"]][["misc"]][["output_times"]]))
+
+
 
 <FETCH_SYS_OPTIONS>
 
-cfg$options$misc$c_libfile_base   = c_libfile_base
 
 # titration options
-cfg$titration$titrate = FALSE
-cfg$titration$times   = c()     # vector of times where titration can occur
-cfg$titration$rules   = list()  # titration rules
+cfg[["titration"]][["titrate"]] = FALSE
+cfg[["titration"]][["times"]]   = c()     # vector of times where titration can occur
+cfg[["titration"]][["rules"]]   = list()  # titration rules
 
-
-# By default we will indicate that we're running at the 
-# scripting level. This will be altered at the GUI level
-cfg$options$misc$operating_environment = 'script'
-
-# defaulting to integrating with r file
-cfg$options$simulation_options$integrate_with  = "r-file"
-
-# defaulting to no specified initial condition
-cfg$options$simulation_options$initial_conditions = NA   
-
-# If the library has been loaded we switch to C
-if(is.null(getLoadedDLLs()[[c_libfile_base]]) == FALSE){
-  if(getLoadedDLLs()[[c_libfile_base]][["dynamicLookup"]] == TRUE){
-    cfg$options$simulation_options$integrate_with  = "c-file"
-  }
-}
-
-
-# defaulting the solver_opts                  
-cfg$options$simulation_options$parallel       = "No"
-cfg$options$simulation_options$compute_cores  = 1
-cfg$options$simulation_options$solver_opts    = list()
-
-# Defaulting output times to gui output times
-cfg$options$simulation_options$output_times =  eval(parse(text=cfg$options$misc$output_times))
 
 # default stochastic options
-cfg$options$stochastic$nsub             = 100
-cfg$options$stochastic$seed             = 8675309
-cfg$options$stochastic$ci               = 95
-cfg$options$stochastic$ponly            = FALSE
-cfg$options$stochastic$sub_file         = NULL
-cfg$options$stochastic$sub_file_sample  = 'with replacement'
+cfg[["options"]][["stochastic"]] =
+           list(nsub             = 100,
+                seed             = 8675309,
+                ci               = 95,
+                ponly            = FALSE,
+                sub_file         = NULL,
+                sub_file_sample  = "with replacement")
 
 # default logging options
-cfg$options$logging$enabled   = TRUE 
-cfg$options$logging$file      = file.path(cfg$options$misc$temp_directory,"ubiquity_log.txt")
-cfg$options$logging$timestamp = TRUE 
-cfg$options$logging$ts_str    = "%Y-%m-%d %H:%M:%S"
-cfg$options$logging$debug     = FALSE
-
-# defaulting to verbose output
-cfg$options$logging$verbose   = TRUE
+cfg[["options"]][["logging"]] = 
+           list(enabled   = TRUE,
+                file      = file.path(cfg[["options"]][["misc"]][["temp_directory"]],"ubiquity_log.txt"),
+                timestamp = TRUE ,
+                ts_str    = "%Y-%m-%d %H:%M:%S",
+                debug     = FALSE,
+                verbose   = TRUE)
 
 # default estimation options
-cfg$estimation$options$observation_function   = 'system_od_general'
-cfg$estimation$options$optimizer              = "optim"       
-cfg$estimation$options$method                 = "Nelder-Mead"
-cfg$estimation$options$control                = list(trace=TRUE, 
-                                                     REPORT=10)
+cfg[["estimation"]][["options"]] = 
+           list(observation_function   = "system_od_general",
+                optimizer              = "optim",       
+                method                 = "Nelder-Mead",
+                control                = list(trace=TRUE, REPORT=10))
 
 #--------------------------------------------------------------------
 # default reporting options for powerpoint
@@ -143,43 +203,43 @@ cfg$estimation$options$control                = list(trace=TRUE,
 # Set sub_title fields to NULL if they do not exist in the template
 #
 # this is the information the title slide                         
-cfg$reporting$meta_pptx$title$layout$general                      = "title_slide"
-cfg$reporting$meta_pptx$title$master$general                      = "Office Theme"             
-cfg$reporting$meta_pptx$title$type$title                          = 'ctrTitle'
-cfg$reporting$meta_pptx$title$type$sub_title                      = 'subTitle'
-cfg$reporting$meta_pptx$title$indices$title                       = 3
-cfg$reporting$meta_pptx$title$indices$sub_title                   = 4
-cfg$reporting$meta_pptx$title$ph_labels$title                     = "Title 1"
-cfg$reporting$meta_pptx$title$ph_labels$sub_title                 = "Subtitle 2" 
-                                                                  
-# this is the information the section title slide                         
-cfg$reporting$meta_pptx$section$layout$general                    = "section_slide"
-cfg$reporting$meta_pptx$section$master$general                    = "Office Theme"             
-cfg$reporting$meta_pptx$section$type$title                        = 'ctrTitle'
-cfg$reporting$meta_pptx$section$type$sub_title                    = 'subTitle'
-cfg$reporting$meta_pptx$section$indices$title                     = 3
-cfg$reporting$meta_pptx$section$indices$sub_title                 = 4
-cfg$reporting$meta_pptx$section$ph_labels$title                   = "Title 1"
-cfg$reporting$meta_pptx$section$ph_labels$sub_title               = "Subtitle 2"
+cfg[["reporting"]][["meta_pptx"]][["title"]][["layout"]]$general                      = "title_slide"
+cfg[["reporting"]][["meta_pptx"]][["title"]][["master"]]$general                      = "Office Theme"             
+cfg[["reporting"]][["meta_pptx"]][["title"]][["type"]]$title                          = 'ctrTitle'
+cfg[["reporting"]][["meta_pptx"]][["title"]][["type"]]$sub_title                      = 'subTitle'
+cfg[["reporting"]][["meta_pptx"]][["title"]][["indices"]]$title                       = 3
+cfg[["reporting"]][["meta_pptx"]][["title"]][["indices"]]$sub_title                   = 4
+cfg[["reporting"]][["meta_pptx"]][["title"]][["ph_labels"]]$title                     = "Title 1"
+cfg[["reporting"]][["meta_pptx"]][["title"]][["ph_labels"]]$sub_title                 = "Subtitle 2" 
+                                                                                   
+# this is the information the section title slide                                   
+cfg[["reporting"]][["meta_pptx"]][["section"]][["layout"]]$general                    = "section_slide"
+cfg[["reporting"]][["meta_pptx"]][["section"]][["master"]]$general                    = "Office Theme"             
+cfg[["reporting"]][["meta_pptx"]][["section"]][["type"]]$title                        = 'ctrTitle'
+cfg[["reporting"]][["meta_pptx"]][["section"]][["type"]]$sub_title                    = 'subTitle'
+cfg[["reporting"]][["meta_pptx"]][["section"]][["indices"]]$title                     = 3
+cfg[["reporting"]][["meta_pptx"]][["section"]][["indices"]]$sub_title                 = 4
+cfg[["reporting"]][["meta_pptx"]][["section"]][["ph_labels"]]$title                   = "Title 1"
+cfg[["reporting"]][["meta_pptx"]][["section"]][["ph_labels"]]$sub_title               = "Subtitle 2"
                                                                
 # These contain the mapping information for content in the template
 # The main dimensions are:
 # units = inches, height = 5.0, width = 9.5                    
 # Text content                                                   
-cfg$reporting$meta_pptx$content$layout$general                    = "content_text"   
-cfg$reporting$meta_pptx$content$master$general                    = "Office Theme"             
-cfg$reporting$meta_pptx$content$indices$content_body              = 3 
-cfg$reporting$meta_pptx$content$indices$content_sub_title         = 2 
-cfg$reporting$meta_pptx$content$ph_labels$content_body            = "Content Placeholder 2"
-cfg$reporting$meta_pptx$content$ph_labels$content_sub_title       = "Content Placeholder 10" 
+cfg[["reporting"]][["meta_pptx"]][["content"]][["layout"]]$general                    = "content_text"   
+cfg[["reporting"]][["meta_pptx"]][["content"]][["master"]]$general                    = "Office Theme"             
+cfg[["reporting"]][["meta_pptx"]][["content"]][["indices"]]$content_body              = 3 
+cfg[["reporting"]][["meta_pptx"]][["content"]][["indices"]]$content_sub_title         = 2 
+cfg[["reporting"]][["meta_pptx"]][["content"]][["ph_labels"]]$content_body            = "Content Placeholder 2"
+cfg[["reporting"]][["meta_pptx"]][["content"]][["ph_labels"]]$content_sub_title       = "Content Placeholder 10" 
                                                                 
 # List content                                                  
-cfg$reporting$meta_pptx$content$layout$list                       = "content_list"
-cfg$reporting$meta_pptx$content$master$list                       = "Office Theme"             
-cfg$reporting$meta_pptx$content$indices$list_body                 = 2
-cfg$reporting$meta_pptx$content$indices$list_sub_title            = 3 
-cfg$reporting$meta_pptx$content$ph_labels$list_body               = "Content Placeholder 2"
-cfg$reporting$meta_pptx$content$ph_labels$list_sub_title          = "Content Placeholder 10"
+cfg[["reporting"]][["meta_pptx"]][["content"]][["layout"]]$list                       = "content_list"
+cfg[["reporting"]][["meta_pptx"]][["content"]][["master"]]$list                       = "Office Theme"             
+cfg[["reporting"]][["meta_pptx"]][["content"]][["indices"]]$list_body                 = 2
+cfg[["reporting"]][["meta_pptx"]][["content"]][["indices"]]$list_sub_title            = 3 
+cfg[["reporting"]][["meta_pptx"]][["content"]][["ph_labels"]]$list_body               = "Content Placeholder 2"
+cfg[["reporting"]][["meta_pptx"]][["content"]][["ph_labels"]]$list_sub_title          = "Content Placeholder 10"
                                                                 
                                                                 
                                                                 
@@ -187,94 +247,84 @@ cfg$reporting$meta_pptx$content$ph_labels$list_sub_title          = "Content Pla
 # Each of the larger placeholders have dimensions of:           
 # units = inches, height = 4.41, width = 4.65                   
 # Two column list with headers                                  
-cfg$reporting$meta_pptx$two_col$layout$list_head                  = "two_content_header_list"
-cfg$reporting$meta_pptx$two_col$master$list_head                  = "Office Theme"             
-cfg$reporting$meta_pptx$two_col$indices$list_head_sub_title       = 1
-cfg$reporting$meta_pptx$two_col$indices$list_head_left_title      = 6 
-cfg$reporting$meta_pptx$two_col$indices$list_head_left            = 5 
-cfg$reporting$meta_pptx$two_col$indices$list_head_right_title     = 4 
-cfg$reporting$meta_pptx$two_col$indices$list_head_right           = 3 
-cfg$reporting$meta_pptx$two_col$ph_labels$list_head_sub_title     = "Content Placeholder 10"
-cfg$reporting$meta_pptx$two_col$ph_labels$list_head_left_title    = "Text Placeholder 2" 
-cfg$reporting$meta_pptx$two_col$ph_labels$list_head_left          = "Content Placeholder 2" 
-cfg$reporting$meta_pptx$two_col$ph_labels$list_head_right_title   = "Text Placeholder 4"
-cfg$reporting$meta_pptx$two_col$ph_labels$list_head_right         = "Content Placeholder 3"
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["layout"]]$list_head                  = "two_content_header_list"
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["master"]]$list_head                  = "Office Theme"             
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$list_head_sub_title       = 1
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$list_head_left_title      = 6 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$list_head_left            = 5 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$list_head_right_title     = 4 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$list_head_right           = 3 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$list_head_sub_title     = "Content Placeholder 10"
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$list_head_left_title    = "Text Placeholder 2" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$list_head_left          = "Content Placeholder 2" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$list_head_right_title   = "Text Placeholder 4"
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$list_head_right         = "Content Placeholder 3"
 
 # Two column text with headers
-cfg$reporting$meta_pptx$two_col$layout$text_head                  = "two_content_header_text"
-cfg$reporting$meta_pptx$two_col$master$text_head                  = "Office Theme"             
-cfg$reporting$meta_pptx$two_col$indices$text_head_sub_title       = 6
-cfg$reporting$meta_pptx$two_col$indices$text_head_left_title      = 1 
-cfg$reporting$meta_pptx$two_col$indices$text_head_left            = 3 
-cfg$reporting$meta_pptx$two_col$indices$text_head_right_title     = 2 
-cfg$reporting$meta_pptx$two_col$indices$text_head_right           = 4 
-cfg$reporting$meta_pptx$two_col$ph_labels$text_head_sub_title     = "Content Placeholder 10"
-cfg$reporting$meta_pptx$two_col$ph_labels$text_head_left_title    = "Text Placeholder 2" 
-cfg$reporting$meta_pptx$two_col$ph_labels$text_head_left          = "Content Placeholder 2" 
-cfg$reporting$meta_pptx$two_col$ph_labels$text_head_right_title   = "Text Placeholder 4" 
-cfg$reporting$meta_pptx$two_col$ph_labels$text_head_right         = "Content Placeholder 3" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["layout"]]$text_head                  = "two_content_header_text"
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["master"]]$text_head                  = "Office Theme"             
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_sub_title       = 6
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_left_title      = 1 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_left            = 3 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_right_title     = 2 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_right           = 4 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_sub_title     = "Content Placeholder 10"
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_left_title    = "Text Placeholder 2" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_left          = "Content Placeholder 2" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_right_title   = "Text Placeholder 4" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_right         = "Content Placeholder 3" 
 
 
 
 # Each place holder has dimensions of:
 # units = inches, height = 5.08, width = 4.65
 # Two column lists (no headers)
-cfg$reporting$meta_pptx$two_col$layout$list                       = "two_content_list"
-cfg$reporting$meta_pptx$two_col$master$list                       = "Office Theme"             
-cfg$reporting$meta_pptx$two_col$indices$list_sub_title            = 2 
-cfg$reporting$meta_pptx$two_col$indices$list_left                 = 3 
-cfg$reporting$meta_pptx$two_col$indices$list_right                = 4 
-cfg$reporting$meta_pptx$two_col$ph_labels$list_sub_title          = "Content Placeholder 10" 
-cfg$reporting$meta_pptx$two_col$ph_labels$list_left               = "Content Placeholder 2" 
-cfg$reporting$meta_pptx$two_col$ph_labels$list_right              = "Content Placeholder 3" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["layout"]]$list                       = "two_content_list"
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["master"]]$list                       = "Office Theme"             
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$list_sub_title            = 2 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$list_left                 = 3 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$list_right                = 4 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$list_sub_title          = "Content Placeholder 10" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$list_left               = "Content Placeholder 2" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$list_right              = "Content Placeholder 3" 
                                                                 
 # Two column text (no headers)                                  
-cfg$reporting$meta_pptx$two_col$layout$text                       = "two_content_text"
-cfg$reporting$meta_pptx$two_col$master$text                       = "Office Theme"             
-cfg$reporting$meta_pptx$two_col$indices$text_sub_title            = 4 
-cfg$reporting$meta_pptx$two_col$indices$text_left                 = 3 
-cfg$reporting$meta_pptx$two_col$indices$text_right                = 1 
-cfg$reporting$meta_pptx$two_col$ph_labels$text_sub_title          = "Content Placeholder 10" 
-cfg$reporting$meta_pptx$two_col$ph_labels$text_left               = "Content Placeholder 2" 
-cfg$reporting$meta_pptx$two_col$ph_labels$text_right              = "Content Placeholder 3" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["layout"]]$text                       = "two_content_text"
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["master"]]$text                       = "Office Theme"             
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_sub_title            = 4 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_left                 = 3 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_right                = 1 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_sub_title          = "Content Placeholder 10" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_left               = "Content Placeholder 2" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_right              = "Content Placeholder 3" 
 
 
 #--------------------------------------------------------------------
 # default reporting options for Word
-cfg$reporting$meta_docx$ph_content$HeaderLeft$location   = "header"
-cfg$reporting$meta_docx$ph_content$HeaderLeft$content    = ""
-cfg$reporting$meta_docx$ph_content$HeaderRight$location  = "header"
-cfg$reporting$meta_docx$ph_content$HeaderRight$content   = ""
-cfg$reporting$meta_docx$ph_content$FooterLeft$location   = "footer"
-cfg$reporting$meta_docx$ph_content$FooterLeft$content    = ""
-cfg$reporting$meta_docx$ph_content$FooterRight$location  = "footer"
-cfg$reporting$meta_docx$ph_content$FooterRight$content   = ""
-cfg$reporting$meta_docx$styles$Normal                    = "Normal"
-cfg$reporting$meta_docx$styles$Code                      = "Code"
-cfg$reporting$meta_docx$styles$Default                   = "Default"
-cfg$reporting$meta_docx$styles$TOC                       = "toc 1" 
-cfg$reporting$meta_docx$styles$Heading_1                 = "heading 1"
-cfg$reporting$meta_docx$styles$Heading_2                 = "heading 2"
-cfg$reporting$meta_docx$styles$Heading_3                 = "heading 3"
-cfg$reporting$meta_docx$styles$Table                     = "Table Grid"
-cfg$reporting$meta_docx$styles$Table_Caption             = "table title"
-cfg$reporting$meta_docx$styles$Table_Caption_Location    = "top" 
-cfg$reporting$meta_docx$styles$Figure_Caption            = "graphic title" 
-cfg$reporting$meta_docx$styles$Figure_Caption_Location   = "bottom" 
-cfg$reporting$meta_docx$styles$Figure_Width              = 6.0
-cfg$reporting$meta_docx$styles$Figure_Height             = 5.0
-
-
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HeaderLeft$location                = "header"
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HeaderLeft$content                 = ""
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HeaderRight$location               = "header"
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HeaderRight$content                = ""
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FooterLeft$location                = "footer"
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FooterLeft$content                 = ""
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FooterRight$location               = "footer"
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FooterRight$content                = ""
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Normal                                 = "Normal"
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Code                                   = "Code"
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Default                                = "Default"
+cfg[["reporting"]][["meta_docx"]][["styles"]]$TOC                                    = "toc 1" 
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Heading_1                              = "heading 1"
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Heading_2                              = "heading 2"
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Heading_3                              = "heading 3"
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Table                                  = "Table Grid"
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Table_Caption                          = "table title"
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Table_Caption_Location                 = "top" 
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Caption                         = "graphic title" 
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Caption_Location                = "bottom" 
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Width                           = 6.0
+cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Height                          = 5.0
 
 #--------------------------------------------------------------------
-
-#cfg$estimation$effort                         = 1
-#cfg$estimation$optimizer                      = 'fminsearch'
-#cfg$estimation$monitor$status_function        = 'estimation_status'
-#cfg$estimation$monitor$exit_when_stable       = 'no'
-#cfg$estimation$monitor$iteration_history      = 100
-#cfg$estimation$monitor$slope_tolerance        = 0.001
-
 
 cfg = system_select_set(cfg, "default")
 
@@ -319,7 +369,7 @@ if(is.null(SIMINT_force_times)){
 if(is.null(SIMINT_cfg$options$inputs$bolus)){ 
   # if there is no bolus information specified we add a dummy bolus of zero
   # into the first compartment at the first sample time
-  SIMINT_var    = rep(x=names(cfg$options$mi$states)[1], times=length(SIMINT_force_times))
+  SIMINT_var    = rep(x=names(cfg[["options"]][["mi"]][["states"]])[1], times=length(SIMINT_force_times))
   SIMINT_time   = SIMINT_force_times
   SIMINT_value  = rep(x=0,     times=length(SIMINT_force_times))
   SIMINT_method = rep(x='add', times=length(SIMINT_force_times))
@@ -415,7 +465,7 @@ for(SIMINT_cov_name in names(SIMINT_cfg$options$inputs$covariates)){
 # is an entry in cfg for the initial condition.
 # If If there isnt well default to zero, if there
 # is an entry we will evaluate that assignment:
-for (SIMINT_sname in names(SIMINT_cfg$options$mi$states)){
+for (SIMINT_sname in names(SIMINT_cfg[["options"]][["mi"]][["states"]])){
   if(is.null(SIMINT_cfg$options$initial_conditions[[SIMINT_sname]])){
     # Here there is no initial condition specified for this state
     SIMINT_tmp_assignment = sprintf('SIMINT_%s_IC = 0.0', SIMINT_sname) }
@@ -690,8 +740,8 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
 
 
   # Updating the initial condition to the last observation of som
-  SIMINT_IC = as.numeric(SIMINT_somtt$simout[length(SIMINT_somtt$simout[,1]), names(SIMINT_cfg$options$mi$states)])
-  names(SIMINT_IC) = names(SIMINT_cfg$options$mi$states)
+  SIMINT_IC = as.numeric(SIMINT_somtt$simout[length(SIMINT_somtt$simout[,1]), names(SIMINT_cfg[["options"]][["mi"]][["states"]])])
+  names(SIMINT_IC) = names(SIMINT_cfg[["options"]][["mi"]][["states"]])
 
   
   # Stripping the last observation off of som
@@ -800,7 +850,7 @@ system_map_output = function(SIMINT_cfg, SIMINT_simout, SIMINT_p,  SIMINT_eventd
 SIMINT_tts     = SIMINT_simout[,'time']
 
 # Creating the matrix to store the simout
-SIMINT_all_outputs = c(names(SIMINT_cfg$options$mi$states), names(SIMINT_cfg$options$mi$odes))
+SIMINT_all_outputs = c(names(SIMINT_cfg[["options"]][["mi"]][["states"]]), names(SIMINT_cfg[["options"]][["mi"]][["odes"]]))
 
 SIMINT_simoutmat = matrix(data=NA, nrow=length(SIMINT_tts), ncol=(length(SIMINT_all_outputs) +1) )
 colnames(SIMINT_simoutmat) =   eval(parse(text= sprintf("c('time', '%s')", paste(SIMINT_all_outputs, collapse="', '"))))
@@ -842,7 +892,7 @@ for (SIMINT_tidx in seq(1,length(SIMINT_tts))){
 
   # Creating the states here at a given time
   # (above a vector was created)
-  for (SIMINT_sname in names(SIMINT_cfg$options$mi$states)){
+  for (SIMINT_sname in names(SIMINT_cfg[["options"]][["mi"]][["states"]])){
     SIMINT_tmp_assignment = sprintf('%s =  SIMINT_simout[[SIMINT_tidx, SIMINT_sname]]', SIMINT_sname)  #JMH modify
     eval(parse(text=SIMINT_tmp_assignment))
   }

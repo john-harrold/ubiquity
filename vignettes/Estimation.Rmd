@@ -199,6 +199,8 @@ If one of the estimation options are selected for the ``flowctl`` then several f
 * ``output/parent_d1030-report.txt`` - Text file with a summary of the estimation results. 
 * `` output/parent_d1030-parameters_all.csv`` - Summary table with all parameters (estimated and fixed)
 * `` output/parent_d1030-parameters_est.csv`` - Summary table with estimated parameters 
+* `` output/parent_d1030-system_update.txt`` - Text to update the ``system.txt`` file with the new parameter estiamtes
+* `` output/parent_d1030-sessionInfo.RData`` - The output of ``sessionInfo()`` is stored in the ``SI`` object in this data file
 
 Next the system is simulated at the estimate and the data is stored in ``erp``. 
 ```{r results="hide", echo=TRUE, warning=FALSE}

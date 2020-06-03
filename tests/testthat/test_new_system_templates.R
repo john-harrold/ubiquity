@@ -39,3 +39,4 @@ test_that("Template files", {
     }
   }
 })
+

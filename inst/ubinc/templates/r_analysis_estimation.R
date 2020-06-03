@@ -158,7 +158,7 @@ cfg = system_clear_cohorts(cfg)
 #
 # CHNAME    - cohort name
 # COLNAME   - column name in dataset
-# ONAME     - output name
+# ONAME     - output name, you can use a more descriptive name for your output
 # TIMECOL   - column name in dataset with the observation times
 # TS        - model timescale corresponding to TIMECOL
 # OBSCOL    - column name in dataset with the observation values
@@ -166,27 +166,62 @@ cfg = system_clear_cohorts(cfg)
 #
 # Only specify bolus and infusion inputs that are non-zero. Simply ignore
 # those that don't exist for the given cohort. Covariates should be specified
-# to overwrite the default covariate values
-cohort = c()
-cohort$name                                 = "CHNAME"
-cohort$cf$COLNAME                           = c()
-cohort$cf$COLNAME                           = c()
-cohort$dataset                              = "DSNAME"
+#
+# The cf elements are optional and will be used to filter the dataset down to
+# the records needed for this cohort. If you do not need the placeholders
+# simply delete the lines
+#
+cohort = list(
+  name         = "CHNAME",
+  cf           = list(COLNAME   = c(),
+                      COLNAME   = c()),
+  inputs       = NULL,
+  outputs      = NULL,
+  dataset      = "DSNAME")
 
 <BOLUS><INFUSION_RATES><COVARIATES>
-cohort$outputs$ONAME$of$COLNAME             = c()
-cohort$outputs$ONAME$of$COLNAME             = c()
 
-cohort$outputs$ONAME$obs$time               = "TIMECOL" 
-cohort$outputs$ONAME$obs$value              = "OBSCOL"
-cohort$outputs$ONAME$obs$missing            = -1
-cohort$outputs$ONAME$model$time             = "TS"        
-cohort$outputs$ONAME$model$value            = "MODOUTPUT"
-cohort$outputs$ONAME$model$variance         = "PRED^2"
-cohort$outputs$ONAME$options$marker_color   = "black"
-cohort$outputs$ONAME$options$marker_shape   = 16
-cohort$outputs$ONAME$options$marker_line    = 1 
 
+# Here you define information about the outputs you're modeling for this
+# cohort. The output "ONAME" used in the list below is a placeholder. You can
+# substitute it with a more descriptive string string suchas:
+#       PK, Cp_ngml, TV_mm3, etc. 
+# No spaces or weird characters.
+cohort[["outputs"]][["ONAME"]] = list()
+# "of" is the output filter used to further filter the records down to those
+# that apply to the current output ONAME. If you do not need them you can just
+# delete this part:
+cohort[["outputs"]][["ONAME"]][["of"]] = list(
+       COLNAME          = c(),
+       COLNAME          = c())
+
+# This identifies the columns in the data set that relate to the observation
+# times, values and the numerical flag for missing data:
+cohort[["outputs"]][["ONAME"]][["obs"]] = list(
+         time           = "TIMECOL",
+         value          = "OBSCOL",
+         missing        = -1)
+   
+# Here you are mapping model timescales and outputs to the observations. The
+# variance model is also specified here. 
+#         variance = '1'               # Least squares
+#         variance = 'PRED^2'          # Weighted least squares proportional 
+#                                      # to the prediction squared
+#         variance = '(SLOPE*PRED)^2'  # Maximum likelihood estimation where 
+#                                      # SLOPE is defined as a variance parameter <VP>
+#        
+cohort[["outputs"]][["ONAME"]][["model"]] = list(
+         time           = "TS",       
+         value          = "MODOUTPUT",
+         variance       = "PRED^2")
+
+# This controls the plotted output associated with this cohort
+# the color, shape and line values are the values used by ggplot 
+# functions. 
+cohort[["outputs"]][["ONAME"]][["options"]] = list(
+         marker_color   = "black",
+         marker_shape   = 16,
+         marker_line    = 1 )
 cfg = system_define_cohort(cfg, cohort)
 # -------------------------------------------------------------------------
 

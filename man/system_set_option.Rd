@@ -194,7 +194,7 @@ For the different methods and control options, see the documentation for the \co
 and \code{optimx} libraries.
 
 To perform a global optimization you can install either the particle swarm (\code{\link[pso]{pso}})
-genetic algorithm (\code{\link[GA]{GA}}) libraries.
+genetic algorithm (\code{GA}) libraries.
 To use the particle swarm set the \code{optimizer} and \code{method}:
  
 \preformatted{

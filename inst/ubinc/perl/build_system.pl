@@ -969,7 +969,7 @@ $mo->{FORCEDECLARE}   = "\nstatic double forc[".(2*scalar(@{$cfg->{covariates_in
 # First we create the parameters field with the parameter 'matrix' first
 #
 $mc->{FETCH_SYS_PARAMS} = '# defining the matrix of parameter information
-cfg$parameters$matrix = data.frame('."\n";
+cfg[["parameters"]][["matrix"]] = data.frame(stringsAsFactors=TRUE, '."\n";
 
 $mc->{FETCH_SYS_PARAMS} .= $indent."name".&fetch_padding("name", $cfg->{parameters_length})." = c(";
 # creating the parameter names
@@ -1020,34 +1020,30 @@ $mc->{FETCH_SYS_PARAMS} .= ")\n";
 #
 # Processing components
 #
-$mc->{FETCH_SYS_INDICES} .= "# defining indices\n";
-$mc->{FETCH_SYS_INDICES} .= "# parameters\n";
+$mc->{FETCH_SYS_INDICES}  .= "# defining indices\n";
 
 # States    
 # These are the components that are state dependent like ODEs, initial
 # conditions, etc.
-$mc->{FETCH_SYS_INDICES} .= "# states   \n";
+$mc->{FETCH_SYS_INDICES}  .= "# states   \n";
 $mo->{OUTPUTS_REMAP}      .= "/* States */\n";
 $counter = 1;
+
+$mc->{FETCH_SYS_INDICES} .= 'cfg[["options"]][["mi"]][["states"]] = list()'."\n";
 foreach $state     (@{$cfg->{species_index}}){
   $sname = $state;
 
-  # collecting all of the outputs to include with the simulation outputs
-  #$mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg$options$mi$odes$'."$sname".&fetch_padding($sname, $cfg->{species_length})." = $counter_ode_outputs \n";
-  # $mo->{OUTPUTS_REMAP}      .= "yout[".($counter_ode_outputs-1)."] = $sname;\n";
-
   # R-script level
-  $mc->{FETCH_SYS_INDICES} .= 'cfg$options$mi$states$'."$sname".&fetch_padding($sname, $cfg->{species_length})." = $counter \n";
+  $mc->{FETCH_SYS_INDICES} .= 'cfg[["options"]][["mi"]][["states"]][["'.$sname.'"]]'.&fetch_padding($sname, $cfg->{species_length})." = $counter \n";
   $mc->{STATES}         .= $sname.&fetch_padding($sname, $cfg->{species_length})." = SIMINT_x[$counter];\n";
   $mc->{ODES}           .= "SIMINT_d$sname".&fetch_padding("SIMINT_d$sname", $cfg->{species_length})." = ".&make_ode($cfg, $sname, 'rproject').";\n";
   $mc->{ODES_REMAP}     .= $indent."SIMINT_d$sname";
   $mc->{STATE_ICS_REMAP}.= $indent.$sname.&fetch_padding("$sname", $cfg->{species_length})." = c(SIMINT_$sname"."_IC)";
 
   if(defined($cfg->{initial_conditions}->{$sname})){
-    $mc->{FETCH_SYS_IC}      .= 'cfg$options$initial_conditions$'."$sname".&fetch_padding($sname, $cfg->{species_length})." = '";
+    $mc->{FETCH_SYS_IC}      .= 'cfg[["options"]][["initial_conditions"]][["'.$sname.'"]]'.&fetch_padding($sname, $cfg->{species_length})." = '";
     $mc->{FETCH_SYS_IC}      .= &apply_format($cfg, $cfg->{initial_conditions}->{$sname}, 'rproject')."' \n";
-  }
-  
+  } 
 
   #commas until the last state
   if($counter < scalar( (@{$cfg->{species_index}}))){
@@ -1075,15 +1071,18 @@ foreach $state     (@{$cfg->{species_index}}){
 
 
 # Outputs   
-$mc->{FETCH_SYS_INDICES} .= "# outputs  \n";
-$mo->{OUTPUTS_REMAP}      .= "/* Model Outputs */\n";
+$mc->{FETCH_SYS_INDICES}            .= "# outputs  \n";
+$mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= "# odes     \n";
+$mo->{OUTPUTS_REMAP}                .= "/* Model Outputs */\n";
 $counter = 1;
 
+$mc->{FETCH_SYS_INDICES}            .= 'cfg[["options"]][["mi"]][["outputs"]] = list()'."\n";
+$mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg[["options"]][["mi"]][["odes"]]    = list()'."\n";
 foreach $output    (@{$cfg->{outputs_index}}){
   $sname = $output;
 
   # output indices
-  $mc->{FETCH_SYS_INDICES} .= 'cfg$options$mi$outputs$'."$sname".&fetch_padding($sname, $cfg->{outputs_length})." = $counter \n";
+  $mc->{FETCH_SYS_INDICES} .= 'cfg[["options"]][["mi"]][["outputs"]][["'.$sname.'"]]'.&fetch_padding($sname, $cfg->{outputs_length})." = $counter \n";
 
   # output definitions used in mapping simulation output
   $mc->{OUTPUTS}           .= $sname.&fetch_padding($sname, $cfg->{outputs_length})." = ";
@@ -1098,7 +1097,7 @@ foreach $output    (@{$cfg->{outputs_index}}){
   $mo->{OUTPUTS}           .= &apply_format($cfg, $cfg->{outputs}->{$sname}, 'C').";\n";
 
   # collecting all of the outputs to include with the simulation outputs
-  $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg$options$mi$odes$'."$sname".&fetch_padding($sname, $cfg->{species_length})." = $counter_ode_outputs \n";
+  $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg[["options"]][["mi"]][["odes"]][["'.$sname.'"]]'.&fetch_padding($sname, $cfg->{species_length})." = $counter_ode_outputs \n";
   $mo->{OUTPUTS_REMAP}      .= "yout[".($counter_ode_outputs-1)."] = $sname;\n";
 
   $counter = 1+$counter;
@@ -1110,17 +1109,19 @@ foreach $output    (@{$cfg->{outputs_index}}){
 # Parameters
 $mo->{OUTPUTS_REMAP}      .= "/* System Parameters */\n";
 $counter = 1;
+$mc->{FETCH_SYS_INDICES} .= "# parameters  \n";
+$mc->{FETCH_SYS_INDICES} .= 'cfg[["options"]][["mi"]][["parameters"]] = list()'."\n";
 foreach $parameter (@{$cfg->{parameters_index}}){
   $pname = $parameter;
   # defining the indices of the parameters
-  $mc->{FETCH_SYS_INDICES} .= 'cfg$options$mi$parameters$'."$pname".&fetch_padding($pname, $cfg->{parameters_length})." = $counter \n";
+  $mc->{FETCH_SYS_INDICES} .= 'cfg[["options"]][["mi"]][["parameters"]][["'.$pname.'"]]'.&fetch_padding($pname, $cfg->{parameters_length})." = $counter \n";
   $mc->{SYSTEM_PARAM}  .= $pname.&fetch_padding($pname, $cfg->{parameters_length}).' = SIMINT_p$'.$pname."\n";
-  $mc->{SELECT_PARAMS} .= "  ".$pname.&fetch_padding($pname, $cfg->{parameters_length}).' = c(cfg$parameters$matrix$value['.$counter.'])';
+  $mc->{SELECT_PARAMS} .= "  ".$pname.&fetch_padding($pname, $cfg->{parameters_length}).' = c(cfg[["parameters"]][["matrix"]][["value"]]['.$counter.'])';
   if($counter < scalar(@{$cfg->{parameters_index}})){
     $mc->{SELECT_PARAMS} .= ",\n"; }
 
   # collecting all of the outputs to include with the simulation outputs
-  $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg$options$mi$odes$'."$parameter".&fetch_padding($parameter, $cfg->{species_length})." = $counter_ode_outputs \n";
+  $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg[["options"]][["mi"]][["odes"]][["'.$parameter.'"]]'.&fetch_padding($parameter, $cfg->{species_length})." = $counter_ode_outputs \n";
   $mo->{OUTPUTS_REMAP}      .= "yout[".($counter_ode_outputs-1)."] = $parameter;\n";
   $counter_ode_outputs = 1 + $counter_ode_outputs;
 
@@ -1135,44 +1136,50 @@ my $set_id ;
 # Mathematical sets
 if(keys(%{$cfg->{sets}})){
   $mc->{FETCH_SYS_OPTIONS} .= "# Mathematical sets \n";
+  $mc->{FETCH_SYS_OPTIONS} .= 'cfg[["options"]][["math_sets"]] = list()'."\n";
   foreach $set_id (keys %{$cfg->{sets}}){
-    $mc->{FETCH_SYS_OPTIONS} .= 'cfg$options$math_sets$'.$set_id.'=c("'.join('", "', @{$cfg->{sets}->{$set_id}}).'")'."\n";
+    $mc->{FETCH_SYS_OPTIONS} .= 'cfg[["options"]][["math_sets"]][["'.$set_id.'"]]=c("'.join('", "', @{$cfg->{sets}->{$set_id}}).'")'."\n";
   }
 }
 
 # IIV
 if(keys(%{$cfg->{iiv}})){
   $mc->{FETCH_SYS_INDICES} .= "# iiv \n";
+  $mc->{FETCH_SYS_INDICES} .= 'cfg[["options"]][["mi"]][["iiv_sets"]] = list()'."\n";
+  $mc->{FETCH_SYS_IIV}     .= 'cfg[["iiv"]][["sets"]] = list()'."\n";
   foreach $set_id (keys %{$cfg->{iiv_index}}){
     $counter = 1;
     # iiv indices
+    $mc->{FETCH_SYS_INDICES} .= 'cfg[["options"]][["mi"]][["iiv_sets"]][["'.$set_id.'"]] = list()'."\n";
     foreach $parameter    (@{$cfg->{iiv_index}->{$set_id}}){
       $iname = $parameter;
-      $mc->{FETCH_SYS_INDICES} .= 'cfg$options$mi$iiv_sets$'.$set_id.'$'."$iname".&fetch_padding($iname, $cfg->{outputs_length})." = $counter \n";
+      $mc->{FETCH_SYS_INDICES} .= 'cfg[["options"]][["mi"]][["iiv_sets"]][["'.$set_id.'"]][["'.$iname.'"]]'.&fetch_padding($iname, $cfg->{outputs_length})." = $counter \n";
       $counter = 1+$counter;
     }
     
     # listing the parameters the IIVs apply to
     $counter = 1;
+    $mc->{FETCH_SYS_IIV} .= 'cfg[["iiv"]][["sets"]][["'.$set_id.'"]] = list(iivs=list(), parameters=list(), values=NULL)'."\n";
     foreach $parameter    (@{$cfg->{iiv_index}->{$set_id}}){
       $iname = $parameter;
-      $mc->{FETCH_SYS_IIV}     .= 'cfg$iiv$sets$'.$set_id.'$iivs$'."$iname".'$parameters'.&fetch_padding($iname, $cfg->{parameters_length}).' =c("'.join('", "', @{$cfg->{iiv}->{$set_id}->{iivs}->{$iname}->{parameters}}).'"'.")\n";
+      $mc->{FETCH_SYS_IIV}     .= 'cfg[["iiv"]][["sets"]][["'.$set_id.'"]][["iivs"]][["'.$iname.'"]]'.&fetch_padding($iname, $cfg->{parameters_length}).'= list(parameters = c("'.join('", "', @{$cfg->{iiv}->{$set_id}->{iivs}->{$iname}->{parameters}}).'"'."))\n";
       $counter = 1+$counter;
     }
     # defining the parameter specific information (distributions and reverse
     # mapping to the IIV terms);
     foreach $iname     (keys(%{$cfg->{iiv}->{$set_id}->{parameters}})){
-      $mc->{FETCH_SYS_IIV}     .=    'cfg$iiv$sets$'.$set_id.'$parameters$'.$iname.'$iiv_name    '.&fetch_padding($iname, $cfg->{parameters_length})." = '".$cfg->{iiv}->{$set_id}->{parameters}->{$iname}->{iiv_name}."'\n";
-      $mc->{FETCH_SYS_IIV}     .=    'cfg$iiv$sets$'.$set_id.'$parameters$'.$iname.'$distribution'.&fetch_padding($iname, $cfg->{parameters_length})." = '".$cfg->{iiv}->{$set_id}->{parameters}->{$iname}->{distribution}."'\n";
-      $mc->{FETCH_SYS_IIV}     .=    'cfg$iiv$sets$'.$set_id.'$parameters$'.$iname.'$equation    '.&fetch_padding($iname, $cfg->{parameters_length})." = '".&make_iiv($cfg, $iname, 'rproject', $set_id)."'\n";
+      $mc->{FETCH_SYS_IIV} .= 'cfg[["iiv"]][["sets"]][["'.$set_id.'"]][["parameters"]][["'.$iname.'"]] = list(iiv_name = NULL, distribution=NULL, equation=NULL)'."\n";
+      $mc->{FETCH_SYS_IIV} .= 'cfg[["iiv"]][["sets"]][["'.$set_id.'"]][["parameters"]][["'.$iname.'"]][["iiv_name"]]    '.&fetch_padding($iname, $cfg->{parameters_length})." = '".$cfg->{iiv}->{$set_id}->{parameters}->{$iname}->{iiv_name}."'\n";
+      $mc->{FETCH_SYS_IIV} .= 'cfg[["iiv"]][["sets"]][["'.$set_id.'"]][["parameters"]][["'.$iname.'"]][["distribution"]]'.&fetch_padding($iname, $cfg->{parameters_length})." = '".$cfg->{iiv}->{$set_id}->{parameters}->{$iname}->{distribution}."'\n";
+      $mc->{FETCH_SYS_IIV} .= 'cfg[["iiv"]][["sets"]][["'.$set_id.'"]][["parameters"]][["'.$iname.'"]][["equation"]]    '.&fetch_padding($iname, $cfg->{parameters_length})." = '".&make_iiv($cfg, $iname, 'rproject', $set_id)."'\n";
     }
-    $mc->{FETCH_SYS_IIV}     .= 'cfg$iiv$sets$'.$set_id.'$values = matrix(0,'.scalar(@{$cfg->{iiv_index}->{$set_id}}).",".scalar(@{$cfg->{iiv_index}->{$set_id}}).")\n";
+    $mc->{FETCH_SYS_IIV}     .= 'cfg[["iiv"]][["sets"]][["'.$set_id.'"]][["values"]] = matrix(0,'.scalar(@{$cfg->{iiv_index}->{$set_id}}).",".scalar(@{$cfg->{iiv_index}->{$set_id}}).")\n";
     $counter = 1;
     foreach $iname     (@{$cfg->{iiv_index}->{$set_id}}){
       $counter2 = 1;
       foreach $iname2    (@{$cfg->{iiv_index}->{$set_id}}){
         if(defined($cfg->{iiv}->{$set_id}->{vcv}->{$iname}->{$iname2})){
-          $mc->{FETCH_SYS_IIV}     .=  'cfg$iiv$sets$'.$set_id.'$values['."$counter, $counter2] =  $cfg->{iiv}->{$set_id}->{vcv}->{$iname}->{$iname2}\n";
+          $mc->{FETCH_SYS_IIV}     .=  'cfg[["iiv"]][["sets"]][["'.$set_id.'"]][["values"]]['."$counter, $counter2] =  $cfg->{iiv}->{$set_id}->{vcv}->{$iname}->{$iname2}\n";
         }
         $counter2 = $counter2+1;
       }
@@ -1181,12 +1188,12 @@ if(keys(%{$cfg->{iiv}})){
 
   }
   $mc->{FETCH_SYS_IIV}     .= "# Defaulting to the default set\n";
-  $mc->{FETCH_SYS_IIV}     .= 'cfg$iiv$current_set = "default"'."\n";
-  $mc->{FETCH_SYS_IIV}     .= 'cfg$iiv$iivs        = cfg$iiv$sets$default$iivs'."\n";
-  $mc->{FETCH_SYS_IIV}     .= 'cfg$iiv$parameters  = cfg$iiv$sets$default$parameters'."\n";
-  $mc->{FETCH_SYS_IIV}     .= 'cfg$iiv$values      = cfg$iiv$sets$default$values    '."\n";
+  $mc->{FETCH_SYS_IIV}     .= 'cfg[["iiv"]][["current_set"]] = "default"'."\n";
+  $mc->{FETCH_SYS_IIV}     .= 'cfg[["iiv"]][["iivs"]]        = cfg[["iiv"]][["sets"]][["default"]][["iivs"]]'."\n";
+  $mc->{FETCH_SYS_IIV}     .= 'cfg[["iiv"]][["parameters"]]  = cfg[["iiv"]][["sets"]][["default"]][["parameters"]]'."\n";
+  $mc->{FETCH_SYS_IIV}     .= 'cfg[["iiv"]][["values"]]      = cfg[["iiv"]][["sets"]][["default"]][["values"]]'."\n";
   $mc->{FETCH_SYS_INDICES} .= "# Defaulting to the default set\n";
-  $mc->{FETCH_SYS_INDICES} .= 'cfg$options$mi$iiv = cfg$options$mi$iiv_sets$default'."\n";
+  $mc->{FETCH_SYS_INDICES} .= 'cfg[["options"]][["mi"]][["iiv"]] = cfg[["options"]][["mi"]][["iiv_sets"]][["default"]]'."\n";
 
   # adding variance equations
   if ((keys(%{$cfg->{variance}->{equations}}))){
@@ -1197,7 +1204,7 @@ if(keys(%{$cfg->{iiv}})){
   else{
     $mc->{FETCH_SYS_VE} .= "# No variance equations defined\n";
     $mc->{FETCH_SYS_VE} .= "# See: <VE>\n";
-    $mc->{FETCH_SYS_VE} .= "cfg\$ve  = c()\n";}
+    $mc->{FETCH_SYS_VE} .= 'cfg[["ve"]]  = list()'."\n";}
 
 
 }
@@ -1215,18 +1222,24 @@ if((@{$cfg->{input_rates_index}})){
 
 
   $mc->{FETCH_SYS_INFUSIONS} .= "# Infusion rates\n";
-  $mc->{FETCH_SYS_INFUSIONS} .= 'cfg$options$inputs$infusion_rate_names = '."c('".join("','", @{$cfg->{input_rates_index}})."')\n";
+  $mc->{FETCH_SYS_INFUSIONS} .= 'cfg[["options"]][["inputs"]][["infusion_rates"]] = list()'."\n";
+  $mc->{FETCH_SYS_INFUSIONS} .= 'cfg[["options"]][["inputs"]][["infusion_rate_names"]] = '."c('".join("','", @{$cfg->{input_rates_index}})."')\n";
+
+
+  $ma->{INFUSION_RATES} .= '# Infusion rates for the cohort'."\n";
+  $ma->{INFUSION_RATES} .= 'cohort[["inputs"]][["infusion_rates"]] = list()'."\n";
   foreach $rate  (@{$cfg->{input_rates_index}}){
     $rname = $rate;
     
-    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg$options$inputs$infusion_rates$'.$rname.'$times$values  = '."c(".join(', ', &extract_elements($cfg->{input_rates}->{$rname}->{times}->{values})).")\n";
-    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg$options$inputs$infusion_rates$'.$rname.'$times$scale   = '."'".$cfg->{input_rates}->{$rname}->{times}->{scale}."'\n";
-    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg$options$inputs$infusion_rates$'.$rname.'$times$units   = '."'".$cfg->{input_rates}->{$rname}->{times}->{units}."'\n";
+    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg[["options"]][["inputs"]][["infusion_rates"]][["'.$rname.'"]] = list(times=list(), levels=list())'."\n";
+    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg[["options"]][["inputs"]][["infusion_rates"]][["'.$rname.'"]][["times"]][["values"]]  = '."c(".join(', ', &extract_elements($cfg->{input_rates}->{$rname}->{times}->{values})).")\n";
+    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg[["options"]][["inputs"]][["infusion_rates"]][["'.$rname.'"]][["times"]][["scale"]]   = '."'".$cfg->{input_rates}->{$rname}->{times}->{scale}."'\n";
+    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg[["options"]][["inputs"]][["infusion_rates"]][["'.$rname.'"]][["times"]][["units"]]   = '."'".$cfg->{input_rates}->{$rname}->{times}->{units}."'\n";
 
 
-    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg$options$inputs$infusion_rates$'.$rname.'$levels$values = '."c(".join(', ', &extract_elements($cfg->{input_rates}->{$rname}->{levels}->{values})).")\n";
-    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg$options$inputs$infusion_rates$'.$rname.'$levels$scale  = '."'".$cfg->{input_rates}->{$rname}->{levels}->{scale}."'\n";
-    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg$options$inputs$infusion_rates$'.$rname.'$levels$units  = '."'".$cfg->{input_rates}->{$rname}->{levels}->{units}."'\n\n";
+    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg[["options"]][["inputs"]][["infusion_rates"]][["'.$rname.'"]][["levels"]][["values"]] = '."c(".join(', ', &extract_elements($cfg->{input_rates}->{$rname}->{levels}->{values})).")\n";
+    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg[["options"]][["inputs"]][["infusion_rates"]][["'.$rname.'"]][["levels"]][["scale"]]  = '."'".$cfg->{input_rates}->{$rname}->{levels}->{scale}."'\n";
+    $mc->{FETCH_SYS_INFUSIONS} .= 'cfg[["options"]][["inputs"]][["infusion_rates"]][["'.$rname.'"]][["levels"]][["units"]]  = '."'".$cfg->{input_rates}->{$rname}->{levels}->{units}."'\n\n";
 
 
     # simulation driver
@@ -1235,15 +1248,16 @@ if((@{$cfg->{input_rates_index}})){
     $md->{INFUSION_RATES} .= "#                            levels = c(".join(', ', &extract_elements($cfg->{input_rates}->{$rname}->{levels}->{values})).")) # $cfg->{input_rates}->{$rname}->{levels}->{units} \n";
 
     # analysis estimation
-    $ma->{INFUSION_RATES} .= 'cohort$inputs$infusion_rates$'.$rname.'$TIME'.&fetch_padding($rname,10).'= c()'." # $cfg->{input_rates}->{$rname}->{times}->{units}  \n";
-    $ma->{INFUSION_RATES} .= 'cohort$inputs$infusion_rates$'.$rname.'$AMT'.&fetch_padding($rname,11).'= c()'." # $cfg->{input_rates}->{$rname}->{levels}->{units} \n";
+    $ma->{INFUSION_RATES} .= 'cohort[["inputs"]][["infusion_rates"]][["'.$rname.'"]] = list(TIME=NULL, AMT=NULL)'."\n";
+    $ma->{INFUSION_RATES} .= 'cohort[["inputs"]][["infusion_rates"]][["'.$rname.'"]][["TIME"]]'.&fetch_padding($rname,10).'= c()'." # $cfg->{input_rates}->{$rname}->{times}->{units}  \n";
+    $ma->{INFUSION_RATES} .= 'cohort[["inputs"]][["infusion_rates"]][["'.$rname.'"]][["AMT"]]'.&fetch_padding($rname,11).'= c()'." # $cfg->{input_rates}->{$rname}->{levels}->{units} \n";
     
 
     #JMH this seems aberrant 2015.04.08
     # $mc->{INFUSION_RATES} .= $rname.&fetch_padding($rname, $cfg->{inputs_length})." = 0.0\n";
 
     # collecting all of the outputs to include with the simulation outputs
-    $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg$options$mi$odes$'."$rname".&fetch_padding($rname, $cfg->{species_length})." = $counter_ode_outputs \n";
+    $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg[["options"]][["mi"]][["odes"]][["'.$rname.'"]]'.&fetch_padding($rname, $cfg->{species_length})." = $counter_ode_outputs \n";
     $mo->{OUTPUTS_REMAP}      .= "yout[".($counter_ode_outputs-1)."] = $rname;\n";
     $counter_ode_outputs = 1 + $counter_ode_outputs;
 
@@ -1262,7 +1276,10 @@ if((@{$cfg->{covariates_index}})){
   $md->{COVARIATES} .= "# Covariates are set using the system_set_covariate statement.\n";
   $md->{COVARIATES} .= "# The default values are listed here, and they may be \n";
   $md->{COVARIATES} .= "# different than the current values. Uncomment to change them.\n";
-  $mc->{FETCH_SYS_COVARIATES} .= "#Covariates \n";
+  $mc->{FETCH_SYS_COVARIATES} .= "# Covariates \n";
+
+  $ma->{COVARIATES}     .= "# Covariates for the cohort\n";
+  $ma->{COVARIATES}     .= 'cohort[["inputs"]][["covariates"]] = list()'."\n";
   foreach $covariate  (@{$cfg->{covariates_index}}){
     $cname = $covariate; 
 
@@ -1275,15 +1292,17 @@ if((@{$cfg->{covariates_index}})){
     $md->{COVARIATES} .=  &fetch_padding("values = c(".join(', ', &extract_elements($cfg->{covariates}->{$cname}->{parameter_sets}->{default}->{values}))."))", 30)."# $cfg->{covariates}->{$cname}->{values}->{units} \n";
     
     # analysis estimation
-    $ma->{COVARIATES}     .= 'cohort$inputs$covariates$'.$cname.'$TIME'.&fetch_padding($cname,14).'= c()'." # $cfg->{covariates}->{$cname}->{times}->{units} \n";
-    $ma->{COVARIATES}     .= 'cohort$inputs$covariates$'.$cname.'$AMT'.&fetch_padding($cname,15).'= c()'." # $cfg->{covariates}->{$cname}->{values}->{units} \n";
+    $ma->{COVARIATES}     .= 'cohort[["inputs"]][["covariates"]][["'.$cname.'"]] = list(TIME=NULL, AMT=NULL)'."\n";
+    $ma->{COVARIATES}     .= 'cohort[["inputs"]][["covariates"]][["'.$cname.'"]][["TIME"]]'.&fetch_padding($cname,14).'= c()'." # $cfg->{covariates}->{$cname}->{times}->{units} \n";
+    $ma->{COVARIATES}     .= 'cohort[["inputs"]][["covariates"]][["'.$cname.'"]][["AMT"]]'.&fetch_padding($cname,15).'= c()'." # $cfg->{covariates}->{$cname}->{values}->{units} \n";
 
     # rcomponents
-    $mc->{FETCH_SYS_COVARIATES} .= 'cfg$options$inputs$covariates$'.$cname.'$cv_type       = '."'".$cfg->{covariates}->{$cname}->{cv_type}."'\n";
-    $mc->{FETCH_SYS_COVARIATES} .= 'cfg$options$inputs$covariates$'.$cname.'$times$units   = '."'".$cfg->{covariates}->{$cname}->{times}->{units}."'\n";
-    $mc->{FETCH_SYS_COVARIATES} .= 'cfg$options$inputs$covariates$'.$cname.'$values$units  = '."'".$cfg->{covariates}->{$cname}->{values}->{units}."'\n";
+    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]] = list()'."\n";
+    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["cv_type"]]            = '."'".$cfg->{covariates}->{$cname}->{cv_type}."'\n";
+    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["times"]][["units"]]   = '."'".$cfg->{covariates}->{$cname}->{times}->{units}."'\n";
+    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["values"]][["units"]]  = '."'".$cfg->{covariates}->{$cname}->{values}->{units}."'\n";
 
-    $mc->{COVARIATES_IC} .= $cname.' = SIMINT_cfg$options$inputs$covariates$'.$cname.'$values$values[1]'."\n";
+    $mc->{COVARIATES_IC} .= $cname.' = SIMINT_cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["values"]][["values"]][1]'."\n";
 
 
     # c target
@@ -1296,20 +1315,20 @@ if((@{$cfg->{covariates_index}})){
 
     # collecting all of the outputs to include with the simulation outputs
     # Covariate initial condition used
-    $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg$options$mi$odes$'."SIMINT_CVIC_$cname".&fetch_padding("SIMINT_CVIC_$cname", $cfg->{species_length})." = $counter_ode_outputs \n";
+    $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg[["options"]][["mi"]][["odes"]][["'."SIMINT_CVIC_$cname".'"]]'.&fetch_padding("SIMINT_CVIC_$cname", $cfg->{species_length})." = $counter_ode_outputs \n";
     $mo->{OUTPUTS_REMAP}      .= "yout[".($counter_ode_outputs-1)."] = SIMINT_CVIC_$cname;\n";
     $counter_ode_outputs = 1 + $counter_ode_outputs;
 
     # Covariate value
-    $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg$options$mi$odes$'."$cname".&fetch_padding($cname, $cfg->{species_length})." = $counter_ode_outputs \n";
+    $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg[["options"]][["mi"]][["odes"]][["'.$cname.'"]]'.&fetch_padding($cname, $cfg->{species_length})." = $counter_ode_outputs \n";
     $mo->{OUTPUTS_REMAP}      .= "yout[".($counter_ode_outputs-1)."] = $cname;\n";
     $counter_ode_outputs = 1 + $counter_ode_outputs;
 
 
 
     foreach $set (keys(%{$cfg->{covariates}->{$cname}->{parameter_sets}})) {
-      $mc->{FETCH_SYS_COVARIATES} .= 'cfg$options$inputs$covariates$'.$cname.'$parameter_sets$'.$set.'$times  = '."c(".join(', ', &extract_elements($cfg->{covariates}->{$cname}->{parameter_sets}->{$set}->{times})).")\n"; 
-      $mc->{FETCH_SYS_COVARIATES} .= 'cfg$options$inputs$covariates$'.$cname.'$parameter_sets$'.$set.'$values = '."c(".join(', ', &extract_elements($cfg->{covariates}->{$cname}->{parameter_sets}->{$set}->{values})).")\n"; 
+      $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["parameter_sets"]][["'.$set.'"]][["times"]]  = '."c(".join(', ', &extract_elements($cfg->{covariates}->{$cname}->{parameter_sets}->{$set}->{times})).")\n"; 
+      $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["parameter_sets"]][["'.$set.'"]][["values"]] = '."c(".join(', ', &extract_elements($cfg->{covariates}->{$cname}->{parameter_sets}->{$set}->{values})).")\n"; 
     }
     $mc->{FETCH_SYS_COVARIATES} .= "\n";
   }
@@ -1318,10 +1337,11 @@ if((@{$cfg->{covariates_index}})){
 # static secondary parameters
 if ((@{$cfg->{static_secondary_parameters_index}})){
   $mo->{OUTPUTS_REMAP}      .= "/* Secondary Parameters (Static) */\n";
+  $mc->{FETCH_SYS_SSP} .= 'cfg[["options"]][["ssp"]] = list()'."\n";
   foreach $parameter    (@{$cfg->{static_secondary_parameters_index}}){
     $pname = $parameter;
     # R script
-    $mc->{FETCH_SYS_SSP} .= 'cfg$options$ssp$'.$pname.'="'.&apply_format($cfg, $cfg->{static_secondary_parameters}->{$pname}, 'rproject').'"'."\n";
+    $mc->{FETCH_SYS_SSP} .= 'cfg[["options"]][["ssp"]][["'.$pname.'"]] ="'.&apply_format($cfg, $cfg->{static_secondary_parameters}->{$pname}, 'rproject').'"'."\n";
     $mc->{SS_PARAM} .= $pname.&fetch_padding($pname, $cfg->{parameters_length})." = ";
     $mc->{SS_PARAM} .= &apply_format($cfg, $cfg->{static_secondary_parameters}->{$pname}, 'rproject')." \n"; 
     if(defined($cfg->{if_conditional}->{$pname})){
@@ -1341,7 +1361,7 @@ if ((@{$cfg->{static_secondary_parameters_index}})){
     }
 
   # collecting all of the outputs to include with the simulation outputs
-  $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg$options$mi$odes$'."$parameter".&fetch_padding($parameter, $cfg->{species_length})." = $counter_ode_outputs \n";
+  $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg[["options"]][["mi"]][["odes"]][["'.$parameter.'"]]'.&fetch_padding($parameter, $cfg->{species_length})." = $counter_ode_outputs \n";
   $mo->{OUTPUTS_REMAP}      .= "yout[".($counter_ode_outputs-1)."] = $parameter;\n";
   $counter_ode_outputs       = 1 + $counter_ode_outputs;
 
@@ -1357,10 +1377,12 @@ if ((@{$cfg->{static_secondary_parameters_index}})){
 # dynamic secondary parameters
 if ((@{$cfg->{dynamic_secondary_parameters_index}})){
   $mo->{OUTPUTS_REMAP}      .= "/* Secondary Parameters (Dynamic) */\n";
+  $mc->{FETCH_SYS_DSP} .= 'cfg[["options"]][["dsp"]] = list()'."\n";
   foreach $parameter    (@{$cfg->{dynamic_secondary_parameters_index}}){
     $pname = $parameter;
     # R script
-    $mc->{FETCH_SYS_DSP} .= 'cfg$options$dsp$'.$parameter.'="'.&apply_format($cfg, $cfg->{dynamic_secondary_parameters}->{$parameter}, 'rproject').'"'."\n";
+    # JMH This doesn't appear to be getting into the r_components
+    $mc->{FETCH_SYS_DSP} .= 'cfg[["options"]][["dsp"]][["'.$parameter.'"]]="'.&apply_format($cfg, $cfg->{dynamic_secondary_parameters}->{$parameter}, 'rproject').'"'."\n";
     $mc->{DS_PARAM} .= $pname.&fetch_padding($pname, $cfg->{parameters_length})." = ";
     $mc->{DS_PARAM} .= &apply_format($cfg, $cfg->{dynamic_secondary_parameters}->{$pname}, 'rproject')." \n"; 
     if(defined($cfg->{if_conditional}->{$pname})){
@@ -1380,7 +1402,7 @@ if ((@{$cfg->{dynamic_secondary_parameters_index}})){
     }
 
   # collecting all of the outputs to include with the simulation outputs
-  $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg$options$mi$odes$'."$parameter".&fetch_padding($parameter, $cfg->{species_length})." = $counter_ode_outputs \n";
+  $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg[["options"]][["mi"]][["odes"]][["'.$parameter.'"]]'.&fetch_padding($parameter, $cfg->{species_length})." = $counter_ode_outputs \n";
   $mo->{OUTPUTS_REMAP}      .= "yout[".($counter_ode_outputs-1)."] = $parameter;\n";
   $counter_ode_outputs       = 1 + $counter_ode_outputs;
 
@@ -1392,31 +1414,31 @@ if ((@{$cfg->{dynamic_secondary_parameters_index}})){
 # dumping the miscellaneous options
 if(keys %{$cfg->{options}}){
   foreach $option (keys %{$cfg->{options}}){
-    $mc->{FETCH_SYS_MISC} .= 'cfg$options$misc$'.$option.' = '."'".&apply_format($cfg, $cfg->{options}->{$option}, 'rproject')."' ;\n" 
+    $mc->{FETCH_SYS_MISC} .= 'cfg[["options"]][["misc"]][["'.$option.'"]] = '."'".&apply_format($cfg, $cfg->{options}->{$option}, 'rproject')."' ;\n" 
   }
 }
 
 
 # time scales
-$mc->{FETCH_SYS_TS} .= 'cfg$options$time_scales$time'.&fetch_padding("time", $cfg->{time_scales_length})." = 1.0\n";
+$mc->{FETCH_SYS_TS} .= 'cfg[["options"]][["time_scales"]][["time"]]'.&fetch_padding("time", $cfg->{time_scales_length})." = 1.0\n";
 
 # Adding the default "time" timescale 
 $mo->{OUTPUTS_REMAP}      .= "/* Time Scales */\n";
 $mc->{TIME_SCALES}        .= "ts.time           = SIMINT_TIME;\n";
 $mo->{TIME_SCALES}        .= "SIMINT_TS_time    = SIMINT_TIME;\n";
-$mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg$options$mi$odes$'."ts.time".&fetch_padding("ts.time", $cfg->{species_length})." = $counter_ode_outputs \n";
+$mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg[["options"]][["mi"]][["odes"]][["ts.time"]]'.&fetch_padding("ts.time", $cfg->{species_length})." = $counter_ode_outputs \n";
 $mo->{VARIABLE_INIT}.= "double SIMINT_TS_time".&fetch_padding("SIMINT_TS_time", $cfg->{outputs_length})." = 0.0;\n";
 $mo->{OUTPUTS_REMAP}      .= "yout[".($counter_ode_outputs-1)."] = SIMINT_TS_time;\n";
 $counter_ode_outputs = 1 + $counter_ode_outputs;
 
 if ((@{$cfg->{time_scales_index}})){
   foreach $option       (@{$cfg->{time_scales_index}}){
-    $mc->{FETCH_SYS_TS} .= 'cfg$options$time_scales$'.$option.&fetch_padding($option, $cfg->{time_scales_length})." = ";
+    $mc->{FETCH_SYS_TS} .= 'cfg[["options"]][["time_scales"]][["'.$option.'"]]'.&fetch_padding($option, $cfg->{time_scales_length}).' = ';
     $mc->{FETCH_SYS_TS} .= $cfg->{time_scales}->{$option}."\n";
 
   # # collecting all of the outputs to include with the simulation outputs
     $mo->{VARIABLE_INIT}.= "double SIMINT_TS_$option".&fetch_padding("SIMINT_TS_$option", $cfg->{outputs_length})." = 0.0;\n";
-    $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg$options$mi$odes$'."ts.$option".&fetch_padding("ts.$option", $cfg->{species_length})." = $counter_ode_outputs \n";
+    $mc->{FETCH_SYS_INDICES_ODE_OUTPUT} .= 'cfg[["options"]][["mi"]][["odes"]][["'."ts.$option".'"]]'.&fetch_padding("ts.$option", $cfg->{species_length})." = $counter_ode_outputs \n";
     $mo->{TIME_SCALES}        .= "SIMINT_TS_$option = SIMINT_TIME*$cfg->{time_scales}->{$option};\n";
     $mc->{TIME_SCALES}        .= "ts.$option = SIMINT_TIME*$cfg->{time_scales}->{$option};\n";
     $mo->{OUTPUTS_REMAP}      .= "yout[".($counter_ode_outputs-1)."] = SIMINT_TS_$option;\n";
@@ -1436,18 +1458,18 @@ if ((@{$cfg->{parameter_sets_index}})){
   $md->{PSETS} .= "# -------------------------------------------------------\n";
   foreach $set (@{$cfg->{parameter_sets_index}}){
     # dumping the name
-    $mc->{FETCH_SYS_PSETS}   .= 'cfg$parameters$sets$'.$set.'$name   = '."'$cfg->{parameter_sets}->{$set}->{name}'\n";
+    $mc->{FETCH_SYS_PSETS}   .= 'cfg[["parameters"]][["sets"]][["'.$set.'"]] = list(name=NULL, values=NULL)'."\n";
+    $mc->{FETCH_SYS_PSETS}   .= 'cfg[["parameters"]][["sets"]][["'.$set.'"]][["name"]]   = '."'$cfg->{parameter_sets}->{$set}->{name}'\n";
     # assigning the values to the default value
-    $mc->{FETCH_SYS_PSETS}   .= 'cfg$parameters$sets$'.$set.'$values = cfg$parameters$matrix$value'."\n";
+    $mc->{FETCH_SYS_PSETS}   .= 'cfg[["parameters"]][["sets"]][["'.$set.'"]][["values"]] = cfg[["parameters"]][["matrix"]][["value"]]'."\n";
     #overwriting those unique to this set
     foreach $parameter (keys(%{$cfg->{parameter_sets}->{$set}->{values}})){
       $pname = $parameter;
-      $mc->{FETCH_SYS_PSETS}   .= 'cfg$parameters$sets$'.$set.'$values[cfg$options$mi$parameters$'.$pname.']';
+      $mc->{FETCH_SYS_PSETS}   .= 'cfg[["parameters"]][["sets"]][["'.$set.'"]][["values"]][cfg[["options"]][["mi"]][["parameters"]][["'.$pname.'"]]]';
       $mc->{FETCH_SYS_PSETS}   .= &fetch_padding($pname, $cfg->{parameters_length})." = ".$cfg->{parameter_sets}->{$set}->{values}->{$pname}."\n";
-
     }
 
-    $md->{PSETS} .= "# $set".fetch_padding($set, 25)." | $cfg->{parameter_sets}->{$set}->{name}\n";
+    $md->{PSETS} .= "# $set".&fetch_padding($set, 25)." | $cfg->{parameter_sets}->{$set}->{name}\n";
   }
 
   $ma->{PSETS} = $md->{PSETS};
@@ -1467,18 +1489,22 @@ if (defined($cfg->{bolus_inputs}->{entries})){
   $md->{BOLUS} .= "# cfg = system_zero_inputs(cfg) \n";
 
   # system information
-  $mc->{FETCH_SYS_BOLUS} .= 'cfg$options$inputs$bolus$times$values = c('.join(', ', &extract_elements($field_times)).")\n";
-  $mc->{FETCH_SYS_BOLUS} .= 'cfg$options$inputs$bolus$times$scale ='."'$cfg->{bolus_inputs}->{times}->{scale}'\n";
-  $mc->{FETCH_SYS_BOLUS} .= 'cfg$options$inputs$bolus$times$units ='."'$cfg->{bolus_inputs}->{times}->{units}'\n";
+  $mc->{FETCH_SYS_BOLUS} .= 'cfg[["options"]][["inputs"]][["bolus"]] = list(times=list(values=NULL, scale=NULL, units=NULL), species=list()) '."\n";
+  $mc->{FETCH_SYS_BOLUS} .= 'cfg[["options"]][["inputs"]][["bolus"]][["times"]][["values"]] = c('.join(', ', &extract_elements($field_times)).")\n";
+  $mc->{FETCH_SYS_BOLUS} .= 'cfg[["options"]][["inputs"]][["bolus"]][["times"]][["scale"]]  ='."'$cfg->{bolus_inputs}->{times}->{scale}'\n";
+  $mc->{FETCH_SYS_BOLUS} .= 'cfg[["options"]][["inputs"]][["bolus"]][["times"]][["units"]]  ='."'$cfg->{bolus_inputs}->{times}->{units}'\n";
   # for each state that gets a bolus we make three entries: values, scaling
   # information and the expected units
+  $ma->{BOLUS}          .= "# Bolus inputs for the cohort\n";
+  $ma->{BOLUS}          .= 'cohort[["inputs"]][["bolus"]] = list()'."\n";
   foreach $state (keys(%{$cfg->{bolus_inputs}->{entries}})){
   $field_state = $cfg->{bolus_inputs}->{entries}->{$state}->{values};
   $field_state =~ s#\[##g; $field_state =~ s#\]##g; 
     # system information
-    $mc->{FETCH_SYS_BOLUS} .= 'cfg$options$inputs$bolus$species$'.$state.'$values = c('.join(', ', &extract_elements($field_state)).")\n";
-    $mc->{FETCH_SYS_BOLUS} .= 'cfg$options$inputs$bolus$species$'.$state.'$scale  ='."'$cfg->{bolus_inputs}->{entries}->{$state}->{scale}'\n";
-    $mc->{FETCH_SYS_BOLUS} .= 'cfg$options$inputs$bolus$species$'.$state.'$units  ='."'$cfg->{bolus_inputs}->{entries}->{$state}->{units}'\n";
+    $mc->{FETCH_SYS_BOLUS} .= 'cfg[["options"]][["inputs"]][["bolus"]][["species"]][["'.$state.'"]] = list(values=NULL, scale=NULL, units=NULL)'."\n";
+    $mc->{FETCH_SYS_BOLUS} .= 'cfg[["options"]][["inputs"]][["bolus"]][["species"]][["'.$state.'"]][["values"]] = c('.join(', ', &extract_elements($field_state)).")\n";
+    $mc->{FETCH_SYS_BOLUS} .= 'cfg[["options"]][["inputs"]][["bolus"]][["species"]][["'.$state.'"]][["scale"]]  ='."'$cfg->{bolus_inputs}->{entries}->{$state}->{scale}'\n";
+    $mc->{FETCH_SYS_BOLUS} .= 'cfg[["options"]][["inputs"]][["bolus"]][["species"]][["'.$state.'"]][["units"]]  ='."'$cfg->{bolus_inputs}->{entries}->{$state}->{units}'\n";
 
     # simulation driver
     $md->{BOLUS} .= '# cfg = system_set_bolus(cfg, state   ="'.$state.'", '."\n" ;
@@ -1486,8 +1512,9 @@ if (defined($cfg->{bolus_inputs}->{entries})){
     $md->{BOLUS} .= '#                             values  = c('.join(', ', &extract_elements($field_state)).'))  #  '.$cfg->{bolus_inputs}->{entries}->{$state}->{units}."\n";
     
     # analysis estimation
-    $ma->{BOLUS}          .= 'cohort$inputs$bolus$'.$state.'$TIME'.&fetch_padding($state,19).'= c()'." # $cfg->{bolus_inputs}->{times}->{units} \n";
-    $ma->{BOLUS}          .= 'cohort$inputs$bolus$'.$state.'$AMT'.&fetch_padding($state,20).'= c()'." # $cfg->{bolus_inputs}->{entries}->{$state}->{units} \n";
+    $ma->{BOLUS}          .= 'cohort[["inputs"]][["bolus"]][["'.$state.'"]] = list(TIME=NULL, AMT=NULL)' ."\n";
+    $ma->{BOLUS}          .= 'cohort[["inputs"]][["bolus"]][["'.$state.'"]][["TIME"]]'.&fetch_padding($state,19).'= c()'." # $cfg->{bolus_inputs}->{times}->{units} \n";
+    $ma->{BOLUS}          .= 'cohort[["inputs"]][["bolus"]][["'.$state.'"]][["AMT"]]'.&fetch_padding($state,20). '= c()'." # $cfg->{bolus_inputs}->{entries}->{$state}->{units} \n";
   }
   $mc->{FETCH_SYS_BOLUS} .=  "\n\n\n";
 }

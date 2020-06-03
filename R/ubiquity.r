@@ -1381,7 +1381,7 @@ return(cfg)}
 #' and \code{optimx} libraries.
 #'
 #' To perform a global optimization you can install either the particle swarm (\code{\link[pso]{pso}})
-#' genetic algorithm (\code{\link[GA]{GA}}) libraries.
+#' genetic algorithm (\code{GA}) libraries.
 #' To use the particle swarm set the \code{optimizer} and \code{method}:
 #'  
 #' \preformatted{
@@ -6124,6 +6124,17 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
     message(pstr)
     pest$sysup = paste(pest$sysup, pstr, "\n")
 
+    # Writing system update text to a file
+    sysup_file =file.path(cfg[["options"]][["misc"]][["output_directory"]], "system_update.txt")
+    fileConn<-file(sysup_file)
+    writeLines(pest$sysup, fileConn)
+    close(fileConn)
+
+    # Writing session information to a file
+    SI_file = file.path(cfg[["options"]][["misc"]][["output_directory"]], "sessionInfo.RData")
+    SI = sessionInfo()
+    save(SI, file=SI_file)
+
     }
 
   } else {
@@ -6788,15 +6799,20 @@ f.destination = c()
 
 
 # Pulling the output directory from the ubiquity object
-output_directory = cfg$options$misc$output_directory 
+#output_directory = cfg$options$misc$output_directory 
+output_directory = cfg[["options"]][["misc"]][["output_directory"]]
 
 f.source      = c(f.source,      file.path(output_directory, "parameters_all.csv"))
 f.source      = c(f.source,      file.path(output_directory, "parameters_est.csv"))
 f.source      = c(f.source,      file.path(output_directory, "report.txt"        ))
+f.source      = c(f.source,      file.path(output_directory, "sessionInfo.RData" ))
+f.source      = c(f.source,      file.path(output_directory, "system_update.txt" ))
 
 f.destination = c(f.destination, file.path(output_directory, paste(name, "-parameters_all.csv", sep="")))
 f.destination = c(f.destination, file.path(output_directory, paste(name, "-parameters_est.csv", sep="")))
 f.destination = c(f.destination, file.path(output_directory, paste(name, "-report.txt"        , sep="")))
+f.destination = c(f.destination, file.path(output_directory, paste(name, "-sessionInfo.RData" , sep="")))
+f.destination = c(f.destination, file.path(output_directory, paste(name, "-system_update.txt" , sep="")))
 
 # clearing out the destination files to prevent old results from lingering
 for(fidx in 1:length(f.destination)){ 
@@ -9731,9 +9747,9 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
      ft = align(ft, align=table_header_alignment, part="header")
      ft = align(ft, align=table_body_alignment,   part="body"  )
 
-     rpt = ph_with_flextable(x         = rpt,       type   = type, 
-                             index     = index,     value  = ft)
-    #rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=ft) 
+    #rpt = ph_with_flextable(x         = rpt,       type   = type, 
+    #                        index     = index,     value  = ft)
+    rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=ft) 
 
     }
    
