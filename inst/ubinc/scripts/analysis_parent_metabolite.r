@@ -77,63 +77,126 @@ cfg = system_clear_cohorts(cfg);
 # Only specify bolus and infusion inputs that are non-zero. Simply ignore
 # those that don't exist for the given cohort. Covariates should be specified
 # to overwrite the default covariate values
-cohort = c()
-cohort$name                                      = 'dose_10'
-cohort$cf$DOSE                                   = c(10)
-cohort$dataset                                   = 'pm_data'
-                                                 
-cohort$inputs$bolus$Mpb$TIME                     = c(0)  # hours 
-cohort$inputs$bolus$Mpb$AMT                      = c(10) # mpk 
 
-cohort$outputs$Parent$obs$time                   = 'TIME' 
-cohort$outputs$Parent$obs$value                  = 'PT'    
-cohort$outputs$Parent$obs$missing                = -1;
-cohort$outputs$Parent$model$time                 = 'hours'        
-cohort$outputs$Parent$model$value                = 'Cpblood'
-cohort$outputs$Parent$model$variance             = 'slope_parent*PRED^2'
-cohort$outputs$Parent$options$marker_color       = 'black'
-cohort$outputs$Parent$options$marker_shape       = 1
-cohort$outputs$Parent$options$marker_line        = 1 
+#----------------------------------------------------------
+# 10 mpk cohort
+cohort = list(
+  name         = "dose_10",
+  cf           = list(DOSE      = c(10)),
+  inputs       = NULL,
+  outputs      = NULL,
+  dataset      = "pm_data")
 
-cohort$outputs$Metabolite$obs$time               = 'TIME' 
-cohort$outputs$Metabolite$obs$value              = 'MT'    
-cohort$outputs$Metabolite$obs$missing            = -1;
-cohort$outputs$Metabolite$model$time             = 'hours'        
-cohort$outputs$Metabolite$model$value            = 'Cmblood'
-cohort$outputs$Metabolite$model$variance         = 'slope_metabolite*PRED^2'
-cohort$outputs$Metabolite$options$marker_color   = 'blue'
-cohort$outputs$Metabolite$options$marker_shape   = 1
-cohort$outputs$Metabolite$options$marker_line    = 1 
+
+# Bolus inputs for the cohort
+cohort[["inputs"]][["bolus"]] = list()
+cohort[["inputs"]][["bolus"]][["Mpb"]] = list(TIME=NULL, AMT=NULL)
+cohort[["inputs"]][["bolus"]][["Mpb"]][["TIME"]] = c( 0) # hours 
+cohort[["inputs"]][["bolus"]][["Mpb"]][["AMT"]]  = c(10) # mpk 
+
+
+# Defining Parent output
+cohort[["outputs"]][["Parent"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Parent"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "PT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Parent"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cpblood",   
+         variance       = "slope_parent*PRED^2")
+
+# Plot formatting
+cohort[["outputs"]][["Parent"]][["options"]] = list(
+         marker_color   = "black",
+         marker_shape   = 1,
+         marker_line    = 1 )
+
+# Defining Metabolite output
+cohort[["outputs"]][["Metabolite"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Metabolite"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "MT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Metabolite"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cmblood",   
+         variance       = "slope_metabolite*PRED^2")
+
+# Plot formatting
+cohort[["outputs"]][["Metabolite"]][["options"]] = list(
+         marker_color   = "blue",
+         marker_shape   = 1,
+         marker_line    = 1 )
+
 cfg = system_define_cohort(cfg, cohort)
 #----------------------------------------------------------
+# 30 mpk cohort
+cohort = list(
+  name         = "dose_30",
+  cf           = list(DOSE      = c(30)),
+  inputs       = NULL,
+  outputs      = NULL,
+  dataset      = "pm_data")
 
-cohort = c()
-cohort$name                                      = 'dose_30'
-cohort$cf$DOSE                                   = c(30)
-cohort$dataset                                   = 'pm_data'
-                                                 
-cohort$inputs$bolus$Mpb$TIME                     = c(0)  # hours 
-cohort$inputs$bolus$Mpb$AMT                      = c(30) # mpk 
 
-cohort$outputs$Parent$obs$time                   = 'TIME' 
-cohort$outputs$Parent$obs$value                  = 'PT'    
-cohort$outputs$Parent$obs$missing                = -1;
-cohort$outputs$Parent$model$time                 = 'hours'        
-cohort$outputs$Parent$model$value                = 'Cpblood'
-cohort$outputs$Parent$model$variance             = 'slope_parent*PRED^2'
-cohort$outputs$Parent$options$marker_color       = 'green'
-cohort$outputs$Parent$options$marker_shape       = 1
-cohort$outputs$Parent$options$marker_line        = 1 
+# Bolus inputs for the cohort
+cohort[["inputs"]][["bolus"]] = list()
+cohort[["inputs"]][["bolus"]][["Mpb"]] = list(TIME=NULL, AMT=NULL)
+cohort[["inputs"]][["bolus"]][["Mpb"]][["TIME"]] = c( 0) # hours 
+cohort[["inputs"]][["bolus"]][["Mpb"]][["AMT"]]  = c(30) # mpk 
 
-cohort$outputs$Metabolite$obs$time               = 'TIME' 
-cohort$outputs$Metabolite$obs$value              = 'MT'    
-cohort$outputs$Metabolite$obs$missing            = -1;
-cohort$outputs$Metabolite$model$time             = 'hours'        
-cohort$outputs$Metabolite$model$value            = 'Cmblood'
-cohort$outputs$Metabolite$model$variance         = 'slope_metabolite*PRED^2'
-cohort$outputs$Metabolite$options$marker_color   = 'red'
-cohort$outputs$Metabolite$options$marker_shape   = 1
-cohort$outputs$Metabolite$options$marker_line    = 1 
+
+# Defining Parent output
+cohort[["outputs"]][["Parent"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Parent"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "PT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Parent"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cpblood",   
+         variance       = "slope_parent*PRED^2")
+
+# Plot formatting
+cohort[["outputs"]][["Parent"]][["options"]] = list(
+         marker_color   = "green",
+         marker_shape   = 1,
+         marker_line    = 1 )
+
+# Defining Metabolite output
+cohort[["outputs"]][["Metabolite"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Metabolite"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "MT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Metabolite"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cmblood",   
+         variance       = "slope_metabolite*PRED^2")
+
+# Plot formatting
+cohort[["outputs"]][["Metabolite"]][["options"]] = list(
+         marker_color   = "red",
+         marker_shape   = 1,
+         marker_line    = 1 )
+
 cfg = system_define_cohort(cfg, cohort)
 
 #----------------------------------------------------------

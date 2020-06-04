@@ -116,36 +116,56 @@ cfg = system_clear_cohorts(cfg)
 For each cohort we define a list with information about that cohort. Each cohort should have a unique ``name`` field[^3] and a ``dataset`` field pointing to the dataset (``pm_data``) loaded above. The optional  cohort filter (``cf``) field is used to reduce the entire dataset to the records associated with this cohort. See the help for ``system_define_cohort`` for more information on how to construct cohort filters.
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
-cohort  = c()
-cohort$name                                   = 'dose_10'
-cohort$dataset                                = 'pm_data'
-cohort$cf$DOSE                                = c(10)
+cohort = list(
+  name         = "dose_10",
+  cf           = list(DOSE      = c(10)),
+  inputs       = NULL,
+  outputs      = NULL,
+  dataset      = "pm_data")
+
 ```
 
 Next it is necessary to define the inputs for this cohort. Here inputs refers to model inputs which may include both dosing as well as covariates, and the estimation template (generated using ``system_fetch_template`` above) should contain placeholders for each of these defined in the system file. Note: For bolus and infusion inputs, it is only necessary to define inputs that are nonzero, and for covariates it is only necessary to define those that differ from the definitions in the system file. For each input there is an ``AMT`` field and ``TIME`` field and the units here are those specified in the system file (both ``AMT`` and ``TIME`` are internal indentifiers and not taken from the dataset).
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
-cohort$inputs$bolus$Mpb$AMT                   = c(10)
-cohort$inputs$bolus$Mpb$TIME                  = c(0)
+cohort[["inputs"]][["bolus"]] = list()
+cohort[["inputs"]][["bolus"]][["Mpb"]] = list(TIME=NULL, AMT=NULL)
+cohort[["inputs"]][["bolus"]][["Mpb"]][["TIME"]] = c( 0) # hours 
+cohort[["inputs"]][["bolus"]][["Mpb"]][["AMT"]]  = c(10) # mpk 
+
 ```
 
 Next we need to match the outputs in the model to the outputs in the dataset. Under ``cohort$outputs`` there is a field used to group each output. Here the cohort **output mapping** for the blood PK of the parent output is ``Parent``. The times and observations in the dataset are found in the ``'TIME’`` column and the ``’PT’`` column (missing data specified by -1 will be dropped). These are mapped to the model timescale (``'hours'``, speified with ``<TS:?>``) and model output (``’Cpblood’``,  specified with ``<O>``). Note the units in the dataset must be the same as those in the model:
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
-cohort$outputs$Parent$obs$time                = 'TIME'
-cohort$outputs$Parent$obs$value               = 'PT'
-cohort$outputs$Parent$obs$missing             = -1
-cohort$outputs$Parent$model$time              = 'hours'
-cohort$outputs$Parent$model$value             = 'Cpblood'
-cohort$outputs$Parent$model$variance          = '1'
+cohort[["outputs"]][["Parent"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Parent"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "PT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Parent"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cpblood",   
+         variance       = "1")
+
+# Plot formatting
+cohort[["outputs"]][["Parent"]][["options"]] = list(
+         marker_color   = "black",
+         marker_shape   = 1,
+         marker_line    = 2 )
 ```
 
 For each output grouping in the cohort the marker color, shape and line type can be specified (controlling the plotted output).
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
-cohort$outputs$Parent$options$marker_color    = 'black'   
-cohort$outputs$Parent$options$marker_shape    = 1
-cohort$outputs$Parent$options$marker_line     = 2
+cohort[["outputs"]][["Parent"]][["options"]] = list(
+         marker_color   = "black",
+         marker_shape   = 1,
+         marker_line    = 2 )
 ```
 
 Finally the cohort is defined using ``system_define_cohort``:
@@ -157,24 +177,41 @@ cfg = system_define_cohort(cfg, cohort)
 We do the same thing for the 30 mg dose group:
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
-cohort  = c()
-cohort$name                                   = 'dose_30'
-cohort$dataset                                = 'pm_data'
-cohort$cf$DOSE                                = c(30)
-cohort$inputs$bolus$Mpb$AMT                   = c(30)
-cohort$inputs$bolus$Mpb$TIME                  = c(0)
-cohort$outputs$Parent$obs$time                = 'TIME'
-cohort$outputs$Parent$obs$value               = 'PT'
-cohort$outputs$Parent$obs$missing             = -1
-cohort$outputs$Parent$model$time              = 'hours'
-cohort$outputs$Parent$model$value             = 'Cpblood'
-cohort$outputs$Parent$model$variance          = '1'
-cohort$outputs$Parent$options$marker_color    = 'red'   
-cohort$outputs$Parent$options$marker_shape    = 2
-cohort$outputs$Parent$options$marker_line     = 2
+cohort = list(
+  name         = "dose_30",
+  cf           = list(DOSE      = c(30)),
+  dataset      = "pm_data",
+  inputs       = NULL,
+  outputs      = NULL)
 
+# Bolus inputs for the cohort
+cohort[["inputs"]][["bolus"]] = list()
+cohort[["inputs"]][["bolus"]][["Mpb"]] = list(TIME=NULL, AMT=NULL)
+cohort[["inputs"]][["bolus"]][["Mpb"]][["TIME"]] = c( 0) # hours 
+cohort[["inputs"]][["bolus"]][["Mpb"]][["AMT"]]  = c(30) # mpk 
+
+
+# Defining Parent output
+cohort[["outputs"]][["Parent"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Parent"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "PT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Parent"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cpblood",   
+         variance       = "1")
+
+# Plot formatting
+cohort[["outputs"]][["Parent"]][["options"]] = list(
+         marker_color   = "red",
+         marker_shape   = 2,
+         marker_line    = 2 )
 cfg = system_define_cohort(cfg, cohort)
-
 ```
 
 After the cohorts have been defined we call the estimation function (``system_estimate_parameters``). If ``flowctl`` is set to  ``'plot previous estimate'`` or ``'plot guess'`` the those values will just be returned.
@@ -319,34 +356,63 @@ cfg = system_select_set(cfg, "default", pnames)
 
 The parameters being estimated contain variance parameters (``slope_parent`` and ``slope_metabolite``) so a maximum likelihood objective will be used. The cohort definitions look much the same as those before except the variance model here is defined as  ``'slope_parent*PRED^2'``, and there is a separate output named ``Metabolite``.
 ```{r results="hide", echo=TRUE, eval=FALSE}
-cfg = system_clear_cohorts(cfg)
-cohort = c()
-cohort$name                                      = 'dose_10'
-cohort$cf$DOSE                                   = c(10)
-cohort$dataset                                   = 'pm_data'
-                                                 
-cohort$inputs$bolus$Mpb$TIME                     = c(0)  # hours 
-cohort$inputs$bolus$Mpb$AMT                      = c(10) # mpk 
+cohort = list(
+  name         = "dose_10",
+  cf           = list(DOSE      = c(10)),
+  inputs       = NULL,
+  outputs      = NULL,
+  dataset      = "pm_data")
 
-cohort$outputs$Parent$obs$time                   = 'TIME' 
-cohort$outputs$Parent$obs$value                  = 'PT'    
-cohort$outputs$Parent$obs$missing                = -1;
-cohort$outputs$Parent$model$time                 = 'hours'        
-cohort$outputs$Parent$model$value                = 'Cpblood'
-cohort$outputs$Parent$model$variance             = 'slope_parent*PRED^2'
-cohort$outputs$Parent$options$marker_color       = 'black'
-cohort$outputs$Parent$options$marker_shape       = 1
-cohort$outputs$Parent$options$marker_line        = 1 
 
-cohort$outputs$Metabolite$obs$time               = 'TIME' 
-cohort$outputs$Metabolite$obs$value              = 'MT'    
-cohort$outputs$Metabolite$obs$missing            = -1;
-cohort$outputs$Metabolite$model$time             = 'hours'        
-cohort$outputs$Metabolite$model$value            = 'Cmblood'
-cohort$outputs$Metabolite$model$variance         = 'slope_metabolite*PRED^2'
-cohort$outputs$Metabolite$options$marker_color   = 'blue'
-cohort$outputs$Metabolite$options$marker_shape   = 1
-cohort$outputs$Metabolite$options$marker_line    = 1 
+# Bolus inputs for the cohort
+cohort[["inputs"]][["bolus"]] = list()
+cohort[["inputs"]][["bolus"]][["Mpb"]] = list(TIME=NULL, AMT=NULL)
+cohort[["inputs"]][["bolus"]][["Mpb"]][["TIME"]] = c( 0) # hours 
+cohort[["inputs"]][["bolus"]][["Mpb"]][["AMT"]]  = c(10) # mpk 
+
+
+# Defining Parent output
+cohort[["outputs"]][["Parent"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Parent"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "PT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Parent"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cpblood",   
+         variance       = "slope_parent*PRED^2")
+
+# Plot formatting
+cohort[["outputs"]][["Parent"]][["options"]] = list(
+         marker_color   = "black",
+         marker_shape   = 1,
+         marker_line    = 1 )
+
+# Defining Metabolite output
+cohort[["outputs"]][["Metabolite"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Metabolite"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "MT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Metabolite"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cmblood",   
+         variance       = "slope_metabolite*PRED^2")
+
+# Plot formatting
+cohort[["outputs"]][["Metabolite"]][["options"]] = list(
+         marker_color   = "blue",
+         marker_shape   = 1,
+         marker_line    = 1 )
+
 cfg = system_define_cohort(cfg, cohort)
 ```
 

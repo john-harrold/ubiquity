@@ -9,8 +9,8 @@ if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
   source(file.path('library', 'r_general', 'ubiquity.R'))
 } else { 
   library(ubiquity) }
-  
-analysis_name = 'parent_metabolite';
+
+analysis_name = 'parent_metabolite_global';
 # flowctl = 'previous estimate as guess';
 # flowctl = 'plot guess';
 # flowctl = 'plot previous estimate';
@@ -33,7 +33,9 @@ cfg = build_system(output_directory     = file.path(".", "output"),
 # The following will estimate a subset of the parameters:
 pnames = c('Vp',
            'Vt',
+           'Vm',
            'CLp',
+           'CLm',
            'Q',
            'slope_parent',
            'slope_metabolite');
@@ -51,22 +53,18 @@ cfg=system_set_option(cfg, group  = "simulation",
 cfg = system_load_data(cfg, dsname     = "pm_data", 
                             data_file  = "pm_data.csv")
 
+# Global optimization with the particle swarm optimizer:
 #
-# particle swarm
-#
- 
-  library("pso")
- 
-  cfg = system_set_option(cfg, group  = "estimation",
-                               option = "optimizer", 
-                               value  = "pso")
-  
-  cfg = system_set_option(cfg, group  = "estimation",
-                               option = "method",
-                               value  = "psoptim")
-  
+library("pso")
 
-#
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "optimizer", 
+                             value  = "pso")
+
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "method",
+                             value  = "psoptim")
+
 # genetic algorithm 
 #
 # library(GA)
@@ -84,7 +82,6 @@ cfg = system_load_data(cfg, dsname     = "pm_data",
 #                              value  = list(maxiter   = 10000, 
 #                                            optimArgs = list(method  = "Nelder-Mead",
 #                                                             maxiter = 1000)))
-
 
 # Defining the cohorts
 #
@@ -109,63 +106,126 @@ cfg = system_clear_cohorts(cfg);
 # Only specify bolus and infusion inputs that are non-zero. Simply ignore
 # those that don't exist for the given cohort. Covariates should be specified
 # to overwrite the default covariate values
-cohort = c()
-cohort$name                                      = 'dose_10'
-cohort$cf$DOSE                                   = c(10)
-cohort$dataset                                   = 'pm_data'
-                                                 
-cohort$inputs$bolus$Mpb$TIME                     = c(0)  # hours 
-cohort$inputs$bolus$Mpb$AMT                      = c(10) # mpk 
 
-cohort$outputs$parent$obs$time                   = 'TIME' 
-cohort$outputs$parent$obs$value                  = 'PT'    
-cohort$outputs$parent$obs$missing                = -1;
-cohort$outputs$parent$model$time                 = 'hours'        
-cohort$outputs$parent$model$value                = 'Cpblood'
-cohort$outputs$parent$model$variance             = 'slope_parent*PRED^2'
-cohort$outputs$parent$options$marker_color       = 'black'
-cohort$outputs$parent$options$marker_shape       = 1
-cohort$outputs$parent$options$marker_line        = 1 
+#----------------------------------------------------------
+# 30 mpk cohort
+cohort = list(
+  name         = "dose_10",
+  cf           = list(DOSE      = c(10)),
+  inputs       = NULL,
+  outputs      = NULL,
+  dataset      = "pm_data")
 
-cohort$outputs$Metabolite$obs$time               = 'TIME' 
-cohort$outputs$Metabolite$obs$value              = 'MT'    
-cohort$outputs$Metabolite$obs$missing            = -1;
-cohort$outputs$Metabolite$model$time             = 'hours'        
-cohort$outputs$Metabolite$model$value            = 'Cmblood'
-cohort$outputs$Metabolite$model$variance         = 'slope_metabolite*PRED^2'
-cohort$outputs$Metabolite$options$marker_color   = 'blue'
-cohort$outputs$Metabolite$options$marker_shape   = 1
-cohort$outputs$Metabolite$options$marker_line    = 1 
+
+# Bolus inputs for the cohort
+cohort[["inputs"]][["bolus"]] = list()
+cohort[["inputs"]][["bolus"]][["Mpb"]] = list(TIME=NULL, AMT=NULL)
+cohort[["inputs"]][["bolus"]][["Mpb"]][["TIME"]] = c( 0) # hours 
+cohort[["inputs"]][["bolus"]][["Mpb"]][["AMT"]]  = c(10) # mpk 
+
+
+# Defining Parent output
+cohort[["outputs"]][["Parent"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Parent"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "PT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Parent"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cpblood",   
+         variance       = "slope_parent*PRED^2")
+
+# Plot formatting
+cohort[["outputs"]][["Parent"]][["options"]] = list(
+         marker_color   = "black",
+         marker_shape   = 1,
+         marker_line    = 1 )
+
+# Defining Metabolite output
+cohort[["outputs"]][["Metabolite"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Metabolite"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "MT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Metabolite"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cmblood",   
+         variance       = "slope_metabolite*PRED^2")
+
+# Plot formatting
+cohort[["outputs"]][["Metabolite"]][["options"]] = list(
+         marker_color   = "blue",
+         marker_shape   = 1,
+         marker_line    = 1 )
+
 cfg = system_define_cohort(cfg, cohort)
 #----------------------------------------------------------
+# 30 mpk cohort
+cohort = list(
+  name         = "dose_30",
+  cf           = list(DOSE      = c(30)),
+  inputs       = NULL,
+  outputs      = NULL,
+  dataset      = "pm_data")
 
-cohort = c()
-cohort$name                                      = 'dose_30'
-cohort$cf$DOSE                                   = c(30)
-cohort$dataset                                   = 'pm_data'
-                                                 
-cohort$inputs$bolus$Mpb$TIME                     = c(0)  # hours 
-cohort$inputs$bolus$Mpb$AMT                      = c(30) # mpk 
 
-cohort$outputs$parent$obs$time                   = 'TIME' 
-cohort$outputs$parent$obs$value                  = 'PT'    
-cohort$outputs$parent$obs$missing                = -1;
-cohort$outputs$parent$model$time                 = 'hours'        
-cohort$outputs$parent$model$value                = 'Cpblood'
-cohort$outputs$parent$model$variance             = 'slope_parent*PRED^2'
-cohort$outputs$parent$options$marker_color       = 'green'
-cohort$outputs$parent$options$marker_shape       = 1
-cohort$outputs$parent$options$marker_line        = 1 
+# Bolus inputs for the cohort
+cohort[["inputs"]][["bolus"]] = list()
+cohort[["inputs"]][["bolus"]][["Mpb"]] = list(TIME=NULL, AMT=NULL)
+cohort[["inputs"]][["bolus"]][["Mpb"]][["TIME"]] = c( 0) # hours 
+cohort[["inputs"]][["bolus"]][["Mpb"]][["AMT"]]  = c(30) # mpk 
 
-cohort$outputs$Metabolite$obs$time               = 'TIME' 
-cohort$outputs$Metabolite$obs$value              = 'MT'    
-cohort$outputs$Metabolite$obs$missing            = -1;
-cohort$outputs$Metabolite$model$time             = 'hours'        
-cohort$outputs$Metabolite$model$value            = 'Cmblood'
-cohort$outputs$Metabolite$model$variance         = 'slope_metabolite*PRED^2'
-cohort$outputs$Metabolite$options$marker_color   = 'red'
-cohort$outputs$Metabolite$options$marker_shape   = 1
-cohort$outputs$Metabolite$options$marker_line    = 1 
+
+# Defining Parent output
+cohort[["outputs"]][["Parent"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Parent"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "PT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Parent"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cpblood",   
+         variance       = "slope_parent*PRED^2")
+
+# Plot formatting
+cohort[["outputs"]][["Parent"]][["options"]] = list(
+         marker_color   = "green",
+         marker_shape   = 1,
+         marker_line    = 1 )
+
+# Defining Metabolite output
+cohort[["outputs"]][["Metabolite"]] = list()
+
+# Mapping to data set
+cohort[["outputs"]][["Metabolite"]][["obs"]] = list(
+         time           = "TIME",
+         value          = "MT",
+         missing        = -1)
+
+# Mapping to system file
+cohort[["outputs"]][["Metabolite"]][["model"]] = list(
+         time           = "hours",       
+         value          = "Cmblood",   
+         variance       = "slope_metabolite*PRED^2")
+
+# Plot formatting
+cohort[["outputs"]][["Metabolite"]][["options"]] = list(
+         marker_color   = "red",
+         marker_shape   = 1,
+         marker_line    = 1 )
+
 cfg = system_define_cohort(cfg, cohort)
 
 #----------------------------------------------------------
@@ -174,6 +234,7 @@ pest = system_estimate_parameters(cfg,
                                   flowctl         = flowctl, 
                                   analysis_name   = analysis_name, 
                                   archive_results = archive_results)
+
 
 # Simulating the system at the estimates
 erp = system_simulate_estimation_results(pest = pest, cfg = cfg) 
@@ -185,18 +246,24 @@ plot_opts$outputs$Metabolite$ylabel   = 'Metabolite'
 plot_opts$outputs$Metabolite$ylim     = c(1, 100)
 plot_opts$outputs$Metabolite$xlabel   = 'Time (hours)'
 
-plot_opts$outputs$parent$yscale        = 'log'
-plot_opts$outputs$parent$ylabel        = 'Parent'
-plot_opts$outputs$parent$xlabel        = 'Time (hours)'
+plot_opts$outputs$Parent$yscale        = 'log'
+plot_opts$outputs$Parent$ylabel        = 'Parent'
+plot_opts$outputs$Parent$xlabel        = 'Time (hours)'
 
 
 # Plotting the simulated results at the estimates 
 # These figures will be placed in output/
 system_plot_cohorts(erp, plot_opts, cfg, analysis_name=analysis_name)
-
+#-------------------------------------------------------
 # Writing the results to a PowerPoint report
-# cfg = system_report_init(cfg)
-# cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
-# cfg = system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.pptx", sep="")))
+cfg = system_report_init(cfg, rpttype="PowerPoint")
+cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
+system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.pptx", sep="")))
+#-------------------------------------------------------
+# Writing the results to a Word report
+cfg = system_report_init(cfg, rpttype="Word")
+cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
+system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.docx", sep="")))
+#-------------------------------------------------------
 
 

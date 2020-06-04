@@ -39,7 +39,6 @@ Copy a blank template (\code{system_file="template"}) file to the working direct
   \item \code{"pwc"} - Example showing how to make if/then or piece-wise continuous variables  
   \item \code{"tmdd"} - Model of antibody with target-mediated drug disposition
   \item \code{"tumor"} - Transit tumor growth model taken from Lobo 2002 [LB] 
-  \item \code{"empty"} - Minimal system file used to perform other analyses (e.g, NCA)
 }
 }
 \details{

@@ -21,22 +21,26 @@ Define a cohort to include in a parameter estimation
 Each cohort has a name (eg \code{d5mpk}), and the dataset containing the
 information for this cohort is identified (the name defined in \code{\link{system_load_data}})
 
-\preformatted{cohort  = c()
-cohort$name    = "d5mpk"
-cohort$dataset = "pmdata"}
+\preformatted{cohort = list(
+  name         = "d5mpk",
+  dataset      = "pm_data",
+  inputs       = NULL,
+  outputs      = NULL)}
 
-Next it is necessary to define a filter (\code{cf} field) that can be
+Next if only a portion of the dataset applies to the current cohort, you
+can define a filter (\code{cf} field). This will be 
 applied to the dataset to only return values relevant to this cohort. For
 example, if we only want records where the column \code{DOSE} is 5 (for the 5
-mpk cohort). We can 
-\preformatted{cohort$cf$DOSE = c(5)}
+mpk cohort). We can use the following: 
+
+\preformatted{cohort[["cf"]]   = list(DOSE   = c(5))}
 
 If the dataset has the headings \code{ID}, \code{DOSE} and \code{SEX}  and
 cohort filter had the following format:
-\preformatted{cohort$cf$ID   = c(1:4)
 
-cohort$cf$DOSE = c(5,10)
-cohort$cf$SEX  = c(1)}
+\preformatted{cohort[["cf"]]   = list(ID    = c(1:4),
+                        DOSE  = c(5,10),
+                        SEX   = c(1))}
 
 It would be translated into the boolean filter:
 
@@ -48,19 +52,21 @@ For example if you had the body weight defined as a system parameter
 (\code{BW}), and you wanted to fix the body weight to 70 for the current
 cohort you would do the following:
 
-\preformatted{cohort$cp$BW = 70}
+\preformatted{cohort[["cp"]]   = list(BW        = c(70))}
 
 Note that you can only fix parameters that are not being estimated.
 
 Next we define the dosing for this cohort. It is only necessary to define
 those inputs that are non-zero. So if the data here were generated from
-animals given a single 5 mpk IV at time 0. If in the model this was defined
-using \code{<B:times>} and \code{<B:events>} dosing into the central
-compartment \code{Cp}, you would pass this information to the cohort in the
+animals given a single 5 mpk IV at time 0. Bolus dosing is defined 
+using \code{<B:times>} and \code{<B:events>}. If \code{Cp} is the central
+compartment, you would pass this information to the cohort in the
 following manner:
 
-\preformatted{cohort$inputs$bolus$Cp$AMT   = c(5)
-cohort$inputs$bolus$Cp$TIME  = c(0)}
+\preformatted{cohort[["inputs"]][["bolus"]] = list()
+cohort[["inputs"]][["bolus"]][["Cp"]] = list(TIME=NULL, AMT=NULL)
+cohort[["inputs"]][["bolus"]][["Cp"]][["TIME"]] = c( 0) 
+cohort[["inputs"]][["bolus"]][["Cp"]][["AMT"]]  = c( 5)}
  
 Inputs can also include any infusion rates (\code{infusion_rates}) or
 covariates (\code{covariates}). Covariates will have the default value
@@ -68,32 +74,69 @@ specified in the system file unless overwritten here. The units here are
 the same as those in the system file
  
 Next we need to map the outputs in the model to the observation data in the
-dataset. Under \code{cohort.outputs} there is a field for each output. Here the field \code{ONAME}
-can be replaced with something more useful (like \code{PK}). The times and
-observations in the dataset are found in the \code{’TIMECOL’} column and the \code{’OBSCOL’} column
-(optional missing data option specified by -1). These are mapped to the model outputs (which
-MUST have the same units) ’TS’ and ’MODOUTPUT'. The variance model
-\code{'VARMOD'} is a string containing the variance model written in terms
-of the model prediction (\code{PRED}), variance parameters (defined with
-\code{<VP>} in the system file), and numbers. To do a least squares
+dataset. Under the \code{outputs} field there is a field for each output. Here 
+the field \code{ONAME} can be replaced with something more useful (like 
+\code{PK}). 
 
-\preformatted{cohort$outputs$ONAME$obs$time        = ’TIMECOL’      
-cohort$outputs$ONAME$obs$value       = ’OBSCOL’       
-cohort$outputs$ONAME$obs$missing     = -1         
-cohort$outputs$ONAME$model$time      = ’TS'       
-cohort$outputs$ONAME$model$value     = ’MODOUTPUT’  
-cohort$outputs$ONAME$model$variance  = ’VARMOD'}
+\preformatted{cohort[["outputs"]][["ONAME"]] = list()}
+
+If you want to further filter the dataset. Say for example you
+have two outputs and the \code{cf} applied above reduces your dataset
+down to both outputs. Here you can use the  "of" field to apply an "output filter"
+to further filter the records down to those that apply to the current output ONAME. 
+\preformatted{cohort[["outputs"]][["ONAME"]][["of"]] = list(
+       COLNAME          = c(),
+       COLNAME          = c())}
+If you do not need further filtering of data, you can you can just omit the field.
+
+Next you need to identify the columns in the dataset that contain your
+times and observations. This is found in the \code{obs} field for the 
+current observation:
+\preformatted{cohort[["outputs"]][["ONAME"]][["obs"]] = list(
+         time           = "TIMECOL",
+         value          = "OBSCOL",
+         missing        = -1)}
+
+The times and observations in the dataset are found in the \code{’TIMECOL’} column 
+and the \code{’OBSCOL’} column (optional missing data option specified by -1). 
+
+These observations in the dataset need to be mapped to the appropriate
+elements of your model defined in the system file. This is done with the
+\code{model} field:
+
+\preformatted{cohort[["outputs"]][["ONAME"]][["model"]] = list(
+         time           = "TS",       
+         value          = "MODOUTPUT",
+         variance       = "PRED^2")}
+
+First the system time scale indicated by the \code{TS} placeholder above
+must be specfied. The time scale must correspond to the data found in
+\code{TIMECOL} above.  Next the model output indicated by the \code{MODOUTPUT}
+placeholder needs to be specified. This is defined in the system file using
+\code{<O>} and should correspond to \code{OBSCOL} from the dataset. Lastly the
+\code{variance} field specifies the variance model. You can use the keyword
+\code{PRED} (the model predicted output) and any variance parameters. Some
+examples include:
+
+\itemize{
+  \item \code{variance = "1"} - Least squares
+  \item \code{variance = "PRED^2"} -  Weighted least squares proportional to the prediction squared
+  \item \code{variance = "(SLOPE*PRED)^2"}  Maximum likelihood estimation where \code{SLOPE} is defined as a variance parameter (\code{<VP>})
+}
+
+The following controls the plotting aspects associated with this output. The
+color, shape and line values are the values used by ggplot functions. 
+
+\preformatted{cohort[["outputs"]][["ONAME"]][["options"]] = list(
+        marker_color   = "black",
+        marker_shape   = 16,
+        marker_line    = 1 )}
+
+If the cohort has multiple outputs, simply repeat the process above for the. 
+additional cohorts. The estimation vignettes contains examples of this. 
 
 \bold{Note: Output names should be consistent between cohorts so they will be grouped together when plotting results.}
-
-Optionally we can add information about the markers to use when plotting
-the output for this cohort:
-\preformatted{cohort$outputs$ONAME$options$marker_color   = 'black'
-cohort$outputs$ONAME$options$marker_shape   = 16
-cohort$outputs$ONAME$options$marker_line    = 1 }
-
-Lastly we define the cohort:
 }
 \seealso{
-Estimation vignette (\code{vignette("Estimation", package = "ubiquity")}) and \code{\link{system_select_set}}
+Estimation vignette (\code{vignette("Estimation", package = "ubiquity")})
 }
