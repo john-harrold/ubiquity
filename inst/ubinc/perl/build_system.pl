@@ -1327,6 +1327,7 @@ if((@{$cfg->{covariates_index}})){
 
 
     foreach $set (keys(%{$cfg->{covariates}->{$cname}->{parameter_sets}})) {
+      $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["parameter_sets"]][["'.$set.'"]] = list(times=NULL, values=NULL)'."\n";
       $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["parameter_sets"]][["'.$set.'"]][["times"]]  = '."c(".join(', ', &extract_elements($cfg->{covariates}->{$cname}->{parameter_sets}->{$set}->{times})).")\n"; 
       $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["parameter_sets"]][["'.$set.'"]][["values"]] = '."c(".join(', ', &extract_elements($cfg->{covariates}->{$cname}->{parameter_sets}->{$set}->{values})).")\n"; 
     }

@@ -6376,7 +6376,7 @@ if(!is.null(plot_opts$purpose)){
 #def$dim$op$width = 10
 #def$dim$op$height= 8
 
-for(output in levels(erp$pred$OUTPUT)){
+for(output in unique(erp$pred$OUTPUT)){
 
   if(is.null(plot_opts$outputs[[output]]$yscale)){
    plot_opts$outputs[[output]]$yscale = def$yscale }

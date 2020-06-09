@@ -336,16 +336,16 @@ system_prepare_inputs = function(SIMINT_cfg, SIMINT_p, SIMINT_force_times){
 # System parameters
 <SYSTEM_PARAM>
 
-for(SIMINT_cov_name in names(SIMINT_cfg$options$inputs$covariates)){
+for(SIMINT_cov_name in names(SIMINT_cfg[["options"]][["inputs"]][["covariates"]])){
 # Looping through each covariate and creating a variable in the current
 # function with the covariate name 
 
   # plucking out the covariate
-  SIMINT_my_cov = SIMINT_cfg$options$inputs$covariates[[SIMINT_cov_name]]
+  SIMINT_my_cov = SIMINT_cfg[["options"]][["inputs"]][["covariates"]][[SIMINT_cov_name]]
 
   # This is an initialization function, and these should only use covariates
   # that are constant (like gender or race), so we just use the first value
-  SIMINT_cov_value = SIMINT_cfg$options$inputs$covariates[[SIMINT_cov_name]]$values$values[1]
+  SIMINT_cov_value = SIMINT_cfg[["options"]][["inputs"]][["covariates"]][[SIMINT_cov_name]][["values"]][["values"]][1]
   
   # creating the named value for the covariate
   # at the current time
@@ -358,7 +358,7 @@ for(SIMINT_cov_name in names(SIMINT_cfg$options$inputs$covariates)){
 
 # Making sure the SIMINT_force_times has some value
 if(is.null(SIMINT_force_times)){
-  SIMINT_force_times = SIMINT_cfg$options$simulation_options$output_times[1]
+  SIMINT_force_times = SIMINT_cfg[["options"]][["simulation_options"]][["output_times"]][1]
 }
 
 # If the first compartment has dosing defined then we add the zeros to the
@@ -366,7 +366,7 @@ if(is.null(SIMINT_force_times)){
 # If the first compartment does not have bolus defined then we created
 # the data structure and add doses of 0 to at the force_times 
 
-if(is.null(SIMINT_cfg$options$inputs$bolus)){ 
+if(is.null(SIMINT_cfg[["options"]][["inputs"]][["bolus"]])){ 
   # if there is no bolus information specified we add a dummy bolus of zero
   # into the first compartment at the first sample time
   SIMINT_var    = rep(x=names(cfg[["options"]][["mi"]][["states"]])[1], times=length(SIMINT_force_times))
@@ -384,13 +384,13 @@ else{
 
   # turning the time scale from a string
   # into a numeric value:
-  SIMINT_time_scale = eval(parse(text=SIMINT_cfg$options$inputs$bolus$times$scale))
-  for(SIMINT_name in names(SIMINT_cfg$options$inputs$bolus$species)){
-    SIMINT_dose_scale = eval(parse(text=SIMINT_cfg$options$inputs$bolus$species[[SIMINT_name]]$scale))
-    SIMINT_var    = c(SIMINT_var,     rep(SIMINT_name,length(SIMINT_cfg$options$inputs$bolus$times$values)))
-    SIMINT_method = c(SIMINT_method,  rep('add',length(SIMINT_cfg$options$inputs$bolus$times$values)))
-    SIMINT_time   = c(SIMINT_time,             SIMINT_cfg$options$inputs$bolus$times$values*SIMINT_time_scale)
-    SIMINT_value  = c(SIMINT_value,            SIMINT_cfg$options$inputs$bolus$species[[SIMINT_name]]$values*SIMINT_dose_scale)
+  SIMINT_time_scale = eval(parse(text=SIMINT_cfg[["options"]][["inputs"]][["bolus"]][["times"]][["scale"]]))
+  for(SIMINT_name in names(SIMINT_cfg[["options"]][["inputs"]][["bolus"]][["species"]])){
+    SIMINT_dose_scale = eval(parse(text=SIMINT_cfg[["options"]][["inputs"]][["bolus"]][["species"]][[SIMINT_name]][["scale"]]))
+    SIMINT_var    = c(SIMINT_var,     rep(SIMINT_name,length(SIMINT_cfg[["options"]][["inputs"]][["bolus"]][["times"]][["values"]])))
+    SIMINT_method = c(SIMINT_method,  rep('add',length(SIMINT_cfg[["options"]][["inputs"]][["bolus"]][["times"]][["values"]])))
+    SIMINT_time   = c(SIMINT_time,             SIMINT_cfg[["options"]][["inputs"]][["bolus"]][["times"]][["values"]]*SIMINT_time_scale)
+    SIMINT_value  = c(SIMINT_value,            SIMINT_cfg[["options"]][["inputs"]][["bolus"]][["species"]][[SIMINT_name]][["values"]]*SIMINT_dose_scale)
   }
   # pulling out the times in force_times that were not in the bolus_times
   # Then we add in empty boluses there to force them to update
@@ -437,16 +437,16 @@ system_IC = function(SIMINT_cfg, SIMINT_p){
 <SYSTEM_PARAM>
 
 
-for(SIMINT_cov_name in names(SIMINT_cfg$options$inputs$covariates)){
+for(SIMINT_cov_name in names(SIMINT_cfg[["options"]][["inputs"]][["covariates"]])){
 # Looping through each covariate and creating a variable in the current
 # function with the covariate name 
 
   # plucking out the covariate
-  SIMINT_my_cov = SIMINT_cfg$options$inputs$covariates[[SIMINT_cov_name]]
+  SIMINT_my_cov = SIMINT_cfg[["options"]][["inputs"]][["covariates"]][[SIMINT_cov_name]]
 
   # This is an initialization function, and these should only use covariates
   # that are constant (like gender or race), so we just use the first value
-  SIMINT_cov_value = SIMINT_cfg$options$inputs$covariates[[SIMINT_cov_name]]$values$values[1]
+  SIMINT_cov_value = SIMINT_cfg[["options"]][["inputs"]][["covariates"]][[SIMINT_cov_name]][["values"]][["values"]][1]
   
   # creating the named value for the covariate
   # at the current time
@@ -466,12 +466,15 @@ for(SIMINT_cov_name in names(SIMINT_cfg$options$inputs$covariates)){
 # If If there isnt well default to zero, if there
 # is an entry we will evaluate that assignment:
 for (SIMINT_sname in names(SIMINT_cfg[["options"]][["mi"]][["states"]])){
-  if(is.null(SIMINT_cfg$options$initial_conditions[[SIMINT_sname]])){
+
+  SIMINT_sname %in% names(SIMINT_cfg[["options"]][["initial_conditions"]])
+
+  if(!(SIMINT_sname %in% names(SIMINT_cfg[["options"]][["initial_conditions"]]))){
     # Here there is no initial condition specified for this state
     SIMINT_tmp_assignment = sprintf('SIMINT_%s_IC = 0.0', SIMINT_sname) }
   else{
     # Here the initial condition has been specified
-    SIMINT_tmp_assignment = sprintf('SIMINT_%s_IC = %s', SIMINT_sname, SIMINT_cfg$options$initial_conditions[[SIMINT_sname]]) }
+    SIMINT_tmp_assignment = sprintf('SIMINT_%s_IC = %s', SIMINT_sname, SIMINT_cfg[["options"]][["initial_conditions"]][[SIMINT_sname]]) }
   eval(parse(text=SIMINT_tmp_assignment))
 }
 
@@ -534,13 +537,13 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
   SIMINT_scales = list()
 
   # Bolus scales
-  if(!is.null(SIMINT_cfg$options$inputs$bolus$times$scale)){
-    eval(parse(text=paste(sprintf(" SIMINT_scales$bolus =  %s", SIMINT_cfg$options$inputs$bolus$times$scale))))
+  if(!is.null(SIMINT_cfg[["options"]][["inputs"]][["bolus"]][["times"]][["scale"]])){
+    eval(parse(text=paste(sprintf(' SIMINT_scales[["bolus"]] =  %s', SIMINT_cfg[["options"]][["inputs"]][["bolus"]][["times"]][["scale"]]))))
   }
 
   # Infusion rate scales
-  for(SIMINT_rname in names(SIMINT_cfg$options$inputs$infusion_rates)){
-    SIMINT_scales$infusion_rates[[SIMINT_rname]] = eval(parse(text=paste(sprintf("%s", SIMINT_cfg$options$inputs$infusion_rates[[SIMINT_rname]]$times$scale))))
+  for(SIMINT_rname in names(SIMINT_cfg[["options"]][["inputs"]][["infusion_rates"]])){
+    SIMINT_scales[["infusion_rates"]][[SIMINT_rname]] = eval(parse(text=paste(sprintf("%s", SIMINT_cfg[["options"]][["inputs"]][["infusion_rates"]][[SIMINT_rname]][["times"]][["scale"]]))))
   }
   
   #
@@ -549,11 +552,11 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
   #
   SIMINT_thist_blank = list()
   SIMINT_ttimes = c()
-  for(SIMINT_tname in names(SIMINT_cfg$titration$rules)){
-    SIMINT_ttimes = c(SIMINT_ttimes, SIMINT_cfg$titration$rules[[SIMINT_tname]]$simtimes)
+  for(SIMINT_tname in names(SIMINT_cfg[["titration"]]$rules)){
+    SIMINT_ttimes = c(SIMINT_ttimes, SIMINT_cfg[["titration"]]$rules[[SIMINT_tname]]$simtimes)
     SIMINT_thist_blank[[SIMINT_tname]]$value     = -1
     SIMINT_thist_blank[[SIMINT_tname]]$simtime   = -1
-    SIMINT_thist_blank[[SIMINT_tname]]$timescale = -1
+    SIMINT_thist_blank[[SIMINT_tname]][["timescale"]] = -1
   }
 
   #
@@ -566,7 +569,7 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
   SIMINT_ttimes = sort(unique(SIMINT_ttimes))
 
   # Trimming off titration times that are beyond the simulation output times
-  SIMINT_ttimes = SIMINT_ttimes[  SIMINT_ttimes < max(SIMINT_cfg$options$simulation_options$output_times)]
+  SIMINT_ttimes = SIMINT_ttimes[  SIMINT_ttimes < max(SIMINT_cfg[["options"]][["simulation_options"]][["output_times"]])]
 
   # now we have all of the titration times, next we calculate the initial
   # conditions to start the first simulation
@@ -586,8 +589,8 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
     # model
     #
     SIMINT_tt_ts = list()
-    for(SIMINT_tsname in names(SIMINT_cfg$options$time_scales)){
-      SIMINT_tt_ts[[SIMINT_tsname]] = SIMINT_cfg$options$time_scales[[SIMINT_tsname]]*SIMINT_ttime
+    for(SIMINT_tsname in names(SIMINT_cfg[["options"]][["time_scales"]])){
+      SIMINT_tt_ts[[SIMINT_tsname]] = SIMINT_cfg[["options"]][["time_scales"]][[SIMINT_tsname]]*SIMINT_ttime
     }
 
     # copying the cfg variable to use within the titration loop
@@ -610,24 +613,24 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
     
     for(SIMINT_rule_type in SIMINT_rule_types){
       # Looping through all of the rules
-      for(SIMINT_tname in names(SIMINT_cfgtt$titration$rules)){
+      for(SIMINT_tname in names(SIMINT_cfgtt[["titration"]]$rules)){
         # if any of the rules are active at the current titration time
         # then we process those rules
-        SIMINT_tcond = SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$simtimes  == SIMINT_ttime
+        SIMINT_tcond = SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]]$simtimes  == SIMINT_ttime
         if(any(SIMINT_tcond)){
       
           # Collecting the information for the current titration rule being
           # triggered
           SIMINT_ti_times = list()
-          SIMINT_ti_times$simtime    = SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$simtimes[SIMINT_tcond]
-          SIMINT_ti_times$tstime     = SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$times[SIMINT_tcond]
-          SIMINT_ti_times$timescale  = SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$timescale
+          SIMINT_ti_times$simtime    = SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]]$simtimes[SIMINT_tcond]
+          SIMINT_ti_times$tstime     = SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]][["times"]][SIMINT_tcond]
+          SIMINT_ti_times[["timescale"]]  = SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]][["timescale"]]
       
           # now looping through each condition for the current rule to see if
           # there is a match
-          for(SIMINT_tcond_name in names(SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$conditions)){
+          for(SIMINT_tcond_name in names(SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]]$conditions)){
             #Evaluating the boolean expression
-            SIMINT_tcond_bool = eval(parse(text=paste(SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$cond)))
+            SIMINT_tcond_bool = eval(parse(text=paste(SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$cond)))
 
             if(SIMINT_tcond_bool){
                # if the Boolean expression is true then we
@@ -636,24 +639,24 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
                # reassignment string is in the initial action. 
                
                if((SIMINT_rule_type == "state" &
-                   grepl('SI_TT_STATE[', SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$action, fixed=TRUE)) |
+                   grepl('SI_TT_STATE[', SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$action, fixed=TRUE)) |
                   (SIMINT_rule_type == "other" &
-                   !grepl('SI_TT_STATE[', SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$action, fixed=TRUE))){
+                   !grepl('SI_TT_STATE[', SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$action, fixed=TRUE))){
 
                  # Executing the action
-                 eval(parse(text=paste(SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$action_parsed)))
+                 eval(parse(text=paste(SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$action_parsed)))
                 
                  # Next we store the titration history
-                 SIMINT_thist[[SIMINT_tname]]$value     = eval(parse(text=paste(SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$value_parsed)))
+                 SIMINT_thist[[SIMINT_tname]]$value     = eval(parse(text=paste(SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$value_parsed)))
                  SIMINT_thist[[SIMINT_tname]]$simtime   = SIMINT_ti_times$simtime 
-                 SIMINT_thist[[SIMINT_tname]]$timescale = SIMINT_ti_times$tstime  
+                 SIMINT_thist[[SIMINT_tname]][["timescale"]] = SIMINT_ti_times$tstime  
                 
                  #
                  # Collecting information for _all_ of the history
                  #
                  if(is.null(SIMINT_history)){
                    SIMINT_history = data.frame(tname     = SIMINT_tname,
-                                               value     = SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$value,
+                                               value     = SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$value,
                                                simtime   = SIMINT_ti_times$simtime,
                                                timescale = SIMINT_ti_times$tstime, stringsAsFactors=FALSE)
                     
@@ -662,7 +665,7 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
                    SIMINT_history  = 
                        rbind(SIMINT_history, 
                              c(SIMINT_tname,                                                                       
-                               SIMINT_cfgtt$titration$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$value, 
+                               SIMINT_cfgtt[["titration"]]$rules[[SIMINT_tname]]$conditions[[SIMINT_tcond_name]]$value, 
                                SIMINT_ti_times$simtime,                                                            
                                SIMINT_ti_times$tstime))
                  
@@ -688,18 +691,18 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
   # If we're before the last titration time we keep everything between that
   # time and the current time
   if(SIMINT_ttidx < length(SIMINT_ttimes)){
-    SIMINT_ottr_keep_idx = (SIMINT_cfg$options$simulation_options$output_times >= SIMINT_ttimes[SIMINT_ttidx])    &
-                           (SIMINT_cfg$options$simulation_options$output_times <= SIMINT_ttimes[SIMINT_ttidx + 1])
+    SIMINT_ottr_keep_idx = (SIMINT_cfg[["options"]][["simulation_options"]][["output_times"]] >= SIMINT_ttimes[SIMINT_ttidx])    &
+                           (SIMINT_cfg[["options"]][["simulation_options"]][["output_times"]] <= SIMINT_ttimes[SIMINT_ttidx + 1])
 
     } 
   else {
-    SIMINT_ottr_keep_idx = (SIMINT_cfg$options$simulation_options$output_times >= SIMINT_ttimes[SIMINT_ttidx]) 
+    SIMINT_ottr_keep_idx = (SIMINT_cfg[["options"]][["simulation_options"]][["output_times"]] >= SIMINT_ttimes[SIMINT_ttidx]) 
     }
 
 
 
   # Output times vector subset of the current titration times
-  SIMINT_ottr = SIMINT_cfg$options$simulation_options$output_times[SIMINT_ottr_keep_idx]
+  SIMINT_ottr = SIMINT_cfg[["options"]][["simulation_options"]][["output_times"]][SIMINT_ottr_keep_idx]
 
   # Adding a point just before the last point so that when we add the results
   # together before we will sample smoothly across titration points
@@ -727,12 +730,12 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
   # pulling out the number of observations
   SIMINT_nobs = length(SIMINT_somtt$simout$time)
 
-  SIMINT_somtt$titration = data.frame(matrix(, nrow=SIMINT_nobs, ncol=0))
+  SIMINT_somtt[["titration"]] = data.frame(matrix(, nrow=SIMINT_nobs, ncol=0))
   for(SIMINT_tname in names(SIMINT_thist)){
     # Appending the value, simtime, and timescale to the som output
-    SIMINT_somtt$titration[[sprintf('tt.%s.value',    SIMINT_tname)]] = rep(times=SIMINT_nobs,  SIMINT_thist[[SIMINT_tname]]$value)
-    SIMINT_somtt$titration[[sprintf('tt.%s.simtime',  SIMINT_tname)]] = rep(times=SIMINT_nobs,  SIMINT_thist[[SIMINT_tname]]$simtime)
-    SIMINT_somtt$titration[[sprintf('tt.%s.timescale',SIMINT_tname)]] = rep(times=SIMINT_nobs,  SIMINT_thist[[SIMINT_tname]]$timescale)
+    SIMINT_somtt[["titration"]][[sprintf('tt.%s.value',    SIMINT_tname)]] = rep(times=SIMINT_nobs,  SIMINT_thist[[SIMINT_tname]]$value)
+    SIMINT_somtt[["titration"]][[sprintf('tt.%s.simtime',  SIMINT_tname)]] = rep(times=SIMINT_nobs,  SIMINT_thist[[SIMINT_tname]]$simtime)
+    SIMINT_somtt[["titration"]][[sprintf('tt.%s.timescale',SIMINT_tname)]] = rep(times=SIMINT_nobs,  SIMINT_thist[[SIMINT_tname]][["timescale"]])
     }
 
 
@@ -747,7 +750,7 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
   # Stripping the last observation off of som
   if(SIMINT_ttidx < length(SIMINT_ttimes)){
     SIMINT_somtt$simout    = SIMINT_somtt$simout[1:(SIMINT_nobs - 1),]
-    SIMINT_somtt$titration = SIMINT_somtt$titration[1:(SIMINT_nobs - 1),]
+    SIMINT_somtt[["titration"]] = SIMINT_somtt[["titration"]][1:(SIMINT_nobs - 1),]
     }
   
   #Appending the simulation results to the master set of results
@@ -755,12 +758,12 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
     SIMINT_som = SIMINT_somtt }
   else{
      SIMINT_som$simout    = rbind(SIMINT_som$simout,    SIMINT_somtt$simout)
-     SIMINT_som$titration = rbind(SIMINT_som$titration, SIMINT_somtt$titration)
+     SIMINT_som[["titration"]] = rbind(SIMINT_som[["titration"]], SIMINT_somtt[["titration"]])
     }
 
   }
 
-  SIMINT_som$titration_history = SIMINT_history
+  SIMINT_som[["titration_history"]] = SIMINT_history
 
 # pulls out the last row of simout
 # som$simout[length(som$simout[,1]),]
@@ -774,43 +777,45 @@ system_DYDT = function(SIMINT_TIME,SIMINT_x,SIMINT_cfg){
 # Evalutates the derivatives of the ODEs at time SIMINT_TIME
 #
 
-SIMINT_p = SIMINT_cfg$parameters$values
+SIMINT_p = SIMINT_cfg$parameters[["values"]]
 
 # System parameters
 <SYSTEM_PARAM>
 
-for(SIMINT_rate_name in names(SIMINT_cfg$options$inputs$infusion_rates)){
+for(SIMINT_rate_name in names(SIMINT_cfg[["options"]][["inputs"]][["infusion_rates"]])){
 # Looping through each infusion rate and creating a variable in the current
 # function with the rate at the value for the current time
 
 
   # plucking out the rate name
-  SIMINT_my_rate = SIMINT_cfg$options$inputs$infusion_rates[[SIMINT_rate_name]]
+  SIMINT_my_rate = SIMINT_cfg[["options"]][["inputs"]][["infusion_rates"]][[SIMINT_rate_name]]
 
   # scaling the times
-  eval(parse(text=sprintf('SIMINT_my_rate$times$values = SIMINT_my_rate$times$values*%s',SIMINT_my_rate$times$scale)))
+  eval(parse(text=sprintf('SIMINT_my_rate$times[["values"]] = SIMINT_my_rate[["times"]][["values"]]*%s',SIMINT_my_rate[["times"]][["scale"]])))
 
   # getting the covariate value at the given time
-  SIMINT_rate_value = system_evaluate_input(SIMINT_my_rate$times$values,
-                                            SIMINT_my_rate$levels$values,
+  SIMINT_rate_value =
+  system_evaluate_input(SIMINT_my_rate[["times"]][["values"]],
+                                            SIMINT_my_rate$levels[["values"]],
                                             SIMINT_TIME, 
                                             'step')
   
   # creating the named value for the covariate
   # at the current time
-  eval(parse(text=paste(sprintf("%s = SIMINT_rate_value*%s",SIMINT_rate_name, SIMINT_my_rate$levels$scale))))
+  eval(parse(text=paste(sprintf("%s = SIMINT_rate_value*%s",SIMINT_rate_name, SIMINT_my_rate$levels[["scale"]]))))
 }
 
-for(SIMINT_cov_name in names(SIMINT_cfg$options$inputs$covariates)){
+for(SIMINT_cov_name in names(SIMINT_cfg[["options"]][["inputs"]][["covariates"]])){
 # Looping through each covariate and creating a variable in the current
 # function with the covariate name at the value for the current time
 
   # plucking out the covariate
-  SIMINT_my_cov = SIMINT_cfg$options$inputs$covariates[[SIMINT_cov_name]]
+  SIMINT_my_cov = SIMINT_cfg[["options"]][["inputs"]][["covariates"]][[SIMINT_cov_name]]
 
   # getting the covariate value at the given time
-  SIMINT_cov_value = system_evaluate_input(SIMINT_my_cov$times$values,
-                                           SIMINT_my_cov$values$values,
+  SIMINT_cov_value =
+  system_evaluate_input(SIMINT_my_cov[["times"]][["values"]],
+                                           SIMINT_my_cov[["values"]][["values"]],
                                            SIMINT_TIME, 
                                            SIMINT_my_cov$cv_type)
                                         
@@ -861,16 +866,16 @@ colnames(SIMINT_simoutmat) =   eval(parse(text= sprintf("c('time', '%s')", paste
 
 
 
-for(SIMINT_cov_name in names(SIMINT_cfg$options$inputs$covariates)){
+for(SIMINT_cov_name in names(SIMINT_cfg[["options"]][["inputs"]][["covariates"]])){
 # Looping through each covariate and creating a variable in the current
 # function with the covariate name (evaluated at the first instance)
 
   # plucking out the covariate
-  SIMINT_my_cov = SIMINT_cfg$options$inputs$covariates[[SIMINT_cov_name]]
+  SIMINT_my_cov = SIMINT_cfg[["options"]][["inputs"]][["covariates"]][[SIMINT_cov_name]]
 
   # This is an initialization step, and these should only use covariates
   # that are constant (like gender or race), so we just use the first value
-  SIMINT_cov_value = SIMINT_cfg$options$inputs$covariates[[SIMINT_cov_name]]$values$values[1]
+  SIMINT_cov_value = SIMINT_cfg[["options"]][["inputs"]][["covariates"]][[SIMINT_cov_name]][["values"]][["values"]][1]
   
   # creating the named value for the covariate
   # at the current time
@@ -898,38 +903,38 @@ for (SIMINT_tidx in seq(1,length(SIMINT_tts))){
   }
 
 
-  for(SIMINT_rate_name in names(SIMINT_cfg$options$inputs$infusion_rates)){
+  for(SIMINT_rate_name in names(SIMINT_cfg[["options"]][["inputs"]][["infusion_rates"]])){
   # Looping through each infusion rate and creating a variable in the current
   # function with the rate at the value for the current time
   
   
     # plucking out the rate name
-    SIMINT_my_rate = SIMINT_cfg$options$inputs$infusion_rates[[SIMINT_rate_name]]
+    SIMINT_my_rate = SIMINT_cfg[["options"]][["inputs"]][["infusion_rates"]][[SIMINT_rate_name]]
   
     # scaling the times
-    eval(parse(text=sprintf('SIMINT_my_rate$times$values = SIMINT_my_rate$times$values*%s',SIMINT_my_rate$times$scale)))
+    eval(parse(text=sprintf('SIMINT_my_rate[["times"]][["values"]] = SIMINT_my_rate[["times"]][["values"]]*%s',SIMINT_my_rate[["times"]][["scale"]])))
   
     # getting the covariate value at the given time
-    SIMINT_rate_value = system_evaluate_input(SIMINT_my_rate$times$values,
-                                              SIMINT_my_rate$levels$values,
+    SIMINT_rate_value = system_evaluate_input(SIMINT_my_rate[["times"]][["values"]],
+                                              SIMINT_my_rate$levels[["values"]],
                                               SIMINT_TIME, 
                                               'step')
     
     # creating the named value for the covariate
     # at the current time
-    eval(parse(text=paste(sprintf("%s = SIMINT_rate_value*%s",SIMINT_rate_name, SIMINT_my_rate$levels$scale))))
+    eval(parse(text=paste(sprintf("%s = SIMINT_rate_value*%s",SIMINT_rate_name, SIMINT_my_rate$levels[["scale"]]))))
   }
   
-  for(SIMINT_cov_name in names(SIMINT_cfg$options$inputs$covariates)){
+  for(SIMINT_cov_name in names(SIMINT_cfg[["options"]][["inputs"]][["covariates"]])){
   # Looping through each covariate and creating a variable in the current
   # function with the covariate name at the value for the current time
   
     # plucking out the covariate
-    SIMINT_my_cov = SIMINT_cfg$options$inputs$covariates[[SIMINT_cov_name]]
+    SIMINT_my_cov = SIMINT_cfg[["options"]][["inputs"]][["covariates"]][[SIMINT_cov_name]]
   
     # getting the covariate value at the given time
-    SIMINT_cov_value = system_evaluate_input(SIMINT_my_cov$times$values,
-                                             SIMINT_my_cov$values$values,
+    SIMINT_cov_value = system_evaluate_input(SIMINT_my_cov[["times"]][["values"]],
+                                             SIMINT_my_cov[["values"]][["values"]],
                                              SIMINT_TIME, 
                                              SIMINT_my_cov$cv_type)
                                           
