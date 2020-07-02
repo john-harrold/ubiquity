@@ -3,8 +3,13 @@ graphics.off()
 options(show.error.locations = TRUE)
 options(error=utils::recover)
 
-library(ubiquity)
 
+# This script is designed to the sections of the workshop. It will copy each
+# section into a sub directory and then run the files. It just runs them to
+# see if they will run to completion. It will only work with the package
+# distribution
+
+library(ubiquity)
 
 
 # Workshop sections
@@ -18,7 +23,8 @@ ws$Estimation$scripts = c("analysis_parent.r",
                           "analysis_parent_metabolite_global.r",
                           "analysis_parent_metabolite_nm_data.r")
 
-ws$Reporting$scripts  = c("make_report.R")
+ws$Reporting$scripts  = c("make_report_PowerPoint.R",
+                          "make_report_Word.R")
 
 ws$Titration$scripts  = c("analysis_repeat_dosing.r",
                           "analysis_repeat_infusion.r",
@@ -32,7 +38,7 @@ totest = names(ws)
 
 #totest = "Reporting"
 
-#totest = "Simulation"
+totest = "Simulation"
 
 
 # First we clear out any testing directories already present
@@ -57,11 +63,7 @@ for(sec in totest){
   cat(sprintf("# \n"))
   cat(sprintf("# \n"))
   cat(sprintf("# \n"))
-  cat(sprintf("# \n"))
-  cat(sprintf("# \n"))
   cat(sprintf("# Testing Section: %s \n", sec))
-  cat(sprintf("# \n"))
-  cat(sprintf("# \n"))
   cat(sprintf("# \n"))
   cat(sprintf("# \n"))
   cat(sprintf("# \n"))

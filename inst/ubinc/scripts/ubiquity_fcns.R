@@ -258,7 +258,8 @@ return(cfg)}
 #' example files for different sections of the workshop.
 #'
 #'@param section Name of the section of workshop to retrieve  ("Simulation")
-#'@param overwrite if \code{TRUE} the new system file will overwrite any existing files present
+#'@param overwrite if \code{TRUE} the new workshop files will overwrite any existing files present (\code{FALSE})
+#'@param copy_files if \code{TRUE} the files will be written to the output_directory, if \code{FALSE} only the names and locations of the files will be returned (\code{TRUE})
 #'@param output_directory directory where workshop files will be placed (getwd())
 #'@details Valid sections are "Simulation", "Estimation", "Titration" "Reporting", and "NCA"
 #'
@@ -269,19 +270,26 @@ return(cfg)}
 #'}
 workshop_fetch <- function(section          = "Simulation", 
                            overwrite        = FALSE,
+                           copy_files       = TRUE,
                            output_directory = getwd()){
   res = list()
   allowed = c("Simulation", "Estimation", "Titration", "Reporting", "Testing", "NCA")
 
   isgood = TRUE
   # This function only works if we're using the package
-  if(!(system.file(package="ubiquity") == "")){
-
+  if(!(system.file(package="ubiquity") == "") |
+       dir.exists(file.path("examples", "R"))){
     if(section %in% allowed){
     
-      src_dir = system.file("ubinc", "scripts", package="ubiquity")
-      csv_dir = system.file("ubinc", "csv",     package="ubiquity")
-      sys_dir = system.file("ubinc", "systems", package="ubiquity")
+      if(!(system.file(package="ubiquity") == "") ){
+        src_dir = system.file("ubinc", "scripts", package="ubiquity")
+        csv_dir = system.file("ubinc", "csv",     package="ubiquity")
+        sys_dir = system.file("ubinc", "systems", package="ubiquity")
+      } else {
+        src_dir = file.path("examples", "R")
+        csv_dir = file.path("examples", "R")
+        sys_dir = file.path("examples")
+      }
 
       sources      = c()
       destinations = c()
@@ -370,8 +378,14 @@ workshop_fetch <- function(section          = "Simulation",
       # up an error.
       if(!overwrite){
         for(fidx in 1:length(destinations)){
-          if(file.exists(file.path(output_directory, destinations[fidx]))){
-            write_file[fidx] = FALSE 
+          if(copy_files){
+            if(file.exists(file.path(output_directory, destinations[fidx]))){
+              write_file[fidx] = FALSE 
+            }
+          } else {
+              # If we're not copying the files then we set
+              # the write_file flag to FALSE
+              write_file[fidx] = FALSE
           }
         }
       }
@@ -400,7 +414,7 @@ workshop_fetch <- function(section          = "Simulation",
   } else {
     isgood = FALSE
     message("#> workshop_fetch()")
-    message("#> This function only works with the ubiquity package distribution ")
+    message("#> Unable to find ubiquity package or stand alone distribution files")
   }
 
 

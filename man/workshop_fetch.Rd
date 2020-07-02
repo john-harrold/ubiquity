@@ -7,13 +7,16 @@
 workshop_fetch(
   section = "Simulation",
   overwrite = FALSE,
+  copy_files = TRUE,
   output_directory = getwd()
 )
 }
 \arguments{
 \item{section}{Name of the section of workshop to retrieve  ("Simulation")}
 
-\item{overwrite}{if \code{TRUE} the new system file will overwrite any existing files present}
+\item{overwrite}{if \code{TRUE} the new workshop files will overwrite any existing files present (\code{FALSE})}
+
+\item{copy_files}{if \code{TRUE} the files will be written to the output_directory, if \code{FALSE} only the names and locations of the files will be returned (\code{TRUE})}
 
 \item{output_directory}{directory where workshop files will be placed (getwd())}
 }
