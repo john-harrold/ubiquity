@@ -193,7 +193,7 @@ cfg = system_set_option(cfg,
 For the different methods and control options, see the documentation for the \code{optim}
 and \code{optimx} libraries.
 
-To perform a global optimization you can install either the particle swarm (\code{\link[pso]{pso}})
+To perform a global optimization you can install either the particle swarm (\code{pso})
 genetic algorithm (\code{GA}) libraries.
 To use the particle swarm set the \code{optimizer} and \code{method}:
  
