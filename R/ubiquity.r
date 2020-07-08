@@ -5,7 +5,6 @@
 #'@import gdata
 #'@import ggplot2
 #'@import knitr
-#'@import MASS
 #'@import officer
 #'@import optimx
 #'@import pso
@@ -14,6 +13,7 @@
 #'@import rstudioapi
 #'@import stringr
 #'@importFrom digest digest
+#'@importFrom dplyr  all_of select
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
@@ -1344,6 +1344,7 @@ return(cfg)}
 #'  \item\code{"nsub"} - Number of subjects (default \code{100})
 #'  \item\code{"seed"} - Seed for the random numebr generator (default \code{8675309})
 #'  \item\code{"ponly"} - Only generate the subject parameters but do not run the simulations (default \code{FALSE})
+#'  \item\code{"ssp"} - A list of the calculated static secondary parameters to include (default all parameters defined by \code{<As>})
 #'  \item\code{"outputs"} - A list of the predicted outputs to include (default all outputs defined by \code{<O>})
 #'  \item\code{"states"} - A list of the predicted states to include(default all states)
 #'  \item\code{"sub_file"} - Name of data set loaded with (\code{\link{system_load_data}}) containing subject level parameters and coviariates
@@ -1365,9 +1366,15 @@ return(cfg)}
 #' }
 #'
 #'
-#' If you wanted to exclude states and only include the output \code{Cp_nM}, you would do
-#' the following:
+#' If you wanted to exclude both states and secondary parameters, while only including 
+#' the output \code{Cp_nM}, you would do the following:
 #' \preformatted{
+#'
+#'cfg = system_set_option (cfg, 
+#'                         group  = "stochastic",
+#'                         option = "ssp",
+#'                         value  = list())
+#'
 #'cfg = system_set_option (cfg, 
 #'                         group  = "stochastic",
 #'                         option = "states",
@@ -1547,7 +1554,15 @@ system_set_option <- function(cfg, group, option, value){
         if((option == "states") | (option == "outputs")){
           for(val in value){
             if(!(val %in% names(cfg$options$mi[[option]]))){
-              errormsgs = c(errormsgs, val)
+              errormsgs = c(errormsgs, paste(option, " >", val, "< not found", sep=""))
+              isgood = FALSE
+            }
+          } 
+        }
+        if((option == "ssp")){
+          for(val in value){
+            if(!(val %in% names(cfg[["options"]][["ssp"]]))){
+              errormsgs = c(errormsgs, paste("static secondary parameter (ssp) >", val, "< not found", sep=""))
               isgood = FALSE
             }
           } 
@@ -1580,7 +1595,7 @@ system_set_option <- function(cfg, group, option, value){
         if(isgood){
           cfg$options$stochastic[[option]] = value
         }else{
-         errormsgs = c( errormsgs,  paste(" #-> The following option >", option, "< is not valid", sep=""))
+           errormsgs = c( errormsgs,  paste("The following option >", option, "< is not valid", sep=""))
         }
         
         
@@ -3076,7 +3091,14 @@ simulate_subjects = function (parameters, cfg, show_progress = TRUE, progress_me
 #   each subject (one per column) and each row corresponds to the sampling
 #   times in predictions$times
 
-p = list()
+
+# List to hold the outputs
+p = list(subjects = list(parameters           = NULL,
+                         secondary_parameters = NULL),
+         tcsummary = NULL,
+         states    = NULL,
+         outputs   = NULL,
+         times     = NULL)
 
 # defining the default values
 nsub              = 100
@@ -3094,6 +3116,7 @@ sub_file_ID_map   = data.frame(file_ID = c(),
 
 state_names  = names(cfg$options$mi$states)
 output_names = names(cfg$options$mi$outputs)
+ssp_names    = names(cfg$options$ssp)
 
 if("stochastic" %in% names(cfg$options)){
 # Parsing stochastic options
@@ -3120,9 +3143,15 @@ if("stochastic" %in% names(cfg$options)){
   if("ponly" %in% names(cfg$options$stochastic)){
     ponly = cfg$options$stochastic$ponly
   } 
+
   if("states" %in% names(cfg$options$stochastic)){
     state_names = cfg$options$stochastic$states
   } 
+
+  if("ssp" %in% names(cfg$options$stochastic)){
+    ssp_names = cfg$options$stochastic$ssp
+  } 
+
 
   if("outputs" %in% names(cfg$options$stochastic)){
     output_names = cfg$options$stochastic$outputs
@@ -3136,6 +3165,21 @@ if("stochastic" %in% names(cfg$options)){
       }
     }
   } 
+
+  # Defining the columns to keep from the simulation
+  ts_names     = names(cfg$options$time_scales) 
+  ts_names     = ts_names[ts_names != "time"] 
+  state_names  = unlist(state_names)
+  output_names = unlist(output_names)
+  ssp_names    = unlist(ssp_names)
+
+
+  col_keep = c("time",
+               state_names,
+               output_names,
+               ssp_names, 
+               paste("ts.", ts_names, sep=""))
+
 }
 
 
@@ -3443,8 +3487,11 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
           # storing the result of trycatch error
           som$error     = tcres$error
         
-       #  if(cfg$options$misc$operating_environment == 'gui'){
-       #    pb$inc(1/nsub, detail = sprintf('%d/%d (%d %%)', sub_idx, nsub, floor(100*sub_idx/nsub))) }
+          # if(cfg$options$misc$operating_environment == 'gui'){
+          #   pb$inc(1/nsub, detail = sprintf('%d/%d (%d %%)', sub_idx, nsub, floor(100*sub_idx/nsub))) }
+          # JMH
+          # Only keep the simout columns the user wants 
+          som$simout  = dplyr::select(som$simout , all_of(col_keep))
         
           som }
     
@@ -3533,6 +3580,10 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
             if(cfg$options$misc$operating_environment == 'gui'){
               pb$inc(1/nsub, detail = sprintf('%d/%d (%d %%)', sub_idx, nsub, floor(100*sub_idx/nsub))) }
           }
+
+          # JMH
+          # Only keep the simout columns the user wants 
+          som$simout  = dplyr::select(som$simout , all_of(col_keep))
         
           som }
       }
@@ -3540,7 +3591,7 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
     
       # Pulling out the lengths of different things
       ntimes = length(somall[[1]]$simout$time)
-      npsec  = length(names(cfg$options$ssp))
+      npsec  = length(ssp_names)
     
       # pulling out the first subject to use below:
       som    = somall[[1]]
@@ -3556,10 +3607,13 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
     
       # Initializing the secondary parameters
       # Creating the data frame
-      p$subjects$secondary_parameters  = as.data.frame(matrix(0, ncol = npsec, nrow=nsub))
-    
-      # putting the column names
-      colnames( p$subjects$secondary_parameters) = names(cfg$options$ssp)
+      p[["subjects"]][["secondary_parameters"]]  = NULL
+      if(npsec > 0){
+        p[["subjects"]][["secondary_parameters"]]  = as.data.frame(matrix(0, ncol = npsec, nrow=nsub))
+        
+        # putting the column names
+        colnames( p$subjects$secondary_parameters) = ssp_names
+      }
     
       # And storing the output times/timescales
       p$times    = som$simout["time"]
@@ -3583,7 +3637,9 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
                               reason = som$skip_reason))
         } else {
           # storing the secondary parameters
-          p$subjects$secondary_parameters[sub_idx,] = som$simout[1,names(cfg$options$ssp)]
+          if(npsec > 0){
+            p$subjects$secondary_parameters[sub_idx,] = som$simout[1,ssp_names]
+          }
          
           # Storing the states, outputs and titration information
           for(state_name   in state_names){

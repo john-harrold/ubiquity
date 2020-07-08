@@ -109,6 +109,7 @@ som = run_simulation_ubiquity(parameters, cfg)
 # cfg = system_set_option(cfg, group="stochastic", option="ci",      value=95 )
 # cfg = system_set_option(cfg, group="stochastic", option="seed",    value=8675309)
 # cfg = system_set_option(cfg, group="stochastic", option="ponly",   value=FALSE)
+# cfg = system_set_option(cfg, group="stochastic", option="ssp",     value=list())
 # cfg = system_set_option(cfg, group="stochastic", option="states",  value=list())
 # cfg = system_set_option(cfg, group="stochastic", option="outputs", value=c("OP1", "OP2"))
 #

@@ -98,6 +98,7 @@ parameters) it can be useful to specify the following:
  \item\code{"nsub"} - Number of subjects (default \code{100})
  \item\code{"seed"} - Seed for the random numebr generator (default \code{8675309})
  \item\code{"ponly"} - Only generate the subject parameters but do not run the simulations (default \code{FALSE})
+ \item\code{"ssp"} - A list of the calculated static secondary parameters to include (default all parameters defined by \code{<As>})
  \item\code{"outputs"} - A list of the predicted outputs to include (default all outputs defined by \code{<O>})
  \item\code{"states"} - A list of the predicted states to include(default all states)
  \item\code{"sub_file"} - Name of data set loaded with (\code{\link{system_load_data}}) containing subject level parameters and coviariates
@@ -119,9 +120,15 @@ cfg = system_set_option(cfg,
 }
 
 
-If you wanted to exclude states and only include the output \code{Cp_nM}, you would do
-the following:
+If you wanted to exclude both states and secondary parameters, while only including 
+the output \code{Cp_nM}, you would do the following:
 \preformatted{
+
+cfg = system_set_option (cfg, 
+                        group  = "stochastic",
+                        option = "ssp",
+                        value  = list())
+
 cfg = system_set_option (cfg, 
                         group  = "stochastic",
                         option = "states",
