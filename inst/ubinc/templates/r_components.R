@@ -369,7 +369,7 @@ if(is.null(SIMINT_force_times)){
 if(is.null(SIMINT_cfg[["options"]][["inputs"]][["bolus"]])){ 
   # if there is no bolus information specified we add a dummy bolus of zero
   # into the first compartment at the first sample time
-  SIMINT_var    = rep(x=names(cfg[["options"]][["mi"]][["states"]])[1], times=length(SIMINT_force_times))
+  SIMINT_var    = rep(x=names(SIMINT_cfg[["options"]][["mi"]][["states"]])[1], times=length(SIMINT_force_times))
   SIMINT_time   = SIMINT_force_times
   SIMINT_value  = rep(x=0,     times=length(SIMINT_force_times))
   SIMINT_method = rep(x='add', times=length(SIMINT_force_times))

@@ -3379,7 +3379,7 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
         pb$set(message = progress_message, value = 0)
       }
     
-      foreach_packages = c("deSolve")
+      foreach_packages = c("deSolve", "dplyr")
     
       if(cfg$options$misc$distribution == "package"){
         foreach_packages = c(foreach_packages, "ubiquity")
@@ -3489,9 +3489,10 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
         
           # if(cfg$options$misc$operating_environment == 'gui'){
           #   pb$inc(1/nsub, detail = sprintf('%d/%d (%d %%)', sub_idx, nsub, floor(100*sub_idx/nsub))) }
-          # JMH
           # Only keep the simout columns the user wants 
-          som$simout  = dplyr::select(som$simout , all_of(col_keep))
+          if(!is.null(som$simout)){
+            som$simout  = dplyr::select(som$simout , all_of(col_keep))
+          }
         
           som }
     
@@ -3581,14 +3582,15 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
               pb$inc(1/nsub, detail = sprintf('%d/%d (%d %%)', sub_idx, nsub, floor(100*sub_idx/nsub))) }
           }
 
-          # JMH
           # Only keep the simout columns the user wants 
-          som$simout  = dplyr::select(som$simout , all_of(col_keep))
+          if(!is.null(som$simout)){
+            som$simout  = dplyr::select(som$simout , all_of(col_keep))
+          }
         
           som }
       }
-    
-    
+
+
       # Pulling out the lengths of different things
       ntimes = length(somall[[1]]$simout$time)
       npsec  = length(ssp_names)
@@ -3612,7 +3614,7 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
         p[["subjects"]][["secondary_parameters"]]  = as.data.frame(matrix(0, ncol = npsec, nrow=nsub))
         
         # putting the column names
-        colnames( p$subjects$secondary_parameters) = ssp_names
+        colnames( p[["subjects"]][["secondary_parameters"]]) = ssp_names
       }
     
       # And storing the output times/timescales
@@ -3801,6 +3803,7 @@ return(tc)
 }
 
 
+#'@export
 #'@title Extracts Covariates for a Subject from a Subject Data File
 #'@keywords internal
 #'@description 
