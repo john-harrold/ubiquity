@@ -430,8 +430,8 @@ return(res)}
 #' \itemize{
 #'   \item \code{"template"} - Empty system file template
 #'   \item \code{"adapt"} - Parent/metabolite model taken from the adapt manual used in estimation examples [ADAPT]
-#'   \item \code{"two_cmt_macro"} - Two compartment model parameterized in terms of clearances (macro constants)
-#'   \item \code{"one_cmt_macro"} - One compartment model parameterized in terms of clearances (macro constants)
+#'   \item \code{"two_cmt_cl"} - Two compartment model parameterized in terms of clearances 
+#'   \item \code{"one_cmt_cl"} - One compartment model parameterized in terms of clearances 
 #'   \item \code{"two_cmt_micro"} - Two compartment model parameterized in terms of rates (micro constants)
 #'   \item \code{"one_cmt_micro"} - One compartment model parameterized in terms of rates (micro constants)
 #'   \item \code{"mab_pk"} - General compartmental model of mAb PK from Davda 2014 [DG]
@@ -533,9 +533,9 @@ system_new_list  <- function(){
             tmdd          = list(file_path = NULL, description="Full TMDD model with examples of how to code the same system as both ODEs and processes"),          
             adapt         = list(file_path = NULL, description="Parent metabolite model taken from the Adapt user manual"),          
             one_cmt_micro = list(file_path = NULL, description="One compartment model with micro-constants"), 
-            one_cmt_macro = list(file_path = NULL, description="One compartment model with macro-constants"),  
+            one_cmt_cl    = list(file_path = NULL, description="One compartment model with clearances"),  
             two_cmt_micro = list(file_path = NULL, description="Two compartment model with micro-constants"), 
-            two_cmt_macro = list(file_path = NULL, description="Two compartment model with macro-constants"))  
+            two_cmt_cl    = list(file_path = NULL, description="Two compartment model with clearances"))  
 
   for(system_file in names(sfs)){
 

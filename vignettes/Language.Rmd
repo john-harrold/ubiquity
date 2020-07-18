@@ -715,7 +715,7 @@ These example system files can be found in the examples directory of the stand-a
 * ``system-adapt.txt`` - Parent/metabolite structural model taken from the ADAPT5 Users Manual [ADAPT]. This sytem is used in the estmation examples of the ubiquity workshop.
 * ``system-glp_study.txt`` - PK model paramterized for humans and NHPs, used as an example for GLP tox study design.
 * ``system-mab_pk.txt`` - Linear model of mAb PK for humans taken from [DM]. This model is used in the simulation examples of the ubiquity workshop.
-* ``system-one_cmt_macro.txt``  - One compartment model parameterizedf or macro constants (clearances and volumes).
+* ``system-one_cmt_cl.txt``  - One compartment model parameterized in terms of clearances and volumes.
 * ``system-one_cmt_micro.txt`` - One compartment model parameterizedf or micro constants (rates).
 * ``system-pbpk.txt`` - Implementation of large molecule PBPK model by Shah and Betts [SB]. This model provides good examples of how to use mathematical set notation.
 * ``system-pbpk_template.txt`` - Template containing the species parameter from [SB]. This can be used to construct systems parameterized for multiple species. 
@@ -723,8 +723,8 @@ These example system files can be found in the examples directory of the stand-a
 * ``system-sets.txt`` - Example of how to parameterize systems with multiple parameter sets.
 * ``system-tmdd.txt`` - Example of how to code a TMDD model using either ODEs or process descriptors. 
 * ``system-tumor.txt`` - Implementation of transit effect model in cancer cell inhibition from [LB]. This demonstrates how to use aligned mathematical sets. 
-* ``system-two_cmt_macro.txt`` - Two compartment model parameterizedf or macro constants (clearances and volumes)
-* ``system-two_cmt_micro.txt`` - Two compartment model parameterizedf or micro constants (rates)
+* ``system-two_cmt_cl.txt`` - Two compartment model parameterized in terms of clearances and volumes
+* ``system-two_cmt_micro.txt`` - Two compartment model parameterized in terms of micro constants (rates)
 
 ## References
 

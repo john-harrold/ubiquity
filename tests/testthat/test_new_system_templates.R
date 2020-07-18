@@ -7,11 +7,19 @@ test_that("System examples", {
   expect_true(md5sum("system_template.txt") == md5sum(system.file("ubinc", "templates", "system_template.txt", package="ubiquity")))
 
   examples = c("mab_pk", "pbpk", "pwc", "tmdd", "adapt", 
-               "two_cmt_macro", "two_cmt_micro", "one_cmt_macro", "one_cmt_micro"  )
+               "two_cmt_cl", "two_cmt_micro", "one_cmt_cl", "one_cmt_micro"  )
 
-  for(example in examples){
-    expect_true(system_new(system_file=example, file_name="system_test.txt", overwrite=TRUE), info=sprintf("system = %s", example))
-    expect_true(md5sum("system_test.txt") == md5sum(system.file("ubinc", "systems", sprintf("system-%s.txt", example), package="ubiquity")))
+  # This gets the names of all the example system files:
+  sfs     = system_new_list()
+  
+  for(sf_ex in names(sfs)){
+    # Making sure we can create the files:
+    expect_true(system_new(system_file       = sf_ex,   
+                           file_name         = "system_test.txt", 
+                           output_directory  = tempdir(),
+                           overwrite         = TRUE), info=sprintf("system = %s", sf_ex))
+    # Comparing checksums:
+    expect_true(md5sum(file.path(tempdir(), "system_test.txt")) == md5sum(sfs[[sf_ex]]$file_path))
   }
 })
 
@@ -25,17 +33,23 @@ test_that("Template files", {
   tgen = matrix(data = tgen, ncol=2, byrow=TRUE)
 
   # creating a system file
-  system_new(system_file="mab_pk", file_name="system.txt", overwrite=TRUE)
-
+  fr = system_new(file_name        = "system.txt", 
+                  system_file      = "mab_pk", 
+                  overwrite        = TRUE, 
+                  output_directory = tempdir())
   # building the system file
-  cfg = build_system()
-
+  cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
+                     output_directory          = file.path(tempdir(), "output"),
+                     temporary_directory       = tempdir())
 
   for(template in unique(tgen[,1])){
-    expect_true(system_fetch_template(cfg, template = template, overwrite=TRUE)$isgood, info=sprintf("template = %s", template))
+    expect_true(system_fetch_template(cfg, 
+                                      output_directory = tempdir(),
+                                      template         = template, 
+                                      overwrite        =TRUE)$isgood, info=sprintf("template = %s", template))
     fnames = tgen[tgen[,1] == template, 2]
     for(fname in fnames){
-      expect_true(file.exists(fname), info=sprintf("%s --> %s", template, fname))
+      expect_true(file.exists(file.path(tempdir(),fname)), info=sprintf("%s --> %s", template, fname))
     }
   }
 })

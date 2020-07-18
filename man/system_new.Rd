@@ -29,8 +29,8 @@ Copy a blank template (\code{system_file="template"}) file to the working direct
 \itemize{
   \item \code{"template"} - Empty system file template
   \item \code{"adapt"} - Parent/metabolite model taken from the adapt manual used in estimation examples [ADAPT]
-  \item \code{"two_cmt_macro"} - Two compartment model parameterized in terms of clearances (macro constants)
-  \item \code{"one_cmt_macro"} - One compartment model parameterized in terms of clearances (macro constants)
+  \item \code{"two_cmt_cl"} - Two compartment model parameterized in terms of clearances 
+  \item \code{"one_cmt_cl"} - One compartment model parameterized in terms of clearances 
   \item \code{"two_cmt_micro"} - Two compartment model parameterized in terms of rates (micro constants)
   \item \code{"one_cmt_micro"} - One compartment model parameterized in terms of rates (micro constants)
   \item \code{"mab_pk"} - General compartmental model of mAb PK from Davda 2014 [DG]
