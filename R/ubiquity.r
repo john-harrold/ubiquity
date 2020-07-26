@@ -11546,7 +11546,7 @@ system_nca_run = function(cfg,
   isgood = TRUE
 
   # Pulling the output directory from the ubiquity object
-  output_directory = cfg$options$misc$output_directory 
+  output_directory = cfg[["options"]][["misc"]][["output_directory"]]
 
   system_req("PKNCA")
 
@@ -11560,8 +11560,8 @@ system_nca_run = function(cfg,
   }
 
 
-  if(dsname %in% names(cfg$data)){
-    DS = cfg$data[[dsname]]$values
+  if(dsname %in% names(cfg[["data"]])){
+    DS = cfg[["data"]][[dsname]][["values"]]
     # If a filter has been specified then we apply it to the dataset
     if(!is.null(dsfilter)){
       # First we make sure the column names exist
@@ -11590,38 +11590,40 @@ system_nca_run = function(cfg,
   }
 
   # Creating the subsetting column
-  if(is.null(dsmap$DOSENUM)){
-    DS$SI_DOSENUM = 1
+  if(is.null(dsmap[["DOSENUM"]])){
+    DS[["SI_DOSENUM"]] = 1
   } else {
-    if(dsmap$DOSENUM %in% names(DS)){
-      DS$SI_DOSENUM =  DS[[dsmap$DOSENUM]]
+    if(dsmap[["DOSENUM"]] %in% names(DS)){
+      DS[["SI_DOSENUM"]] =  DS[[dsmap[["DOSENUM"]]]]
     } else {
       isgood = FALSE
-      vp(cfg, paste("Error: DOSENUM column >", dsmap$DOSENUM, "< was not found in the provided dataset", sep=""))
+      vp(cfg, paste("Error: DOSENUM column >", dsmap[["DOSENUM"]], "< was not found in the provided dataset", sep=""))
     }
 
   }
 
+
+
   # Adding columns to account for normal vs sparse analysis
   if(sparse){
-    if(is.null(dsmap$SPARSEGROUP)){
+    if(is.null(dsmap[["SPARSEGROUP"]])){
       isgood = FALSE
       vp(cfg, paste("Error: The sparse option is set to >TRUE< but no grouping column was specified in the dsmap.", sep=""))
     } else {
       # Initializing the internal ID and concentration columns
-      DS$SI_ID   = -1
-      DS$SI_CONC = -1
+      DS[["SI_ID"]]   = -1
+      DS[["SI_CONC"]] = -1
 
       # Now populating those internal ID and concentration columns
       SI_ID = 1
-      for(SPARSEGROUP in unique(DS[[dsmap$SPARSEGROUP]])){
+      for(SPARSEGROUP in unique(DS[[dsmap[["SPARSEGROUP"]]]])){
         # Storing the ID for the sparse group
-        DS[DS[[dsmap$SPARSEGROUP]] == SPARSEGROUP, ]$SI_ID = SI_ID
+        DS[DS[[dsmap[["SPARSEGROUP"]]]] == SPARSEGROUP, ][["SI_ID"]] = SI_ID
 
         # Averaging the concentrations for this group at each time point.
-        for(TIME_AVE in unique( DS[DS[[dsmap$SPARSEGROUP]] == SPARSEGROUP, ][[dsmap$TIME]])){
-          DS[DS[[dsmap$SPARSEGROUP]] == SPARSEGROUP &DS[[dsmap$TIME]]== TIME_AVE, ]$SI_CONC = 
-                  mean(DS[DS[[dsmap$SPARSEGROUP]] == SPARSEGROUP & DS[[dsmap$TIME]]== TIME_AVE, ][[dsmap$CONC]])
+        for(TIME_AVE in unique( DS[DS[[dsmap[["SPARSEGROUP"]]]] == SPARSEGROUP, ][[dsmap[["TIME"]]]])){
+          DS[DS[[dsmap[["SPARSEGROUP"]]]] == SPARSEGROUP &DS[[dsmap[["TIME"]]]]== TIME_AVE, ][["SI_CONC"]] = 
+                  mean(DS[DS[[dsmap[["SPARSEGROUP"]]]] == SPARSEGROUP & DS[[dsmap[["TIME"]]]]== TIME_AVE, ][[dsmap[["CONC"]]]])
         }
         SI_ID = SI_ID + 1
       }
@@ -11629,25 +11631,25 @@ system_nca_run = function(cfg,
   } else {
     # For a normal subject by subject analysis these 
     # columns remain the same:
-    DS$SI_ID   = DS[[dsmap$ID]]
-    DS$SI_CONC = DS[[dsmap$CONC]]
+    DS[["SI_ID"]]   = DS[[dsmap[["ID"]]]]
+    DS[["SI_CONC"]] = DS[[dsmap[["CONC"]]]]
   }
 
   # Checking extrapolation information
-  if(!is.null(dsmap$BACKEXTRAP)){
-    if(dsmap$BACKEXTRAP %in% names(DS)){
-      if(is.integer(DS[[dsmap$BACKEXTRAP]])){
-        if(max(DS[[dsmap$BACKEXTRAP]]) > NCA_min){
+  if(!is.null(dsmap[["BACKEXTRAP"]])){
+    if(dsmap[["BACKEXTRAP"]] %in% names(DS)){
+      if(is.integer(DS[[dsmap[["BACKEXTRAP"]]]])){
+        if(max(DS[[dsmap[["BACKEXTRAP"]]]]) > NCA_min){
           isgood = FALSE
-          vp(cfg, paste("Error: Values in BACKEXTRAP column >", dsmap$BACKEXTRAP, "< should be <= NCA_min >", NCA_min, "<", sep=""))
+          vp(cfg, paste("Error: Values in BACKEXTRAP column >", dsmap[["BACKEXTRAP"]], "< should be <= NCA_min >", NCA_min, "<", sep=""))
         } 
       } else {
         isgood = FALSE
-        vp(cfg, paste("Error: BACKEXTRAP column >", dsmap$BACKEXTRAP, "< should contain only integers", sep=""))
+        vp(cfg, paste("Error: BACKEXTRAP column >", dsmap[["BACKEXTRAP"]], "< should contain only integers", sep=""))
       }
     } else {
       isgood = FALSE
-      vp(cfg, paste("Error: BACKEXTRAP column >", dsmap$BACKEXTRAP, "< was not found in the provided dataset", sep=""))
+      vp(cfg, paste("Error: BACKEXTRAP column >", dsmap[["BACKEXTRAP"]], "< was not found in the provided dataset", sep=""))
     }
   }
 
@@ -11670,7 +11672,7 @@ system_nca_run = function(cfg,
 
   if(isgood){
     # checking the concentrations to make sure they are all greater than zero
-    if(any(DS[[dsmap$CONC]] <=0)){
+    if(any(DS[[dsmap[["CONC"]]]] <=0)){
       vp(cfg, paste("Error: After filtering the data set some of the"))
       vp(cfg, paste("       concentration values are less than or equal to zero"))
       isgood=FALSE
@@ -11680,7 +11682,7 @@ system_nca_run = function(cfg,
     ROUTES_GOOD = c("iv infusion", "extra-vascular", "iv bolus")
 
     # Route in the dataset:
-    ROUTES_DS   =  unique(DS$ROUTE)
+    ROUTES_DS   =  unique(DS[["ROUTE"]])
 
     # If there are routes that are not in ROUTES_GOOD we throw an error:
     if(length(setdiff(ROUTES_DS, ROUTES_GOOD)) > 0){
@@ -11693,8 +11695,9 @@ system_nca_run = function(cfg,
 
   # calculating the dose in the same mass units as concentration
   if(isgood){
-    DS$SI_DOSE = DS[, dsmap$DOSE]*dscale
+    DS[["SI_DOSE"]] = DS[[dsmap[["DOSE"]]]]*dscale
   }
+
 
   # checking the data set columns to include in the summary output 
   if(!is.null(dsinc)){
@@ -11718,7 +11721,7 @@ system_nca_run = function(cfg,
   # individuals
   if(isgood){
     # Sorting the dataset first by the subject (ID) and then by the time (TIME)
-    eval(parse(text=paste("DS = DS[with(DS, order(SI_ID, ", dsmap$ID, ",", dsmap$TIME,")),]", sep="")))
+    eval(parse(text=paste("DS = DS[with(DS, order(SI_ID, ", dsmap[["ID"]], ",", dsmap[["TIME"]],")),]", sep="")))
 
     # Setting text based on the analysis type
     if(sparse){
@@ -11728,47 +11731,47 @@ system_nca_run = function(cfg,
     }
 
     # Storing these strings to be used in reporting:
-    cfg$nca[[analysis_name]]$text$ID_label = ID_label
+    cfg[["nca"]][[analysis_name]]$text$ID_label = ID_label
 
     # Storing all of the analysis inputs to be available when reporting
-    cfg$nca[[analysis_name]]$ana_opts$dsname          =  dsname              
-    cfg$nca[[analysis_name]]$ana_opts$dscale          =  dscale             
-    cfg$nca[[analysis_name]]$ana_opts$NCA_min         =  NCA_min            
-    cfg$nca[[analysis_name]]$ana_opts$analysis_name   =  analysis_name      
-    cfg$nca[[analysis_name]]$ana_opts$dsfilter        =  dsfilter           
-    cfg$nca[[analysis_name]]$ana_opts$extrap_C0       =  extrap_C0          
-    cfg$nca[[analysis_name]]$ana_opts$extrap_N        =  extrap_N           
-    cfg$nca[[analysis_name]]$ana_opts$sparse          =  sparse             
-    cfg$nca[[analysis_name]]$ana_opts$dsmap           =  dsmap              
-    cfg$nca[[analysis_name]]$ana_opts$digits          =  digits             
-    cfg$nca[[analysis_name]]$ana_opts$dsinc           =  dsinc              
+    cfg[["nca"]][[analysis_name]][["ana_opts"]]$dsname          =  dsname              
+    cfg[["nca"]][[analysis_name]][["ana_opts"]]$dscale          =  dscale             
+    cfg[["nca"]][[analysis_name]][["ana_opts"]]$NCA_min         =  NCA_min            
+    cfg[["nca"]][[analysis_name]][["ana_opts"]]$analysis_name   =  analysis_name      
+    cfg[["nca"]][[analysis_name]][["ana_opts"]]$dsfilter        =  dsfilter           
+    cfg[["nca"]][[analysis_name]][["ana_opts"]]$extrap_C0       =  extrap_C0          
+    cfg[["nca"]][[analysis_name]][["ana_opts"]]$extrap_N        =  extrap_N           
+    cfg[["nca"]][[analysis_name]][["ana_opts"]]$sparse          =  sparse             
+    cfg[["nca"]][[analysis_name]][["ana_opts"]]$dsmap           =  dsmap              
+    cfg[["nca"]][[analysis_name]][["ana_opts"]]$digits          =  digits             
+    cfg[["nca"]][[analysis_name]][["ana_opts"]]$dsinc           =  dsinc              
 
     # Looping through each subject ID
-    subs  = unique(DS$SI_ID)
+    subs  = unique(DS[["SI_ID"]])
 
     # Getting the uppoer and lower bounds on the whole dataset
-    ylim_min = min(DS[[dsmap$CONC]])
-    ylim_max = max(DS[[dsmap$CONC]])
+    ylim_min = min(DS[[dsmap[["CONC"]]]])
+    ylim_max = max(DS[[dsmap[["CONC"]]]])
     for(sub in subs){
       # This is the entire dataset for the subject
-      SUBDS = DS[DS$SI_ID == sub,]
+      SUBDS = DS[DS[["SI_ID"]] == sub,]
       sub_str = paste("sub_", sub, sep="")
 
 
       # Figure with full time course for the subject/group
       ptmp = ggplot()
       if(sparse){
-        eval(parse(text=paste("ptmp = ptmp + geom_point(data=SUBDS, aes(x=",dsmap$TIME,", y=", dsmap$CONC,"),  shape=16, color='grey' )", sep="")))
+        eval(parse(text=paste("ptmp = ptmp + geom_point(data=SUBDS, aes(x=",dsmap[["TIME"]],", y=", dsmap[["CONC"]],"),  shape=16, color='grey' )", sep="")))
       } else {
-        eval(parse(text=paste("ptmp = ptmp +  geom_line(data=SUBDS, aes(x=",dsmap$TIME,", y=", dsmap$CONC,", group=",dsmap$ID, ")           , color='grey' )", sep="")))
-        eval(parse(text=paste("ptmp = ptmp + geom_point(data=SUBDS, aes(x=",dsmap$TIME,", y=", dsmap$CONC,"),  shape=16, color='grey' )", sep="")))
+        eval(parse(text=paste("ptmp = ptmp +  geom_line(data=SUBDS, aes(x=",dsmap[["TIME"]],", y=", dsmap[["CONC"]],",   group=",dsmap[["ID"]], ")           , color='grey' )", sep="")))
+        eval(parse(text=paste("ptmp = ptmp + geom_point(data=SUBDS, aes(x=",dsmap[["TIME"]],", y=", dsmap[["CONC"]],"),  shape=16, color='grey' )", sep="")))
       }
 
       ptmp = prepare_figure(fo=ptmp, purpose="present")
       ptmp = gg_log10_yaxis(fo=ptmp) #, ylim_max=ylim_max, ylim_min=ylim_min)
 
       # Next we process each of the doses   
-      dosenum_all = unique(SUBDS$SI_DOSENUM)
+      dosenum_all = unique(SUBDS[["SI_DOSENUM"]])
       #
       # JMH adding sparse stuff here:
       #
@@ -11777,7 +11780,7 @@ system_nca_run = function(cfg,
         dosenum_str = paste("dose_", dosenum, sep="")
 
         # This contains all of the rows for the current dose number
-        TMP_SS_DN  = SUBDS[SUBDS$SI_DOSENUM == dosenum, ]
+        TMP_SS_DN  = SUBDS[SUBDS[["SI_DOSENUM"]] == dosenum, ]
 
 
         # If this is a sparse sampling analysis we remove redundant time
@@ -11786,11 +11789,11 @@ system_nca_run = function(cfg,
         if(sparse){
           SUBDS_DN = NULL
           # For each unique time we pull of the first row
-          for(TIME in sort(unique(TMP_SS_DN[[dsmap$TIME]]))){
+          for(TIME in sort(unique(TMP_SS_DN[[dsmap[["TIME"]]]]))){
             if(is.null(SUBDS_DN)){
-              SUBDS_DN = TMP_SS_DN[TMP_SS_DN[[dsmap$TIME]] == TIME, ][1,]
+              SUBDS_DN = TMP_SS_DN[TMP_SS_DN[[dsmap[["TIME"]]]] == TIME, ][1,]
             } else {
-              SUBDS_DN = rbind(SUBDS_DN, TMP_SS_DN[TMP_SS_DN[[dsmap$TIME]] == TIME, ][1,])
+              SUBDS_DN = rbind(SUBDS_DN, TMP_SS_DN[TMP_SS_DN[[dsmap[["TIME"]]]] == TIME, ][1,])
             }
           }
         } else {
@@ -11803,14 +11806,14 @@ system_nca_run = function(cfg,
         PROC_SUBDN = TRUE
 
         # pulling out the route for the subject/group
-        ROUTE = SUBDS_DN[[dsmap$ROUTE]][1]
+        ROUTE = SUBDS_DN[[dsmap[["ROUTE"]]]][1]
 
         # But we check a few things first:
         # Checking to make sure dose is unique
-        if(length(unique(SUBDS_DN[[dsmap$DOSE]]))>1){
+        if(length(unique(SUBDS_DN[[dsmap[["DOSE"]]]]))>1){
           PROC_SUBDN = FALSE
           vp(cfg, paste(ID_label, ": >", sub, "< Dose ", dosenum, " had more than 1 value in the dose column",sep=""))
-          vp(cfg, paste("    Dose column >", dsmap$DOSE, "< has values: ", paste(unique(SUBDS_DN[[dsmap$DOSE]]), collapse=", "), sep=""))
+          vp(cfg, paste("    Dose column >", dsmap[["DOSE"]], "< has values: ", paste(unique(SUBDS_DN[[dsmap[["DOSE"]]]]), collapse=", "), sep=""))
         }
 
         # Make sure there are enough observations:
@@ -11827,8 +11830,8 @@ system_nca_run = function(cfg,
         # Tmax and Cmax are taken directly from the dataset. The min() below
         # selects the first time that Cmax is observed if there are multiple
         # occurrences of the Cmax
-        Cmax            = max(SUBDS_DN$SI_CONC)
-        Tmax            = min(SUBDS_DN[SUBDS_DN$SI_CONC == Cmax, ][[dsmap$NTIME]])
+        Cmax            = max(SUBDS_DN[["SI_CONC"]])
+        Tmax            = min(SUBDS_DN[SUBDS_DN[["SI_CONC"]] == Cmax, ][[dsmap[["NTIME"]]]])
         if(!is.null(digits)){
           Cmax            = signif(Cmax, digits)
           Tmax            = signif(Tmax, digits)
@@ -11839,41 +11842,41 @@ system_nca_run = function(cfg,
         PREDOSE_CONC = 0.0
         # first we look for observations with time values before the first
         # observation of the current subset
-        if(any(SUBDS[[dsmap$TIME]] < min(SUBDS_DN[[dsmap$TIME]]))){
+        if(any(SUBDS[[dsmap[["TIME"]]]] < min(SUBDS_DN[[dsmap[["TIME"]]]]))){
           # This gets the subject dataset leading up to the current subset
-          PREDOSEDS = SUBDS[SUBDS[[dsmap$TIME]] < min(SUBDS_DN[[dsmap$TIME]]), ]
+          PREDOSEDS = SUBDS[SUBDS[[dsmap[["TIME"]]]] < min(SUBDS_DN[[dsmap[["TIME"]]]]), ]
 
           # Pulling out the values at the last time point
-          PREDOSEDS = PREDOSEDS[PREDOSEDS[[dsmap$TIME]] == max(PREDOSEDS[[dsmap$TIME]]), ]
+          PREDOSEDS = PREDOSEDS[PREDOSEDS[[dsmap[["TIME"]]]] == max(PREDOSEDS[[dsmap[["TIME"]]]]), ]
 
           # Now we pluck off the last value:
-          PREDOSE_CONC = PREDOSEDS[nrow(PREDOSEDS), ]$SI_CONC
+          PREDOSE_CONC = PREDOSEDS[nrow(PREDOSEDS), ][["SI_CONC"]]
         }
 
         # The nominal time of this point will be 0, but in a multiple dose
         # setting the clock time will be different:
         C0_NTIME = 0
-        C0_TIME  = SUBDS_DN[[dsmap$TIME]][1] - SUBDS_DN[[dsmap$NTIME]][1]
+        C0_TIME  = SUBDS_DN[[dsmap[["TIME"]]]][1] - SUBDS_DN[[dsmap[["NTIME"]]]][1]
         BACKEXTRAP_NTIME = NULL
         BACKEXTRAP_TIME  = NULL
         BACKEXTRAP_CONC  = NULL
         
         # Extrapolating C0 if extrapolation has been selected and the first
         # nominal time is not zero
-        if(extrap_C0 & SUBDS_DN[[dsmap$NTIME]][1] != 0){
+        if(extrap_C0 & SUBDS_DN[[dsmap[["NTIME"]]]][1] != 0){
 
           if(ROUTE %in% c("iv bolus")){
-            if(is.null(dsmap$BACKEXTRAP)){
+            if(is.null(dsmap[["BACKEXTRAP"]])){
               BACKEXTRAP_N     = extrap_N
             } else {
               # Using subjects-specific number of points to extrapolate
-              BACKEXTRAP_N     = SUBDS_DN[[dsmap$BACKEXTRAP]][1]
+              BACKEXTRAP_N     = SUBDS_DN[[dsmap[["BACKEXTRAP"]]]][1]
             }
             # Time, nominal time and concentrations sequences used for
             # extrapolation
-            BACKEXTRAP_NTIME = SUBDS_DN[[dsmap$NTIME]][1:BACKEXTRAP_N]
-            BACKEXTRAP_TIME  = SUBDS_DN[[dsmap$TIME]] [1:BACKEXTRAP_N]
-            BACKEXTRAP_CONC  = SUBDS_DN$SI_CONC       [1:BACKEXTRAP_N]
+            BACKEXTRAP_NTIME = SUBDS_DN[[dsmap[["NTIME"]]]][1:BACKEXTRAP_N]
+            BACKEXTRAP_TIME  = SUBDS_DN[[dsmap[["TIME"]]]] [1:BACKEXTRAP_N]
+            BACKEXTRAP_CONC  = SUBDS_DN[["SI_CONC"]]       [1:BACKEXTRAP_N]
 
 
             # This does least squares fitting of the ln of the concentration
@@ -11881,8 +11884,8 @@ system_nca_run = function(cfg,
             BACKEXTRAP_TH    = calculate_halflife(BACKEXTRAP_NTIME, BACKEXTRAP_CONC)
 
             # Pulling out the slope and intercept:
-            BACKEXTRAP_SLOPE     = BACKEXTRAP_TH$mod$coefficients[2]
-            BACKEXTRAP_INTERCEPT = BACKEXTRAP_TH$mod$coefficients[1]
+            BACKEXTRAP_SLOPE     = BACKEXTRAP_TH[["mod"]][["coefficients"]][2]
+            BACKEXTRAP_INTERCEPT = BACKEXTRAP_TH[["mod"]][["coefficients"]][1]
 
             if(BACKEXTRAP_SLOPE < 0){
               # Because we're using nominal time to perform the regression the
@@ -11901,29 +11904,29 @@ system_nca_run = function(cfg,
           C0 = -1
         }
         
-        tmpsum$ID              = sub
-        tmpsum$Nobs            = nrow(SUBDS_DN)
-        tmpsum$Dose_Number     = dosenum
-        tmpsum$Dose            = SUBDS_DN[[dsmap$DOSE]][1]
-        tmpsum$Dose_CU         = SUBDS_DN$SI_DOSE[1]
-        tmpsum$Cmax            = Cmax
-        tmpsum$Tmax            = Tmax 
-        tmpsum$halflife        = -1
-        tmpsum$Vp_obs          = -1
-        tmpsum$Vss_obs         = -1
-        tmpsum$Vss_pred        = -1
-        tmpsum$C0              = C0  
-        tmpsum$CL_obs          = -1
-        tmpsum$CL_pred         = -1
-        tmpsum$AUClast         = -1
-        tmpsum$AUCinf_pred     = -1
-        tmpsum$AUCinf_obs      = -1
+        tmpsum[["ID"]]              = sub
+        tmpsum[["Nobs"]]            = nrow(SUBDS_DN)
+        tmpsum[["Dose_Number"]]     = dosenum
+        tmpsum[["Dose"]]            = SUBDS_DN[[dsmap[["DOSE"]]]][1]
+        tmpsum[["Dose_CU"]]         = SUBDS_DN[["SI_DOSE"]][1]
+        tmpsum[["Cmax"]]            = Cmax
+        tmpsum[["Tmax"]]            = Tmax 
+        tmpsum[["halflife"]]        = -1
+        tmpsum[["Vp_obs"]]          = -1
+        tmpsum[["Vss_obs"]]         = -1
+        tmpsum[["Vss_pred"]]        = -1
+        tmpsum[["C0"]]              = C0  
+        tmpsum[["CL_obs"]]          = -1
+        tmpsum[["CL_pred"]]         = -1
+        tmpsum[["AUClast"]]         = -1
+        tmpsum[["AUCinf_pred"]]     = -1
+        tmpsum[["AUCinf_obs"]]      = -1
 
         # If we're performing a sparse analysis we add the elements 
         # to hold the results from Bailer's analysis
         if(sparse){
-          tmpsum$AUCBailer       = -1
-          tmpsum$AUCBailer_var   = -1
+          tmpsum[["AUCBailer"]]       = -1
+          tmpsum[["AUCBailer_var"]]   = -1
         }
 
 
@@ -11933,13 +11936,13 @@ system_nca_run = function(cfg,
             # The data frame used here is TMP_SS_DN which is all of the data
             # for the current dose number 
             res_Bailers  =  AUC_Bailers_method(conc_data  = TMP_SS_DN, 
-                                               dsmap      = list(NTIME       = dsmap$NTIME,
-                                                                 CONC        = dsmap$CONC, 
-                                                                 ID          = dsmap$ID))
+                                               dsmap      = list(NTIME       = dsmap[["NTIME"]],
+                                                                 CONC        = dsmap[["CONC"]], 
+                                                                 ID          = dsmap[["ID"]]))
             # Appending the results to the summary table
-            if(res_Bailers$isgood){
-              tmpsum$AUCBailer       = res_Bailers$AUC
-              tmpsum$AUCBailer_var   = res_Bailers$var_AUC
+            if(res_Bailers[["isgood"]]){
+              tmpsum[["AUCBailer"]]       = res_Bailers[["AUC"]]
+              tmpsum[["AUCBailer_var"]]   = res_Bailers[["var_AUC"]]
             }
 
           }
@@ -11947,19 +11950,19 @@ system_nca_run = function(cfg,
           if(extrap_C0){
             # If we have extrapolation selected we add the first time point to
             # the NCA dataset:
-            NCA_CONCDS = data.frame(NTIME =   c(C0_NTIME, SUBDS_DN[[dsmap$NTIME]]),
-                                    TIME  =   c(C0_TIME,  SUBDS_DN[[dsmap$TIME]]),
-                                    CONC  =   c(C0,       SUBDS_DN$SI_CONC),
+            NCA_CONCDS = data.frame(NTIME =   c(C0_NTIME, SUBDS_DN[[dsmap[["NTIME"]]]]),
+                                    TIME  =   c(C0_TIME,  SUBDS_DN[[dsmap[["TIME"]]]]),
+                                    CONC  =   c(C0,       SUBDS_DN[["SI_CONC"]]),
                                     ID    = sub)
           } else {
             # Otherwise we just use the data from the dataframe:
-            NCA_CONCDS = data.frame(NTIME =   SUBDS_DN[[dsmap$NTIME]],
-                                    TIME  =   SUBDS_DN[[dsmap$TIME]],
-                                    CONC  =   SUBDS_DN$SI_CONC,
+            NCA_CONCDS = data.frame(NTIME =   SUBDS_DN[[dsmap[["NTIME"]]]],
+                                    TIME  =   SUBDS_DN[[dsmap[["TIME"]]]],
+                                    CONC  =   SUBDS_DN[["SI_CONC"]],
                                     ID    = sub)
           }
-          NCA_DOSEDS = data.frame(NTIME =   min(NCA_CONCDS$NTIME),
-                                  DOSE  = SUBDS_DN$SI_DOSE[1],
+          NCA_DOSEDS = data.frame(NTIME =   min(NCA_CONCDS[["NTIME"]]),
+                                  DOSE  = SUBDS_DN[["SI_DOSE"]][1],
                                   ID    = sub)
 
           # Calculating the observed plasma concentration 
@@ -11969,22 +11972,22 @@ system_nca_run = function(cfg,
           #           Corrected first observed conc
           if(ROUTE %in% c("iv bolus")){
             if(is.null(digits)){
-              Vp_obs = SUBDS_DN$SI_DOSE[1]/(SUBDS_DN$SI_CONC[1])
+              Vp_obs = SUBDS_DN[["SI_DOSE"]][1]/(SUBDS_DN[["SI_CONC"]][1])
             } else {
-              Vp_obs = signif(SUBDS_DN$SI_DOSE[1]/(SUBDS_DN$SI_CONC[1]), digits)
+              Vp_obs = signif(SUBDS_DN[["SI_DOSE"]][1]/(SUBDS_DN[["SI_CONC"]][1]), digits)
             }
           } else {
             Vp_obs = -1
           }
 
-          time_start = min(NCA_CONCDS$NTIME) 
-          time_stop  = max(NCA_CONCDS$NTIME)
+          time_start = min(NCA_CONCDS[["NTIME"]]) 
+          time_stop  = max(NCA_CONCDS[["NTIME"]])
 
           # Checking for duplicated times
-          if(any(duplicated(NCA_CONCDS$NTIME))){
+          if(any(duplicated(NCA_CONCDS[["NTIME"]]))){
             vp(cfg, paste(ID_label, ": >", sub, "< Dose ", dosenum, " the following time values were repeated", sep="")) 
-            vp(cfg, paste("NTIME: ", unique(NCA_CONCDS[duplicated(NCA_CONCDS$NTIME), ]$NTIME), " (nominal time, ", dsmap$NTIME, " in the dataset)", sep=""))
-            vp(cfg, paste("TIME:  ", unique(NCA_CONCDS[duplicated(NCA_CONCDS$NTIME), ]$NTIME), " (actual time, ",   dsmap$TIME, " in the dataset)", sep=""))
+            vp(cfg, paste("NTIME: ", unique(NCA_CONCDS[duplicated(NCA_CONCDS[["NTIME"]]), ][["NTIME"]]), " (nominal time, ",  dsmap[["NTIME"]], " in the dataset)", sep=""))
+            vp(cfg, paste("TIME:  ", unique(NCA_CONCDS[duplicated(NCA_CONCDS[["NTIME"]]), ][["NTIME"]]), " (actual time, ",   dsmap[["TIME"]],  " in the dataset)", sep=""))
             vp(cfg, "This can happen when:")
             vp(cfg, "  - If you are using back extrapolation to time zero and you have data at time zero")
             vp(cfg, "  - If you have mulitple analytes measured at the same time points. You can use the dsfilter to run NCA on these analytes separately.")
@@ -12016,7 +12019,7 @@ system_nca_run = function(cfg,
             
             # Rounding the NCA results:
             if(!is.null(digits)){
-              NCA.res$result$PPORRES =  signif(NCA.res$result$PPORRES, digits)
+              NCA.res[["result"]][["PPORRES"]] =  signif(NCA.res[["result"]][["PPORRES"]], digits)
             }
             
             tmpsum$halflife      =  NCA.res$result[NCA.res$result$PPTESTCD == "half.life",   ]$PPORRES
@@ -12030,9 +12033,9 @@ system_nca_run = function(cfg,
             tmpsum$AUCinf_obs    =  NCA.res$result[NCA.res$result$PPTESTCD == "aucinf.obs",  ]$PPORRES
             
             # Storing the raw results
-            PKNCA_raw_tmp         = NCA.res$result
-            PKNCA_raw_tmp$sub     = sub
-            PKNCA_raw_tmp$dosenum = dosenum
+            PKNCA_raw_tmp              = NCA.res$result
+            PKNCA_raw_tmp[["sub"]]     = sub
+            PKNCA_raw_tmp[["dosenum"]] = dosenum
             
             if(is.null(PKNCA_raw_all)){
                PKNCA_raw_all = PKNCA_raw_tmp
@@ -12100,13 +12103,7 @@ system_nca_run = function(cfg,
             
             }
           }
-
-
-
-
         } 
-
-
         if(!PROC_SUBDN){
           vp(cfg, "Skipping this subject/dose combination")
         }
@@ -12126,11 +12123,11 @@ system_nca_run = function(cfg,
     write.csv(PKNCA_raw_all, file=pkncaraw_file, row.names=FALSE, quote=FALSE)
     save(grobs_sum, NCA_sum, file=data_file)
 
-    cfg$nca[[analysis_name]]$grobs_sum     = grobs_sum
-    cfg$nca[[analysis_name]]$NCA_sum       = NCA_sum
-    cfg$nca[[analysis_name]]$data_raw      = DS
-    cfg$nca[[analysis_name]]$PKNCA_raw     = PKNCA_raw_all
-    cfg$nca[[analysis_name]]$rptobjs       = rptobjs      
+    cfg[["nca"]][[analysis_name]]$grobs_sum     = grobs_sum
+    cfg[["nca"]][[analysis_name]]$NCA_sum       = NCA_sum
+    cfg[["nca"]][[analysis_name]]$data_raw      = DS
+    cfg[["nca"]][[analysis_name]]$PKNCA_raw     = PKNCA_raw_all
+    cfg[["nca"]][[analysis_name]]$rptobjs       = rptobjs      
 
     vp(cfg, "")
     vp(cfg, paste("NCA results for ", analysis_name, " written to", sep=""))

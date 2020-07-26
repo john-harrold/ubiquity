@@ -2432,7 +2432,7 @@ server <- function(input, output, session) {
     
     # Creating the tab for the variability
     variability_tab = NULL
-    if(("iiv" %in% names(cfg)) &  cfg$gui$display$iivtab ){
+    if(("iivs" %in% names(cfg[["iiv"]])) &  cfg$gui$display$iivtab ){
     variability_tab = tabPanel("Variability", 
                       wellPanel(id = "panel_variability",style = "overflow-y:scroll; max-height: 600px", 
                        checkboxInput('check_variability', "Simulate with variability", FALSE),
@@ -2445,7 +2445,7 @@ server <- function(input, output, session) {
     }
 
 
-    if(("iiv" %in% names(cfg) )&  cfg$gui$display$iivtab ){
+    if(("iivs" %in% names(cfg[["iiv"]])) &  cfg$gui$display$iivtab ){
       tabsetPanel(type="tabs", parameter_tab, variability_tab)}
     else{
       tabsetPanel(type="tabs", parameter_tab)}
