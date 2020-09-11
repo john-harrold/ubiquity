@@ -88,7 +88,7 @@ cfg=system_set_option(cfg, group  = "simulation",
                            seq(0,100,1))
 ```
 
-The dataset (shown in the table below) is included with the ``ubiquity`` package and is accessed here using ``system.file``. In the example script it is referenced explicitly. The format requirements of datasets is that they be flat files with a header row. The format is flexible and only requires time/observation information and columns required to filter the data and isolate cohorts that have received the same treatment. The inputs are defined when the cohorts themselves are defined. Data files are loaded using ``system_load_data`` and a name[^2] is assigned the dataset. Data can be read from files (csv, xls, and tab) or from an existing data frame. This name (``pm_data`` here) will be used to reference this dataset later in the script.
+The dataset (shown in the table below) is included with the ``ubiquity`` package and is accessed here using ``system.file``. In the example script it is referenced explicitly. The format requirements of datasets is that they be flat files with a header row. The format is flexible and only requires time/observation information and columns required to filter the data and isolate cohorts that have received the same treatment. The inputs are defined when the cohorts themselves are defined. Data files are loaded using ``system_load_data`` and a name[^2] is assigned the dataset. Data can be read from files (csv, xls, xlsx, and tab) or from an existing data frame. This name (``pm_data`` here) will be used to reference this dataset later in the script.
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
 cfg = system_load_data(cfg, dsname     = "pm_data", 

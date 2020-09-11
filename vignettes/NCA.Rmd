@@ -4,7 +4,7 @@ author: "John Harrold & Anson K Abraham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{NCA}
+  %\VignetteIndexEntry{Noncompartmental Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

@@ -20,12 +20,12 @@ Ubiquity system object with the dataset loaded
 }
 \description{
 Loads datasets at the scripting level from  a variable if
-\code{data_file} is a data.frame or from the the following
+\code{data_file} is a data.frame or from the following
 formats (based on the file extension)
 \itemize{
 \item csv - comma delimited 
 \item tab - tab delimited
-\item xls - excel spread sheet
+\item xls or xlsx - excel spread sheet
 }
 
 Multiple datasets can be loaded as long as they are given different

@@ -2,12 +2,12 @@
 #'@import doParallel
 #'@import flextable
 #'@import foreach
-#'@import gdata
 #'@import ggplot2
 #'@import knitr
 #'@import officer
 #'@import optimx
 #'@import pso
+#'@import readxl
 #'@import rmarkdown
 #'@import rhandsontable
 #'@import rstudioapi
@@ -115,7 +115,7 @@ if(as.character(Sys.which(perlcmd )) == ""){
 }
 
 
-pkgs = c("deSolve", "ggplot2", "gdata")
+pkgs = c("deSolve", "ggplot2", "readxl")
 invisible(system_req(pkgs))
 
 # For stand alone distributions we just use the default template and transient
@@ -746,18 +746,17 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
   res$isgood = isgood
 return(res)}
 # -------------------------------------------------------------------------
-
-# system_fetch_parameters = system_load_data(cfg, dsname, data_file, data_sheet)
+# cfg = system_load_data(cfg, dsname, data_file, data_sheet)
 #
 #'@export
 #'@title Loading Datasets 
 #'@description Loads datasets at the scripting level from  a variable if
-#' \code{data_file} is a data.frame or from the the following
+#' \code{data_file} is a data.frame or from the following
 #' formats (based on the file extension)
 #'\itemize{
 #' \item csv - comma delimited 
 #' \item tab - tab delimited
-#' \item xls - excel spread sheet
+#' \item xls or xlsx - excel spread sheet
 #'}
 #'
 #' Multiple datasets can be loaded as long as they are given different
@@ -772,7 +771,6 @@ return(res)}
 #'@return Ubiquity system object with the dataset loaded
 system_load_data <- function(cfg, dsname, data_file, data_sheet){
 
-
   if(is.data.frame(data_file)){
     cfg$data[[dsname]]$values = data_file
     cfg$data[[dsname]]$data_file$name  = "From data frame"
@@ -781,9 +779,15 @@ system_load_data <- function(cfg, dsname, data_file, data_sheet){
     # Reading the data based on the file extension
     if(file.exists(data_file)){
       if(regexpr(".xls$", as.character(data_file), ignore.case=TRUE) > 0){
-        cfg$data[[dsname]]$values = as.data.frame(gdata::read.xls(data_file, sheet=data_sheet))
+        cfg$data[[dsname]]$values = as.data.frame(readxl::read_xls(path=data_file, sheet=data_sheet))
         cfg$data[[dsname]]$data_file$sheet  = data_sheet
       }
+
+      if(regexpr(".xlsx$", as.character(data_file), ignore.case=TRUE) > 0){
+        cfg$data[[dsname]]$values = as.data.frame(readxl::read_xlsx(path=data_file, sheet=data_sheet))
+        cfg$data[[dsname]]$data_file$sheet  = data_sheet
+      }
+
 
       if(regexpr(".csv$", as.character(data_file), ignore.case=TRUE) > 0){
         cfg$data[[dsname]]$values = read.csv(data_file, header=TRUE)

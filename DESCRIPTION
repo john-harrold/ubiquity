@@ -22,7 +22,6 @@ Imports:
    foreach,
    gridExtra,
    grid, 
-   gdata,
    ggplot2,
    knitr,
    MASS,
@@ -30,6 +29,7 @@ Imports:
    optimx,
    PKNCA,
    pso,
+   readxl,
    rmarkdown,     
    rhandsontable,
    rstudioapi,
@@ -44,4 +44,4 @@ Suggests:
    testthat,
    ggrepel
 VignetteBuilder: knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
