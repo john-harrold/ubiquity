@@ -7,7 +7,6 @@
 #'@import officer
 #'@import optimx
 #'@import pso
-#'@import readxl
 #'@import rmarkdown
 #'@import rhandsontable
 #'@import rstudioapi
@@ -15,6 +14,7 @@
 #'@importFrom digest digest
 #'@importFrom dplyr  all_of select
 #'@importFrom parallel stopCluster makeCluster
+#'@importFrom readxl read_xls
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
 #'@importFrom utils read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
@@ -756,7 +756,7 @@ return(res)}
 #'\itemize{
 #' \item csv - comma delimited 
 #' \item tab - tab delimited
-#' \item xls or xlsx - excel spread sheet
+#' \item xls - excel spread sheet
 #'}
 #'
 #' Multiple datasets can be loaded as long as they are given different
@@ -783,10 +783,10 @@ system_load_data <- function(cfg, dsname, data_file, data_sheet){
         cfg$data[[dsname]]$data_file$sheet  = data_sheet
       }
 
-      if(regexpr(".xlsx$", as.character(data_file), ignore.case=TRUE) > 0){
-        cfg$data[[dsname]]$values = as.data.frame(readxl::read_xlsx(path=data_file, sheet=data_sheet))
-        cfg$data[[dsname]]$data_file$sheet  = data_sheet
-      }
+    # if(regexpr(".xlsx$", as.character(data_file), ignore.case=TRUE) > 0){
+    #   cfg$data[[dsname]]$values = as.data.frame(readxl::read_xlsx(path=data_file, sheet=data_sheet))
+    #   cfg$data[[dsname]]$data_file$sheet  = data_sheet
+    # }
 
 
       if(regexpr(".csv$", as.character(data_file), ignore.case=TRUE) > 0){
