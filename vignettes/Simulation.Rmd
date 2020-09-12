@@ -34,7 +34,7 @@ This should create the following scripts:
 * ``analysis_multiple.r`` Mote Carlo simulations using IIV
 * ``analysis_multiple_file.r`` Monte Carlo simulations reading subject information from a file
 
-These rely on a PK model of mAbs in humans ([Davda etal. mAbs, 6(4), 1094-1102](http://doi.org/10.4161/mabs.29095)).  The contents of the system file for this model can be seen at the bottom (use ``?system_new`` to see a list of the available system file examples). The first step in any analysis (simulation, estimation, etc) is building the system file creating the ubiquity model object (``cfg``). 
+These rely on a PK model of mAbs in humans ([Davda etal. mAbs, 6(4), 1094-1102](https://doi.org/10.4161/mabs.29095)).  The contents of the system file for this model can be seen at the bottom (use ``?system_new`` to see a list of the available system file examples). The first step in any analysis (simulation, estimation, etc) is building the system file creating the ubiquity model object (``cfg``). 
 
 ```{r results="hide",  echo=FALSE}
 library(ubiquity)

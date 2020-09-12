@@ -37,7 +37,7 @@ if(file.exists("Titration_presim.RData")){
 
 ## Introduction
 
-In the Simulation vignette several examples are provided using fixed dosing regimens. This works well for compounds that are relatively safe, the PK is consistent over time, and for which the drug concentrations required to achieve efficacy are consistent. In fact these restrictions apply to many different compounds. However, there are many scenarios where it is necessary to adjust dosing based on periodic clinical visits: compounds with a narrow therapeutic index, disease progression which alters the drug PK or requires increases in the dose amount, etc. While it is possible to do this manually with the current simulation tools provided, this section outlines a generalized framework to make this easier for the users. The workshop (http://workshop.ubiquity.tools) provides several examples of running titration or rule-based simulations. To make a copy of these scripts and other supporting files in the current working directory run the following:
+In the Simulation vignette several examples are provided using fixed dosing regimens. This works well for compounds that are relatively safe, the PK is consistent over time, and for which the drug concentrations required to achieve efficacy are consistent. In fact these restrictions apply to many different compounds. However, there are many scenarios where it is necessary to adjust dosing based on periodic clinical visits: compounds with a narrow therapeutic index, disease progression which alters the drug PK or requires increases in the dose amount, etc. While it is possible to do this manually with the current simulation tools provided, this section outlines a generalized framework to make this easier for the users. The [workshop](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip) provides several examples of running titration or rule-based simulations. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
 ```{r eval=FALSE}
 library(ubiquity)
@@ -59,7 +59,7 @@ Titration or rule-based simulations are run using the following functions:
 * ``run_simulation_titration`` - Runs an individual simulation using titration rules
 
 ## Repeated Bolus Dosing (``analysis_repeat_dosing.r``)
-This example shows how to implement a dosing regimen using both the fixed-dosing methodologies and the titration functions above. This is meant as a means to bridge these two concepts. First we use the same model from the Simulation vignette ([Davda etal. mAbs, 6(4), 1094-1102](http://doi.org/10.4161/mabs.29095)), and simulate five doses of 500 mg IV given every two weeks:
+This example shows how to implement a dosing regimen using both the fixed-dosing methodologies and the titration functions above. This is meant as a means to bridge these two concepts. First we use the same model from the Simulation vignette ([Davda etal. mAbs, 6(4), 1094-1102](https://doi.org/10.4161/mabs.29095)), and simulate five doses of 500 mg IV given every two weeks:
 ```{r results="hide", message=FALSE, echo=FALSE}
 library(ubiquity)
 system_new(file_name="system.txt", system_file="mab_pk", overwrite = TRUE)

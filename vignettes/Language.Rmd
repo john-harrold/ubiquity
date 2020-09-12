@@ -709,7 +709,7 @@ To define the default output times for the ShinyApp and simulation scripts use t
 
 ## Example system files
 
-These example system files can be found in the examples directory of the stand-alone analysis template ([ubiquity_template.zip](http://template.ubiquity.tools)). Most can also be loaded form the R package (see the help for system_new).
+These example system files can be found in the examples directory of the stand-alone analysis template ([ubiquity_template.zip](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_analysis_development.zip)). Most can also be loaded form the R package (see the help for system_new).
 
 
 * ``system-adapt.txt`` - Parent/metabolite structural model taken from the ADAPT5 Users Manual [ADAPT]. This sytem is used in the estmation examples of the ubiquity workshop.

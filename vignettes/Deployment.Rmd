@@ -24,7 +24,7 @@ require(rhandsontable)
 
 Once a model has been developed it may be useful to provide an easy way to run simulations or automate specific analyses. Do to that, a ubiquity provides a ShinyApp that allows the model to be run from an easy to use interface that is highly customizable. This App can be run locally (useful during meetings to answer quick questions) or deployed on a Shiny server to allow others access to the model.
 
-To demonstrate this interface we can begin with the PK model of mAbs in humans ([Davda etal. mAbs, 6(4), 1094-1102](http://doi.org/10.4161/mabs.29095)) :
+To demonstrate this interface we can begin with the PK model of mAbs in humans ([Davda etal. mAbs, 6(4), 1094-1102](https://doi.org/10.4161/mabs.29095)) :
 
 ```{r results="hide", message=FALSE, echo=TRUE}
 library(ubiquity)
@@ -119,7 +119,7 @@ cfg$gui$save$user_log   = TRUE
 
 It can be difficult for a user to look at a set of parameters, dosing inputs, and outputs and determine how a model works. To aid the user it can be useful to create a model diagram. To utilize the majority of the screen space, the image should be roughly twice as wide as it is tall.
 
-You can create this image in your favorite drawing program. Inkscape is a free vector drawing program available at [inkscape.org](http://inkscape.org). If you run the following:
+You can create this image in your favorite drawing program. Inkscape is a free vector drawing program available at [inkscape.org](https://inkscape.org). If you run the following:
 
 ```{r, eval=FALSE}
 system_fetch_template(cfg, template="Model Diagram")
