@@ -326,6 +326,10 @@ cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Height                     
 
 #--------------------------------------------------------------------
 
+
+# This last call is necessary to initialize analysis specific components to
+# their default values. For example to populate covariates with the default
+# values listed in the system file.
 cfg = system_select_set(cfg, "default")
 
 

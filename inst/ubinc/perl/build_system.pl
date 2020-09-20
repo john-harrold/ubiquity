@@ -1297,10 +1297,10 @@ if((@{$cfg->{covariates_index}})){
     $ma->{COVARIATES}     .= 'cohort[["inputs"]][["covariates"]][["'.$cname.'"]][["AMT"]]'.&fetch_padding($cname,15).'= c()'." # $cfg->{covariates}->{$cname}->{values}->{units} \n";
 
     # rcomponents
-    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]] = list()'."\n";
-    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["cv_type"]]            = '."'".$cfg->{covariates}->{$cname}->{cv_type}."'\n";
-    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["times"]][["units"]]   = '."'".$cfg->{covariates}->{$cname}->{times}->{units}."'\n";
-    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["values"]][["units"]]  = '."'".$cfg->{covariates}->{$cname}->{values}->{units}."'\n";
+    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]] = list(cv_type="", times=list(units="", values=-1), values=list(units="", values=-1))'."\n";
+    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["cv_type"]]             = '."'".$cfg->{covariates}->{$cname}->{cv_type}."'\n";
+    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["times"]][["units"]]    = '."'".$cfg->{covariates}->{$cname}->{times}->{units}."'\n";
+    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["values"]][["units"]]   = '."'".$cfg->{covariates}->{$cname}->{values}->{units}."'\n";
 
     $mc->{COVARIATES_IC} .= $cname.' = SIMINT_cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["values"]][["values"]][1]'."\n";
 

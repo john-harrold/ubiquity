@@ -1,10 +1,8 @@
 #'@import deSolve
 #'@import doParallel
-#'@import flextable
 #'@import foreach
 #'@import ggplot2
 #'@import knitr
-#'@import officer
 #'@import optimx
 #'@import pso
 #'@import rmarkdown
@@ -13,10 +11,12 @@
 #'@import stringr
 #'@importFrom digest digest
 #'@importFrom dplyr  all_of select
+#'@importFrom flextable add_header align autofit body_add_flextable merge_h regulartable set_header_labels
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom readxl read_xls
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
+#'@importFrom officer add_slide body_add_break body_add_fpar body_add_par body_add_gg body_add_img body_add_table body_add_toc body_replace_all_text external_img footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type ph_location_label ph_with read_pptx read_docx styles_info unordered_list
 #'@importFrom utils read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
 #'@importFrom stats median qt var
 #'@importFrom MASS mvrnorm
@@ -8821,10 +8821,10 @@ if(isgood){
   # Dumping PowerPoint layout
   if(cfg$reporting$reports[[rptname]]$rpttype  == "PowerPoint"){
     # New document from the template
-    rpt = read_pptx(cfg$reporting$reports[[rptname]]$template)
+    rpt = officer::read_pptx(cfg$reporting$reports[[rptname]]$template)
     
     # Pulling out all of the layouts stored in the template
-    lay_sum = layout_summary(rpt)
+    lay_sum = officer::layout_summary(rpt)
     
     # Looping through each layout
     for(lidx in 1:length(lay_sum[,1])){
@@ -8832,10 +8832,10 @@ if(isgood){
       # Pulling out the layout properties
       layout = lay_sum[lidx, 1]
       master = lay_sum[lidx, 2]
-      lp = layout_properties ( x = rpt, layout = layout, master = master)
+      lp = officer::layout_properties ( x = rpt, layout = layout, master = master)
     
       # Adding a slide for the current layout
-      rpt =  add_slide(x=rpt, layout = layout, master = master) 
+      rpt =  officer::add_slide(x=rpt, layout = layout, master = master) 
     
       # Blank slides have nothing
       if(length(lp[,1] > 0)){
@@ -8847,11 +8847,11 @@ if(isgood){
           # information in there as well.
           if(lp[pidx, ]$type == "body"){
             textstr = sprintf('type="body", index = %d, ph_label=%s', pidx, lp[pidx, ]$ph_label)
-            rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=lp[pidx, ]$ph_label), index = cfg$reporting$reports[[rptname]]$meta$section$indices$pidx, value=textstr) 
+            rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=lp[pidx, ]$ph_label), index = cfg$reporting$reports[[rptname]]$meta$section$indices$pidx, value=textstr) 
           } 
           if(lp[pidx, ]$type %in% c("title", "ctrTitle", "subTitle")){
             textstr = sprintf('layout="%s", master = "%s", type="%s", index =%d, ph_label=%s', layout, master, lp[pidx, ]$type,  pidx, lp[pidx, ]$ph_label)
-            rpt =ph_with(x=rpt, location=ph_location_label(ph_label=lp[pidx, ]$ph_label), value=textstr)  
+            rpt = officer::ph_with(x=rpt, location=officer::ph_location_label(ph_label=lp[pidx, ]$ph_label), value=textstr)  
           }
         }
       } 
@@ -8872,14 +8872,14 @@ if(isgood){
                      1, "Third top level")
 
     # Pulling out the different styles
-    lay_sum = styles_info(rpt)
+    lay_sum = officer::styles_info(rpt)
     
 
     disp_styles = c("paragraph", "character", "table")
 
     for(style_type in disp_styles){
-      rpt = body_add_par(x=rpt, value="")
-      rpt = body_add_par(x=rpt, value=paste("STYLES: ", style_type))
+      rpt = officer::body_add_par(x=rpt, value="")
+      rpt = officer::body_add_par(x=rpt, value=paste("STYLES: ", style_type))
 
       tmp_lay_sum =  lay_sum[lay_sum$style_type == style_type, ]
       for(lidx in 1:length(tmp_lay_sum[,1])){
@@ -8889,13 +8889,13 @@ if(isgood){
 
         # Paragraph styles
         if(style_type %in% c("paragraph", "charcter")){
-          rpt = body_add_par(x=rpt, value=paste("style_name: ", style_name), style=style_name)
+          rpt = officer::body_add_par(x=rpt, value=paste("style_name: ", style_name), style=style_name)
         }
 
         # Table styles
         if(style_type %in% c("table")){
-          rpt = body_add_par(x=rpt, value=paste("style_name: ", style_name))
-          rpt = body_add_table(x=rpt, value=tab_example, style = style_name)
+          rpt = officer::body_add_par(x=rpt, value=paste("style_name: ", style_name))
+          rpt = officer::body_add_table(x=rpt, value=tab_example, style = style_name)
         }
       }
     }
@@ -9062,7 +9062,7 @@ system_report_save = function (cfg,
         phv = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$content
         phl = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$location
         if(phl == "body"){
-          tmprpt = body_replace_all_text(
+          tmprpt = officer::body_replace_all_text(
                old_value      = pht, 
                new_value      = phv ,
                fixed          = TRUE,
@@ -9072,7 +9072,7 @@ system_report_save = function (cfg,
                )
         }
         if(phl == "header"){
-          tmprpt = headers_replace_all_text(
+          tmprpt = officer::headers_replace_all_text(
                old_value      = pht,
                new_value      = phv ,
                fixed          = TRUE,
@@ -9082,7 +9082,7 @@ system_report_save = function (cfg,
                )
         }
         if(phl == "footer"){
-          tmprpt = footers_replace_all_text(
+          tmprpt = officer::footers_replace_all_text(
                old_value      = pht, 
                new_value      = phv ,
                fixed          = TRUE,
@@ -9240,9 +9240,9 @@ if(isgood){
      
       # Reading in the template depending on the report type
       if(use_rpttype == "PowerPoint"){
-        cfg$reporting$reports[[rptname]]$report   = read_pptx(path=use_template) }
+        cfg$reporting$reports[[rptname]]$report   = officer::read_pptx(path=use_template) }
       if(use_rpttype == "Word"){
-        cfg$reporting$reports[[rptname]]$report   = read_docx(path=use_template) }
+        cfg$reporting$reports[[rptname]]$report   = officer::read_docx(path=use_template) }
      
       vp(cfg, "")
       vp(cfg, sprintf("Report initialized..."))
@@ -9320,7 +9320,7 @@ system_report_slide_content = function (cfg,
 
     # Adding the slide
     if(content_type %in% c("text", "imagefile", "ggplot", "table", "flextable")){
-      tmprpt = add_slide(x      = tmprpt, 
+      tmprpt = officer::add_slide(x      = tmprpt, 
                          layout = meta$content$layout$general,
                          master = meta$content$master$general)
       body_index          = meta$content$indices$content_body
@@ -9329,7 +9329,7 @@ system_report_slide_content = function (cfg,
       sub_title_ph_label  = meta$content$ph_labels$content_sub_title
     }
     else if(content_type == "list"){
-      tmprpt = add_slide(x      = tmprpt, 
+      tmprpt = officer::add_slide(x      = tmprpt, 
                          layout = meta$content$layout$list,
                          master = meta$content$master$list)
       body_index          = meta$content$indices$list_body
@@ -9340,9 +9340,9 @@ system_report_slide_content = function (cfg,
 
     # Adding Slide title/subtitle information
     if(!is.null(title)){
-      tmprpt = ph_with(x=tmprpt, location = ph_location_type(type = "title"),  value=title) } 
+      tmprpt = officer::ph_with(x=tmprpt, location = officer::ph_location_type(type = "title"),  value=title) } 
     if(!is.null(sub_title_index) & !is.null(sub_title)){
-      tmprpt = ph_with(x=tmprpt,  location=ph_location_label(ph_label=sub_title_ph_label), value=sub_title) }
+      tmprpt = officer::ph_with(x=tmprpt,  location=officer::ph_location_label(ph_label=sub_title_ph_label), value=sub_title) }
       
     # Adding the content
     type   = "body"
@@ -9434,7 +9434,7 @@ system_report_slide_two_col = function (cfg,
     if(content_type %in% c('text')){
       if(is.null(left_content_header) & is.null(right_content_header)){
         # Text without headers
-        tmprpt = add_slide(x      = tmprpt, 
+        tmprpt = officer::add_slide(x      = tmprpt, 
                            layout = meta$two_col$layout$text,
                            master = meta$two_col$master$text)
 
@@ -9452,7 +9452,7 @@ system_report_slide_two_col = function (cfg,
 
       } else {
         # Text with headers
-        tmprpt = add_slide(x      = tmprpt, 
+        tmprpt = officer::add_slide(x      = tmprpt, 
                            layout = meta$two_col$layout$text_head,
                            master = meta$two_col$master$text_head)
 
@@ -9472,7 +9472,7 @@ system_report_slide_two_col = function (cfg,
     }else if(content_type %in% c('list')){
       if(is.null(left_content_header) & is.null(right_content_header)){
         # List without headers
-        tmprpt = add_slide(x      = tmprpt, 
+        tmprpt = officer::add_slide(x      = tmprpt, 
                            layout = meta$two_col$layout$list,
                            master = meta$two_col$master$list)
 
@@ -9493,7 +9493,7 @@ system_report_slide_two_col = function (cfg,
       
       } else {
         # List with headers
-        tmprpt = add_slide(x      = tmprpt, 
+        tmprpt = officer::add_slide(x      = tmprpt, 
                            layout = meta$two_col$layout$list_head,
                            master = meta$two_col$master$list_head)
 
@@ -9522,9 +9522,9 @@ system_report_slide_two_col = function (cfg,
 
     # Adding Slide title/subtitle information
     if(!is.null(title)){
-      tmprpt = ph_with(x=tmprpt, location = ph_location_type(type = "title"),  value=title) } 
+      tmprpt = officer::ph_with(x=tmprpt, location = ph_location_type(type = "title"),  value=title) } 
     if(!is.null(sub_title_index) & !is.null(sub_title)){
-      tmprpt = ph_with(x=tmprpt,  location=ph_location_label(ph_label=sub_title_ph_label), value=sub_title) }
+      tmprpt = officer::ph_with(x=tmprpt,  location=officer::ph_location_label(ph_label=sub_title_ph_label), value=sub_title) }
 
 
 
@@ -9633,7 +9633,7 @@ system_report_slide_section = function (cfg,
     tmprpt  = cfg$reporting$reports[[rptname]]$report
 
     # Adding the title slide
-    tmprpt = add_slide(x      = tmprpt, 
+    tmprpt = officer::add_slide(x      = tmprpt, 
                        layout = meta$section$layout$general,
                        master = meta$section$master$general)
 
@@ -9641,18 +9641,18 @@ system_report_slide_section = function (cfg,
     # Adding Slide title/subtitle information
     if(!is.null(title)){
       if(meta$section$type$title == "ctrTitle"){
-        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "ctrTitle"), value=title) 
+        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "ctrTitle"), value=title) 
        } else {
-         tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = meta$section$type$title), 
-                                     index    = meta$section$indices$title, 
-                                     value    = title) 
+         tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta$section$type$title), 
+                                              index    = meta$section$indices$title, 
+                                              value    = title) 
        }
      } 
     if(!is.null(sub_title)){
       if(meta$section$type$sub_title == "subTitle"){
-        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "subTitle"), value=sub_title) 
+        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "subTitle"), value=sub_title) 
        } else {
-        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = meta$section$type$sub_title), 
+        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta$section$type$sub_title), 
                                     index    = meta$section$indices$sub_title, 
                                     value    = sub_title) 
        }
@@ -9718,25 +9718,25 @@ system_report_slide_title   = function (cfg,
     tmprpt  = cfg$reporting$reports[[rptname]]$report
 
     # Adding the title slide
-    tmprpt = add_slide(x      = tmprpt, 
+    tmprpt = officer::add_slide(x      = tmprpt, 
                        layout = meta$title$layout$general,
                        master = meta$title$master$general)
 
     # Adding Slide title/subtitle information
     if(meta$title$type$title == "ctrTitle"){
-      tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "ctrTitle"), value=title) 
+      tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "ctrTitle"), value=title) 
      } else {
-      tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = meta$title$type$title), 
-                                  index    = meta$title$indices$title, 
-                                  value    = title) 
+      tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta$title$type$title), 
+                                           index    = meta$title$indices$title, 
+                                           value    = title) 
      }
     if(!is.null(sub_title)){
       if(meta$title$type$sub_title == "subTitle"){
-        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = "subTitle"), value=sub_title) 
+        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "subTitle"), value=sub_title) 
        } else {
-        tmprpt = ph_with(x=tmprpt,  location = ph_location_type(type = meta$title$type$sub_title), 
-                                    index    = meta$title$indices$sub_title, 
-                                    value    = sub_title) 
+        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta$title$type$sub_title), 
+                                             index    = meta$title$indices$sub_title, 
+                                             value    = sub_title) 
        }
      }
 
@@ -9798,7 +9798,7 @@ return(cfg)}
 system_report_ph_content = function(cfg, rpt, content_type, content, type, index, ph_label){
 
     if(content_type == "text"){
-      rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=content) 
+      rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=content) 
     }
     else if(content_type == "list"){
       mcontent = matrix(data = content, ncol=2, byrow=TRUE)
@@ -9812,17 +9812,17 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       }
 
       # packing the list pieces into the ul object
-      ul = unordered_list(level_list = level_list, str_list = str_list)
+      ul = officer::unordered_list(level_list = level_list, str_list = str_list)
       # adding it to the report
-      rpt = ph_with(x  = rpt,  
-             location  = ph_location_label(ph_label=ph_label),
-             value     = ul) 
+      rpt = officer::ph_with(x  = rpt,  
+                             location  = officer::ph_location_label(ph_label=ph_label),
+                             value     = ul) 
     }
     else if(content_type == "imagefile"){
-      rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=external_img(src=content)) 
+      rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=officer::external_img(src=content)) 
     }
     else if(content_type == "ggplot"){
-      rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=content) 
+      rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=content) 
     }
     else if(content_type == "table"){
       if('header' %in% names(content)){
@@ -9831,7 +9831,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       if('first_row' %in% names(content)){
         first_row = content$first_row
       } else {first_row = TRUE}
-      rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=content$table, header=header, first_row=first_row) 
+      rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=content$table, header=header, first_row=first_row) 
     }
     else if(content_type == "flextable"){
       # These are the default table options
@@ -9877,9 +9877,9 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
             if(length(names(header)) > 0){
               if(first_header){
                 first_header = FALSE
-                shstr = ' ft = set_header_labels(ft'
+                shstr = ' ft = flextable::set_header_labels(ft'
               } else {
-                shstr = ' ft = add_header(ft'
+                shstr = ' ft = flextable::add_header(ft'
               }
               for(hname in names(header)){
                 shstr = sprintf('%s, %s="%s"', shstr, hname, header[[hname]])
@@ -9900,18 +9900,16 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
      
      # Merging headers
      if(merge_header){
-       ft = merge_h(ft, part="header") }
+       ft = flextable::merge_h(ft, part="header") }
 
      if(table_autofit){
-       ft = autofit(ft) }
+       ft = flextable::autofit(ft) }
 
      # Applying the aligment
-     ft = align(ft, align=table_header_alignment, part="header")
-     ft = align(ft, align=table_body_alignment,   part="body"  )
+     ft = flextable::align(ft, align=table_header_alignment, part="header")
+     ft = flextable::align(ft, align=table_body_alignment,   part="body"  )
 
-    #rpt = ph_with_flextable(x         = rpt,       type   = type, 
-    #                        index     = index,     value  = ft)
-    rpt = ph_with(x=rpt,  location=ph_location_label(ph_label=ph_label), value=ft) 
+    rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=ft) 
 
     }
    
@@ -10151,9 +10149,9 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
             if(length(names(header)) > 0){
               if(first_header){
                 first_header = FALSE
-                shstr = ' ft = set_header_labels(ft'
+                shstr = ' ft = flextable::set_header_labels(ft'
               } else {
-                shstr = ' ft = add_header(ft'
+                shstr = ' ft = flextable::add_header(ft'
               }
               for(hname in names(header)){
                 shstr = sprintf('%s, %s="%s"', shstr, hname, header[[hname]])
@@ -10174,14 +10172,14 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       
       # Merging headers
       if(merge_header){
-        ft = merge_h(ft, part="header") }
+        ft = flextable::merge_h(ft, part="header") }
       
       if(table_autofit){
-        ft = autofit(ft) }
+        ft = flextable::autofit(ft) }
       
       # Applying the aligment
-      ft = align(ft, align=table_header_alignment, part="header")
-      ft = align(ft, align=table_body_alignment,   part="body"  )
+      ft = flextable::align(ft, align=table_header_alignment, part="header")
+      ft = flextable::align(ft, align=table_body_alignment,   part="body"  )
       
     }
 
@@ -10189,13 +10187,13 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
     # Adding caption to the top of the object
     if(!is.null(content$caption) & Caption_Location == "top"){
       if(Caption_Format == "text"){
-        tmprpt = body_add_par(tmprpt, content$caption, style=Caption_Style)
+        tmprpt = officer::body_add_par(tmprpt, content$caption, style=Caption_Style)
       } else if(Caption_Format == "fpar"){
-        tmprpt = body_add_fpar(tmprpt, value=content$text, style=Caption_Style)
+        tmprpt = officer::body_add_fpar(tmprpt, value=content$text, style=Caption_Style)
       } else if(Caption_Format == "md"){
         mdout = md_to_officer(content$text)
         for(pgraph in mdout){
-          tmprpt = body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=Caption_Style)
+          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=Caption_Style)
         }
       }
       eval(parse(text=Caption_Ref_str))
@@ -10203,14 +10201,14 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
 
     # Adding the image/table
     if(content_type == "ggplot"){
-      tmprpt = body_add_gg(tmprpt, value=content$image, width = Figure_Width, height = Figure_Height)
+      tmprpt = officer::body_add_gg(tmprpt, value=content$image, width = Figure_Width, height = Figure_Height)
     }
     if(content_type == "imagefile"){
-      tmprpt = body_add_img(tmprpt, src=content$image, width = Figure_Width, height = Figure_Height)
+      tmprpt = officer::body_add_img(tmprpt, src=content$image, width = Figure_Width, height = Figure_Height)
     }
 
     if(content_type == "table"){
-     tmprpt = body_add_table(tmprpt, value=content$table, header=header, first_row=first_row, style=meta$styles$Table)
+     tmprpt = officer::body_add_table(tmprpt, value=content$table, header=header, first_row=first_row, style=meta$styles$Table)
     }
 
     if(content_type == "flextable"){
@@ -10220,13 +10218,13 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
     # Adding caption to the bottom of the object
     if(!is.null(content$caption) & Caption_Location == "bottom"){
       if(Caption_Format == "text"){
-        tmprpt = body_add_par(tmprpt, content$caption, style=Caption_Style)
+        tmprpt = officer::body_add_par(tmprpt, content$caption, style=Caption_Style)
       } else if(Caption_Format == "fpar"){
-        tmprpt = body_add_fpar(tmprpt, value=content$text, style=Caption_Style)
+        tmprpt = officer::body_add_fpar(tmprpt, value=content$text, style=Caption_Style)
       } else if(Caption_Format == "md"){
         mdout = md_to_officer(content$text)
         for(pgraph in mdout){
-          tmprpt = body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=Caption_Style)
+          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=Caption_Style)
         }
       }
       eval(parse(text=Caption_Ref_str))
@@ -10259,13 +10257,13 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       }
 
       if(Text_Format == "text"){
-        tmprpt =  body_add_par(tmprpt, value=content$text, style=text_style)
+        tmprpt =  officer::body_add_par(tmprpt, value=content$text, style=text_style)
       } else if(Text_Format == "fpar"){
-        tmprpt = body_add_fpar(tmprpt, value=content$text, style=text_style)
+        tmprpt = officer::body_add_fpar(tmprpt, value=content$text, style=text_style)
       } else if(Text_Format == "md"){
         mdout = md_to_officer(content$text)
         for(pgraph in mdout){
-          tmprpt = body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=text_style)
+          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=text_style)
         }
       }
     }
@@ -10276,11 +10274,11 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       } else {
         level = 3
       }
-      tmprpt = body_add_toc(tmprpt, style=meta$styles$TOC, level=level)
+      tmprpt = officer::body_add_toc(tmprpt, style=meta$styles$TOC, level=level)
     }
 
     if(content_type == "break"){
-      tmprpt = body_add_break(tmprpt)
+      tmprpt = officer::body_add_break(tmprpt)
     }
 
     # Putting the report back into cfg
@@ -10301,7 +10299,6 @@ cfg}
 # /system_report_doc_add_content
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
-# JMH
 # system_report_doc_format_section
 #'@export
 #'@title Formats the Current Document Section  
