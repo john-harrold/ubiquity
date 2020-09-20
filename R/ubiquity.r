@@ -13,7 +13,7 @@
 #'@importFrom dplyr  all_of select
 #'@importFrom flextable add_header align autofit body_add_flextable merge_h regulartable set_header_labels theme_alafoli theme_box theme_tron_legacy theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
 #'@importFrom parallel stopCluster makeCluster
-#'@importFrom readxl read_xls
+#'@importFrom readxl read_xls read_xlsx
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
 #'@importFrom officer add_slide body_add_break body_add_fpar body_add_par body_add_gg body_add_img body_add_table body_add_toc body_replace_all_text external_img footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type ph_location_label ph_with read_pptx read_docx styles_info unordered_list
@@ -756,7 +756,7 @@ return(res)}
 #'\itemize{
 #' \item csv - comma delimited 
 #' \item tab - tab delimited
-#' \item xls - excel spread sheet
+#' \item xls or xlsx - excel spread sheet
 #'}
 #'
 #' Multiple datasets can be loaded as long as they are given different
@@ -783,10 +783,10 @@ system_load_data <- function(cfg, dsname, data_file, data_sheet){
         cfg$data[[dsname]]$data_file$sheet  = data_sheet
       }
 
-    # if(regexpr(".xlsx$", as.character(data_file), ignore.case=TRUE) > 0){
-    #   cfg$data[[dsname]]$values = as.data.frame(readxl::read_xlsx(path=data_file, sheet=data_sheet))
-    #   cfg$data[[dsname]]$data_file$sheet  = data_sheet
-    # }
+      if(regexpr(".xlsx$", as.character(data_file), ignore.case=TRUE) > 0){
+        cfg$data[[dsname]]$values = as.data.frame(readxl::read_xlsx(path=data_file, sheet=data_sheet))
+        cfg$data[[dsname]]$data_file$sheet  = data_sheet
+      }
 
 
       if(regexpr(".csv$", as.character(data_file), ignore.case=TRUE) > 0){
