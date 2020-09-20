@@ -25,7 +25,7 @@ formats (based on the file extension)
 \itemize{
 \item csv - comma delimited 
 \item tab - tab delimited
-\item xls - excel spread sheet
+\item xls or xlsx - excel spread sheet
 }
 
 Multiple datasets can be loaded as long as they are given different
