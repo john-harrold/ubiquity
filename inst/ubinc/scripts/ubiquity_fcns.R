@@ -11,7 +11,7 @@
 #'@import stringr
 #'@importFrom digest digest
 #'@importFrom dplyr  all_of select
-#'@importFrom flextable add_header align autofit body_add_flextable merge_h regulartable set_header_labels
+#'@importFrom flextable add_header align autofit body_add_flextable merge_h regulartable set_header_labels theme_alafoli theme_box theme_tron_legacy theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom readxl read_xls
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
@@ -9896,7 +9896,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
 
      # Setting the theme
      if(!is.null(table_theme)){
-       eval(parse(text=sprintf('ft = %s(ft)', table_theme))) }
+       eval(parse(text=sprintf('ft = flextable::%s(ft)', table_theme))) }
      
      # Merging headers
      if(merge_header){
@@ -9913,8 +9913,6 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
 
     }
    
-
-
 return(rpt)}
 # /system_report_ph_content
 # -------------------------------------------------------------------------
