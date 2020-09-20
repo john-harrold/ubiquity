@@ -9896,7 +9896,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
 
      # Setting the theme
      if(!is.null(table_theme)){
-       eval(parse(text=sprintf('ft = flextable::%s(ft)', table_theme))) }
+       eval(parse(text=paste("ft = flextable::", table_theme, "(ft)", sep=""))) }
      
      # Merging headers
      if(merge_header){
@@ -10166,7 +10166,7 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
 
       # Setting the theme
       if(!is.null(table_theme)){
-        eval(parse(text=sprintf('ft = %s(ft)', table_theme))) }
+        eval(parse(text=paste("ft = flextable::", table_theme, "(ft)", sep=""))) }
       
       # Merging headers
       if(merge_header){
