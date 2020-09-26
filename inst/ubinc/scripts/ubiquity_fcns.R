@@ -9522,7 +9522,7 @@ system_report_slide_two_col = function (cfg,
 
     # Adding Slide title/subtitle information
     if(!is.null(title)){
-      tmprpt = officer::ph_with(x=tmprpt, location = ph_location_type(type = "title"),  value=title) } 
+      tmprpt = officer::ph_with(x=tmprpt, location = officer::ph_location_type(type = "title"),  value=title) } 
     if(!is.null(sub_title_index) & !is.null(sub_title)){
       tmprpt = officer::ph_with(x=tmprpt,  location=officer::ph_location_label(ph_label=sub_title_ph_label), value=sub_title) }
 
