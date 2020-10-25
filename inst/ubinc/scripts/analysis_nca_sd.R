@@ -19,6 +19,9 @@ cfg = build_system(system_file="system-mab_pk.txt",
 cfg = system_load_data(cfg, dsname     = "PKDATA", 
                             data_file  = "pk_all_sd.csv")
 
+
+# Options can be passed to PKNCA
+
 # Performing NCA
 cfg = system_nca_run(cfg, dsname        = "PKDATA", 
                           dscale        = 1e6, 
@@ -32,6 +35,11 @@ cfg = system_nca_run(cfg, dsname        = "PKDATA",
                                                ID      = "ID"),
                           digits        = 3)
             
+
+# You can access the results as a csv file in the output directory
+# file.path("output", "pk_single_dose-nca_summary.csv")
+# Or you can pull them out programmatically with the fetch function:
+NCA_results = system_fetch_nca(cfg, analysis_name = "pk_single_dose")
 
 # -------------------------------------------------------------------------
 # Writing output to PowerPoint

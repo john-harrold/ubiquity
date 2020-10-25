@@ -19,9 +19,16 @@ cfg = build_system(system_file="system-mab_pk.txt",
 cfg = system_load_data(cfg, dsname     = "PKDATA", 
                             data_file  = "pk_all_md.csv")
 
+# To see default PKNCA options use the following command:
+# def_NCA_opts = PKNCA.options()
+# Use this to overwrite specific values:
+my_NCA_opts = list(max.aucinf.pext  = 10, 
+                   min.hl.r.squared = .9)
+
 # Performing NCA
 cfg = system_nca_run(cfg, dsname        = "PKDATA", 
                           dscale        = 1e6, 
+                          NCA_options   = my_NCA_opts,
                           analysis_name = "pk_multiple_dose", 
                           dsmap         = list(TIME    = "TIME_HR", 
                                                NTIME   = "NTIME_HR", 
@@ -31,8 +38,14 @@ cfg = system_nca_run(cfg, dsname        = "PKDATA",
                                                ID      = "ID",
                                                DOSENUM = "DOSENUM",
                                                EXTRAP  = "EXTRAP"),
+                          dsinc         = c("ROUTE"),
                           digits        = 3)
             
+# You can access the results as a csv file in the output directory
+# file.path("output", "pk_multiple_dose-nca_summary.csv")
+# Or you can pull them out programmatically with the fetch function:
+NCA_results = system_fetch_nca(cfg, analysis_name = "pk_multiple_dose")
+
 # -------------------------------------------------------------------------
 # Writing output to PowerPoint
 # Creating an empty report

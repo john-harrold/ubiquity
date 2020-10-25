@@ -8,6 +8,7 @@ system_nca_run(
   cfg,
   dsname = "PKDS",
   dscale = 1,
+  NCA_options = NULL,
   NCA_min = 4,
   analysis_name = "analysis",
   dsfilter = NULL,
@@ -27,6 +28,11 @@ system_nca_run(
 
 \item{dscale}{factor to multiply the dose to get it into the same units as concentration (default \code{1}):
 if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscale = 1e6}}
+
+\item{NCA_options}{specify a list of options for PKNCA to overwrite the
+defaults (default \code{NULL} will use defaults). For example if you want to
+set the maximum extrapolation of AUCinf to 10% and the minimum R-squared for
+half-life half-life of 0.8 you would use: \code{list(max.aucinf.pext=10, min.hl.r.squared=.9)}}
 
 \item{NCA_min}{minimum number of points required to perform NCA for a given subset (default \code{4})}
 
@@ -54,7 +60,7 @@ if you are dosing in mg/kg and your concentrations is in ng/ml, then \code{dscal
  \item \code{CONC}*       Concentration data;  \code{"CONC"} (default)
  \item \code{DOSE}*       Dose given;  (\code{"DOSE"} (default)
  \item \code{ID}*         Subject ID;  (\code{"ID"} (default)
- \item \code{ROUTE}*      Route of administration;  \code{"ROUTE"} (default), can be either \code{"iv bolus"}, \code{"iv infusion"} or \code{"extra-vascular"} 
+ \item \code{ROUTE}*      Route of administration;  \code{"ROUTE"} (default), can be either \code{"iv bolus"}, \code{"iv infusion"} or \code{"extra-vascular"}. Variants such as \code{"IV_bolus"} and \code{"extravascular"} should work as well.
  \item \code{DOSENUM}     Numeric dose (starting at 1) used for grouping multiple dose data; optional, \code{NULL} (default) for single dose data)
  \item \code{BACKEXTRAP}  Specifying the number of points to use to extrapolate the initial concentration for "iv bolus" dosing; optoinal f \code{NULL} (default) will use the value defined in \code{extrap_N} (note this value must be <= NCA_min)
  \item \code{SPARSEGROUP} Column containing a unique value grouping cohorts for pooling data. Needed when \code{sparse} is set to \code{TRUE}; optional, \code{NULL} (default)

@@ -31,7 +31,13 @@ cfg = system_nca_run(cfg, dsname        = "PKDATA",
                                                ROUTE       = "ROUTE", 
                                                ID          = "ID",
                                                SPARSEGROUP = "DOSE"),
+                          dsinc         = c("ROUTE"),
                           digits        = 3)
+
+# You can access the results as a csv file in the output directory
+# file.path("output", "pk_sparse-nca_summary.csv")
+# Or you can pull them out programmatically with the fetch function:
+NCA_results = system_fetch_nca(cfg, analysis_name = "pk_sparse")
             
 # -------------------------------------------------------------------------
 # Writing output to PowerPoint

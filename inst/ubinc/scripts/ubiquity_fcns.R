@@ -17,6 +17,7 @@
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
 #'@importFrom officer add_slide body_add_break body_add_fpar body_add_par body_add_gg body_add_img body_add_table body_add_toc body_replace_all_text external_img footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type ph_location_label ph_with read_pptx read_docx shortcuts styles_info unordered_list
+#'@importFrom PKNCA PKNCA.options PKNCAconc PKNCAdose PKNCAdata pk.nca 
 #'@importFrom utils read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
 #'@importFrom stats median qt var
 #'@importFrom MASS mvrnorm
@@ -3276,15 +3277,17 @@ if("iiv" %in% names(cfg) | !is.null(sub_file)){
        vp(cfg, paste("Error: The specified dataset:", sub_file, "contains no data", sep="")) 
        isgood = FALSE
      } else {
-       if((nsub > sub_file_nsub & sub_file_sample == "without replacement")){
-          vp(cfg, " ")
-          vp(cfg, "simulate_subjects ()")
-          vp(cfg, sprintf("Warning: The number of subjects requested (%d) is greater than", nsub))
-          vp(cfg, sprintf("the number in the subjects dataset (%d) so it is not", sub_file_nsub))
-          vp(cfg, sprintf("possible to sample without replacement. Changing sampling"))
-          vp(cfg, sprintf("method to 'with replacement'"))
-          vp(cfg, " ")
-          sub_file_sample = "with replacement"
+       if(isgood){
+         if((nsub > sub_file_nsub & sub_file_sample == "without replacement")){
+            vp(cfg, " ")
+            vp(cfg, "simulate_subjects()")
+            vp(cfg, sprintf("Warning: The number of subjects requested (%d) is greater than", nsub))
+            vp(cfg, sprintf("the number in the subjects dataset (%d) so it is not", sub_file_nsub))
+            vp(cfg, sprintf("possible to sample without replacement. Changing sampling"))
+            vp(cfg, sprintf("method to 'with replacement'"))
+            vp(cfg, " ")
+            sub_file_sample = "with replacement"
+         }
        }
      }
   }
@@ -11495,6 +11498,10 @@ res}
 #'
 #'@param cfg ubiquity system object
 #'@param dsname name of dataset loaded with (\code{\link{system_load_data}})
+#'@param NCA_options specify a list of options for PKNCA to overwrite the
+#'   defaults (default \code{NULL} will use defaults). For example if you want to
+#'   set the maximum extrapolation of AUCinf to 10% and the minimum R-squared for
+#'   half-life half-life of 0.8 you would use: \code{list(max.aucinf.pext=10, min.hl.r.squared=.9)}
 #'@param NCA_min minimum number of points required to perform NCA for a given subset (default \code{4})
 #'@param analysis_name string containing the name of the analysis (default 'analysis') to archive to files and reference results later
 #'@param dsfilter list of names corresponding to the column names in the dataset and values are a sequence indicating values to keep (default \code{NULL}. Multiple names are and-ed together. For example the following would keep all of the records where dose is 1, 2, or 5 and the dose_number is 1
@@ -11517,7 +11524,7 @@ res}
 #'  \item \code{CONC}*       Concentration data;  \code{"CONC"} (default)
 #'  \item \code{DOSE}*       Dose given;  (\code{"DOSE"} (default)
 #'  \item \code{ID}*         Subject ID;  (\code{"ID"} (default)
-#'  \item \code{ROUTE}*      Route of administration;  \code{"ROUTE"} (default), can be either \code{"iv bolus"}, \code{"iv infusion"} or \code{"extra-vascular"} 
+#'  \item \code{ROUTE}*      Route of administration;  \code{"ROUTE"} (default), can be either \code{"iv bolus"}, \code{"iv infusion"} or \code{"extra-vascular"}. Variants such as \code{"IV_bolus"} and \code{"extravascular"} should work as well.
 #'  \item \code{DOSENUM}     Numeric dose (starting at 1) used for grouping multiple dose data; optional, \code{NULL} (default) for single dose data)
 #'  \item \code{BACKEXTRAP}  Specifying the number of points to use to extrapolate the initial concentration for "iv bolus" dosing; optoinal f \code{NULL} (default) will use the value defined in \code{extrap_N} (note this value must be <= NCA_min)
 #'  \item \code{SPARSEGROUP} Column containing a unique value grouping cohorts for pooling data. Needed when \code{sparse} is set to \code{TRUE}; optional, \code{NULL} (default)
@@ -11534,6 +11541,7 @@ res}
 system_nca_run = function(cfg, 
                           dsname            = "PKDS", 
                           dscale            = 1,
+                          NCA_options       = NULL,
                           NCA_min           = 4,
                           analysis_name     = "analysis",
                           dsfilter          = NULL,
@@ -11570,6 +11578,23 @@ system_nca_run = function(cfg,
     vp(cfg, paste( ubiquity_name_check(analysis_name)$msg[1]))
   }
 
+  # Checking the NCA options
+  if(!is.null(NCA_options)){
+    # First we check to make sure there aren't any specified options that
+    # don't exist. To do this we pull the defaults from PKNCA
+    NCA_options_all = PKNCA::PKNCA.options()
+
+    # First we check to make sure the user specified valid options
+    if(all(names(NCA_options) %in% names(NCA_options_all))){
+      for(NCA_option in names(NCA_options)){
+        # valid options are then set individually
+        eval(parse(text=paste("PKNCA::PKNCA.options(",NCA_option,'=NCA_options[["',NCA_option,'"]])', sep="")))
+      }
+    } else {
+      isgood = FALSE
+      vp(cfg, paste("Error: NCA_options were specified but are not valid >",  paste(names(NCA_options)[!(names(NCA_options) %in% names(NCA_options_all))], collapse= ", "), "<", sep=""))
+    }
+  }
 
   if(dsname %in% names(cfg[["data"]])){
     DS = cfg[["data"]][[dsname]][["values"]]
@@ -11689,11 +11714,23 @@ system_nca_run = function(cfg,
       isgood=FALSE
     }
 
+    #----
+    # Routes can be specified using:                             The transformations below convert them into
+    # IV_bolus, iv bolus, IV bolus, iv bolus                -->  iv bolus
+    # IV_infusion, iv infusion, IV infusion, iv infusion    -->  iv infusion
+    # extravascular, extra-vascular                         -->  extra-vascular
+    # Converting all route specifications to lower case
+    DS[[dsmap[["ROUTE"]]]] = stringr::str_to_lower(DS[[dsmap[["ROUTE"]]]])
+    # Stripping any underscores after the iv
+    DS[[dsmap[["ROUTE"]]]] = gsub(DS[[dsmap[["ROUTE"]]]], pattern="^iv_",          replacement="iv ")
+    # making sure extra vascular is consistent as well
+    DS[[dsmap[["ROUTE"]]]] = gsub(DS[[dsmap[["ROUTE"]]]], pattern="extravascular", replacement="extra-vascular")
+                            
     # Allowed routes:
     ROUTES_GOOD = c("iv infusion", "extra-vascular", "iv bolus")
 
     # Route in the dataset:
-    ROUTES_DS   =  unique(DS[["ROUTE"]])
+    ROUTES_DS   =  unique(DS[[dsmap[["ROUTE"]]]])
 
     # If there are routes that are not in ROUTES_GOOD we throw an error:
     if(length(setdiff(ROUTES_DS, ROUTES_GOOD)) > 0){
@@ -11702,6 +11739,7 @@ system_nca_run = function(cfg,
       isgood=FALSE
     
     }
+    #----
   }
 
   # calculating the dose in the same mass units as concentration
@@ -11833,115 +11871,114 @@ system_nca_run = function(cfg,
           vp(cfg, paste(ID_label, ": >", sub, "< Dose ", dosenum, " had less than ", NCA_min, " observations (NCA_min)",sep=""))
         }
 
-
-        # This will hold the NCA summary information for the current subject
-        # subset
-        tmpsum = NULL  
-
-        # Tmax and Cmax are taken directly from the dataset. The min() below
-        # selects the first time that Cmax is observed if there are multiple
-        # occurrences of the Cmax
-        Cmax            = max(SUBDS_DN[["SI_CONC"]])
-        Tmax            = min(SUBDS_DN[SUBDS_DN[["SI_CONC"]] == Cmax, ][[dsmap[["NTIME"]]]])
-        if(!is.null(digits)){
-          Cmax            = signif(Cmax, digits)
-          Tmax            = signif(Tmax, digits)
-        } 
-
-        # Finding the predose conc 
-        # By default it's zero:
-        PREDOSE_CONC = 0.0
-        # first we look for observations with time values before the first
-        # observation of the current subset
-        if(any(SUBDS[[dsmap[["TIME"]]]] < min(SUBDS_DN[[dsmap[["TIME"]]]]))){
-          # This gets the subject dataset leading up to the current subset
-          PREDOSEDS = SUBDS[SUBDS[[dsmap[["TIME"]]]] < min(SUBDS_DN[[dsmap[["TIME"]]]]), ]
-
-          # Pulling out the values at the last time point
-          PREDOSEDS = PREDOSEDS[PREDOSEDS[[dsmap[["TIME"]]]] == max(PREDOSEDS[[dsmap[["TIME"]]]]), ]
-
-          # Now we pluck off the last value:
-          PREDOSE_CONC = PREDOSEDS[nrow(PREDOSEDS), ][["SI_CONC"]]
-        }
-
-        # The nominal time of this point will be 0, but in a multiple dose
-        # setting the clock time will be different:
-        C0_NTIME = 0
-        C0_TIME  = SUBDS_DN[[dsmap[["TIME"]]]][1] - SUBDS_DN[[dsmap[["NTIME"]]]][1]
-        BACKEXTRAP_NTIME = NULL
-        BACKEXTRAP_TIME  = NULL
-        BACKEXTRAP_CONC  = NULL
-        
-        # Extrapolating C0 if extrapolation has been selected and the first
-        # nominal time is not zero
-        if(extrap_C0 & SUBDS_DN[[dsmap[["NTIME"]]]][1] != 0){
-
-          if(ROUTE %in% c("iv bolus")){
-            if(is.null(dsmap[["BACKEXTRAP"]])){
-              BACKEXTRAP_N     = extrap_N
-            } else {
-              # Using subjects-specific number of points to extrapolate
-              BACKEXTRAP_N     = SUBDS_DN[[dsmap[["BACKEXTRAP"]]]][1]
-            }
-            # Time, nominal time and concentrations sequences used for
-            # extrapolation
-            BACKEXTRAP_NTIME = SUBDS_DN[[dsmap[["NTIME"]]]][1:BACKEXTRAP_N]
-            BACKEXTRAP_TIME  = SUBDS_DN[[dsmap[["TIME"]]]] [1:BACKEXTRAP_N]
-            BACKEXTRAP_CONC  = SUBDS_DN[["SI_CONC"]]       [1:BACKEXTRAP_N]
-
-
-            # This does least squares fitting of the ln of the concentration
-            # data:
-            BACKEXTRAP_TH    = calculate_halflife(BACKEXTRAP_NTIME, BACKEXTRAP_CONC)
-
-            # Pulling out the slope and intercept:
-            BACKEXTRAP_SLOPE     = BACKEXTRAP_TH[["mod"]][["coefficients"]][2]
-            BACKEXTRAP_INTERCEPT = BACKEXTRAP_TH[["mod"]][["coefficients"]][1]
-
-            if(BACKEXTRAP_SLOPE < 0){
-              # Because we're using nominal time to perform the regression the
-              # intercept is the natural log of the C0:
-              C0 = exp(BACKEXTRAP_INTERCEPT)
-            } else {
-              C0 = BACKEXTRAP_CONC[1]
-            }
-          }
-          if(ROUTE %in% c("iv infusion", "extra-vascular")){
-            # Here we set the C0 value to the PREDOSE_CONC calculated above:
-            C0 = PREDOSE_CONC
-          }
-        } else {
-          # Otherwise we return -1 for C0 
-          C0 = -1
-        }
-        
-        tmpsum[["ID"]]              = sub
-        tmpsum[["Nobs"]]            = nrow(SUBDS_DN)
-        tmpsum[["Dose_Number"]]     = dosenum
-        tmpsum[["Dose"]]            = SUBDS_DN[[dsmap[["DOSE"]]]][1]
-        tmpsum[["Dose_CU"]]         = SUBDS_DN[["SI_DOSE"]][1]
-        tmpsum[["Cmax"]]            = Cmax
-        tmpsum[["Tmax"]]            = Tmax 
-        tmpsum[["halflife"]]        = -1
-        tmpsum[["Vp_obs"]]          = -1
-        tmpsum[["Vss_obs"]]         = -1
-        tmpsum[["Vss_pred"]]        = -1
-        tmpsum[["C0"]]              = C0  
-        tmpsum[["CL_obs"]]          = -1
-        tmpsum[["CL_pred"]]         = -1
-        tmpsum[["AUClast"]]         = -1
-        tmpsum[["AUCinf_pred"]]     = -1
-        tmpsum[["AUCinf_obs"]]      = -1
-
-        # If we're performing a sparse analysis we add the elements 
-        # to hold the results from Bailer's analysis
-        if(sparse){
-          tmpsum[["AUCBailer"]]       = -1
-          tmpsum[["AUCBailer_var"]]   = -1
-        }
-
-
+        # This will hold the NCA summary information for the current
+        # subject/dose subset
         if(PROC_SUBDN){
+          tmpsum = list()
+          
+          # Tmax and Cmax are taken directly from the dataset. The min() below
+          # selects the first time that Cmax is observed if there are multiple
+          # occurrences of the Cmax
+          Cmax            = max(SUBDS_DN[["SI_CONC"]])
+          Tmax            = min(SUBDS_DN[SUBDS_DN[["SI_CONC"]] == Cmax, ][[dsmap[["NTIME"]]]])
+          if(!is.null(digits)){
+            Cmax            = signif(Cmax, digits)
+            Tmax            = signif(Tmax, digits)
+          } 
+
+          # Finding the predose conc 
+          # By default it's zero:
+          PREDOSE_CONC = 0.0
+          # first we look for observations with time values before the first
+          # observation of the current subset
+          if(any(SUBDS[[dsmap[["TIME"]]]] < min(SUBDS_DN[[dsmap[["TIME"]]]]))){
+            # This gets the subject dataset leading up to the current subset
+            PREDOSEDS = SUBDS[SUBDS[[dsmap[["TIME"]]]] < min(SUBDS_DN[[dsmap[["TIME"]]]]), ]
+
+            # Pulling out the values at the last time point
+            PREDOSEDS = PREDOSEDS[PREDOSEDS[[dsmap[["TIME"]]]] == max(PREDOSEDS[[dsmap[["TIME"]]]]), ]
+
+            # Now we pluck off the last value:
+            PREDOSE_CONC = PREDOSEDS[nrow(PREDOSEDS), ][["SI_CONC"]]
+          }
+
+          # The nominal time of this point will be 0, but in a multiple dose
+          # setting the clock time will be different:
+          C0_NTIME = 0
+          C0_TIME  = SUBDS_DN[[dsmap[["TIME"]]]][1] - SUBDS_DN[[dsmap[["NTIME"]]]][1]
+          BACKEXTRAP_NTIME = NULL
+          BACKEXTRAP_TIME  = NULL
+          BACKEXTRAP_CONC  = NULL
+          
+          # Extrapolating C0 if extrapolation has been selected and the first
+          # nominal time is not zero
+          if(extrap_C0 & SUBDS_DN[[dsmap[["NTIME"]]]][1] != 0){
+
+            if(ROUTE %in% c("iv bolus")){
+              if(is.null(dsmap[["BACKEXTRAP"]])){
+                BACKEXTRAP_N     = extrap_N
+              } else {
+                # Using subjects-specific number of points to extrapolate
+                BACKEXTRAP_N     = SUBDS_DN[[dsmap[["BACKEXTRAP"]]]][1]
+              }
+              # Time, nominal time and concentrations sequences used for
+              # extrapolation
+              BACKEXTRAP_NTIME = SUBDS_DN[[dsmap[["NTIME"]]]][1:BACKEXTRAP_N]
+              BACKEXTRAP_TIME  = SUBDS_DN[[dsmap[["TIME"]]]] [1:BACKEXTRAP_N]
+              BACKEXTRAP_CONC  = SUBDS_DN[["SI_CONC"]]       [1:BACKEXTRAP_N]
+
+
+              # This does least squares fitting of the ln of the concentration
+              # data:
+              BACKEXTRAP_TH    = calculate_halflife(BACKEXTRAP_NTIME, BACKEXTRAP_CONC)
+
+              # Pulling out the slope and intercept:
+              BACKEXTRAP_SLOPE     = BACKEXTRAP_TH[["mod"]][["coefficients"]][2]
+              BACKEXTRAP_INTERCEPT = BACKEXTRAP_TH[["mod"]][["coefficients"]][1]
+
+              if(BACKEXTRAP_SLOPE < 0){
+                # Because we're using nominal time to perform the regression the
+                # intercept is the natural log of the C0:
+                C0 = exp(BACKEXTRAP_INTERCEPT)
+              } else {
+                C0 = BACKEXTRAP_CONC[1]
+              }
+            }
+            if(ROUTE %in% c("iv infusion", "extra-vascular")){
+              # Here we set the C0 value to the PREDOSE_CONC calculated above:
+              C0 = PREDOSE_CONC
+            }
+          } else {
+            # Otherwise we return -1 for C0 
+            C0 = -1
+          }
+          
+          tmpsum[["ID"]]              = sub
+          tmpsum[["Nobs"]]            = nrow(SUBDS_DN)
+          tmpsum[["Dose_Number"]]     = dosenum
+          tmpsum[["Dose"]]            = SUBDS_DN[[dsmap[["DOSE"]]]][1]
+          tmpsum[["Dose_CU"]]         = SUBDS_DN[["SI_DOSE"]][1]
+          tmpsum[["Cmax"]]            = Cmax
+          tmpsum[["Tmax"]]            = Tmax 
+          tmpsum[["halflife"]]        = -1
+          tmpsum[["Vp_obs"]]          = -1
+          tmpsum[["Vss_obs"]]         = -1
+          tmpsum[["Vss_pred"]]        = -1
+          tmpsum[["C0"]]              = C0  
+          tmpsum[["CL_obs"]]          = -1
+          tmpsum[["CL_pred"]]         = -1
+          tmpsum[["AUClast"]]         = -1
+          tmpsum[["AUCinf_pred"]]     = -1
+          tmpsum[["AUCinf_obs"]]      = -1
+
+          # If we're performing a sparse analysis we add the elements 
+          # to hold the results from Bailer's analysis
+          if(sparse){
+            tmpsum[["AUCBailer"]]       = -1
+            tmpsum[["AUCBailer_var"]]   = -1
+          }
+
+
           if(sparse){
             # Performing sparse analysis using Bailers method 
             # The data frame used here is TMP_SS_DN which is all of the data
@@ -11952,6 +11989,10 @@ system_nca_run = function(cfg,
                                                                  ID          = dsmap[["ID"]]))
             # Appending the results to the summary table
             if(res_Bailers[["isgood"]]){
+              if(!is.null(digits)){
+                res_Bailers[["AUC"]]       = signif(res_Bailers[["AUC"]],     digits)
+                res_Bailers[["var_AUC"]]   = signif(res_Bailers[["var_AUC"]], digits)  
+              }
               tmpsum[["AUCBailer"]]       = res_Bailers[["AUC"]]
               tmpsum[["AUCBailer_var"]]   = res_Bailers[["var_AUC"]]
             }
@@ -12086,6 +12127,13 @@ system_nca_run = function(cfg,
             rptobjs[[sub_str]][[dosenum_str]]$lc      = lctmp
             rptobjs[[sub_str]][[dosenum_str]]$rc      = rctmp
             rptobjs[[sub_str]][[dosenum_str]]$all     = all
+
+            # adding pass-through columns
+            if(!is.null(dsinc)){
+              for(DSCOL in dsinc){
+                tmpsum[[DSCOL]] = SUBDS_DN[[DSCOL]][1]
+              }
+            }
             
             tmpsum = as.data.frame(tmpsum)
             if(is.null(NCA_sum)){
@@ -12154,6 +12202,40 @@ system_nca_run = function(cfg,
 
 cfg}
 
+#-------------------------------------------------------------------------
+#'@export 
+#'@title Fetch NCA Results
+#'@description Fetches the NCA summary from the ubiquity system object.
+#'
+#'@param cfg ubiquity system object
+#'@param analysis_name string containing the name of the NCA analysis (default \code{'analysis'})
+#'
+#'@return List with a data frame of the NCA results (\code{NCA_sum}), the raw
+#' output from PKNCA (\code{PKNCA_results}), and also a list element indicating the
+#' overall success of the function call (\code{isgood})
+#'@seealso Vignette on NCA (\code{vignette("NCA", package = "ubiquity")}) 
+
+system_fetch_nca = function(cfg,
+                             analysis_name = "analysis"){
+
+  isgood        = TRUE
+  NCA_summary   = NULL
+  PKNCA_results = NULL
+
+  if((analysis_name %in% names(cfg[["nca"]]))){
+    NCA_summary   = cfg[["nca"]][[analysis_name]][["NCA_sum"]]
+    PKNCA_results = cfg[["nca"]][[analysis_name]][["PKNCA_raw"]]
+  } else {
+    isgood = FALSE
+    vp(cfg, paste("The NCA analysis >", analysis_name, "< was not found", sep=""))
+    vp(cfg, "system_fetch_nca()")
+    vp(cfg, "Errors were found see messages above for more information")
+  }
+
+  res = list(isgood        = isgood,
+             NCA_summary   = NCA_summary,
+             PKNCA_results = PKNCA_results)
+res}
 
 #-------------------------------------------------------------------------
 #'@export 
@@ -12162,7 +12244,7 @@ cfg}
 #'
 #'@param cfg ubiquity system object
 #'@param rptname report name (either PowerPoint or Word) 
-#'@param analysis_name string containing the name of the analysis (default \code{'analysis'}) to archive to files and reference results later
+#'@param analysis_name string containing the name of the NCA analysis (default \code{'analysis'})
 #'@param rows_max maximum number of rows per slide when generating tabular data
 #'@param table_headers Boolean variable to add descriptive headers to output tables (default \code{TRUE})
 #'@return cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:

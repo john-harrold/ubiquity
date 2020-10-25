@@ -30,12 +30,19 @@ cfg = build_system(system_file="system.txt",
 #                             data_file  = "DS.tab")
 #    
 
+# To see default PKNCA options use the following command:
+# def_NCA_opts = PKNCA.options()
+# Use this to overwrite specific values:
+# my_NCA_opts = list(max.aucinf.pext  = 10, 
+#                    min.hl.r.squared = .9)
+# Replace the NULL value of NCA_options below with my_NCA_opts
+# to overwrite the PKCNA defaults. 
 
 # Performing NCA
-
 # cfg = system_nca_run(cfg, 
 #                      dsname        = "DSNAME", 
 #                      dscale        = 1,
+#                      NCA_options   = NULL,       
 #                      NCA_min       = 4,
 #                      analysis_name = "analysis",
 #                      dsfilter      = NULL,

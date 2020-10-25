@@ -17,7 +17,7 @@ system_report_nca(
 
 \item{rptname}{report name (either PowerPoint or Word)}
 
-\item{analysis_name}{string containing the name of the analysis (default \code{'analysis'}) to archive to files and reference results later}
+\item{analysis_name}{string containing the name of the NCA analysis (default \code{'analysis'})}
 
 \item{rows_max}{maximum number of rows per slide when generating tabular data}
 
