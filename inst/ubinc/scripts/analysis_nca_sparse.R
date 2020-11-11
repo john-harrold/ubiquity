@@ -31,8 +31,7 @@ cfg = system_nca_run(cfg, dsname        = "PKDATA",
                                                ROUTE       = "ROUTE", 
                                                ID          = "ID",
                                                SPARSEGROUP = "DOSE"),
-                          dsinc         = c("ROUTE"),
-                          digits        = 3)
+                          dsinc         = c("ROUTE"))
 
 # You can access the results as a csv file in the output directory
 # file.path("output", "pk_sparse-nca_summary.csv")

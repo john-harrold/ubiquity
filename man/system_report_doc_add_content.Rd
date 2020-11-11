@@ -73,6 +73,7 @@ format (\code{?md_to_officer} for markdown details).
      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
      \item \code{table_theme} (\code{"theme_vanilla"}) Table theme
    }
+ \item \code{"flextable_object"} user defined flextable object 
 }}
 }
 \value{

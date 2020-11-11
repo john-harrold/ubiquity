@@ -332,6 +332,9 @@ cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Height                     
 # values listed in the system file.
 cfg = system_select_set(cfg, "default")
 
+# Populating the NCA meta information with defaults
+cfg[["options"]][["nca_meta"]] = system_nca_parameters_meta()
+
 
 return(cfg);
 }

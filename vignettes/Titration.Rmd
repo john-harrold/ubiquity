@@ -4,7 +4,7 @@ author: "John Harrold & Anson Abraham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Titration}
+  %\VignetteIndexEntry{Titration/Rule-Based Simulations}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

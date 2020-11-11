@@ -11,13 +11,14 @@
 #'@import stringr
 #'@importFrom digest digest
 #'@importFrom dplyr  all_of select
-#'@importFrom flextable add_header align autofit body_add_flextable merge_h regulartable set_header_labels theme_alafoli theme_box theme_tron_legacy theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
+#'@importFrom flextable add_header add_footer align autofit body_add_flextable delete_part merge_h regulartable set_header_labels theme_alafoli theme_box theme_tron_legacy theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom readxl read_xls read_xlsx
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
+#'@importFrom magrittr "%>%"
 #'@importFrom officer add_slide body_add_break body_add_fpar body_add_par body_add_gg body_add_img body_add_table body_add_toc body_replace_all_text external_img footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type ph_location_label ph_with read_pptx read_docx shortcuts styles_info unordered_list
-#'@importFrom PKNCA PKNCA.options PKNCAconc PKNCAdose PKNCAdata pk.nca 
+#'@importFrom PKNCA PKNCA.options PKNCAconc PKNCAdose PKNCAdata pk.nca get.interval.cols
 #'@importFrom utils read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
 #'@importFrom stats median qt var
 #'@importFrom MASS mvrnorm
@@ -2578,6 +2579,7 @@ toc <- function()
 #'
 #'@param cfg ubiquity system object    
 #'@param field string indicating the aspect of the system to display
+#'@param verbose Boolean variable that when set to true will echo the information to the screen 
 #'
 #'@return sequence of strings with system in formation (one line per element)
 #'
@@ -2592,6 +2594,7 @@ toc <- function()
 #'    \item \code{"datasets"} loaded datasets
 #'    \item \code{"simulation"} simulation options
 #'    \item \code{"estimation"} estimation options
+#'    \item \code{"nca"} non-compartmental analyses that have been performed
 #' }
 #'@examples
 #' # To log and display the current system information:
@@ -2607,9 +2610,9 @@ toc <- function()
 #'       output_directory          = file.path(tempdir(), "output"),
 #'       temporary_directory       = tempdir())
 #'
-#' vp(cfg, system_view(cfg))
+#'   system_view(cfg, verbose=TRUE)
 #' }
-system_view <- function(cfg,field="all") {
+system_view <- function(cfg,field="all", verbose=FALSE) {
   
   msgs = c()
   
@@ -2882,6 +2885,69 @@ system_view <- function(cfg,field="all") {
      } else {
        msgs = c(msgs, " No cohort information found") }
   }
+
+  #
+  # NCA 
+  #
+  # Processing infusion rate information
+  if(field == "all" | field== "nca"){
+    if("nca" %in% names(cfg)){
+      for(analysis_name in  names(cfg[["nca"]])){
+        nca_tmp = cfg[["nca"]][[analysis_name]]
+        NCA_cols = system_fetch_nca_columns(cfg, analysis_name = analysis_name)
+        msgs = c(msgs, " ")
+        msgs = c(msgs, "NCA Details")
+        msgs = c(msgs, paste("  Analysis:                       ", analysis_name))
+        msgs = c(msgs, paste("   Options:                       "))
+        msgs = c(msgs, paste("      Dose to conc scale          ", nca_tmp[["ana_opts"]][["dscale"]]))
+        msgs = c(msgs, paste("      Min NCA points              ", nca_tmp[["ana_opts"]][["NCA_min"]]))
+        msgs = c(msgs, paste("      Extrapolate C0              ", nca_tmp[["ana_opts"]][["extrap_C0"]]))
+        msgs = c(msgs, paste("      Number of extrap points     ", nca_tmp[["ana_opts"]][["extrap_N"]]))
+        msgs = c(msgs, paste("      Sparse                      ", nca_tmp[["ana_opts"]][["sparse"]]))
+        msgs = c(msgs, paste("   Dataset (", nca_tmp[["ana_opts"]][["dsname"]], ")"))
+        msgs = c(msgs, paste("      NCA Field-->Column in dataset"))
+        msgs = c(msgs, paste("      -----------------------------"))
+        for(dsfield in names(nca_tmp[["ana_opts"]][["dsmap"]])){
+          msgs = c(msgs, paste("      ", dsfield, "-->", nca_tmp[["ana_opts"]][["dsmap"]][[dsfield]], sep=""))
+        }
+        msgs = c(msgs, paste("   The analysis contains the following columns"))
+        msgs = c(msgs, "")
+        len_NCA_col     = NCA_cols$len_NCA_col      
+        len_label       = NCA_cols$len_label       
+        len_from        = NCA_cols$len_from        
+        len_description = 40
+        nca_res_header  = paste(pad_string("column name", location="end", maxlength=(len_NCA_col        + 2)), "|",
+                                pad_string("from",        location="end", maxlength=(len_from           + 2)), "|",
+                                pad_string("label",       location="end", maxlength=(len_label          + 2)), "|",
+                                pad_string("description", location="end", maxlength=(len_description    + 2))     ,sep="")
+     
+        row_sep = paste(rep("-", nchar(nca_res_header)), collapse="")
+
+        msgs = c(msgs, paste("     ", row_sep, sep=""))
+        msgs = c(msgs, paste("     ", nca_res_header, sep=""))
+        msgs = c(msgs, paste("     ", row_sep, sep=""))
+
+        for(ridx in 1:nrow(NCA_cols[["NCA_col_summary"]])){
+           col_name       = as.character(NCA_cols[["NCA_col_summary"]][ridx,][["col_name"]])
+           from           = as.character(NCA_cols[["NCA_col_summary"]][ridx,][["from"]])
+           label          = as.character(NCA_cols[["NCA_col_summary"]][ridx,][["label"]])
+           description    = as.character(NCA_cols[["NCA_col_summary"]][ridx,][["description"]])
+
+           nca_res_row    = paste(pad_string(col_name,    location="end", maxlength=(len_NCA_col        + 2)), "|",
+                                  pad_string(from,        location="end", maxlength=(len_from           + 2)), "|",
+                                  pad_string(label,       location="end", maxlength=(len_label          + 2)), "|",
+                                  pad_string(description, location="end", maxlength=(len_description    + 2))     ,sep="")
+           msgs = c(msgs, paste("     ", nca_res_row, sep=""))
+        }
+        msgs = c(msgs, paste("     ", row_sep, sep=""))
+      }
+    } else {
+      msgs = c(msgs, "No NCA has been performed") 
+    }
+
+  }
+
+
   
   # Processing infusion rate information
   if(field == "all" | field== "XXX"){
@@ -2889,6 +2955,11 @@ system_view <- function(cfg,field="all") {
    #  } else {
    #  }
   }
+
+  # This will print the current results to the screen if 
+  # verbose has been selected
+  if(verbose){
+     vp(cfg, msgs) }
   
 return(msgs)}
 # /system_view
@@ -9334,7 +9405,7 @@ system_report_slide_content = function (cfg,
     tmprpt  = cfg$reporting$reports[[rptname]]$report
 
     # Adding the slide
-    if(content_type %in% c("text", "imagefile", "ggplot", "table", "flextable")){
+    if(content_type %in% c("text", "imagefile", "ggplot", "table", "flextable", "flextable_object")){
       tmprpt = officer::add_slide(x      = tmprpt, 
                          layout = meta$content$layout$general,
                          master = meta$content$master$general)
@@ -9807,6 +9878,7 @@ return(cfg)}
 #'      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
 #'      \item \code{table_theme} (\code{"theme_vanilla"}) Table theme
 #'    }
+#'  \item \code{"flextable_object"} user defined flextable object 
 #'  }
 #'
 #'@seealso \code{\link{system_report_view_layout}}
@@ -9926,8 +9998,10 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
 
     rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=ft) 
 
+    } 
+    else if(content_type == "flextable_object"){
+      rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=content) 
     }
-   
 return(rpt)}
 # /system_report_ph_content
 # -------------------------------------------------------------------------
@@ -9994,6 +10068,7 @@ return(rpt)}
 #'      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
 #'      \item \code{table_theme} (\code{"theme_vanilla"}) Table theme
 #'    }
+#'  \item \code{"flextable_object"} user defined flextable object 
 #'}
 #'@return cfg ubiquity system object with the content added to the body
 system_report_doc_add_content = function(cfg, rptname="default", content_type=NULL, content=NULL){
@@ -10026,7 +10101,7 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
     vp(cfg, "Either the content or the content_type was not specified")
   } else {
     # Checking the content type
-    if(!(content_type %in% c("break", "text", "toc", "imagefile", "ggplot", "table", "flextable"))){
+    if(!(content_type %in% c("break", "text", "toc", "imagefile", "ggplot", "table", "flextable", "flextable_object"))){
       vp(cfg, paste("the content type >", content_type, "< is not supported",sep=""))
       isgood = FALSE
     } else{
@@ -10054,6 +10129,16 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       if(content_type == "table"){
         if(!is.data.frame(content$table)){
           vp(cfg, paste("the tabular information found in >content$table< is not a data.frame object",sep=""))
+          isgood = FALSE
+        }
+      }
+      if(content_type == "flextable_object"){
+        # Making sure the caption defaults to NULL if it's not defined
+        if(!("caption" %in% names(content))){
+          content[["caption"]] = NULL
+        }
+        if(!("ft" %in% names(content))){
+          vp(cfg, paste("the flextable object >content$ft< was not found",sep=""))
           isgood = FALSE
         }
       }
@@ -10100,7 +10185,7 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       Caption_Ref_str  =  paste("tmprpt = officer::shortcuts$slip_in_plotref(tmprpt, depth =", depth, ")")
     }
     
-    if(content_type == "table" | content_type == "flextable"){
+    if(content_type == "table" | content_type == "flextable" | content_type=="flextable_object"){
       Caption_Location = meta$styles$Table_Caption_Location 
       Caption_Style    = meta$styles$Table_Caption
       Caption_Ref_str  =  paste("tmprpt = officer::shortcuts$slip_in_tableref(tmprpt, depth =", depth, ")")
@@ -10195,6 +10280,10 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       ft = flextable::align(ft, align=table_body_alignment,   part="body"  )
       
     }
+    #-------
+    if(content_type == "flextable_object"){
+      ft = content[["ft"]]
+    }
 
     #------
     # Adding caption to the top of the object
@@ -10224,7 +10313,7 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
      tmprpt = officer::body_add_table(tmprpt, value=content$table, header=header, first_row=first_row, style=meta$styles$Table)
     }
 
-    if(content_type == "flextable"){
+    if(content_type == "flextable" | content_type=="flextable_object"){
       tmprpt = flextable::body_add_flextable(x = tmprpt, value = ft)
     }
 
@@ -11529,7 +11618,6 @@ res}
 #'  \item \code{BACKEXTRAP}  Specifying the number of points to use to extrapolate the initial concentration for "iv bolus" dosing; optoinal f \code{NULL} (default) will use the value defined in \code{extrap_N} (note this value must be <= NCA_min)
 #'  \item \code{SPARSEGROUP} Column containing a unique value grouping cohorts for pooling data. Needed when \code{sparse} is set to \code{TRUE}; optional, \code{NULL} (default)
 #' }
-#'@param digits number of significant digits to report \code{3} (default), set to \code{NULL} to disable rounding
 #'@param dsinc (NOT CURRENTLY IMPLEMENTED) optional character vector of columns from the dataset to include in the output summary (default \code{NULL})
 #'@return cfg ubiquity system object with the NCA results and if the analysis name is specified:
 #' \itemize{
@@ -11557,7 +11645,6 @@ system_nca_run = function(cfg,
                                                    DOSENUM     = NULL, 
                                                    BACKEXTRAP  = NULL,
                                                    SPARSEGROUP = NULL),
-                          digits            = 3,
                           dsinc             = NULL){
 
   # stores the report objects
@@ -11567,7 +11654,8 @@ system_nca_run = function(cfg,
   # Pulling the output directory from the ubiquity object
   output_directory = cfg[["options"]][["misc"]][["output_directory"]]
 
-  system_req("PKNCA")
+  invisible(system_req("PKNCA"))
+  invisible(system_req("ggplot2"))
 
   #---------------------------------------
   # Checking the user input
@@ -11792,7 +11880,6 @@ system_nca_run = function(cfg,
     cfg[["nca"]][[analysis_name]][["ana_opts"]]$extrap_N        =  extrap_N           
     cfg[["nca"]][[analysis_name]][["ana_opts"]]$sparse          =  sparse             
     cfg[["nca"]][[analysis_name]][["ana_opts"]]$dsmap           =  dsmap              
-    cfg[["nca"]][[analysis_name]][["ana_opts"]]$digits          =  digits             
     cfg[["nca"]][[analysis_name]][["ana_opts"]]$dsinc           =  dsinc              
 
     # Looping through each subject ID
@@ -11881,10 +11968,6 @@ system_nca_run = function(cfg,
           # occurrences of the Cmax
           Cmax            = max(SUBDS_DN[["SI_CONC"]])
           Tmax            = min(SUBDS_DN[SUBDS_DN[["SI_CONC"]] == Cmax, ][[dsmap[["NTIME"]]]])
-          if(!is.null(digits)){
-            Cmax            = signif(Cmax, digits)
-            Tmax            = signif(Tmax, digits)
-          } 
 
           # Finding the predose conc 
           # By default it's zero:
@@ -11927,14 +12010,13 @@ system_nca_run = function(cfg,
               BACKEXTRAP_TIME  = SUBDS_DN[[dsmap[["TIME"]]]] [1:BACKEXTRAP_N]
               BACKEXTRAP_CONC  = SUBDS_DN[["SI_CONC"]]       [1:BACKEXTRAP_N]
 
-
               # This does least squares fitting of the ln of the concentration
               # data:
               BACKEXTRAP_TH    = calculate_halflife(BACKEXTRAP_NTIME, BACKEXTRAP_CONC)
 
               # Pulling out the slope and intercept:
-              BACKEXTRAP_SLOPE     = BACKEXTRAP_TH[["mod"]][["coefficients"]][2]
-              BACKEXTRAP_INTERCEPT = BACKEXTRAP_TH[["mod"]][["coefficients"]][1]
+              BACKEXTRAP_SLOPE     = as.numeric(BACKEXTRAP_TH[["mod"]][["coefficients"]][2])
+              BACKEXTRAP_INTERCEPT = as.numeric(BACKEXTRAP_TH[["mod"]][["coefficients"]][1])
 
               if(BACKEXTRAP_SLOPE < 0){
                 # Because we're using nominal time to perform the regression the
@@ -11949,33 +12031,34 @@ system_nca_run = function(cfg,
               C0 = PREDOSE_CONC
             }
           } else {
-            # Otherwise we return -1 for C0 
-            C0 = -1
+            # Otherwise we return NA for C0 
+            C0 = NA
           }
           
+          # This defines the standard output
           tmpsum[["ID"]]              = sub
           tmpsum[["Nobs"]]            = nrow(SUBDS_DN)
           tmpsum[["Dose_Number"]]     = dosenum
           tmpsum[["Dose"]]            = SUBDS_DN[[dsmap[["DOSE"]]]][1]
           tmpsum[["Dose_CU"]]         = SUBDS_DN[["SI_DOSE"]][1]
-          tmpsum[["Cmax"]]            = Cmax
-          tmpsum[["Tmax"]]            = Tmax 
-          tmpsum[["halflife"]]        = -1
-          tmpsum[["Vp_obs"]]          = -1
-          tmpsum[["Vss_obs"]]         = -1
-          tmpsum[["Vss_pred"]]        = -1
+          tmpsum[["cmax"]]            = Cmax
+          tmpsum[["tmax"]]            = Tmax 
+          tmpsum[["half.life"]]       = NA
+          tmpsum[["Vp_obs"]]          = NA
+          tmpsum[["vss.obs"]]         = NA
+          tmpsum[["vss.pred"]]        = NA
           tmpsum[["C0"]]              = C0  
-          tmpsum[["CL_obs"]]          = -1
-          tmpsum[["CL_pred"]]         = -1
-          tmpsum[["AUClast"]]         = -1
-          tmpsum[["AUCinf_pred"]]     = -1
-          tmpsum[["AUCinf_obs"]]      = -1
+          tmpsum[["cl.obs"]]          = NA
+          tmpsum[["cl.pred"]]         = NA
+          tmpsum[["auclast"]]         = NA
+          tmpsum[["aucinf.pred"]]     = NA
+          tmpsum[["aucinf.obs"]]      = NA
 
           # If we're performing a sparse analysis we add the elements 
           # to hold the results from Bailer's analysis
           if(sparse){
-            tmpsum[["AUCBailer"]]       = -1
-            tmpsum[["AUCBailer_var"]]   = -1
+            tmpsum[["AUCBailer"]]       = NA
+            tmpsum[["AUCBailer_var"]]   = NA
           }
 
 
@@ -11989,10 +12072,6 @@ system_nca_run = function(cfg,
                                                                  ID          = dsmap[["ID"]]))
             # Appending the results to the summary table
             if(res_Bailers[["isgood"]]){
-              if(!is.null(digits)){
-                res_Bailers[["AUC"]]       = signif(res_Bailers[["AUC"]],     digits)
-                res_Bailers[["var_AUC"]]   = signif(res_Bailers[["var_AUC"]], digits)  
-              }
               tmpsum[["AUCBailer"]]       = res_Bailers[["AUC"]]
               tmpsum[["AUCBailer_var"]]   = res_Bailers[["var_AUC"]]
             }
@@ -12023,13 +12102,9 @@ system_nca_run = function(cfg,
           # Vp_obs = ------------------------------
           #           Corrected first observed conc
           if(ROUTE %in% c("iv bolus")){
-            if(is.null(digits)){
-              Vp_obs = SUBDS_DN[["SI_DOSE"]][1]/(SUBDS_DN[["SI_CONC"]][1])
-            } else {
-              Vp_obs = signif(SUBDS_DN[["SI_DOSE"]][1]/(SUBDS_DN[["SI_CONC"]][1]), digits)
-            }
+            Vp_obs = SUBDS_DN[["SI_DOSE"]][1]/(SUBDS_DN[["SI_CONC"]][1])
           } else {
-            Vp_obs = -1
+            Vp_obs = NA
           }
 
           time_start = min(NCA_CONCDS[["NTIME"]]) 
@@ -12047,42 +12122,46 @@ system_nca_run = function(cfg,
             PROC_SUBDN = FALSE
           }
 
-          # sub dosenum
+          # These are the default inputs that must be true
+          PKNCA_outputs = c("half.life",    "aucall",     "auclast",   "vss.obs",   
+                            "vss.pred",     "cl.pred",    "cl.obs",    "aucinf.pred",
+                            "aucinf.obs")
 
-
+          # Creating intervals for PKNCA
+          PKNCA_intervals = data.frame(start = time_start, end=time_stop)
+          for(PKNCA_output in PKNCA_outputs){
+            PKNCA_intervals[[PKNCA_output]] = TRUE
+          }
+          # Now we set cmax and tmax to FALSE because those are calculated
+          # based on the raw observed data above and may be incorrect because
+          # we could be sending extrapolated C0 data into PKNCA
+          PKNCA_intervals[["cmax"]] = FALSE
+          PKNCA_intervals[["tmax"]] = FALSE
+          
           if(PROC_SUBDN){
             NCA.conc = PKNCA::PKNCAconc(NCA_CONCDS, CONC~NTIME|ID)
             NCA.dose = PKNCA::PKNCAdose(NCA_DOSEDS, DOSE~NTIME|ID)
             NCA.data = PKNCA::PKNCAdata(data.conc = NCA.conc,
                                         data.dose = NCA.dose,
-                                        intervals = data.frame(start       = time_start,
-                                                               end         = time_stop,
-                                                               half.life   = TRUE,
-                                                               aucall      = TRUE,
-                                                               auclast     = TRUE,
-                                                               cmax        = TRUE, 
-                                                               vss.obs     = TRUE,
-                                                               vss.pred    = TRUE,
-                                                               cl.pred     = TRUE,
-                                                               cl.obs      = TRUE,
-                                                               aucinf.pred = TRUE,
-                                                               aucinf.obs  = TRUE))
+                                        intervals = PKNCA_intervals)
             NCA.res =  PKNCA::pk.nca(NCA.data)
-            
-            # Rounding the NCA results:
-            if(!is.null(digits)){
-              NCA.res[["result"]][["PPORRES"]] =  signif(NCA.res[["result"]][["PPORRES"]], digits)
+
+            # Packing all of the outputs into the temporary dataframe
+            for(PKNCA_output in unique(NCA.res$result$PPTESTCD)){
+              # For some reason when tmax is set to false it still returns it
+              # so we explicitly skip those outputs here:
+              if(!(PKNCA_output %in% c("cmax", "tmax"))){
+                tmpsum[[PKNCA_output]] =  NCA.res$result[NCA.res$result$PPTESTCD == PKNCA_output,   ]$PPORRES
+              }
             }
-            
-            tmpsum$halflife      =  NCA.res$result[NCA.res$result$PPTESTCD == "half.life",   ]$PPORRES
+            # Adding Vp_obs
             tmpsum$Vp_obs        =  Vp_obs
-            tmpsum$Vss_obs       =  NCA.res$result[NCA.res$result$PPTESTCD == "vss.obs",     ]$PPORRES
-            tmpsum$Vss_pred      =  NCA.res$result[NCA.res$result$PPTESTCD == "vss.pred",    ]$PPORRES
-            tmpsum$CL_obs        =  NCA.res$result[NCA.res$result$PPTESTCD == "cl.obs",      ]$PPORRES
-            tmpsum$CL_pred       =  NCA.res$result[NCA.res$result$PPTESTCD == "cl.pred",     ]$PPORRES  
-            tmpsum$AUClast       =  NCA.res$result[NCA.res$result$PPTESTCD == "auclast",     ]$PPORRES
-            tmpsum$AUCinf_pred   =  NCA.res$result[NCA.res$result$PPTESTCD == "aucinf.pred", ]$PPORRES
-            tmpsum$AUCinf_obs    =  NCA.res$result[NCA.res$result$PPTESTCD == "aucinf.obs",  ]$PPORRES
+
+            # Pulling out the parameter meta data
+            NCA_pmeta = cfg[["options"]][["nca_meta"]][["parameters"]]
+
+            # Getting the meta data for nca parameters
+            cfg[["options"]][["nca_meta"]]
             
             # Storing the raw results
             PKNCA_raw_tmp              = NCA.res$result
@@ -12097,28 +12176,30 @@ system_nca_run = function(cfg,
             
             # Summarizing everything for the current subject/dose to be used in
             # report generation later
-            lctmp = c(1, paste("Number of observations:"        , var2string(tmpsum$Nobs           , nsig_e=2, nsig_f=0) ),
-                      1, paste("Dose: "                         , var2string(tmpsum$Dose           , nsig_e=2, nsig_f=2) ), 
-                      1, paste("Dose concentration units: "     , var2string(tmpsum$Dose_CU        , nsig_e=2, nsig_f=2) ), 
-                      1, paste("Cmax: "                         , var2string(tmpsum$Cmax           , nsig_e=2, nsig_f=2) ), 
-                      1, paste("C0: "                           , var2string(tmpsum$C0             , nsig_e=2, nsig_f=2) ), 
-                      1, paste("Tmax: "                         , var2string(tmpsum$Tmax           , nsig_e=2, nsig_f=2) ), 
-                      1, paste("Halflife: "                     , var2string(tmpsum$halflife       , nsig_e=2, nsig_f=2) ),
-                      1, paste("Time interval: "                , toString(time_start), '-', toString(time_stop))) 
-            rctmp = c(1, paste("Vp  (observed):"                , var2string(tmpsum$Vp_obs         , nsig_e=2, nsig_f=2) ),
-                      1, paste("Vss (observed):"                , var2string(tmpsum$Vss_obs        , nsig_e=2, nsig_f=2) ),
-                      1, paste("Vss (predicted):"               , var2string(tmpsum$Vss_pred       , nsig_e=2, nsig_f=2) ), 
-                      1, paste("CL  (observed):"                , var2string(tmpsum$CL_obs         , nsig_e=2, nsig_f=2) ), 
-                      1, paste("CL  (predicted):"               , var2string(tmpsum$CL_pred        , nsig_e=2, nsig_f=2) ), 
-                      1, paste("AUC (0-last):"                  , var2string(tmpsum$AUClast        , nsig_e=2, nsig_f=2) ), 
-                      1, paste("AUC (0-inf, predicted):"        , var2string(tmpsum$AUCinf_pred    , nsig_e=2, nsig_f=2) ), 
-                      1, paste("AUC (0-inf, observed):"         , var2string(tmpsum$AUCinf_obs     , nsig_e=2, nsig_f=2) ))
+            # These are used in PowerPoint
+            lctmp = c(1, paste(NCA_pmeta[["Nobs"]][["label"]],": "        , var2string(tmpsum$Nobs           , nsig_e=2, nsig_f=0), sep=""),
+                      1, paste(NCA_pmeta[["Dose"]][["label"]],": "        , var2string(tmpsum$Dose           , nsig_e=2, nsig_f=2), sep=""), 
+                      1, paste(NCA_pmeta[["Dose_CU"]][["label"]],": "     , var2string(tmpsum$Dose_CU        , nsig_e=2, nsig_f=2), sep=""), 
+                      1, paste(NCA_pmeta[["cmax"]][["label"]],": "        , var2string(tmpsum$cmax           , nsig_e=2, nsig_f=2), sep=""), 
+                      1, paste(NCA_pmeta[["C0"]][["label"]],": "          , var2string(tmpsum$C0             , nsig_e=2, nsig_f=2), sep=""), 
+                      1, paste(NCA_pmeta[["tmax"]][["label"]],": "        , var2string(tmpsum$tmax           , nsig_e=2, nsig_f=2), sep=""), 
+                      1, paste(NCA_pmeta[["half.life"]][["label"]],": "   , var2string(tmpsum$half.life      , nsig_e=2, nsig_f=2), sep=""),
+                      1, paste("Time interval: "                          , toString(time_start), '-', toString(time_stop))) 
+            rctmp = c(1, paste(NCA_pmeta[["Vp_obs"]][["label"]],": "      , var2string(tmpsum$Vp_obs         , nsig_e=2, nsig_f=2), sep=""),
+                      1, paste(NCA_pmeta[["vss.obs"]][["label"]],": "     , var2string(tmpsum$vss.obs        , nsig_e=2, nsig_f=2), sep=""),
+                      1, paste(NCA_pmeta[["vss.pred"]][["label"]],": "    , var2string(tmpsum$vss.pred       , nsig_e=2, nsig_f=2), sep=""), 
+                      1, paste(NCA_pmeta[["cl.obs"]][["label"]],": "      , var2string(tmpsum$cl.obs         , nsig_e=2, nsig_f=2), sep=""), 
+                      1, paste(NCA_pmeta[["cl.pred"]][["label"]],": "     , var2string(tmpsum$cl.pred        , nsig_e=2, nsig_f=2), sep=""), 
+                      1, paste(NCA_pmeta[["auclast"]][["label"]],": "     , var2string(tmpsum$auclast        , nsig_e=2, nsig_f=2), sep=""), 
+                      1, paste(NCA_pmeta[["aucinf.pred"]][["label"]],": " , var2string(tmpsum$aucinf.pred    , nsig_e=2, nsig_f=2), sep=""), 
+                      1, paste(NCA_pmeta[["aucinf.obs"]][["label"]],": "  , var2string(tmpsum$aucinf.obs     , nsig_e=2, nsig_f=2), sep=""))
 
             if(sparse){                                        
-              lctmp = c(lctmp, 1,  paste("AUC (Bailer):"       , var2string(tmpsum$AUCBailer      , nsig_e=2, nsig_f=2)))
-              rctmp = c(rctmp, 1,  paste("var(AUC (Bailer)):"  , var2string(tmpsum$AUCBailer_var  , nsig_e=2, nsig_f=2)))
+              lctmp = c(lctmp, 1,  paste(NCA_pmeta[["AUCBailer"]][["label"]],": "        , var2string(tmpsum$AUCBailer      , nsig_e=2, nsig_f=2), sep=""))
+              rctmp = c(rctmp, 1,  paste(NCA_pmeta[["AUCBailer_var"]][["label"]],": "    , var2string(tmpsum$AUCBailer_var  , nsig_e=2, nsig_f=2), sep=""))
             }
 
+            # Generic tabular content for Word reporting
             all = data.frame(c1=matrix(ncol=2, data=lctmp, byrow=TRUE)[,2], c2=matrix(ncol=2, data=rctmp, byrow=TRUE)[,2])
             
             # storing the actual values to be used in the reporting
@@ -12201,6 +12282,518 @@ system_nca_run = function(cfg,
 
 
 cfg}
+#-------------------------------------------------------------------------
+#'@export 
+#'@title Summarize NCA Results in Tabular Format
+#'@description Creates tabular summaries of NCA results
+#'
+#'@param cfg ubiquity system object
+#'@param analysis_name string containing the name of the analysis (default \code{'analysis'}) that was previously run
+#'@param treat_as_factor sequence of column names to be treated as factors (default \code{c("ID", "Dose_Number", "Dose")}). Use this to report values without added decimals. 
+#'@param params_include vector with names of parameters to include (default c("ID", "cmax", "tmax", "auclast"))
+#'@param params_header  list with names of parameters followed by a vector of headers. You can use the placeholder "<label>" to include the standard label (e.g. list(cmax=c("<label>", "(ng/ml)"))), with a default of \code{NULL}.
+#'@param summary_stats list with strings as names containing placeholders for
+#' summary statistics and the values indicate the parameters to apply those
+#' statistics to. for example, if you want to calculate mean and standard deviation of
+#' AUClast you could use \code{list("<MEAN> (<STD>)"=c("auclast")}. This would create
+#' a row at the bottom of the table with this information for just the listed
+#' parameters. To split this up across two rows just do the following:
+#' \code{list("<MEAN>"=c("auclast"), "<STD>"=c("auclast"))}. Any NA values
+#' will be ignored when calculating statistics.  The allowed
+#' summary statistics are the mean (<MEAN>), median (<MEDIAN>), standard
+#' deviation (<STD>), standard error (<SE>), and the number of observations
+#' used to calculate statistics. (<N>).
+#'@param summary_labels list containing the mapping of summary statistics
+#' defined by \code{summary_stats} with their text labels in the output tables: 
+#' \preformatted{
+#' list(MEAN   = "Mean", 
+#'      STD    = "Std Dev", 
+#'      MEDIAN = "Median", 
+#'      N      = "N obs", 
+#'      SE     = "Std Err.")}
+#'@param summary_location column where to put the labels (e.g. Mean (Std)) for
+#' summary statistic. The default (\code{NULL}) will leave these labels off.
+#' If you set this to the "ID" column it will put them under the subject IDs.
+#'@param digits number of significant digits to report (3) or \code{NULL} to prevent rounding
+#'@param ds_wrangle 
+#'\preformatted{
+#'  ds_wrangle = list(Dose=c(30), Dose_Number = c(1))
+#'}
+#'@return list with the following elements
+#' \itemize{
+#'   \item{isgood} Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE}) if the call is successful the following will be defined (\code{NULL} 
+#'   \item{nca_summary} dataframe containing the summary table with headers and any summary statistics appended to the bottom
+#'   \item{nca_summary_ft} same information in the \code{nca_summary} ouput as a flextable object
+#'   \item{components}  list with the elements of the summary table each as dataframes (header, data, and summary)
+#' }
+#'@param table_theme flextable theme see (default=\code{"theme_zebra"})
+#'@seealso Vignette on NCA (\code{vignette("NCA", package = "ubiquity")}) 
+system_nca_summary = function(cfg, 
+                          analysis_name     = "analysis",
+                          treat_as_factor   = c("ID", "Dose_Number", "Dose"),
+                          params_include    = c("ID", "cmax", "tmax", "auclast"),
+                          params_header     = NULL,
+                          summary_stats     = NULL,
+                          summary_labels    = list(MEAN   = "Mean", 
+                                                   STD    = "Std Dev", 
+                                                   MEDIAN = "Median", 
+                                                   N      = "N obs", 
+                                                   SE     = "Std Err."),
+                          summary_location  = NULL, 
+                          ds_wrangle        = NULL,
+                          digits            = 3,
+                          table_theme       = "theme_zebra"
+                          ){
+
+invisible(system_req("magrittr"))
+invisible(system_req("dplyr"))
+invisible(system_req("flextable"))
+# Setting defaults for the function
+isgood        = TRUE
+echo_nca_cols = FALSE      # This is used to show the columns of the NCA if the user has specified columns that do not exist
+nca_all       = NULL       # NCA results for the specified analysis
+
+rows_header  = NULL
+rows_data    = NULL
+rows_summary = NULL
+sum_table    = NULL
+sum_table_ft = NULL
+
+if((analysis_name %in% names(cfg[["nca"]]))){
+  NCA_all       = cfg[["nca"]][[analysis_name]]
+  NCA_sum       = NCA_all[["NCA_sum"]]
+  # inheriting different aspects of the analysis
+  dsmap  = NCA_all[["ana_opts"]][["dsmap"]]
+  if(!is.null(ds_wrangle)){
+    # Truing to evaluate the user specified data wrangling code:
+    tcres = tryCatch(
+     { 
+        eval(parse(text=ds_wrangle))
+      list(NCA_sum=NCA_sum, isgood=TRUE)},
+      error = function(e) {
+      list(value=e, isgood=FALSE)})
+    }
+
+   # Capturing results or errors:
+   if(tcres$isgood){
+     NCA_sum = NCA_sum
+   } else {
+     isgood = FALSE
+     vp(cfg, "Error evaluating ds_wrangle option:")
+     # This shoudl push the actual error message out to the user:
+     vp(cfg, tcres$value$message)
+   }
+
+} else {
+  isgood = FALSE
+  vp(cfg, paste("The NCA analysis >", analysis_name, "< was not found", sep=""))
+}
+
+if(is.null(params_include)){
+  isgood = FALSE
+  vp(cfg, "The input params_include is NULL, it needs to be a list. For example")
+  vp(cfg, "if you want to include the half-life and and label it t1/2 you ")
+  vp(cfg, "could do the following: ")
+  vp(cfg, 'params_include = list(halflife="t1/2")')
+} else {
+  if(isgood){
+    # Checking to make sure the included parameters are actually included
+    # in the NCA output
+    if(!all(params_include %in%  names(NCA_sum))){
+      isgood        = FALSE
+      echo_nca_cols = TRUE
+      vp(cfg, paste("The following parameter(s) were found in params_include but were not found in the NCA output:"))
+      vp(cfg, paste(params_include[!(params_include %in%  names(NCA_sum))], collapse=", "))
+    }
+  }
+}
+
+
+if(!is.null(params_header)){
+  if(!all(names(params_header)  %in%  names(NCA_sum))){
+    isgood        = FALSE
+    echo_nca_cols = TRUE
+    vp(cfg, paste("The following parameter(s) were found in params_header but were not found in the NCA output:"))
+    vp(cfg, paste(names(params_header)[!(names(params_header) %in%  names(NCA_sum))], collapse=", "))
+  }
+}
+
+if(!is.null(treat_as_factor)){
+  if(!all(treat_as_factor  %in%  names(cfg[["options"]][["nca_meta"]][["parameters"]]))){
+    isgood        = FALSE
+    echo_nca_cols = TRUE
+    vp(cfg, paste("The following parameter(s) were found in treat_as_factor but are not valid NCA outputs:"))
+    vp(cfg, paste(treat_as_factor[!(treat_as_factor %in%  names(cfg[["options"]][["nca_meta"]][["parameters"]]))], collapse=", "))
+  } else {
+    for(cn in treat_as_factor){
+      if(cn %in% names(NCA_sum)){
+        NCA_sum[[cn]] = as.factor(NCA_sum[[cn]])
+      }
+    }
+  }
+}
+
+if(!is.null(summary_stats)){
+  # First we pass through summary statistics and check:
+  #  - that the specified outputs exist
+  for(summary_stat in names(summary_stats)){
+    if(!all(summary_stats[[summary_stat]] %in% names(NCA_sum))){
+      isgood        = FALSE
+      echo_nca_cols = TRUE
+      vp(cfg, paste("For the summary statistic >", summary_stat, "< the following columns", sep=""))
+      vp(cfg, paste("are listed but not present in the NCA analysis: ", sep=""))
+      vp(cfg, paste(summary_stats[[summary_stat]][!(summary_stats[[summary_stat]] %in% names(NCA_sum))], collapse = ", "))
+    }
+  }
+}
+
+
+
+
+
+
+# If all of the checks above have passed then we can start building the
+# table
+if(isgood){
+
+  #------------------------------------------
+  # Defining headers:
+  # maximum number of headers defaults to 1
+  max_head = 1
+  for(pname in params_include){
+    # Current parameter label
+    if(is.null(cfg[["options"]][["nca_meta"]][["parameters"]][[pname]][["label"]])){
+      # Passthrough parameters will not have labels so those default to the
+      # column names. Users will have to provide those headers explicitly
+      plabel = pname
+    } else {
+      plabel = c(cfg[["options"]][["nca_meta"]][["parameters"]][[pname]][["label"]])
+    }
+    # If a parameter isn't mentioned in the header variable then we populate the
+    # header for that parameter with the default label
+    if(!(pname %in% names(params_header))){
+      params_header[[pname]] = c("<label>")
+    }
+    # Substituting placeholders
+    for(hidx in 1:length(params_header[[pname]])){
+      params_header[[pname]][hidx] =  gsub(pattern="<label>", replacement=plabel, params_header[[pname]][hidx])
+    }
+    # Getting the maximum header length
+    max_head = max(length(params_header[[pname]]), max_head)
+  }
+
+  #------------------------------------------
+  # Filtering out only the columns we want to keep:
+  rows_data  = NCA_sum[, params_include]
+
+  #------------------------------------------
+  # Now we construct the header data frame:
+  rows_header = NULL
+  for(pname in params_include){
+    # Padding headers
+    if((max_head - length(params_header[[pname]])) > 0){
+      params_header[[pname]] = c(params_header[[pname]], rep("", (max_head - length(params_header[[pname]]))))
+    }
+    rows_header[[pname]] = params_header[[pname]] 
+  }
+  rows_header = as.data.frame(rows_header)
+  
+
+
+  #------------------------------------------
+  # We the construct any summary statistics
+  if(!is.null(summary_stats)){
+    # first we create an empty data frame with the same heading structure as
+    # the rows_data data frame
+    rows_summary = rows_data[0,]
+
+    # Summary statistics will be stored as character values:
+    rows_summary = data.frame(lapply(rows_summary, as.character), stringsAsFactors=FALSE)
+
+    for(summary_stat in names(summary_stats)){
+      # Appending a row at a time:
+      ridx = nrow(rows_summary) + 1
+
+      # Creating an empty row:
+      rows_summary[ridx,] = "" 
+
+      # First we update the label for this row
+      if(!is.null(summary_location)){
+        sstemp = summary_stat
+        if(!is.null(summary_labels)){
+          for(sname in names(summary_labels)){
+            sstemp = gsub(paste("<", sname, ">",sep=""), summary_labels[[sname]], sstemp)  
+          }
+        }
+        rows_summary[ridx,][[summary_location]] = sstemp
+      }  
+
+      # For each parameter in summary statistics we create the template
+      # then substitute the summary statistics
+      for(pname in summary_stats[[summary_stat]]){
+        pdata   = rows_data[[pname]][!is.na(rows_data[[pname]])]
+        pss_all = data.frame(MEAN     =   mean(pdata),
+                             MEDIAN   = median(pdata),
+                             N        = length(pdata),
+                             SE       =     sd(pdata)/length(pdata),
+                             STD      =     sd(pdata))
+              
+        sstemp = summary_stat
+        for(pss in names(pss_all)){
+          pss_val = pss_all[[pss]]
+          # Applying any significant digits
+          if(!is.null(digits)){
+            pss_val = signif(pss_val, digits)
+          }
+
+          # converting to a string:
+          pss_val = toString(pss_val)
+
+          # JMH convert to scientific notation?
+
+          # Substituting statistics: 
+          sstemp = gsub(paste("<", pss, ">",sep=""), pss_val, sstemp)  
+        }
+        # placing the summary statistics in the correct columns
+        rows_summary[ridx,][[pname]] = sstemp
+      }
+    }
+  }
+
+  #------------------------------------------
+  # We apply rounding/significant figures
+  if(!is.null(digits)){
+    for(pname in names(rows_data)){
+      if(is.numeric(rows_data[[pname]])){
+        rows_data[[pname]] = signif(rows_data[[pname]], digits)
+      }
+    }
+  }
+  #------------------------------------------
+  # Now we stack everything together
+  for(pname in names(rows_data)){
+    tmpcol = NULL
+    if(!is.null(rows_header)){
+      tmpcol = c(tmpcol, as.character(rows_header[[pname]]))
+    }
+    tmpcol = c(tmpcol, as.character(rows_data[[pname]]))
+    if(!is.null(rows_summary)){
+      tmpcol = c(tmpcol, as.character(rows_summary[[pname]]))
+    }
+    sum_table[[pname]] = tmpcol
+  }
+  sum_table = as.data.frame(sum_table)
+
+  #------------------------------------------
+  # Creating the flextable object
+  sum_table_ft = 
+       flextable::flextable(rows_data)                       %>% 
+       flextable::delete_part(part = "header")               %>%
+       flextable::add_header(values =as.list(rows_header))   %>%
+       flextable::add_footer(values =as.list(rows_summary)) 
+  eval(parse(text=paste("sum_table_ft = sum_table_ft %>% flextable::", table_theme, "()", sep="")))
+  #------------------------------------------
+}
+
+
+# If we fil we drop an error indicating the function we died in:
+if(!isgood){
+  if(echo_nca_cols){
+    vp(cfg, paste("To view the available NCA outputs for different analyses you can run the following:"))
+    vp(cfg, paste('system_view(cfg, "nca", verbose=TRUE)'))
+  }
+  vp(cfg, "system_nca_summary()")
+  vp(cfg, "Errors were found see messages above for more information")
+}
+res = list(isgood         = isgood,
+           nca_summary    = sum_table,
+           nca_summary_ft = sum_table_ft,
+           components  = list(header  = rows_header,
+                              data    = rows_data,
+                              summary = rows_summary))
+
+res}
+
+
+#-------------------------------------------------------------------------
+#'@export 
+#'@title List NCA parameters, text names and descriptions
+#'@description Provides a verbose information about NCA parameters 
+#'
+#'@param cfg ubiquity system object
+#'@return List with the following elements:
+#'
+#' \itemize{
+#'   \item \code{isgood} Boolean value indicating the success of the function call.
+#'   \item \code{parameters} List with element names for each standard column header for NCA output. Each element name is a list with the following elements:
+#'   \itemize{
+#'     \item \code{label} Textual descriptor of the parameter.
+#'     \item \code{description} Verbose description of the parameter.
+#'     \item \code{from} Text indicating the source of the parameter (either PKNCA or ubiquity).
+#'     }
+#'   }
+#'@seealso Vignette on NCA (\code{vignette("NCA", package = "ubiquity")}) 
+system_nca_parameters_meta  = function(cfg){
+   
+
+isgood = TRUE
+
+# Since almost all of the parameters come from PKNCA we start by labeling 
+
+# The following outputs from PKNCA were skipped because they seem to be repeats
+# of previous outputs
+# "aucint.inf.obs"       
+# "aucint.inf.obs.dose" 
+# "aucint.inf.pred"      
+# "aucint.inf.pred.dose" 
+# "aucinf.obs.dn"       
+# "aucinf.pred.dn"       
+
+res_PKNCA = list(
+   auclast                 = list(label = "AUC last"),
+   aucall                  = list(label = "AUC all"),
+   aumclast                = list(label = "AUMC last"),
+   aumcall                 = list(label = "AUMC all"),
+   aumcint.last            = list(label = "AUMC last (interval)"),
+   aumcint.last.dose       = list(label = "AUMC last (dose)"),
+   aumcint.all             = list(label = "AUMC all"),
+   aumcint.all.dose        = list(label = "AUMC all (dose)"),
+   auclast.dn              = list(label = "AUC last/Dose"),
+   aucall.dn               = list(label = "AUC all/Dose"),
+   aumclast.dn             = list(label = "AUMC last/Dose"),
+   aumcall.dn              = list(label = "AUMC all/Dose"),
+   tmax                    = list(label = "Tmax"),
+   tlast                   = list(label = "Tlast"),
+   tfirst                  = list(label = "Tfirst"),
+   clast.obs               = list(label = "C (last)"),
+   cl.last                 = list(label = "CL (last)"),
+   f                       = list(label = "Fbio"),
+   mrt.last                = list(label = "MRT"),
+   mrt.iv.last             = list(label = "MRT IV"),
+   vss.last                = list(label = "Vss"),
+   vss.iv.last             = list(label = "Vss IV"),
+   cav                     = list(label = "Cave"),
+   ctrough                 = list(label = "Ctr"),
+   ptr                     = list(label = "Peak/Trough"),
+   tlag                    = list(label = "Tlag"), 
+   deg.fluc                = list(label = "Fluctuation"), 
+   swing                   = list(label = "Cmin Swing"), 
+   ceoi                    = list(label = "Conc (EOI)"), 
+   ae                      = list(label = "Excreted (amount)"), 
+   clr.last                = list(label = "Renal CL (last)"), 
+   clr.obs                 = list(label = "Renal CL (obs)"), 
+   clr.pred                = list(label = "Renal CL (pred)"), 
+   fe                      = list(label = "Excreted (fr)"), 
+   half.life               = list(label = "Half-life"), 
+   adj.r.squared           = list(label = "Adj rsq HL"), 
+   r.squared               = list(label = "r-squared"), 
+   lambda.z                = list(label = "Term Rate"),
+   lambda.z.time.first     = list(label = "T first (Term Rate)"),
+   lambda.z.n.points       = list(label = "N Half-life"),
+   clast.pred              = list(label = "Clast (pred)"),
+   span.ratio              = list(label = "Frac Half-life"),
+   cmax.dn                 = list(label = "Cmax/Dose"),
+   cmin.dn                 = list(label = "Cmin/Dose"),
+   clast.obs.dn            = list(label = "Clast (obs)/Dose"),
+   clast.pred.dn           = list(label = "Clast (pred)/Dose"),
+   cav.dn                  = list(label = "Cave/Dose"),
+   ctrough.dn              = list(label = "Ctr/Dose"),
+   thalf.eff.last          = list(label = "Halflife (eff)"),
+   thalf.eff.iv.last       = list(label = "Halflife (eff,IV)"),
+   kel.last                = list(label = "kel"),
+   kel.iv.last             = list(label = "kel (iv)"),
+   aucinf.obs              = list(label = "AUC (inf,obs)"),
+   aucinf.pred             = list(label = "AUC (inf,pred)"),
+   aumcinf.obs             = list(label = "AMUC (inf,obs)"),
+   aumcinf.pred            = list(label = "AMUC (inf,pred)"),
+   aucminf.obs.dn          = list(label = "AMUC (inf,obs)/Dose"),
+   aucminf.pred.dn         = list(label = "AMUC (inf,pred)/Dose"),
+   aucpext.obs             = list(label = "AUC Extrap (obs,%)"),
+   aucpext.pred            = list(label = "AUC Extrap (pred,%)"),
+   cl.obs                  = list(label = "CL (obs)"),
+   cl.pred                 = list(label = "CL (pred)"),
+   mrt.obs                 = list(label = "MRT (obs)"),
+   mrt.pred                = list(label = "MRT (pred)"),
+   mrt.iv.pred             = list(label = "MRT (pred,IV)"),
+   mrt.iv.obs              = list(label = "MRT (obs,IV)"),
+   mrt.md.pred             = list(label = "MRT (pred,MD)"),
+   mrt.md.obs              = list(label = "MRT (obs,MD)"),
+   vz.obs                  = list(label = "Vz (obs)"),   
+   vz.pred                 = list(label = "Vz (pred)"),   
+   vss.obs                 = list(label = "Vss (obs)"),   
+   vss.pred                = list(label = "Vss (pred)"),   
+   vss.iv.obs              = list(label = "Vss (obs,IV)"),   
+   vss.iv.pred             = list(label = "Vss (pred,IV)"),   
+   vss.md.obs              = list(label = "Vss (obs,MD)"),   
+   vss.md.pred             = list(label = "Vss (pred,MD)"),   
+   vd.obs                  = list(label = "Vd (obs,MD)"),   
+   vd.pred                 = list(label = "Vd (pred,MD)"),   
+   thalf.eff.obs           = list(label = "Half-life (obs,eff)"),   
+   thalf.eff.pred          = list(label = "Half-life (pred,eff)"),   
+   thalf.eff.iv.obs        = list(label = "Half-life (obs,eff,IV)"),   
+   thalf.eff.iv.pred       = list(label = "Half-life (pred,eff,IV)"),   
+   kel.last.obs            = list(label = "kel (obs)"),
+   kel.last.pred           = list(label = "kel (pred)"),
+   kel.iv.obs              = list(label = "kel (obs,IV)"),
+   kel.iv.pred             = list(label = "kel (pred,IV)"))
+
+PKNCA_interval_cols = PKNCA::get.interval.cols()
+
+# Populating the from and description fields
+for(pkparam in names(res_PKNCA)){
+  res_PKNCA[[pkparam]][["description"]] = PKNCA_interval_cols[[pkparam]][["desc"]]
+  res_PKNCA[[pkparam]][["from"]]        = "PKNCA"
+}
+
+
+res_ubiquity = list(
+  ID              = list(label       = "ID",       
+                         description = "Subject (serial sampling) or Group ID (sparse sampling)",
+                         from        = "ubiquity"),
+  Dose_Number     = list(label       = "Dose Num",       
+                         description = "Dose number",
+                         from        = "ubiquity"),
+  cmax            = list(label       = "Cmax",       
+                         description = "Maximum observed concentration",
+                         from        = "ubiquity"),
+  tmax            = list(label       = "Tmax",       
+                         description = "Time of maximum observed concentration",
+                         from        = "ubiquity"),
+  Nobs            = list(label       = "Nobs",       
+                         description = "Number of observations",         
+                         from        = "ubiquity"),
+  Dose            = list(label       = "Dose",       
+                         description = "Dose in dosing units",
+                         from        = "ubiquity"),
+  Dose_CU         = list(label       = "Dose (CU)",       
+                         description = "Dose in concentration units",
+                         from        = "ubiquity"),
+  C0              = list(label       = "C0 Extrap",
+                         description = "C0 extrapolated to time zero",
+                         from        = "ubiquity"),
+  Vp_obs          = list(label       = "Vp (obs)",
+                         description = "Plasma volume of IV dose based on first observed concentration", 
+                         from        = "ubiquity"),
+  AUCBailer       = list(label       = "AUC (sparse)",
+                         description = "AUC last using Bailers method",
+                         from        = "ubiquity"),
+  AUCBailer_var   = list(label       = "AUC (sparse) var",
+                         description = "Variance of AUC last using Bailers method",
+                         from        = "ubiquity"))
+
+
+if(!isgood){
+  vp(cfg, "system_nca_parameters_meta()")
+  vp(cfg, "Errors were found see messages above for more information")
+}
+
+res = list(isgood     = isgood,
+           parameters = c(res_PKNCA, res_ubiquity))
+
+res}
+
+
+
 
 #-------------------------------------------------------------------------
 #'@export 
@@ -12235,6 +12828,93 @@ system_fetch_nca = function(cfg,
   res = list(isgood        = isgood,
              NCA_summary   = NCA_summary,
              PKNCA_results = PKNCA_results)
+res}
+
+#-------------------------------------------------------------------------
+#'@export 
+#'@title Columns in NCA Analysis
+#'@description Show the columns available in a given NCA analysis
+#'@param cfg ubiquity system object
+#'@param analysis_name string containing the name of the NCA analysis (default \code{'analysis'})
+#'@return list with the following elements:
+#' \itemize{
+#'    \item \code{isgood} Boolean variable to identify if the function
+#'        executed properly (\code{TRUE}) or if there were any errors
+#'        (\code{FALSE})
+#'    \item \code{NCA_col_summary} dataframe with the columns from the
+#'        analysis in \code{analysis_name} (\code{col_name} - NCA short name,
+#'        \code{from} - where the parameter was derived from, \code{label} - verbose
+#'        text label for the column, and \code{description}, verbose text description
+#'        of the parameter.
+#'    \item \code{len_NCA_col}     maximum length of the \code{col_name} column
+#'    \item \code{len_from}        maximum length of the \code{from} column
+#'    \item \code{len_label}       maximum length of the \code{label} column
+#'    \item \code{len_description} maximum length of the \code{description} column
+#' }
+system_fetch_nca_columns = function(cfg, 
+                                   analysis_name = "analysis"){
+
+isgood = TRUE
+NCA_col_summary = NULL
+NCA_cols        = NULL
+len_NCA_col     = 0
+len_label       = 0
+len_from        = 0
+len_description = 0
+  
+
+if((analysis_name %in% names(cfg[["nca"]]))){
+  NCA_all       = cfg[["nca"]][[analysis_name]]
+  NCA_sum       = NCA_all[["NCA_sum"]]
+  # inheriting different aspects of the analysis
+  dsmap  = NCA_all[["ana_opts"]][["dsmap"]]
+
+} else {
+  isgood = FALSE
+  vp(cfg, paste("The NCA analysis >", analysis_name, "< was not found", sep=""))
+}
+
+if(isgood){
+  NCA_cols = names(cfg[["nca"]][[analysis_name]][["NCA_sum"]])
+
+  # Packing them all into a data frame:
+  for(NCA_col in NCA_cols){
+
+    if(NCA_col %in% names(cfg[["options"]][["nca_meta"]][["parameters"]])){
+      label       =  cfg[["options"]][["nca_meta"]][["parameters"]][[NCA_col]][["label"]]
+      description =  cfg[["options"]][["nca_meta"]][["parameters"]][[NCA_col]][["description"]]
+      from        =  cfg[["options"]][["nca_meta"]][["parameters"]][[NCA_col]][["from"]]
+     
+      # Getting the length of strings to print output below
+      len_NCA_col     = max(c(len_NCA_col,     nchar(NCA_col)))
+      len_from        = max(c(len_from,        nchar(from)))
+      len_label       = max(c(len_label,       nchar(label)))
+      len_description = max(c(len_description, nchar(description)))
+     
+      NCA_col_summary = rbind(NCA_col_summary,
+           data.frame(col_name    = NCA_col,
+                      from        = from,
+                      label       = label,
+                      description = description))
+    } else {
+      vp(cfg, paste("Warning the column >", NCA_col, "< was found in the NCA results but is not a general defined parameter", sep=""))
+    }
+  }
+}
+
+# If we fil we drop an error indicating the function we died in:
+if(!isgood){
+  vp(cfg, "system_nca_view_columns()")
+  vp(cfg, "Errors were found see messages above for more information")
+}
+
+res = list(isgood          = isgood,
+           NCA_col_summary = NCA_col_summary,
+           len_NCA_col     = len_NCA_col,
+           len_from        = len_from,
+           len_label       = len_label,
+           len_description = len_description)
+
 res}
 
 #-------------------------------------------------------------------------
@@ -12370,16 +13050,16 @@ system_report_nca = function(cfg,
     # Cleaning up the summary level information
     NCA_sum$Dose_Number =  as.factor(NCA_sum$Dose_Number)
     NCA_sum$Dose_CU     = var2string(NCA_sum$Dose_CU    , nsig_e=2, nsig_f=2)
-    NCA_sum$Cmax        = var2string(NCA_sum$Cmax       , nsig_e=2, nsig_f=2)
-    NCA_sum$halflife    = var2string(NCA_sum$halflife   , nsig_e=2, nsig_f=2)
+    NCA_sum$cmax        = var2string(NCA_sum$cmax       , nsig_e=2, nsig_f=2)
+    NCA_sum$half.life   = var2string(NCA_sum$half.life  , nsig_e=2, nsig_f=2)
     NCA_sum$Vp_obs      = var2string(NCA_sum$Vp_obs     , nsig_e=2, nsig_f=2)
-    NCA_sum$Vss_obs     = var2string(NCA_sum$Vss_obs    , nsig_e=2, nsig_f=2)
-    NCA_sum$Vss_pred    = var2string(NCA_sum$Vss_pred   , nsig_e=2, nsig_f=2)
-    NCA_sum$CL_obs      = var2string(NCA_sum$CL_obs     , nsig_e=2, nsig_f=2)
-    NCA_sum$CL_pred     = var2string(NCA_sum$CL_pred    , nsig_e=2, nsig_f=2)
-    NCA_sum$AUClast     = var2string(NCA_sum$AUClast    , nsig_e=2, nsig_f=2)
-    NCA_sum$AUCinf_pred = var2string(NCA_sum$AUCinf_pred, nsig_e=2, nsig_f=2)
-    NCA_sum$AUCinf_obs  = var2string(NCA_sum$AUCinf_obs , nsig_e=2, nsig_f=2)
+    NCA_sum$vss.obs     = var2string(NCA_sum$vss.obs    , nsig_e=2, nsig_f=2)
+    NCA_sum$vss.pred    = var2string(NCA_sum$vss.pred   , nsig_e=2, nsig_f=2)
+    NCA_sum$cl.obs      = var2string(NCA_sum$cl.obs     , nsig_e=2, nsig_f=2)
+    NCA_sum$cl.pred     = var2string(NCA_sum$cl.pred    , nsig_e=2, nsig_f=2)
+    NCA_sum$auclast     = var2string(NCA_sum$auclast    , nsig_e=2, nsig_f=2)
+    NCA_sum$aucinf.pred = var2string(NCA_sum$aucinf.pred, nsig_e=2, nsig_f=2)
+    NCA_sum$aucinf.obs  = var2string(NCA_sum$aucinf.obs , nsig_e=2, nsig_f=2)
 
     #-----------------------------------
     # Tabular results in PowerPoint
@@ -12406,12 +13086,12 @@ system_report_nca = function(cfg,
                   Dose_Number = "Dose"      ,
                   Dose        = "Dose"      ,
                   Dose_CU     = "Dose"      ,
-                  Cmax        = "Cmax"      ,
-                  Tmax        = "Tmax"      , 
-                  halflife    = "Halflife"  ,
+                  cmax        = "Cmax"      ,
+                  tmax        = "Tmax"      , 
+                  half.life   = "Halflife"  ,
                   Vp_obs      = "Vp"        ,
-                  Vss_obs     = "Vss"       ,
-                  Vss_pred    = "Vss"       )
+                  vss.obs     = "Vss"       ,
+                  vss.pred    = "Vss"       )
         
         tab1$header_middle = list(
                   ID          = ""          ,
@@ -12419,12 +13099,12 @@ system_report_nca = function(cfg,
                   Dose_Number = "Number"    ,
                   Dose        = "Dataset"   ,
                   Dose_CU     = "Conc Units",
-                  Cmax        = ""          ,
-                  Tmax        = ""          , 
-                  halflife    = ""          ,
+                  cmax        = ""          ,
+                  tmax        = ""          , 
+                  half.life   = ""          ,
                   Vp_obs      = "Observed"  ,
-                  Vss_obs     = "Observed"  ,
-                  Vss_pred    = "Predicted" )
+                  vss.obs     = "Observed"  ,
+                  vss.pred    = "Predicted" )
       }
       
       tab2 = list()
@@ -12438,11 +13118,11 @@ system_report_nca = function(cfg,
                   Dose        = "Dose"      ,
                   Dose_CU     = "Dose"      ,
                   C0          = "C0"        ,
-                  CL_obs      = "CL"        ,
-                  CL_pred     = "CL"        ,
-                  AUClast     = "AUC"       ,
-                  AUCinf_pred = "AUC"       ,
-                  AUCinf_obs  = "AUC"       )
+                  cl.obs      = "CL"        ,
+                  cl.pred     = "CL"        ,
+                  auclast     = "AUC"       ,
+                  aucinf.pred = "AUC"       ,
+                  aucinf.obs  = "AUC"       )
         
         tab2$header_middle = list(
                   ID          = ""          ,
@@ -12451,11 +13131,11 @@ system_report_nca = function(cfg,
                   Dose        = "Dataset"   ,
                   Dose_CU     = "Conc Units",
                   C0          = "Extrap"    , 
-                  CL_obs      = "Obs"       ,
-                  CL_pred     = "Pred"      ,
-                  AUClast     = "Last"      ,
-                  AUCinf_pred = "Inf(Pred)" ,
-                  AUCinf_obs  = "Inf(Obs)" )
+                  cl.obs      = "Obs"       ,
+                  cl.pred     = "Pred"      ,
+                  auclast     = "Last"      ,
+                  aucinf.pred = "Inf(Pred)" ,
+                  aucinf.obs  = "Inf(Obs)" )
       }
 
 
@@ -12491,18 +13171,18 @@ system_report_nca = function(cfg,
                   Dose_Number = "Dose"      ,
                   Dose        = "Dose"      ,
               #   Dose_CU     = "Dose"      ,
-                  Cmax        = "Cmax"      ,
-                  Tmax        = "Tmax"      , 
-                  halflife    = "Halflife"  ,
+                  cmax        = "Cmax"      ,
+                  tmax        = "Tmax"      , 
+                  half.life   = "Halflife"  ,
                   Vp_obs      = "Vp"        ,
-                  Vss_obs     = "Vss"       ,
-                  Vss_pred    = "Vss"       ,
+                  vss.obs     = "Vss"       ,
+                  vss.pred    = "Vss"       ,
                   C0          = "C0"        ,
-                  CL_obs      = "CL"        ,
-                  CL_pred     = "CL"        ,
-                  AUClast     = "AUC"       ,
-                  AUCinf_pred = "AUC"       ,
-                  AUCinf_obs  = "AUC"       )
+                  cl.obs      = "CL"        ,
+                  cl.pred     = "CL"        ,
+                  auclast     = "AUC"       ,
+                  aucinf.pred = "AUC"       ,
+                  aucinf.obs  = "AUC"       )
 
         
         taball$header_middle = list(
@@ -12511,18 +13191,18 @@ system_report_nca = function(cfg,
                   Dose_Number = "Number"    ,
                   Dose        = ""          ,
                #  Dose_CU     = "CU"        ,
-                  Cmax        = ""          ,
-                  Tmax        = ""          , 
-                  halflife    = ""          ,
+                  cmax        = ""          ,
+                  tmax        = ""          , 
+                  half.life   = ""          ,
                   Vp_obs      = "Obs"       ,
-                  Vss_obs     = "Obs"       ,
-                  Vss_pred    = "Pred"      ,
+                  vss.obs     = "Obs"       ,
+                  vss.pred    = "Pred"      ,
                   C0          = "Extrap"    , 
-                  CL_obs      = "Obs"       ,
-                  CL_pred     = "Pred"      ,
-                  AUClast     = "Last"      ,
-                  AUCinf_pred = "Inf(Pred)" ,
-                  AUCinf_obs  = "Inf(Obs)" )
+                  cl.obs      = "Obs"       ,
+                  cl.pred     = "Pred"      ,
+                  auclast     = "Last"      ,
+                  aucinf.pred = "Inf(Pred)" ,
+                  aucinf.obs  = "Inf(Obs)" )
       }
 
      # Flipping to landscape because this will be a pretty wide table.

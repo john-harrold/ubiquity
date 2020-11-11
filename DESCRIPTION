@@ -1,7 +1,7 @@
 Package: ubiquity
 Type: Package
 Title: PKPD, PBPK, and Systems Pharmacology Modeling Tools
-Version: 1.0.3
+Version: 1.0.4
 Authors@R: c(person("John", "Harrold", role = c("aut", "cre"),
                      email = "john.m.harrold@gmail.com"))
 Author: John Harrold [aut, cre]
@@ -24,6 +24,7 @@ Imports:
    grid, 
    ggplot2,
    knitr,
+   magrittr,
    MASS,
    officer (>= 0.3.7),
    optimx,

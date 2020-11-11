@@ -4,7 +4,7 @@ author: "John Harrold & Anson Abraham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Reporting}
+  %\VignetteIndexEntry{Report Generation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -94,10 +94,9 @@ With the report created we can begin adding slides. There are several diffent sl
      - ``table_body_alignment``, ``table_header_alignment`` ("center") Controls alignment
      - ``table_autofit`` (``TRUE``) Automatically fit content, or specify the cell width and height with ``cwidth`` (``0.75``) and ``cheight`` (``0.25``)
      - ``table_theme`` (``"theme_vanilla"``) Table theme
-
+* ``"flextable_object"``  Object created with the flextable package.
 
 For more details on the expected format of slide content see ``?system_report_ph_content``.
-
 
 ### Adding slides to the presentation
 
@@ -232,6 +231,39 @@ cfg = system_report_slide_two_col(cfg,
        right_content          = myfig)
 ```
 
+The ``flextable`` content type is intended to provide a quick way to turn a data frame into a flextable, but if you want to create more complex tables you can use the ``flextable_object`` content type. Consider the two data frames containing the data and header information:
+
+```{r results="hide", message=FALSE, warning=FALSE}
+data = data.frame(fname = c("bob",   "jim",     "sam"),
+                  lname = c("smith", "johnson", "spade"),
+                  age   = c(22,       43,        13))
+
+header = data.frame(fname = c("First", "Name"),
+                    lname = c("Last", "Name"),
+                    age   = c("Age", "years"))
+```
+
+Next we create the flextable object:
+
+```{r results="hide", message=FALSE, warning=FALSE}
+library(magrittr)
+library(flextable)
+ft = flextable::flextable(data)                     %>% 
+     flextable::delete_part(part = "header")        %>%
+     flextable::add_header(values =as.list(header)) %>%
+     flextable::theme_zebra()
+```
+
+And then we can use that directly as content:
+
+```{r results="hide", message=FALSE, warning=FALSE}
+cfg = system_report_slide_content(cfg,
+       title        = "Userdefined Flextable",
+       sub_title    = "flextable_object",    
+       content_type = "flextable_object", 
+       content      = ft)
+```
+
 
 ### Saving slides 
 
@@ -306,6 +338,9 @@ list provides the available content types followed by a description of the forma
      - ``table_body_alignment``, ``table_header_alignment`` ("center") Controls alignment
      - ``table_autofit`` (``TRUE``) Automatically fit content, or specify the cell width and height with ``cwidth`` (``0.75``) and ``cheight`` (``0.25``)
      - ``table_theme`` (``"theme_vanilla"``) Table theme
+* ``"flextable_object"``  List specifying the a user defined flextable object with the following elements:
+     - ``caption`` text containing the caption of the figure
+     - ``ft`` flextable object
 
 Text can be specified in different formats: ``"text"`` indicates plain text,
 ``"fpar"`` is formatted text defined by the ``fpar`` command from the
@@ -406,6 +441,7 @@ cfg = system_report_doc_add_content(cfg,
   content       = list(image   = p,
                        caption = "This is a ggplot image"))
 ```
+
 #### Tables
 
 Tables can be added in two ways. The simplest is to create a table in Word
@@ -449,8 +485,40 @@ tcf$table_theme   ='theme_zebra'
 cfg = system_report_doc_add_content(cfg, 
   content_type  = "flextable",
   content       = tcf)
-  
 ```
+
+Similar to the presentation components above, you can create more complex tables by using the 
+``flextable_object`` content type:
+
+```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
+library(magrittr)
+library(flextable)
+
+data = data.frame(fname = c("bob",   "jim",     "sam"),
+                  lname = c("smith", "johnson", "spade"),
+                  age   = c(22,       43,        13))
+
+header = data.frame(fname = c("First", "Name"),
+                    lname = c("Last", "Name"),
+                    age   = c("Age", "years"))
+
+# This creates a flextable object:
+ft = flextable::flextable(data)                     %>% 
+     flextable::delete_part(part = "header")        %>%
+     flextable::add_header(values =as.list(header)) %>%
+     flextable::theme_zebra()
+
+# We need to supply a list containing both the caption and the flextable object:
+tcfo = list(caption = "This is a flextable object",
+            ft      = ft)
+
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "flextable_object",
+  content       = tcfo)
+```
+
+
+
 
 #### Placeholders                 
 

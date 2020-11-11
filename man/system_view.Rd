@@ -4,12 +4,14 @@
 \alias{system_view}
 \title{View Information About the System}
 \usage{
-system_view(cfg, field = "all")
+system_view(cfg, field = "all", verbose = FALSE)
 }
 \arguments{
 \item{cfg}{ubiquity system object}
 
 \item{field}{string indicating the aspect of the system to display}
+
+\item{verbose}{Boolean variable that when set to true will echo the information to the screen}
 }
 \value{
 sequence of strings with system in formation (one line per element)
@@ -25,6 +27,7 @@ The \code{field}
    \item \code{"datasets"} loaded datasets
    \item \code{"simulation"} simulation options
    \item \code{"estimation"} estimation options
+   \item \code{"nca"} non-compartmental analyses that have been performed
 }
 }
 \description{
@@ -45,6 +48,6 @@ cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
       output_directory          = file.path(tempdir(), "output"),
       temporary_directory       = tempdir())
 
-vp(cfg, system_view(cfg))
+  system_view(cfg, verbose=TRUE)
 }
 }

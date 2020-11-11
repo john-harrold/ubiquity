@@ -150,7 +150,7 @@ cfg = system_report_slide_two_col(cfg,
 
 
 
-# # Example using flex tables
+# Example usingflex tables
 tcf = list()
 tcf$table = data.frame(Parameters = c("Vp", "Cl", "Q", "Vt"),
                        Values     = 1:4,
@@ -176,6 +176,29 @@ cfg = system_report_slide_two_col(cfg,
        right_content_header_type   =  "ggplot",
        right_content_header        =  p)
 
+# Example using flextables explicitly 
+library(magrittr)
+library(flextable)
+
+data = data.frame(fname = c("bob",   "jim",     "sam"),
+                  lname = c("smith", "johnson", "spade"),
+                  age   = c(22,       43,        13))
+
+header = data.frame(fname = c("First", "Name"),
+                    lname = c("Last", "Name"),
+                    age   = c("Age", "years"))
+
+# This creates a flextable object:
+ft = flextable::flextable(data)                     %>% 
+     flextable::delete_part(part = "header")        %>%
+     flextable::add_header(values =as.list(header)) %>%
+     flextable::theme_zebra()
+
+cfg = system_report_slide_content(cfg,
+       title        = "Userdefined Flextable",
+       sub_title    = "flextable_object",    
+       content_type = "flextable_object", 
+       content      = ft)
 
 # Pulling the report
 rpt = system_report_fetch(cfg)

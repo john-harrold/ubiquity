@@ -17,7 +17,6 @@ system_nca_run(
   sparse = FALSE,
   dsmap = list(TIME = "TIME", NTIME = "NTIME", CONC = "CONC", DOSE = "DOSE", ID = "ID",
     ROUTE = "ROUTE", DOSENUM = NULL, BACKEXTRAP = NULL, SPARSEGROUP = NULL),
-  digits = 3,
   dsinc = NULL
 )
 }
@@ -65,8 +64,6 @@ half-life half-life of 0.8 you would use: \code{list(max.aucinf.pext=10, min.hl.
  \item \code{BACKEXTRAP}  Specifying the number of points to use to extrapolate the initial concentration for "iv bolus" dosing; optoinal f \code{NULL} (default) will use the value defined in \code{extrap_N} (note this value must be <= NCA_min)
  \item \code{SPARSEGROUP} Column containing a unique value grouping cohorts for pooling data. Needed when \code{sparse} is set to \code{TRUE}; optional, \code{NULL} (default)
 }}
-
-\item{digits}{number of significant digits to report \code{3} (default), set to \code{NULL} to disable rounding}
 
 \item{dsinc}{(NOT CURRENTLY IMPLEMENTED) optional character vector of columns from the dataset to include in the output summary (default \code{NULL})}
 }

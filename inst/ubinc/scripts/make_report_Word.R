@@ -130,6 +130,32 @@ tcf$table_theme   ='theme_zebra'
 cfg = system_report_doc_add_content(cfg, 
   content_type  = "flextable",
   content       = tcf)
+
+# If you want more complicated tables you can create a flextable and use that:
+# Example using flextables explicitly 
+library(magrittr)
+library(flextable)
+
+data = data.frame(fname = c("bob",   "jim",     "sam"),
+                  lname = c("smith", "johnson", "spade"),
+                  age   = c(22,       43,        13))
+
+header = data.frame(fname = c("First", "Name"),
+                    lname = c("Last", "Name"),
+                    age   = c("Age", "years"))
+
+# This creates a flextable object:
+ft = flextable::flextable(data)                     %>% 
+     flextable::delete_part(part = "header")        %>%
+     flextable::add_header(values =as.list(header)) %>%
+     flextable::theme_zebra()
+
+tcfo = list(caption = "This is a flextable object",
+            ft      = ft)
+
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "flextable_object",
+  content       = tcfo)
 #--------------------
 cfg = system_report_doc_add_content(cfg, 
   content_type  = "text",
@@ -146,7 +172,6 @@ cfg = system_report_doc_add_content(cfg,
   content       = list(style   = "normal",
                        format  = "fpar",
                        text    = fpartext))
-
 
 
 mdtext = "Text can be specified in markdown format as well. You can specify
