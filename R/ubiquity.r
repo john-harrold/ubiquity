@@ -11832,7 +11832,9 @@ system_nca_run = function(cfg,
 
   # calculating the dose in the same mass units as concentration
   if(isgood){
-    DS[["SI_DOSE"]] = DS[[dsmap[["DOSE"]]]]*dscale
+    # The as.character --> as.numeric is used here in case DOSE has been read in
+    # as a factor:
+    DS[["SI_DOSE"]] = as.numeric(as.character(DS[[dsmap[["DOSE"]]]]))*dscale
   }
 
 
