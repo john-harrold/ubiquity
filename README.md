@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/john-harrold/ubiquity.svg?branch=master)](https://travis-ci.com/john-harrold/ubiquity)
+
 ## ubiquity
 
 ### Information 
