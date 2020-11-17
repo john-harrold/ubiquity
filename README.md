@@ -1,6 +1,10 @@
-[![Build Status](https://travis-ci.com/john-harrold/ubiquity.svg?branch=master)](https://travis-ci.com/john-harrold/ubiquity)
+## ubiquity R package
 
-## ubiquity
+[![Build Status](https://travis-ci.com/john-harrold/ubiquity.svg?branch=master)](https://travis-ci.com/john-harrold/ubiquity)
+[![version](https://www.r-pkg.org/badges/version/ubiquity)](https://CRAN.R-project.org/package=ubiquity)
+![cranlogs](https://cranlogs.r-pkg.org/badges/ubiquity) 
+![Active](https://www.repostatus.org/badges/latest/active.svg)
+[![Lifecycle: Stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
 
 ### Information 
 
