@@ -19,14 +19,12 @@ jobs:
       matrix:
         config:
           - {os: macOS-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
-          - {os: windows-latest, r: '3.6'}
-          - {os: ubuntu-16.04,   r: 'devel', rspm: "https://packagemanager.rstudio.com/cran/__linux__/xenial/latest", http-user-agent: "R/4.0.0 (ubuntu-16.04) R (4.0.0 x86_64-pc-linux-gnu x86_64 linux-gnu) on GitHub Actions" }
+#         - {os: windows-latest, r: 'release'}
+#         - {os: windows-latest, r: '3.6'}
+          - {os: ubuntu-16.04,   r: 'devel',   rspm: "https://packagemanager.rstudio.com/cran/__linux__/xenial/latest", http-user-agent: "R/4.0.0 (ubuntu-16.04) R (4.0.0 x86_64-pc-linux-gnu x86_64 linux-gnu) on GitHub Actions" }
           - {os: ubuntu-16.04,   r: 'release', rspm: "https://packagemanager.rstudio.com/cran/__linux__/xenial/latest"}
           - {os: ubuntu-16.04,   r: 'oldrel',  rspm: "https://packagemanager.rstudio.com/cran/__linux__/xenial/latest"}
-          - {os: ubuntu-16.04,   r: '3.5',     rspm: "https://packagemanager.rstudio.com/cran/__linux__/xenial/latest"}
-          - {os: ubuntu-16.04,   r: '3.4',     rspm: "https://packagemanager.rstudio.com/cran/__linux__/xenial/latest"}
-          - {os: ubuntu-16.04,   r: '3.3',     rspm: "https://packagemanager.rstudio.com/cran/__linux__/xenial/latest"}
+#         - {os: ubuntu-16.04,   r: '3.5',     rspm: "https://packagemanager.rstudio.com/cran/__linux__/xenial/latest"}
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
@@ -95,41 +93,3 @@ jobs:
         with:
           name: ${{ runner.os }}-r${{ matrix.config.r }}-results
           path: check
-# # This workflow uses actions that are not certified by GitHub.
-# # They are provided by a third-party and are governed by
-# # separate terms of service, privacy policy, and support
-# # documentation.
-# #
-# # See https://github.com/r-lib/actions/tree/master/examples#readme for
-# # additional example workflows available for the R community.
-# 
-# name: R
-# 
-# on:
-#   push:
-#     branches: [ master ]
-#   pull_request:
-#     branches: [ master ]
-# 
-# jobs:
-#   build:
-#     runs-on: macOS-latest
-#     strategy:
-#       matrix:
-#         r-version: [3.5, 3.6]
-# 
-#     steps:
-#       - uses: actions/checkout@v2
-#       - name: Set up R ${{ matrix.r-version }}
-#         uses: r-lib/actions/setup-r@ffe45a39586f073cc2e9af79c4ba563b657dc6e3
-#         with:
-#           r-version: ${{ matrix.r-version }}
-#       - name: Install dependencies
-#         run: |
-#           install.packages(c("remotes", "rcmdcheck"))
-#           remotes::install_deps(dependencies = TRUE)
-#         shell: Rscript {0}
-#       - name: Check
-#         run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
-#         shell: Rscript {0}
-# 
