@@ -1,5 +1,6 @@
 ## ubiquity R package
 
+![R-CMD-check](https://github.com/john-harrold/ubiquity/workflows/R-CMD-check/badge.svg)
 [![Build Status](https://travis-ci.com/john-harrold/ubiquity.svg?branch=master)](https://travis-ci.com/john-harrold/ubiquity)
 [![version](https://www.r-pkg.org/badges/version/ubiquity)](https://CRAN.R-project.org/package=ubiquity)
 ![cranlogs](https://cranlogs.r-pkg.org/badges/ubiquity) 
@@ -35,7 +36,7 @@ devtools::install_github("john-harrold/ubiquity",
 
 ### Getting started
 
-For more information on specific tasks see the vignettes: 
+For more information on specific tasks see the following vignettes: 
 
 * Constructing ODE based systems using the ubiquity language: ``vignette("Language", package = "ubiquity")``
 * Running individual and population simulations: ``vignette("Simulation", package = "ubiquity")``

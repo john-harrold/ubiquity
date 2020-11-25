@@ -11,7 +11,7 @@
 #'@import stringr
 #'@importFrom digest digest
 #'@importFrom dplyr  all_of select
-#'@importFrom flextable add_header add_footer align autofit body_add_flextable delete_part merge_h regulartable set_header_labels theme_alafoli theme_box theme_tron_legacy theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
+#'@importFrom flextable add_header add_footer align autofit body_end_section_continuous body_end_section_landscape body_end_section_portrait body_add_flextable delete_part merge_h regulartable set_header_labels theme_alafoli theme_box theme_tron_legacy theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom readxl read_xls read_xlsx
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
@@ -22,6 +22,7 @@
 #'@importFrom utils read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
 #'@importFrom stats median qt var sd
 #'@importFrom MASS mvrnorm
+
 
 #'@export
 #'@title Building The System
@@ -10478,7 +10479,7 @@ system_report_doc_format_section = function(cfg, rptname="default",
          fcnargs = c(fcnargs, paste("widths=c(",toString(widths), ")", sep="")) }
     }
 
-    fcn = paste("body_end_section_", section_type, sep="")
+    fcn = paste("officer::body_end_section_", section_type, sep="")
 
     fcncall = paste("tmprpt = ", fcn, "(", paste(fcnargs, collapse = ", "), ")", sep="")
 
@@ -12304,7 +12305,8 @@ cfg}
 #' will be ignored when calculating statistics.  The allowed
 #' summary statistics are the mean (<MEAN>), median (<MEDIAN>), standard
 #' deviation (<STD>), standard error (<SE>), and the number of observations
-#' used to calculate statistics. (<N>).
+#' used to calculate statistics. (<N>). The default value of \code{NULL}
+#' prevents any summary statistics from being included.
 #'@param summary_labels list containing the mapping of summary statistics
 #' defined by \code{summary_stats} with their text labels in the output tables: 
 #' \preformatted{
@@ -12328,7 +12330,7 @@ cfg}
 #'   \item{nca_summary_ft} same information in the \code{nca_summary} ouput as a flextable object
 #'   \item{components}  list with the elements of the summary table each as dataframes (header, data, and summary)
 #' }
-#'@param table_theme flextable theme see (default=\code{"theme_zebra"})
+#'@param table_theme flextable theme see the flextable package for available themes, and set to \code{NULL} to prevent themes from being applied. (default=\code{"theme_zebra"})
 #'@seealso Vignette on NCA (\code{vignette("NCA", package = "ubiquity")}) 
 system_nca_summary = function(cfg, 
                           analysis_name     = "analysis",
@@ -12585,16 +12587,22 @@ if(isgood){
     sum_table[[pname]] = tmpcol
   }
   sum_table = as.data.frame(sum_table)
-
   #------------------------------------------
   # Creating the flextable object
   sum_table_ft = 
        flextable::flextable(rows_data)                       %>% 
        flextable::delete_part(part = "header")               %>%
-       flextable::add_header(values =as.list(rows_header))   %>%
-       flextable::add_footer(values =as.list(rows_summary)) 
-  eval(parse(text=paste("sum_table_ft = sum_table_ft %>% flextable::", table_theme, "()", sep="")))
+       flextable::add_header(values =as.list(rows_header))  
+
+  # If the user specified a summary row we add that here:
+  if(!is.null(summary_stats)){
+    sum_table_ft = sum_table_ft %>% flextable::add_footer(values =as.list(rows_summary)) 
+  } 
+  if(!is.null(table_theme)){
+    eval(parse(text=paste("sum_table_ft = sum_table_ft %>% flextable::", table_theme, "()", sep="")))
+  }
   #------------------------------------------
+  
 }
 
 
