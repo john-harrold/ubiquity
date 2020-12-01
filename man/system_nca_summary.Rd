@@ -40,7 +40,8 @@ parameters. To split this up across two rows just do the following:
 will be ignored when calculating statistics.  The allowed
 summary statistics are the mean (<MEAN>), median (<MEDIAN>), standard
 deviation (<STD>), standard error (<SE>), and the number of observations
-used to calculate statistics. (<N>).}
+used to calculate statistics. (<N>). The default value of \code{NULL}
+prevents any summary statistics from being included.}
 
 \item{summary_labels}{list containing the mapping of summary statistics
 defined by \code{summary_stats} with their text labels in the output tables: 
@@ -61,7 +62,7 @@ If you set this to the "ID" column it will put them under the subject IDs.}
 
 \item{digits}{number of significant digits to report (3) or \code{NULL} to prevent rounding}
 
-\item{table_theme}{flextable theme see (default=\code{"theme_zebra"})}
+\item{table_theme}{flextable theme see the flextable package for available themes, and set to \code{NULL} to prevent themes from being applied. (default=\code{"theme_zebra"})}
 }
 \value{
 list with the following elements

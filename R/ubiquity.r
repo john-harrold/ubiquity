@@ -11,13 +11,13 @@
 #'@import stringr
 #'@importFrom digest digest
 #'@importFrom dplyr  all_of select
-#'@importFrom flextable add_header add_footer align autofit body_end_section_continuous body_end_section_landscape body_end_section_portrait body_add_flextable delete_part merge_h regulartable set_header_labels theme_alafoli theme_box theme_tron_legacy theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
+#'@importFrom flextable add_header add_footer align autofit body_add_flextable delete_part merge_h regulartable set_header_labels theme_alafoli theme_box theme_tron_legacy theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom readxl read_xls read_xlsx
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
 #'@importFrom magrittr "%>%"
-#'@importFrom officer add_slide body_add_break body_add_fpar body_add_par body_add_gg body_add_img body_add_table body_add_toc body_replace_all_text external_img footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type ph_location_label ph_with read_pptx read_docx shortcuts styles_info unordered_list
+#'@importFrom officer add_slide body_add_break body_add_fpar body_add_par body_add_gg body_add_img body_add_table body_add_toc body_end_section_continuous body_end_section_landscape body_end_section_portrait body_replace_all_text external_img footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type ph_location_label ph_with read_pptx read_docx shortcuts styles_info unordered_list
 #'@importFrom PKNCA PKNCA.options PKNCAconc PKNCAdose PKNCAdata pk.nca get.interval.cols
 #'@importFrom utils read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
 #'@importFrom stats median qt var sd
@@ -7870,7 +7870,6 @@ gg_axis  = function(fo,
         ytick_minor = c(ytick_minor, 10^log10(ytick_major[yt])*2:9)
       }
      
-     
       if(y_tick_label){
         fo = fo + scale_y_continuous(breaks       = ytick_major,
                                      minor_breaks = ytick_minor,
@@ -10060,7 +10059,7 @@ return(rpt)}
 #'    }
 #'  \item \code{"flextable"} list containing flextable content and other options with the following elements (defaults in parenthesis):
 #'   \itemize{
-#'      \item \code{table} Data frame containing the tabular data
+#'      \item \code{table} data frame containing the tabular data
 #'      \item \code{caption} caption of the table (\code{NULL})  
 #'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
 #'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
@@ -10070,6 +10069,10 @@ return(rpt)}
 #'      \item \code{table_theme} (\code{"theme_vanilla"}) Table theme
 #'    }
 #'  \item \code{"flextable_object"} user defined flextable object 
+#'   \itemize{
+#'      \item \code{ft} flextable object 
+#'      \item \code{caption} caption of the table (\code{NULL})  
+#'    }
 #'}
 #'@return cfg ubiquity system object with the content added to the body
 system_report_doc_add_content = function(cfg, rptname="default", content_type=NULL, content=NULL){
@@ -10493,15 +10496,18 @@ cfg}
 # -------------------------------------------------------------------------
 # md_to_officer
 #'@export
-#'@title Parse Markdown for OfficeR
-#'@description Parses text in Markdown format and returns fpar command strings to be used with OfficeR
+#'@title Parse Markdown for Officer
+#'@description Parses text in Markdown format and returns fpar command strings to be used with Officer
 #'@param str     string containing Markdown can contain the following elements:
 #' \itemize{
-#'  \item paragraph    Two or more new lines creates a paragraph
-#'  \item \code{"bold"}    Can be either \code{"*text in bold*"} or \code{"_text in bold_"}
-#'  \item \code{"italic"}  Can be either \code{"**text in bold**"} or \code{"__text in bold__"}
-#'  \item \code{"subscript"}  \code{"Normal~subscript~"} 
-#'  \item \code{"superscript"}  \code{"Normal^superscript^"} 
+#'  \item paragraph:   two or more new lines creates a paragraph
+#'  \item bold:        can be either \code{"*text in bold*"} or \code{"_text in bold_"}
+#'  \item italics:     can be either \code{"**text in bold**"} or \code{"__text in bold__"}
+#'  \item subscript:   \code{"Normal~subscript~"} 
+#'  \item superscript: \code{"Normal^superscript^"} 
+#'  \item color:       \code{"<color:red>red text</color>"} 
+#'  \item shade:       \code{"<shade:#33ff33>shading</shade>"} 
+#'  \item font family: \code{"<ff:symbol>symbol</ff>"} 
 #'}
 #'@return list with parsed paragraph elements ubiquity system object with the
 #' content added to the body, each paragraph can be found in a numbered list

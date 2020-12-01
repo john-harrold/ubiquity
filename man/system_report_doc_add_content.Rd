@@ -64,7 +64,7 @@ format (\code{?md_to_officer} for markdown details).
    }
  \item \code{"flextable"} list containing flextable content and other options with the following elements (defaults in parenthesis):
   \itemize{
-     \item \code{table} Data frame containing the tabular data
+     \item \code{table} data frame containing the tabular data
      \item \code{caption} caption of the table (\code{NULL})  
      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
@@ -74,6 +74,10 @@ format (\code{?md_to_officer} for markdown details).
      \item \code{table_theme} (\code{"theme_vanilla"}) Table theme
    }
  \item \code{"flextable_object"} user defined flextable object 
+  \itemize{
+     \item \code{ft} flextable object 
+     \item \code{caption} caption of the table (\code{NULL})  
+   }
 }}
 }
 \value{

@@ -2,18 +2,21 @@
 % Please edit documentation in R/ubiquity.R
 \name{md_to_officer}
 \alias{md_to_officer}
-\title{Parse Markdown for OfficeR}
+\title{Parse Markdown for Officer}
 \usage{
 md_to_officer(str)
 }
 \arguments{
 \item{str}{string containing Markdown can contain the following elements:
 \itemize{
- \item paragraph    Two or more new lines creates a paragraph
- \item \code{"bold"}    Can be either \code{"*text in bold*"} or \code{"_text in bold_"}
- \item \code{"italic"}  Can be either \code{"**text in bold**"} or \code{"__text in bold__"}
- \item \code{"subscript"}  \code{"Normal~subscript~"} 
- \item \code{"superscript"}  \code{"Normal^superscript^"} 
+ \item paragraph:   two or more new lines creates a paragraph
+ \item bold:        can be either \code{"*text in bold*"} or \code{"_text in bold_"}
+ \item italics:     can be either \code{"**text in bold**"} or \code{"__text in bold__"}
+ \item subscript:   \code{"Normal~subscript~"} 
+ \item superscript: \code{"Normal^superscript^"} 
+ \item color:       \code{"<color:red>red text</color>"} 
+ \item shade:       \code{"<shade:#33ff33>shading</shade>"} 
+ \item font family: \code{"<ff:symbol>symbol</ff>"} 
 }}
 }
 \value{
@@ -32,5 +35,5 @@ elements:
 }
 }
 \description{
-Parses text in Markdown format and returns fpar command strings to be used with OfficeR
+Parses text in Markdown format and returns fpar command strings to be used with Officer
 }
