@@ -17,7 +17,7 @@
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
 #'@importFrom magrittr "%>%"
-#'@importFrom officer add_slide body_add_break body_add_fpar body_add_par body_add_gg body_add_img body_add_table body_add_toc body_end_section_continuous body_end_section_landscape body_end_section_portrait body_replace_all_text external_img footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type ph_location_label ph_with read_pptx read_docx shortcuts styles_info unordered_list
+#'@importFrom officer add_slide body_add_break body_add_fpar body_add_par body_add_gg body_add_img body_add_table body_add_toc body_bookmark body_end_section_continuous body_end_section_landscape body_end_section_portrait body_replace_all_text external_img footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type ph_location_label ph_with read_pptx read_docx shortcuts  slip_in_seqfield slip_in_text styles_info unordered_list
 #'@importFrom PKNCA PKNCA.options PKNCAconc PKNCAdose PKNCAdata pk.nca get.interval.cols
 #'@importFrom utils read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
 #'@importFrom stats median qt var sd
@@ -10038,6 +10038,7 @@ return(rpt)}
 #'      \item \code{image} string containing path to image file
 #'      \item \code{caption} caption of the image (\code{NULL})  
 #'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+#'      \item \code{key} unique key for cross referencing e.g. "FIG_DATA" (\code{NULL})  
 #'      \item \code{height} height of the image (\code{NULL})
 #'      \item \code{width} width of the image (\code{NULL})
 #'    }
@@ -10046,6 +10047,7 @@ return(rpt)}
 #'      \item \code{image} ggplot object
 #'      \item \code{caption} caption of the image (\code{NULL})  
 #'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+#'      \item \code{key} unique key for cross referencing e.g. "FIG_DATA" (\code{NULL})  
 #'      \item \code{height} height of the image (\code{NULL})
 #'      \item \code{width} width of the image (\code{NULL})
 #'    }
@@ -10054,6 +10056,7 @@ return(rpt)}
 #'      \item \code{table} data frame containing the tabular data
 #'      \item \code{caption} caption of the table (\code{NULL})  
 #'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+#'      \item \code{key} unique key for cross referencing e.g. "TAB_DATA" (\code{NULL})  
 #'      \item \code{header} Boolean variable to control displaying the header (\code{TRUE})
 #'      \item \code{first_row} Boolean variable to indicate that the first row contains header information (\code{TRUE})
 #'    }
@@ -10062,6 +10065,7 @@ return(rpt)}
 #'      \item \code{table} data frame containing the tabular data
 #'      \item \code{caption} caption of the table (\code{NULL})  
 #'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+#'      \item \code{key} unique key for cross referencing e.g. "TAB_DATA" (\code{NULL})  
 #'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
 #'      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
 #'      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
@@ -10072,6 +10076,7 @@ return(rpt)}
 #'   \itemize{
 #'      \item \code{ft} flextable object 
 #'      \item \code{caption} caption of the table (\code{NULL})  
+#'      \item \code{key} unique key for cross referencing e.g. "TAB_DATA" (\code{NULL})  
 #'    }
 #'}
 #'@return cfg ubiquity system object with the content added to the body
@@ -10084,11 +10089,11 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
  }
 
   # Checking things
-  if(cfg$reporting$enabled){
-    if(rptname %in% names(cfg$reporting$reports)){
-      if( "Word" != cfg$reporting$reports[[rptname]]$rpttype){
+  if(cfg[["reporting"]][["enabled"]]){
+    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
+      if( "Word" != cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]]){
         isgood = FALSE
-        vp(cfg, paste("Error: Trying to add Word content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
+        vp(cfg, paste("Error: Trying to add Word content to >", cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] ,"< report", sep=""))
       }
     } else {
       isgood = FALSE
@@ -10112,26 +10117,26 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       # Checking to make sure the text format is correct
       if(content_type == "text"){
         ok_styles = c("normal", "code", "h1", "h2", "h3", "toc")
-        if(!(content$style %in% ok_styles)){
-          vp(cfg, paste("the content$style >", content$style, "< is not correct, it should be one of: ", paste(ok_styles, collapse=", "), sep=""))
+        if(!(content[["style"]] %in% ok_styles)){
+          vp(cfg, paste("the content$style >", content[["style"]], "< is not correct, it should be one of: ", paste(ok_styles, collapse=", "), sep=""))
           isgood = FALSE
         }
       }
       # Checking to make sure the image file exists
       if(content_type == "imagefile"){
-        if(!file.exists(content$image)){
-          vp(cfg, paste("the imagefile >", content$image, "< does not exist", sep=""))
+        if(!file.exists(content[["image"]])){
+          vp(cfg, paste("the imagefile >", content[["image"]], "< does not exist", sep=""))
           isgood = FALSE
         }
       }
       if(content_type == "ggplot"){
-        if(!is.ggplot(content$image)){
+        if(!is.ggplot(content[["image"]])){
           vp(cfg, paste("the image data found in >content$image< is not a ggplot object",sep=""))
           isgood = FALSE
         }
       }
       if(content_type == "table"){
-        if(!is.data.frame(content$table)){
+        if(!is.data.frame(content[["table"]])){
           vp(cfg, paste("the tabular information found in >content$table< is not a data.frame object",sep=""))
           isgood = FALSE
         }
@@ -10152,58 +10157,62 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
   # If all the checks have passed we add the content
   if(isgood){
     # Pulling out the meta data for the report template
-    meta = cfg$reporting$reports[[rptname]]$meta 
+    meta = cfg[["reporting"]][["reports"]][[rptname]][["meta"]]
     # Pulling out the report to make it easier to deal with
-    tmprpt  = cfg$reporting$reports[[rptname]]$report
+    tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
 
 
     #-------
     # Determining the current depth
-    if(is.null(cfg$reporting$reports[[rptname]]$depth)){
+    if(is.null(cfg[["reporting"]][["reports"]][[rptname]][["depth"]])){
       depth = 1 
     } else {
-      depth = cfg$reporting$reports[[rptname]]$depth
+      depth = cfg[["reporting"]][["reports"]][[rptname]][["depth"]]
     }
     #-------
 
     Caption_Location = "none"
     Caption_Format  = "text"
     if("caption_format" %in% names(content)){
-      Caption_Format = content$caption_format
+      Caption_Format = content[["caption_format"]]
     }
 
     #------
     # Figure options 
     if(content_type == "ggplot" | content_type == "imagefile"){
-      Figure_Width =  meta$styles$Figure_Width
+      Figure_Width =  meta[["styles"]][["Figure_Width"]]
       if("width" %in% names(content)){
-        Figure_Width = content$width
+        Figure_Width = content[["width"]]
       }
       
-      Figure_Height =  meta$styles$Figure_Height
+      Figure_Height =  meta[["styles"]][["Figure_Height"]]
       if("height" %in% names(content)){
-        Figure_Height = content$height
+        Figure_Height = content[["height"]]
       }
-      Caption_Location = meta$styles$Figure_Caption_Location 
-      Caption_Style    = meta$styles$Figure_Caption
-      Caption_Ref_str  =  paste("tmprpt = officer::shortcuts$slip_in_plotref(tmprpt, depth =", depth, ")")
+      Caption_Location = meta[["styles"]][["Figure_Caption_Location"]]
+      Caption_Style    = meta[["styles"]][["Figure_Caption"]]
+      Caption_Ref_str    = paste('tmprpt = officer::slip_in_seqfield(tmprpt, str = "SEQ Figure \\\\@ arabic", style = "Default Paragraph Font", pos = "before")', sep="")
+      Caption_Label_Pre  = meta[["captions"]][["figure"]][["pre_number"]] 
+      Caption_Label_Post = meta[["captions"]][["figure"]][["post_number"]]
     }
     
-    if(content_type == "table" | content_type == "flextable" | content_type=="flextable_object"){
-      Caption_Location = meta$styles$Table_Caption_Location 
-      Caption_Style    = meta$styles$Table_Caption
-      Caption_Ref_str  =  paste("tmprpt = officer::shortcuts$slip_in_tableref(tmprpt, depth =", depth, ")")
-    }
     #-------
     # Table options
+    if(content_type == "table" | content_type == "flextable" | content_type=="flextable_object"){
+      Caption_Location = meta[["styles"]][["Table_Caption_Location"]]
+      Caption_Style    = meta[["styles"]][["Table_Caption"]]
+      Caption_Ref_str    = paste('tmprpt = officer::slip_in_seqfield(tmprpt, str = "SEQ Table \\\\@ arabic", style = "Default Paragraph Font", pos = "before")', sep="")
+      Caption_Label_Pre  = meta[["captions"]][["table"]][["pre_number"]]  
+      Caption_Label_Post = meta[["captions"]][["table"]][["post_number"]] 
+    }
     if(content_type == "table"){
       header    = TRUE
       if('header' %in% names(content)){
-        header = content$header
+        header = content[["header"]]
       } 
       first_row = TRUE
       if('first_row' %in% names(content)){
-        first_row = content$first_row
+        first_row = content[["first_row"]]
       } 
     }
     #-------
@@ -10237,7 +10246,7 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
 
       # Creating the table
       invisible(system_req("flextable"))
-      ft = flextable::regulartable(content$table,  cwidth = cwidth, cheight=cheight)
+      ft = flextable::regulartable(content[["table"]],  cwidth = cwidth, cheight=cheight)
       
       # Adding headers
       header_types = c("header_bottom", "header_middle", "header_top")
@@ -10291,30 +10300,37 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
 
     #------
     # Adding caption to the top of the object
-    if(!is.null(content$caption) & Caption_Location == "top"){
+    if(!is.null(content[["caption"]]) & Caption_Location == "top"){
       if(Caption_Format == "text"){
-        tmprpt = officer::body_add_par(tmprpt, content$caption, style=Caption_Style)
+        tmprpt = officer::body_add_par(tmprpt, content[["caption"]], style=Caption_Style)
       } else if(Caption_Format == "fpar"){
-        tmprpt = officer::body_add_fpar(tmprpt, value=content$text, style=Caption_Style)
+        tmprpt = officer::body_add_fpar(tmprpt, value=content[["text"]], style=Caption_Style)
       } else if(Caption_Format == "md"){
-        mdout = md_to_officer(content$text)
+        mdout = md_to_officer(content[["text"]])
         for(pgraph in mdout){
-          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=Caption_Style)
+          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph[["fpar_cmd"]])), style=Caption_Style)
         }
       }
+
+      # Appending the Figure X and Table X
+      tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Post, style = "Default Paragraph Font", pos = "before") 
       eval(parse(text=Caption_Ref_str))
+      # If a key has been defined we add that here
+      if(!is.null(content[["key"]])){
+         officer::body_bookmark(tmprpt, content[["key"]]) }
+      tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Pre, style = "Default Paragraph Font", pos = "before") 
     }
 
     # Adding the image/table
     if(content_type == "ggplot"){
-      tmprpt = officer::body_add_gg(tmprpt, value=content$image, width = Figure_Width, height = Figure_Height)
+      tmprpt = officer::body_add_gg(tmprpt, value=content[["image"]], width = Figure_Width, height = Figure_Height)
     }
     if(content_type == "imagefile"){
-      tmprpt = officer::body_add_img(tmprpt, src=content$image, width = Figure_Width, height = Figure_Height)
+      tmprpt = officer::body_add_img(tmprpt, src=content[["image"]], width = Figure_Width, height = Figure_Height)
     }
 
     if(content_type == "table"){
-     tmprpt = officer::body_add_table(tmprpt, value=content$table, header=header, first_row=first_row, style=meta$styles$Table)
+     tmprpt = officer::body_add_table(tmprpt, value=content[["table"]], header=header, first_row=first_row, style=meta[["styles"]][["Table"]])
     }
 
     if(content_type == "flextable" | content_type=="flextable_object"){
@@ -10322,65 +10338,73 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
     }
 
     # Adding caption to the bottom of the object
-    if(!is.null(content$caption) & Caption_Location == "bottom"){
+    if(!is.null(content[["caption"]]) & Caption_Location == "bottom"){
       if(Caption_Format == "text"){
-        tmprpt = officer::body_add_par(tmprpt, content$caption, style=Caption_Style)
+        tmprpt = officer::body_add_par(tmprpt, content[["caption"]], style=Caption_Style)
       } else if(Caption_Format == "fpar"){
-        tmprpt = officer::body_add_fpar(tmprpt, value=content$text, style=Caption_Style)
+        tmprpt = officer::body_add_fpar(tmprpt, value=content[["text"]], style=Caption_Style)
       } else if(Caption_Format == "md"){
-        mdout = md_to_officer(content$text)
+        mdout = md_to_officer(content[["text"]])
         for(pgraph in mdout){
-          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=Caption_Style)
+          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph[["fpar_cmd"]])), style=Caption_Style)
         }
       }
+
+      # Appending the Figure X and Table X
+      tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Post, style = "Default Paragraph Font", pos = "before") 
       eval(parse(text=Caption_Ref_str))
+      # If a key has been defined we add that here
+      if(!is.null(content[["key"]])){
+         officer::body_bookmark(tmprpt, content[["key"]]) }
+      tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Pre, style = "Default Paragraph Font", pos = "before") 
+
     }
     #------
     if(content_type == "text"){
       # defaulting to text format
       Text_Format = "text"
       if("format" %in% names(content)){
-        Text_Format = content$format
+        Text_Format = content[["format"]]
       }
 
-      if(content$style == "normal"){
-        text_style = meta$styles$Normal
+      if(content[["style"]] == "normal"){
+        text_style = meta[["styles"]][["Normal"]]
       }
-      if(content$style == "code"){
-        text_style = meta$styles$Code  
+      if(content[["style"]] == "code"){
+        text_style = meta[["styles"]][["Code"]]
       }
-      if(content$style == "h1"){
-        text_style = meta$styles$Heading_1
+      if(content[["style"]] == "h1"){
+        text_style = meta[["styles"]][["Heading_1"]]
         depth = 1
       }
-      if(content$style == "h2"){
-        text_style = meta$styles$Heading_2
+      if(content[["style"]] == "h2"){
+        text_style = meta[["styles"]][["Heading_2"]]
         depth = 2
       }
-      if(content$style == "h3"){
-        text_style = meta$styles$Heading_3
+      if(content[["style"]] == "h3"){
+        text_style = meta[["styles"]][["Heading_3"]]
         depth = 3
       }
 
       if(Text_Format == "text"){
-        tmprpt =  officer::body_add_par(tmprpt, value=content$text, style=text_style)
+        tmprpt =  officer::body_add_par(tmprpt, value=content[["text"]], style=text_style)
       } else if(Text_Format == "fpar"){
-        tmprpt = officer::body_add_fpar(tmprpt, value=content$text, style=text_style)
+        tmprpt = officer::body_add_fpar(tmprpt, value=content[["text"]], style=text_style)
       } else if(Text_Format == "md"){
-        mdout = md_to_officer(content$text)
+        mdout = md_to_officer(content[["text"]])
         for(pgraph in mdout){
-          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph$fpar_cmd)), style=text_style)
+          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph[["fpar_cmd"]])), style=text_style)
         }
       }
     }
 
     if(content_type == "toc"){
       if("level" %in% content){
-        level = content$level
+        level = content[["level"]]
       } else {
         level = 3
       }
-      tmprpt = officer::body_add_toc(tmprpt, style=meta$styles$TOC, level=level)
+      tmprpt = officer::body_add_toc(tmprpt, style=meta[["styles"]][["TOC"]], level=level)
     }
 
     if(content_type == "break"){
@@ -10388,10 +10412,10 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
     }
 
     # Putting the report back into cfg
-    cfg$reporting$reports[[rptname]]$report = tmprpt
+    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
     
     # saving the depth
-    cfg$reporting$reports[[rptname]]$depth = depth
+    cfg[["reporting"]][["reports"]][[rptname]][["depth"]] = depth
   
   }
   
@@ -10434,7 +10458,7 @@ system_report_doc_format_section = function(cfg, rptname="default",
      columns_landscape    = c("widths", "space", "sep", "w", "h")
   )
 
-  if(cfg$reporting$enabled){
+  if(cfg[["reporting"]][["enabled"]]){
     if(rptname %in% names(cfg$reporting$reports)){
       if( "Word" != cfg$reporting$reports[[rptname]]$rpttype){
         isgood = FALSE

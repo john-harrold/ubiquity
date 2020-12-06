@@ -18,7 +18,7 @@ org_pptx_meta = function(){
 #
 # Next initialize a report using your organizational template:
 #
-# cfg = system_report_init(cfg, rpttype="PowerPoint", template="myOrg.pptx")
+# cfg = system_report_init(cfg, template="myOrg.pptx")
 #
 # Now generate an annotated layout of your template:
 #
@@ -144,7 +144,7 @@ org_docx_meta = function(){
 #
 # Next initialize a report using your organizational template:
 #
-# cfg = system_report_init(cfg, rpttype="Word", template="myOrg.docx")
+# cfg = system_report_init(cfg, template="myOrg.docx")
 #
 # Now generate an annotated layout of your template:
 #
@@ -166,26 +166,36 @@ meta = list()
 # For each placeholder there should be a location and a content element. The
 # location can be either "header", "footer" or "body", and the content will be
 # the default value. 
-meta$ph_content$HeaderLeft$location   = "header"
-meta$ph_content$HeaderLeft$content    = ""
+meta[["ph_content"]][["HeaderLeft"]][["location"]]   = "header"
+meta[["ph_content"]][["HeaderLeft"]][["content"]]    = ""
 
 # You'll need to create a template with the following styles defined.
-meta$styles$Normal                    = "Normal"
-meta$styles$Code                      = "Code"
-meta$styles$TOC                       = "toc 1" 
-meta$styles$Heading_1                 = "heading 1"
-meta$styles$Heading_2                 = "heading 2"
-meta$styles$Heading_3                 = "heading 3"
-meta$styles$Table                     = "Table Grid"
-meta$styles$Table_Caption             = "table title"
-meta$styles$Figure_Caption            = "graphic title" 
+meta[["styles"]][["Normal"]]                 = "Normal"
+meta[["styles"]][["Code"]]                   = "Code"
+meta[["styles"]][["TOC"]]                    = "toc 1" 
+meta[["styles"]][["Heading_1"]]              = "heading 1"
+meta[["styles"]][["Heading_2"]]              = "heading 2"
+meta[["styles"]][["Heading_3"]]              = "heading 3"
+meta[["styles"]][["Table"]]                  = "Table Grid"
+meta[["styles"]][["Table_Caption"]]          = "table title"
+meta[["styles"]][["Figure_Caption"]]         = "graphic title" 
 
 # Locations can be either top or bottom
-meta$styles$Table_Caption_Location    = "top" 
-meta$styles$Figure_Caption_Location   = "bottom" 
+meta[["styles"]][["Table_Caption_Location"]]    = "top" 
+meta[["styles"]][["Figure_Caption_Location"]]   = "bottom" 
 
 # This sets the default figure width and height in inches for the document:
-meta$styles$Figure_Width              = 6.0
-meta$styles$Figure_Height             = 5.0
+meta[["styles"]][["Figure_Width"]]           = 6.0
+meta[["styles"]][["Figure_Height"]]          = 5.0
+
+
+# The pre_number and post_number values here wrap round the figure and table
+# number. For figure N the label before the caption will be:
+# "Figure N: " 
+# Followed by the caption.
+meta[["captions"]][["figure"]][["pre_number"]]          = "Figure "
+meta[["captions"]][["figure"]][["post_number"]]         = ": "
+meta[["captions"]][["table"]][["pre_number"]]           = "Table " 
+meta[["captions"]][["table"]][["post_number"]]          = ": "
 
 return(meta)}

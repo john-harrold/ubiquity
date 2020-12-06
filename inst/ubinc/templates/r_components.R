@@ -323,6 +323,10 @@ cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Caption                    
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Caption_Location                = "bottom" 
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Width                           = 6.0
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Height                          = 5.0
+cfg[["reporting"]][["meta_docx"]][["captions"]][["figure"]][["pre_number"]]          = "Figure "
+cfg[["reporting"]][["meta_docx"]][["captions"]][["figure"]][["post_number"]]         = ": "
+cfg[["reporting"]][["meta_docx"]][["captions"]][["table"]][["pre_number"]]           = "Table " 
+cfg[["reporting"]][["meta_docx"]][["captions"]][["table"]][["post_number"]]          = ": "
 
 #--------------------------------------------------------------------
 

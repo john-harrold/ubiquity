@@ -43,6 +43,7 @@ format (\code{?md_to_officer} for markdown details).
      \item \code{image} string containing path to image file
      \item \code{caption} caption of the image (\code{NULL})  
      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+     \item \code{key} unique key for cross referencing e.g. "FIG_DATA" (\code{NULL})  
      \item \code{height} height of the image (\code{NULL})
      \item \code{width} width of the image (\code{NULL})
    }
@@ -51,6 +52,7 @@ format (\code{?md_to_officer} for markdown details).
      \item \code{image} ggplot object
      \item \code{caption} caption of the image (\code{NULL})  
      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+     \item \code{key} unique key for cross referencing e.g. "FIG_DATA" (\code{NULL})  
      \item \code{height} height of the image (\code{NULL})
      \item \code{width} width of the image (\code{NULL})
    }
@@ -59,6 +61,7 @@ format (\code{?md_to_officer} for markdown details).
      \item \code{table} data frame containing the tabular data
      \item \code{caption} caption of the table (\code{NULL})  
      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+     \item \code{key} unique key for cross referencing e.g. "TAB_DATA" (\code{NULL})  
      \item \code{header} Boolean variable to control displaying the header (\code{TRUE})
      \item \code{first_row} Boolean variable to indicate that the first row contains header information (\code{TRUE})
    }
@@ -67,6 +70,7 @@ format (\code{?md_to_officer} for markdown details).
      \item \code{table} data frame containing the tabular data
      \item \code{caption} caption of the table (\code{NULL})  
      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+     \item \code{key} unique key for cross referencing e.g. "TAB_DATA" (\code{NULL})  
      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
@@ -77,6 +81,7 @@ format (\code{?md_to_officer} for markdown details).
   \itemize{
      \item \code{ft} flextable object 
      \item \code{caption} caption of the table (\code{NULL})  
+     \item \code{key} unique key for cross referencing e.g. "TAB_DATA" (\code{NULL})  
    }
 }}
 }
