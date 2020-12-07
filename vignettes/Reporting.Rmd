@@ -315,24 +315,28 @@ list provides the available content types followed by a description of the forma
      - ``image`` string containing path to image file
      - ``caption`` caption of the image
      - ``caption_format`` string containing the format, either ``"text"``, ``"fpar"``, or ``"md"`` (default ``NULL`` assumes ``"text"`` format)
+     - ``key`` unique key for cross referencing e.g. "FIG_DATA" (``NULL``) 
      - ``height`` height of the image (``NULL``)
      - ``width`` width of the image (``NULL``)
 * ``"ggplot"`` content is a list containing an image from a ggplot object, (eg. p = ggplot() + ....) with the following elements
      - ``image`` ggplot object
      - ``caption`` caption of the image
      - ``caption_format`` string containing the format, either ``"text"``, ``"fpar"``, or ``"md"`` (default ``NULL`` assumes ``"text"`` format)
+     - ``key`` unique key for cross referencing e.g. "FIG_DATA" (``NULL``) 
      - ``height`` height of the image (``NULL``)
      - ``width`` width of the image (``NULL``)
 * ``"table"`` content list containing the table content and other options with the following elements
      - ``table`` data frame containing the tabular data
      - ``caption`` caption of the table 
      - ``caption_format`` string containing the format, either ``"text"``, ``"fpar"``, or ``"md"`` (default ``NULL`` assumes ``"text"`` format)
+     - ``key`` unique key for cross referencing e.g. "TAB_DATA" (``NULL``) 
      - ``header`` Boolean variable to control displaying the header (``TRUE``)
      - ``first_row`` Boolean variable to indicate that the first row contains header information (``TRUE``)
 * ``"flextable"`` list containing flextable content and other options with the following elements (defaults in parenthesis):
      - ``table`` Data frame containing the tabular data
      - ``caption`` caption of the table 
      - ``caption_format`` string containing the format, either ``"text"``, ``"fpar"``, or ``"md"`` (default ``NULL`` assumes ``"text"`` format)
+     - ``key`` unique key for cross referencing e.g. "TAB_DATA" (``NULL``) 
      - ``header_top``, ``header_middle``, ``header_bottom`` (``NULL``)  a list with the same names as the data frame names of the tabular data and values with the header text to show in the table 
      - ``merge_header`` (``TRUE``) Set to true to combine column headers with the same information
      - ``table_body_alignment``, ``table_header_alignment`` ("center") Controls alignment
@@ -341,6 +345,7 @@ list provides the available content types followed by a description of the forma
 * ``"flextable_object"``  List specifying the a user defined flextable object with the following elements:
      - ``caption`` text containing the caption of the figure
      - ``ft`` flextable object
+     - ``key`` unique key for cross referencing e.g. "TAB_DATA" (``NULL``) 
 
 Text can be specified in different formats: ``"text"`` indicates plain text,
 ``"fpar"`` is formatted text defined by the ``fpar`` command from the
@@ -522,7 +527,7 @@ cfg = system_report_doc_add_content(cfg,
 
 #### Placeholders                 
 
-You can include placeholders in your documents. These can be in the template document itself or in the text you're adding to the document. For example you can create placeholder text called: ``:::PHName:::`` in your document and it can be replaced by the desired text in the document. A placeholder is a unique string of text surrounded by ``:::``. If the placeholder is in your template document, it may not work correctly if you type the text into word. This is because while a string may appear to be a contiguous in Word, it may not be so in the underlying XML code. To ensure the string is contiguous **you should type the placeholder text into a text editor, copy and paste it into template word**. Next you can define the replacement text using ``system_report_doc_set_ph``:
+You can include placeholders in your documents. These can be in the template document itself or in the text you're adding to the document. For example you can create placeholder text called: ``<::PHName::>`` in your document and it can be replaced by the desired text in the document. A placeholder is a unique string of text surrounded by ``<::`` and ``::>``. If the placeholder is in your template document, it may not work correctly if you type the text into word. This is because while a string may appear to be a contiguous in Word, it may not be so in the underlying XML code. To ensure the string is contiguous **you should type the placeholder text into a text editor, copy and paste it into template word**. Next you can define the replacement text using ``system_report_doc_set_ph``:
 
 ```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
 cfg = system_report_doc_set_ph(cfg, 

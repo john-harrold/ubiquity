@@ -9144,7 +9144,7 @@ system_report_save = function (cfg,
       for(phn in names(cfg$reporting$reports[[rptname]]$meta$ph_content)){
         # Here we pull out the value (phv) and locatio (phl) of each
         # placeholder:
-        pht = paste(":::",phn,":::", sep="") 
+        pht = paste("<::",phn,"::>", sep="") 
         phv = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$content
         phl = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$location
         if(phl == "body"){
@@ -10814,7 +10814,7 @@ pgraphs_parse}
 #'@title Sets Placeholder Content for Word Document Report
 #'@description Adds or updates content to be substituted for placeholders in the specified report.  
 #'
-#' For example if you have <HEADER_LEFT> in the header of your document and you wanted to
+#' For example if you have <::HEADER_LEFT::> in the header of your document and you wanted to
 #' replace it with the text "Upper left" you would do the following:
 #'
 #' \code{
