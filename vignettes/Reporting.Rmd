@@ -618,7 +618,7 @@ Master layout name          Content elements
 
 #### Creating a Word template for your organization
 
-In your word organizational template you will need to create a file with the
+In your Word organizational template you will need to create a Word template file with the
 following styles:
 
 * Normal - Normal text in the body of your document
@@ -630,6 +630,22 @@ following styles:
 * Table - General/plain table format
 * Table_Caption - Format of captions for tables
 * Figure_Caption- Format of captions for figures
+
+You will need to edit the ``org_docx_meta`` function and put the style names from your word doucment into the appropriate location in the ``meta`` list defiend in that fuction. You can also customize how figure and table captions are displayed. Because of how markdown is created elements using the ``"md"`` format need to have their default font attributes defined. You need to do this for each of the styles above. For example the following defines the default text properties for the ``Normal`` style:
+
+```
+meta[["md_def"]][["Normal"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+```
+
+To do this open each style in Word and set the elements in the list to the values in Word. 
 
 
 #### Creating the layout file for the PowerPoint template

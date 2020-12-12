@@ -4,7 +4,12 @@
 \alias{md_to_officer}
 \title{Parse Markdown for Officer}
 \usage{
-md_to_officer(str)
+md_to_officer(
+  str,
+  default_format = list(color = "black", font.size = 12, bold = FALSE, italic = FALSE,
+    underlined = FALSE, font.family = "Cambria (Body)", vertical.align = "baseline",
+    shading.color = "transparent")
+)
 }
 \arguments{
 \item{str}{string containing Markdown can contain the following elements:
@@ -17,6 +22,19 @@ md_to_officer(str)
  \item color:       \code{"<color:red>red text</color>"} 
  \item shade:       \code{"<shade:#33ff33>shading</shade>"} 
  \item font family: \code{"<ff:symbol>symbol</ff>"} 
+}}
+
+\item{default_format}{list containing the default format for elements not defined with markdown default vlaues:
+\preformatted{
+   default_format = list( 
+      color          = "black",
+      font.size      = 12,
+      bold           = FALSE,
+      italic         = FALSE,
+      underlined     = FALSE,
+      font.family    = "Cambria (Body)",
+      vertical.align = "baseline",
+      shading.color  = "transparent")
 }}
 }
 \value{

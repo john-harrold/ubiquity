@@ -160,7 +160,8 @@ cfg = system_report_doc_add_content(cfg,
 cfg = system_report_doc_add_content(cfg, 
   content_type  = "text",
   content       = list(style   = "h1",
-                       text    = "Formatting Text"))
+                       format  = "md",
+                       text    = "Formatting Text <color:red>Colors</color> and other ^formats^"))
 
 fpartext = fpar(
 ftext("Formatted text can be created using the ", prop=NULL),
@@ -174,14 +175,16 @@ cfg = system_report_doc_add_content(cfg,
                        text    = fpartext))
 
 
-mdtext = "Text can be specified in markdown format as well. You can specify
+mdtext = "Text can be specified in markdown format as well. You just need to
+use the format <ff:courier>'md'</ff> in the content options. You can specify
 *bold text*, **italicized text**, ^superscripts^ and ~subscripts~. These can
 be combined as well *H*~*2*~*0*.
 
-You can change colors to  <color:red>red</color>, <color:blue>blue</color>, etc and
-change the <shade:#33ff33>shading</shade>. Again _:::BODYPHEXAMPLE:::_ these can be combined
-<shade:orange><color:green>both color and shading</color></shade>. You can also
-change the font to things like <ff:symbol>*symbol*</ff>."
+You can change colors to  <color:red>red</color>, <color:blue>blue</color>,
+etc and change the <shade:#33ff33>shading</shade>. These can be used with
+_<::BODYPHEXAMPLE::>_ and can be combined such as changing
+<shade:orange><color:green>both color and shading</color></shade>. You can
+also change the font to things like <ff:symbol>*symbol*</ff>."
 
 cfg = system_report_doc_add_content(cfg, 
   content_type  = "text",
@@ -199,7 +202,7 @@ cfg = system_report_doc_set_ph(cfg,
       ph_location = "header")
 
 cfg = system_report_doc_set_ph(cfg, 
-      ph_content  = "Placeholder text in Body" ,
+      ph_content  = "placeholder text in the body" ,
       ph_name     = "BODYPHEXAMPLE", 
       ph_location = "body")
 

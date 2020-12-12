@@ -152,8 +152,10 @@ org_docx_meta = function(){
 #
 # Open the layout.docx file in Word and fill in the information below for each
 # of the placeholders and styles
-meta = list()
-
+meta = list(ph_content = list(),
+            styles     = list(),
+            captions   = list(),
+            md_def     = list())
 
 # If your document contains placeholders you can put default values for those
 # placeholders here. 
@@ -166,13 +168,13 @@ meta = list()
 # For each placeholder there should be a location and a content element. The
 # location can be either "header", "footer" or "body", and the content will be
 # the default value. 
-meta[["ph_content"]][["HeaderLeft"]][["location"]]   = "header"
-meta[["ph_content"]][["HeaderLeft"]][["content"]]    = ""
+meta[["ph_content"]][["HEADER_LEFT"]][["location"]]   = "header"
+meta[["ph_content"]][["HEADER_LEFT"]][["content"]]    = ""
 
 # You'll need to create a template with the following styles defined.
 meta[["styles"]][["Normal"]]                 = "Normal"
 meta[["styles"]][["Code"]]                   = "Code"
-meta[["styles"]][["TOC"]]                    = "toc 1" 
+meta[["styles"]][["TOC"]]                    = "TOC 1" 
 meta[["styles"]][["Heading_1"]]              = "heading 1"
 meta[["styles"]][["Heading_2"]]              = "heading 2"
 meta[["styles"]][["Heading_3"]]              = "heading 3"
@@ -197,5 +199,111 @@ meta[["captions"]][["figure"]][["pre_number"]]          = "Figure "
 meta[["captions"]][["figure"]][["post_number"]]         = ": "
 meta[["captions"]][["table"]][["pre_number"]]           = "Table " 
 meta[["captions"]][["table"]][["post_number"]]          = ": "
+
+
+
+# When using markdown text you have to specify the default properties of text
+# for each of the styles listed above:
+
+meta[["md_def"]][["Normal"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+meta[["md_def"]][["Code"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Courier",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+meta[["md_def"]][["TOC"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+meta[["md_def"]][["Heading_1"]] = list(
+        color          = "black",
+        font.size      = 16,
+        bold           = TRUE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Calibri (Headings)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+meta[["md_def"]][["Heading_2"]] = list(
+        color          = "black",
+        font.size      = 13,
+        bold           = TRUE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Calibri (Headings)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+meta[["md_def"]][["Heading_3"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = TRUE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Calibri (Headings)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+meta[["md_def"]][["Table"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+meta[["md_def"]][["Table_Caption"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = TRUE,
+        italic         = TRUE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+meta[["md_def"]][["Figure"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+meta[["md_def"]][["Figure_Caption"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = TRUE,
+        italic         = TRUE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
 
 return(meta)}

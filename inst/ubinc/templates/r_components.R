@@ -55,7 +55,8 @@ cfg[["reporting"]][["meta_pptx"]]     =
 cfg[["reporting"]][["meta_docx"]]     = 
                          list(ph_content     = list(),
                               styles         = list(),
-                              captions       = list())
+                              captions       = list(),
+                              md_def         = list())
 
 cfg[["ve"]]            = list()
 
@@ -313,7 +314,7 @@ cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FOOTER_RIGHT$content          
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Normal                                 = "Normal"
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Code                                   = "Code"
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Default                                = "Default"
-cfg[["reporting"]][["meta_docx"]][["styles"]]$TOC                                    = "toc 1" 
+cfg[["reporting"]][["meta_docx"]][["styles"]]$TOC                                    = "TOC 1" 
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Heading_1                              = "heading 1"
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Heading_2                              = "heading 2"
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Heading_3                              = "heading 3"
@@ -325,10 +326,131 @@ cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Caption_Location           
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Width                           = 6.0
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Figure_Height                          = 5.0
 
+
+# Caption information:
 cfg[["reporting"]][["meta_docx"]][["captions"]] =list(figure  = list(pre_number  ="Figure ", 
                                                                      post_number =": "),
                                                         table  = list(pre_number ="Table ", 
                                                                      post_number =": "))
+
+# Default formatting for markdown:
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["default"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+# Default formatting for markdown for each style:
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["Normal"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["Code"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Courier",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["TOC"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Courier",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["Heading_1"]] = list(
+        color          = "black",
+        font.size      = 16,
+        bold           = TRUE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Calibri (Headings)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["Heading_2"]] = list(
+        color          = "black",
+        font.size      = 13,
+        bold           = TRUE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Calibri (Headings)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["Heading_3"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = TRUE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Calibri (Headings)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["Table"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["Table_Caption"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = TRUE,
+        italic         = TRUE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["Figure"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+
+
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["Figure_Caption"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = TRUE,
+        italic         = TRUE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+
+
 #--------------------------------------------------------------------
 
 
