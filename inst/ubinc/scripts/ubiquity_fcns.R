@@ -11,13 +11,20 @@
 #'@import stringr
 #'@importFrom digest digest
 #'@importFrom dplyr  all_of select
-#'@importFrom flextable add_header add_footer align autofit body_add_flextable delete_part merge_h regulartable set_header_labels theme_alafoli theme_box theme_tron_legacy theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
+#'@importFrom flextable add_header add_footer align autofit body_add_flextable delete_part merge_h 
+#'@importFrom flextable regulartable set_header_labels theme_alafoli theme_box theme_tron_legacy 
+#'@importFrom flextable theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom readxl read_xls read_xlsx
 #'@importFrom grid pushViewport viewport grid.newpage grid.layout
 #'@importFrom gridExtra grid.arrange
 #'@importFrom magrittr "%>%"
-#'@importFrom officer add_slide body_add_break body_add_fpar body_add_par body_add_gg body_add_img body_add_table body_add_toc body_bookmark body_end_section_continuous body_end_section_landscape body_end_section_portrait body_replace_all_text external_img footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type ph_location_label ph_with read_pptx read_docx shortcuts  slip_in_seqfield slip_in_text styles_info unordered_list
+#'@importFrom officer add_slide annotate_base body_add_break body_add_fpar body_add_par body_add_gg body_add_img 
+#'@importFrom officer body_add_table body_add_toc body_bookmark body_end_section_continuous 
+#'@importFrom officer body_end_section_landscape body_end_section_portrait body_replace_all_text external_img 
+#'@importFrom officer footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type 
+#'@importFrom officer ph_location_label ph_with read_pptx read_docx shortcuts  slip_in_seqfield slip_in_text 
+#'@importFrom officer styles_info unordered_list
 #'@importFrom PKNCA PKNCA.options PKNCAconc PKNCAdose PKNCAdata pk.nca get.interval.cols
 #'@importFrom utils read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
 #'@importFrom stats median qt var sd
@@ -8905,43 +8912,9 @@ if(isgood){
 if(isgood){
 
   # Dumping PowerPoint layout
-  if(cfg$reporting$reports[[rptname]]$rpttype  == "PowerPoint"){
-    # New document from the template
-    rpt = officer::read_pptx(cfg$reporting$reports[[rptname]]$template)
-    
-    # Pulling out all of the layouts stored in the template
-    lay_sum = officer::layout_summary(rpt)
-    
-    # Looping through each layout
-    for(lidx in 1:length(lay_sum[,1])){
-    
-      # Pulling out the layout properties
-      layout = lay_sum[lidx, 1]
-      master = lay_sum[lidx, 2]
-      lp = officer::layout_properties ( x = rpt, layout = layout, master = master)
-    
-      # Adding a slide for the current layout
-      rpt =  officer::add_slide(x=rpt, layout = layout, master = master) 
-    
-      # Blank slides have nothing
-      if(length(lp[,1] > 0)){
-    
-        # Now we go through each placholder
-        for(pidx in 1:length(lp[,1])){
-          # If it's a text placeholder "body" or "title" we add text indicating
-          # the type and index. If it's title we put the layout and master
-          # information in there as well.
-          if(lp[pidx, ]$type == "body"){
-            textstr = sprintf('type="body", index = %d, ph_label=%s', pidx, lp[pidx, ]$ph_label)
-            rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=lp[pidx, ]$ph_label), index = cfg$reporting$reports[[rptname]]$meta$section$indices$pidx, value=textstr) 
-          } 
-          if(lp[pidx, ]$type %in% c("title", "ctrTitle", "subTitle")){
-            textstr = sprintf('layout="%s", master = "%s", type="%s", index =%d, ph_label=%s', layout, master, lp[pidx, ]$type,  pidx, lp[pidx, ]$ph_label)
-            rpt = officer::ph_with(x=rpt, location=officer::ph_location_label(ph_label=lp[pidx, ]$ph_label), value=textstr)  
-          }
-        }
-      } 
-    }
+  if(cfg[["reporting"]][["reports"]][[rptname]]$rpttype  == "PowerPoint"){
+    # Getting the annotated report
+    rpt = officer::annotate_base(path=cfg[["reporting"]][["reports"]][[rptname]][["template"]], output_file=NULL)
   } 
 
   # Dumping Word layout
@@ -9323,6 +9296,10 @@ if(isgood){
       cfg$reporting$reports[[rptname]]$rpttype = use_rpttype
       # Storing the original template location and creating the empty report
       cfg$reporting$reports[[rptname]]$template = use_template
+
+      # empty table to hold reference keys
+      cfg$reporting$reports[[rptname]]$key_table = NULL
+
      
       # Reading in the template depending on the report type
       if(use_rpttype == "PowerPoint"){

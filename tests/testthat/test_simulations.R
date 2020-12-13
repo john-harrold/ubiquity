@@ -14,5 +14,4 @@ test_that("Running Scripts",{
   test_file("analysis_multiple.r")
   test_file("analysis_multiple_file.r")
   #--------------------
-  ttdir = getwd()
 })
