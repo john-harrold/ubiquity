@@ -178,7 +178,7 @@ cfg = system_report_doc_add_content(cfg,
 mdtext = "Text can be specified in markdown format as well. You just need to
 use the format <ff:courier>'md'</ff> in the content options. You can specify
 *bold text*, **italicized text**, ^superscripts^ and ~subscripts~. These can
-be combined as well *H*~*2*~*0*.
+also be combined *H*~*2*~*0*.
 
 You can change colors to  <color:red>red</color>, <color:blue>blue</color>,
 etc and change the <shade:#33ff33>shading</shade>. These can be used with
