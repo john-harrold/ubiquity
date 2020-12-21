@@ -16,7 +16,7 @@ md_to_officer(
 \itemize{
  \item paragraph:   two or more new lines creates a paragraph
  \item bold:        can be either \code{"*text in bold*"} or \code{"_text in bold_"}
- \item italics:     can be either \code{"**text in bold**"} or \code{"__text in bold__"}
+ \item italics:     can be either \code{"**text in italics**"} or \code{"__text in italics__"}
  \item subscript:   \code{"Normal~subscript~"} 
  \item superscript: \code{"Normal^superscript^"} 
  \item color:       \code{"<color:red>red text</color>"} 
@@ -24,7 +24,7 @@ md_to_officer(
  \item font family: \code{"<ff:symbol>symbol</ff>"} 
 }}
 
-\item{default_format}{list containing the default format for elements not defined with markdown default vlaues:
+\item{default_format}{list containing the default format for elements not defined with markdown default values. 
 \preformatted{
    default_format = list( 
       color          = "black",
@@ -36,6 +36,8 @@ md_to_officer(
       vertical.align = "baseline",
       shading.color  = "transparent")
 }}
+
+\item{output_target}{where the output will be used, either \code{"paragraph"} (default) or \code{"flextable"}}
 }
 \value{
 list with parsed paragraph elements ubiquity system object with the
@@ -50,8 +52,12 @@ elements:
 \preformatted{
   myfpar = eval(parse(text=pgparse$pgraph_1$fpar_cmd))
  }
+ \item \code{as_paragraph_cmd} String containing the as_paragraph_cmd that can be run using
+\preformatted{
+  myas_para = eval(parse(text=pgparse$pgraph_1$as_paragraph_cmd))
+ }
 }
 }
 \description{
-Parses text in Markdown format and returns fpar command strings to be used with Officer
+Parses text in Markdown format and returns fpar and as_paragraph command strings to be used with Officer
 }

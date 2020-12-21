@@ -9,7 +9,7 @@ system_set_option(cfg, group, option, value)
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{group}{options are grouped together by the underlying activity being performed: "solver", "stochastic", "simulation", "estimation", "logging", or "titration"}
+\item{group}{options are grouped together by the underlying activity being performed: "estimation",  "general", "logging", "simulation", "solver", "stochastic", or "titration"}
 
 \item{option}{for each group there are a set of options}
 
@@ -24,146 +24,6 @@ simulations, performing parameter estimation, logging, etc.) can be set
 with this function
 }
 \details{
-\bold{\code{group=logging}}
-
-By default ubiquity prints different information to the console and logs this
-information to a log file. The following options can be used to control
-this behavior:
-
-\itemize{
-\item \code{"enabled"}   = Boolean variable to control logging: \code{TRUE}
-\item \code{"file"}      = String containing the name of the log file: \code{file.path("transient", "ubiquity_log.txt")}
-\item \code{"timestamp"} = Boolean switch to control appending a time stamp to log entries: \code{TRUE}
-\item \code{"ts_str"}    = String format of timestamp: "%Y-%m-%d %H:%M:%S"
-\item \code{"debug"}     = Boolean switch to control debugging (see below): \code{FALSE}
-\item \code{"verbose"}   = Boolean switch to control printing to the console \code{FALSE}
-}
-
-
-
-To enable debugging of different functions (like when performing esitmation), 
-set the \code{debug} option to \code{TRUE}. Important function calls will be 
-trapped and information will be logged and reported to the console.
-
-\preformatted{
-cfg = system_set_option(cfg, 
-                       group  = "estimation",
-                       option = "debug",
-                       value  = FALSE)
-}
-
-\bold{\code{group=solver}}
-
-Depending on the solver, different options can be set. The documentation
-for  \code{\link[deSolve]{deSolve}} lists the different solvers. For a full list of options, see the
-documentation for the specific solver (e.g. \code{?lsoda}). Some common options
-to consider are:
-\itemize{
-\item \code{"atol"} - Relative error tolerance
-\item \code{"rtol"} - Absolute error tolerance
-\item \code{"hmin"} - Minimum integration step size
-\item \code{"hmax"} - Maximum integration step size
-}
-To select the \code{vode} solver and set the maximum step size to 0.01, the
-following would be used:
-\preformatted{
-cfg=system_set_option(cfg,
-                     group  = "simulation",
-                     option = "solver", 
-                     value  = "vode")
-
-cfg=system_set_option(cfg,
-                     group  = "solver",
-                     option = "hmax", 
-                     value  = 0.01)
-}
-
-
-\bold{\code{group="simulation"}}
-\itemize{
-\item \code{"include_important_output_times"} - Automatically add bolus, infusion rate switching times, etc: \code{"yes"}(default), \code{"no"}.
-\item \code{"integrate_with"} - Specify if the ODE solver should use the Rscript (\code{"r-file"}) or compiled C (\code{"c-file"}), if the build process can compile and load the C version it will be the default otherwise it will switch over to the R script.
-\item \code{"output_times"} - Vector of times to evaulate the simulation (default \code{seq(0,100,1)}).
-\item \code{"solver"} - Selects the ODE solver: \code{"lsoda"} (default), \code{"lsode"}, \code{"vode"}, etc.; see the documentation for \code{\link[deSolve]{deSolve}} for an exhaustive list.
-\item \code{"sample_bolus_delta"} - Spacing used when sampling around bolus events (default \code{1e-6}). 
-\item \code{"sample_forcing_delta"} - Spacing used when sampling around forcing functions (infusion rates, covariates, etc) (default \code{1e-3}). 
-}
-
-\bold{\code{group="stochastic"}}
-
-When running stochastic simulations (inter-individual variability applied to system
-parameters) it can be useful to specify the following:
-\itemize{
- \item\code{"ci"} - Confidence interval (default \code{95})
- \item\code{"nsub"} - Number of subjects (default \code{100})
- \item\code{"seed"} - Seed for the random numebr generator (default \code{8675309})
- \item\code{"ponly"} - Only generate the subject parameters but do not run the simulations (default \code{FALSE})
- \item\code{"ssp"} - A list of the calculated static secondary parameters to include (default all parameters defined by \code{<As>})
- \item\code{"outputs"} - A list of the predicted outputs to include (default all outputs defined by \code{<O>})
- \item\code{"states"} - A list of the predicted states to include(default all states)
- \item\code{"sub_file"} - Name of data set loaded with (\code{\link{system_load_data}}) containing subject level parameters and coviariates
- \item\code{"sub_file_sample"} - Controls how subjects are sampled from the dataset
- }
-
-If you wanted to generate \code{1000} subjects but only wanted the parameters, you would
-use the following:
-\preformatted{
-cfg = system_set_option(cfg,
-                       group  = "stochastic", 
-                       option = "nsub ",
-                       value  = 1000)
-
-cfg = system_set_option(cfg,
-                       group  = "stochastic", 
-                       option = "ponly",
-                       value  = TRUE )
-}
-
-
-If you wanted to exclude both states and secondary parameters, while only including 
-the output \code{Cp_nM}, you would do the following:
-\preformatted{
-
-cfg = system_set_option (cfg, 
-                        group  = "stochastic",
-                        option = "ssp",
-                        value  = list())
-
-cfg = system_set_option (cfg, 
-                        group  = "stochastic",
-                        option = "states",
-                        value  = list())
-
-cfg = system_set_option (cfg, 
-                        group  = "stochastic",
-                        option = "outputs",
-                        value  = c("Cp_nM")) 
-}
-
-To pull subject information from a data file instead of generating the subject
-parameters from IIV information the \code{sub_file} option can be used. The value here
-\code{SUBFILE_NAME} is the name given to a dataset loaded with
-(\code{\link{system_load_data}}):
-
-\preformatted{
-cfg=system_set_option(cfg, 
-                     group  = "stochastic",
-                     option = "sub_file",
-                     value  = "SUBFILE_NAME")
-}
- 
-Sampling from the dataset can be controlled using the \code{sub_file_sample} option:
- 
-\preformatted{
-cfg=system_set_option(cfg, 
-                     group  = "stochastic",
-                     option = "sub_file_sample",
-                     value  = "with replacement")
-}
- 
-Sampling can be done sequentially (\code{"sequential"}), with replacement
-(\code{"with replacement"}), or without replacement (\code{"without replacement"})
-
 \bold{\code{group="estimation"}}
 
 The default estimation in R is performed using either the \code{optim} or \code{optimx} libraries.
@@ -246,6 +106,154 @@ cfg = system_set_option(cfg,
 }
 
 To alter initial guesses see: \code{\link{system_set_guess}}
+
+\bold{\code{group=general}}
+
+\itemize{
+\item \code{"output_directory"}   = String where analysis outputs will be
+    placed. Generally you wont want to change this, but it can be useful in Shiny
+    apps where you need to have each shiny user generate output in that
+    users directory : \code{file.path(".", "output")}
+}
+
+\bold{\code{group=logging}}
+
+By default ubiquity prints different information to the console and logs this
+information to a log file. The following options can be used to control
+this behavior:
+
+\itemize{
+\item \code{"enabled"}   = Boolean variable to control logging: \code{TRUE}
+\item \code{"file"}      = String containing the name of the log file: \code{file.path("transient", "ubiquity_log.txt")}
+\item \code{"timestamp"} = Boolean switch to control appending a time stamp to log entries: \code{TRUE}
+\item \code{"ts_str"}    = String format of timestamp: "%Y-%m-%d %H:%M:%S"
+\item \code{"debug"}     = Boolean switch to control debugging (see below): \code{FALSE}
+\item \code{"verbose"}   = Boolean switch to control printing to the console \code{FALSE}
+}
+
+
+
+To enable debugging of different functions (like when performing esitmation), 
+set the \code{debug} option to \code{TRUE}. Important function calls will be 
+trapped and information will be logged and reported to the console.
+
+\preformatted{
+cfg = system_set_option(cfg, 
+                       group  = "estimation",
+                       option = "debug",
+                       value  = FALSE)
+}
+
+\bold{\code{group="simulation"}}
+\itemize{
+\item \code{"include_important_output_times"} - Automatically add bolus, infusion rate switching times, etc: \code{"yes"}(default), \code{"no"}.
+\item \code{"integrate_with"} - Specify if the ODE solver should use the Rscript (\code{"r-file"}) or compiled C (\code{"c-file"}), if the build process can compile and load the C version it will be the default otherwise it will switch over to the R script.
+\item \code{"output_times"} - Vector of times to evaulate the simulation (default \code{seq(0,100,1)}).
+\item \code{"solver"} - Selects the ODE solver: \code{"lsoda"} (default), \code{"lsode"}, \code{"vode"}, etc.; see the documentation for \code{\link[deSolve]{deSolve}} for an exhaustive list.
+\item \code{"sample_bolus_delta"} - Spacing used when sampling around bolus events (default \code{1e-6}). 
+\item \code{"sample_forcing_delta"} - Spacing used when sampling around forcing functions (infusion rates, covariates, etc) (default \code{1e-3}). 
+}
+
+\bold{\code{group=solver}}
+
+Depending on the solver, different options can be set. The documentation
+for  \code{\link[deSolve]{deSolve}} lists the different solvers. For a full list of options, see the
+documentation for the specific solver (e.g. \code{?lsoda}). Some common options
+to consider are:
+\itemize{
+\item \code{"atol"} - Relative error tolerance
+\item \code{"rtol"} - Absolute error tolerance
+\item \code{"hmin"} - Minimum integration step size
+\item \code{"hmax"} - Maximum integration step size
+}
+To select the \code{vode} solver and set the maximum step size to 0.01, the
+following would be used:
+\preformatted{
+cfg=system_set_option(cfg,
+                     group  = "simulation",
+                     option = "solver", 
+                     value  = "vode")
+
+cfg=system_set_option(cfg,
+                     group  = "solver",
+                     option = "hmax", 
+                     value  = 0.01)
+}
+
+\bold{\code{group="stochastic"}}
+
+When running stochastic simulations (inter-individual variability applied to system
+parameters) it can be useful to specify the following:
+\itemize{
+ \item\code{"ci"} - Confidence interval (default \code{95})
+ \item\code{"nsub"} - Number of subjects (default \code{100})
+ \item\code{"seed"} - Seed for the random numebr generator (default \code{8675309})
+ \item\code{"ponly"} - Only generate the subject parameters but do not run the simulations (default \code{FALSE})
+ \item\code{"ssp"} - A list of the calculated static secondary parameters to include (default all parameters defined by \code{<As>})
+ \item\code{"outputs"} - A list of the predicted outputs to include (default all outputs defined by \code{<O>})
+ \item\code{"states"} - A list of the predicted states to include(default all states)
+ \item\code{"sub_file"} - Name of data set loaded with (\code{\link{system_load_data}}) containing subject level parameters and coviariates
+ \item\code{"sub_file_sample"} - Controls how subjects are sampled from the dataset
+ }
+
+If you wanted to generate \code{1000} subjects but only wanted the parameters, you would
+use the following:
+\preformatted{
+cfg = system_set_option(cfg,
+                       group  = "stochastic", 
+                       option = "nsub ",
+                       value  = 1000)
+
+cfg = system_set_option(cfg,
+                       group  = "stochastic", 
+                       option = "ponly",
+                       value  = TRUE )
+}
+
+
+If you wanted to exclude both states and secondary parameters, while only including 
+the output \code{Cp_nM}, you would do the following:
+\preformatted{
+
+cfg = system_set_option (cfg, 
+                        group  = "stochastic",
+                        option = "ssp",
+                        value  = list())
+
+cfg = system_set_option (cfg, 
+                        group  = "stochastic",
+                        option = "states",
+                        value  = list())
+
+cfg = system_set_option (cfg, 
+                        group  = "stochastic",
+                        option = "outputs",
+                        value  = c("Cp_nM")) 
+}
+
+To pull subject information from a data file instead of generating the subject
+parameters from IIV information the \code{sub_file} option can be used. The value here
+\code{SUBFILE_NAME} is the name given to a dataset loaded with
+(\code{\link{system_load_data}}):
+
+\preformatted{
+cfg=system_set_option(cfg, 
+                     group  = "stochastic",
+                     option = "sub_file",
+                     value  = "SUBFILE_NAME")
+}
+ 
+Sampling from the dataset can be controlled using the \code{sub_file_sample} option:
+ 
+\preformatted{
+cfg=system_set_option(cfg, 
+                     group  = "stochastic",
+                     option = "sub_file_sample",
+                     value  = "with replacement")
+}
+ 
+Sampling can be done sequentially (\code{"sequential"}), with replacement
+(\code{"with replacement"}), or without replacement (\code{"without replacement"})
 
 \bold{\code{group="titration"}}
 
