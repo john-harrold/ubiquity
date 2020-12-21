@@ -9178,6 +9178,21 @@ system_report_save = function (cfg,
 
       # Putting the report back into cfg
       cfg$reporting$reports[[rptname]]$report = tmprpt
+
+    }
+
+    # Substituting reference keys for their sequence
+    if(!is.null(cfg[["reporting"]][["reports"]][[rptname]][["key_table"]])){
+    # JMH process references here
+    #   browser()
+    #       tmprpt = officer::body_replace_all_text(
+    #            old_value      = pht, 
+    #            new_value      = phv ,
+    #            fixed          = TRUE,
+    #            only_at_cursor = FALSE,
+    #            warn           = FALSE,
+    #            x              = tmprpt
+    #            )
     }
   }
   
@@ -9305,31 +9320,35 @@ if(isgood){
     # otherwise we store the meta data provided
     name_check = ubiquity_name_check(rptname)
     if(name_check$isgood & isgood){
+      # Initializing the list to hold the report components
+      cfg[["reporting"]][["reports"]][[rptname]] = list(
+             meta      = list(),
+             rpttype   = "",
+             template  = "",
+             report    = "",
+             key_table = NULL)
       # Sorting out the meta data. If the user didn't specify this
       # information then we pull the reporting defaults:
       if(is.null(meta)){
         if(use_rpttype == "PowerPoint"){
-          cfg$reporting$reports[[rptname]]$meta  = cfg$reporting$meta_pptx }
+          cfg[["reporting"]][["reports"]][[rptname]][["meta"]]  = cfg[["reporting"]][["meta_pptx"]] }
         if(use_rpttype == "Word"){
-          cfg$reporting$reports[[rptname]]$meta  = cfg$reporting$meta_docx }
+          cfg[["reporting"]][["reports"]][[rptname]][["meta"]]  = cfg[["reporting"]][["meta_docx"]] }
       } else {
         # Here we use the user specified values
-        cfg$reporting$reports[[rptname]]$meta  = meta 
+        cfg[["reporting"]][["reports"]][[rptname]][["meta"]]  = meta 
       }
       # Storing the report type
-      cfg$reporting$reports[[rptname]]$rpttype = use_rpttype
+      cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] = use_rpttype
       # Storing the original template location and creating the empty report
-      cfg$reporting$reports[[rptname]]$template = use_template
-
-      # empty table to hold reference keys
-      cfg$reporting$reports[[rptname]]$key_table = NULL
+      cfg[["reporting"]][["reports"]][[rptname]][["template"]] = use_template
 
      
       # Reading in the template depending on the report type
       if(use_rpttype == "PowerPoint"){
-        cfg$reporting$reports[[rptname]]$report   = officer::read_pptx(path=use_template) }
+        cfg[["reporting"]][["reports"]][[rptname]][["report"]]   = officer::read_pptx(path=use_template) }
       if(use_rpttype == "Word"){
-        cfg$reporting$reports[[rptname]]$report   = officer::read_docx(path=use_template) }
+        cfg[["reporting"]][["reports"]][[rptname]][["report"]]   = officer::read_docx(path=use_template) }
      
       vp(cfg, "")
       vp(cfg, sprintf("Report initialized..."))
@@ -10083,7 +10102,8 @@ return(rpt)}
 #'@return cfg ubiquity system object with the content added to the body
 system_report_doc_add_content = function(cfg, rptname="default", content_type=NULL, content=NULL){
 
-  isgood = TRUE
+  isgood  = TRUE
+  ref_key = NULL
 
  if(content_type == "break"){
   content = list()
@@ -10152,6 +10172,18 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
           isgood = FALSE
         }
       }
+    }
+    # Checking reference keys. These only make sense if there is a caption
+    # otherwise there is no number to reference:
+    if("key" %in% names(content) & !is.null(content[["caption"]])){
+      ref_key = paste("ubr_", content[["key"]], sep="")
+      # Adding reference to the key table
+      cfg[["reporting"]][["reports"]][[rptname]][["key_table"]] = 
+        rbind(
+          cfg[["reporting"]][["reports"]][[rptname]][["key_table"]],
+          data.frame(user_key     = content[["key"]],
+                     internal_key = ref_key,
+                     ref_text     = paste0(' REF ',  ref_key, ' \\h ')))
     }
   }
 
@@ -10317,8 +10349,8 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Post, style = "Default Paragraph Font", pos = "before") 
       eval(parse(text=Caption_Ref_str))
       # If a key has been defined we add that here
-      if(!is.null(content[["key"]])){
-         officer::body_bookmark(tmprpt, content[["key"]]) }
+      if(!is.null(ref_key)){
+         officer::body_bookmark(tmprpt, ref_key) }
       tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Pre, style = "Default Paragraph Font", pos = "before") 
     }
 
@@ -10355,8 +10387,8 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Post, style = "Default Paragraph Font", pos = "before") 
       eval(parse(text=Caption_Ref_str))
       # If a key has been defined we add that here
-      if(!is.null(content[["key"]])){
-         officer::body_bookmark(tmprpt, content[["key"]]) }
+      if(!is.null(ref_key)){
+         officer::body_bookmark(tmprpt, ref_key) }
       tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Pre, style = "Default Paragraph Font", pos = "before") 
 
     }
@@ -10552,22 +10584,92 @@ system_report_doc_format_section = function(cfg, rptname="default",
 cfg}
 # /system_report_doc_format
 # -------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+# md_to_oo    
+#'@export
+#'@title Parse Markdown into Officer as_paragraph Result
+#'@description Used to take small markdown chunks and return the as_paragraph
+#' results. This function will take the markdown specified in str, calls
+#' md_to_officer, evals the as_paragraph field from the first paragraph
+#' returned, evals that result and returns the object from the as_paragraph
+#' command.
+#'@param str     string containing Markdown can contain the following elements:
+#'@param default_format  list containing the default format for elements not defined with markdown default values (format the same as \code{\link{md_to_officer}}, default is \code{NULL})
+#'@return list with the following elements
+#' \itemize{
+#'  \item \code{isgood}     Boolean value indicating the result of the function call
+#'  \item \code{msgs}       sequence of strings contianing a description of any problems 
+#'  \item \code{as_par_cmd} as_paragraph generated code from md_to_officer
+#'  \item \code{oo}         as_paragraph officer object resulting from running the as_par_cmd code
+#'}
+md_to_oo     = function(str,default_format=NULL){
+
+  isgood     = TRUE
+  as_par_cmd = NULL
+  oo         = NULL
+  msgs       = c()
+
+  if(is.null(default_format)){
+    mdres = md_to_officer(str)
+  } else {
+    mdres = md_to_officer(str, default_format)
+  }
+
+  
+
+  
+  # Checking to make sure we got what we needed from the md_to_officer command
+  # above
+  isgood_mdres = FALSE
+  if("pgraph_1" %in% names(mdres)){
+    if("as_paragraph_cmd" %in% names(mdres[["pgraph_1"]])){
+      isgood_mdres = TRUE
+      as_par_cmd =  paste("oo =", mdres[["pgraph_1"]][["as_paragraph_cmd"]])
+      eval(parse(text=as_par_cmd))
+    }
+  }
+
+  # If either of the fields above are missing then something failed
+  if(!isgood_mdres){
+    isgood = FALSE
+    msgs = c(msgs, "md_to_officer call failed")
+  }
+
+  if(!isgood){
+     msgs = c(msgs, "md_to_oo()", "Unable to evaluate markdown, see above for details")
+  }
+
+
+  res = list(isgood     = isgood,
+             msgs       = msgs,
+             as_par_cmd = as_par_cmd, 
+             oo         = oo)
+
+
+res}
+# md_to_oo     
+# -------------------------------------------------------------------------
+
+
+
+
 # md_to_officer
 #'@export
 #'@title Parse Markdown for Officer
-#'@description Parses text in Markdown format and returns fpar command strings to be used with Officer
+#'@description Parses text in Markdown format and returns fpar and as_paragraph command strings to be used with Officer
 #'@param str     string containing Markdown can contain the following elements:
 #' \itemize{
 #'  \item paragraph:   two or more new lines creates a paragraph
 #'  \item bold:        can be either \code{"*text in bold*"} or \code{"_text in bold_"}
-#'  \item italics:     can be either \code{"**text in bold**"} or \code{"__text in bold__"}
+#'  \item italics:     can be either \code{"**text in italics**"} or \code{"__text in italics__"}
 #'  \item subscript:   \code{"Normal~subscript~"} 
 #'  \item superscript: \code{"Normal^superscript^"} 
 #'  \item color:       \code{"<color:red>red text</color>"} 
 #'  \item shade:       \code{"<shade:#33ff33>shading</shade>"} 
 #'  \item font family: \code{"<ff:symbol>symbol</ff>"} 
 #'}
-#'@param default_format  list containing the default format for elements not defined with markdown default vlaues:
+#'@param default_format  list containing the default format for elements not defined with markdown default values. 
 #' \preformatted{
 #'    default_format = list( 
 #'       color          = "black",
@@ -10579,6 +10681,7 @@ cfg}
 #'       vertical.align = "baseline",
 #'       shading.color  = "transparent")
 #' }
+#'@param output_target where the output will be used, either \code{"paragraph"} (default) or \code{"flextable"} 
 #'@return list with parsed paragraph elements ubiquity system object with the
 #' content added to the body, each paragraph can be found in a numbered list
 #' element (e.g. \code{pgraph_1}, \code{pgraph_2}, etc) each with the following
@@ -10590,6 +10693,10 @@ cfg}
 #'  \code{eval} to return the output of \code{fpar}. For example: 
 #' \preformatted{
 #'   myfpar = eval(parse(text=pgparse$pgraph_1$fpar_cmd))
+#'  }
+#'  \item \code{as_paragraph_cmd} String containing the as_paragraph_cmd that can be run using
+#' \preformatted{
+#'   myas_para = eval(parse(text=pgparse$pgraph_1$as_paragraph_cmd))
 #'  }
 #'}
 md_to_officer = function(str,
@@ -10901,10 +11008,21 @@ pgraphs_parse = list()
   }
   fpar_cmd = paste("fpar(", fpar_cmd, ")", sep="")
 
-  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$pele      = pele
-  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$locs      = locs
-  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$md_visual = md_visual
-  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$fpar_cmd  = fpar_cmd
+  as_paragraph_cmd = ""
+  for(tmpele in pele){
+    if(as_paragraph_cmd != ""){
+     as_paragraph_cmd = paste(as_paragraph_cmd, ',\n') }
+    as_paragraph_cmd = paste(as_paragraph_cmd, 'as_chunk("', tmpele$text, '", ', tmpele$props_cmd, ')', sep="")
+  }
+  as_paragraph_cmd = paste("as_paragraph(", as_paragraph_cmd, ")", sep="")
+
+
+
+  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$pele              = pele
+  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$locs              = locs
+  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$md_visual         = md_visual
+  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$fpar_cmd          = fpar_cmd
+  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$as_paragraph_cmd  = as_paragraph_cmd
 
   pgraph_idx = pgraph_idx + 1
   }

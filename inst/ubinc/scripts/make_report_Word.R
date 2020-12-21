@@ -151,6 +151,7 @@ ft = flextable::flextable(data)                     %>%
      flextable::theme_zebra()
 
 tcfo = list(caption = "This is a flextable object",
+            key     = "TAB_FTO",
             ft      = ft)
 
 cfg = system_report_doc_add_content(cfg, 
@@ -205,6 +206,26 @@ cfg = system_report_doc_set_ph(cfg,
       ph_content  = "placeholder text in the body" ,
       ph_name     = "BODYPHEXAMPLE", 
       ph_location = "body")
+
+
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "text",
+  content       = list(style   = "h1",
+                       text    = "Referencing Tables and Figures"))
+
+
+
+refing_text = "When you create a table or figure the content list has a key
+option. You can then use that key to reference that object in the text using
+<REF:KEY_VALUE> to insert that object number. For example: Above Table 
+<REF:TAB_FTO> shows how to insert a flextable object"
+
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "text",
+  content       = list(style  = "normal",
+                       format = "text",
+                       text   = refing_text))
+
 
 #--------------------
 # Document formatting
