@@ -10681,7 +10681,6 @@ res}
 #'       vertical.align = "baseline",
 #'       shading.color  = "transparent")
 #' }
-#'@param output_target where the output will be used, either \code{"paragraph"} (default) or \code{"flextable"} 
 #'@return list with parsed paragraph elements ubiquity system object with the
 #' content added to the body, each paragraph can be found in a numbered list
 #' element (e.g. \code{pgraph_1}, \code{pgraph_2}, etc) each with the following

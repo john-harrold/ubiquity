@@ -36,8 +36,6 @@ md_to_officer(
       vertical.align = "baseline",
       shading.color  = "transparent")
 }}
-
-\item{output_target}{where the output will be used, either \code{"paragraph"} (default) or \code{"flextable"}}
 }
 \value{
 list with parsed paragraph elements ubiquity system object with the
