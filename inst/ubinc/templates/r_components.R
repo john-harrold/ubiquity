@@ -50,7 +50,8 @@ cfg[["reporting"]][["meta_pptx"]]     =
                          list(title          = list(),
                               section        = list(),
                               content        = list(),
-                              two_col        = list())
+                              two_col        = list(),
+                              md_def         = list())
 
 cfg[["reporting"]][["meta_docx"]]     = 
                          list(ph_content     = list(),
@@ -299,6 +300,18 @@ cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_right          
 cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_sub_title          = "Content Placeholder 10" 
 cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_left               = "Content Placeholder 2" 
 cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_right              = "Content Placeholder 3" 
+
+# MD format for tables
+cfg[["reporting"]][["meta_pptx"]][["md_def"]][["Table"]] = list(
+        color          = "black",
+        font.size      = 11,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Helvetica",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
 
 
 #--------------------------------------------------------------------

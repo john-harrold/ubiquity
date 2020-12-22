@@ -6450,6 +6450,64 @@ system_simulate_estimation_results <- function(pest, cfg, details=FALSE){
 #-----------------------------------------------------------
 
 #-----------------------------------------------------------
+#system_fetch_report_format
+#'@export
+#'@title Fetch The Specified Report Formatting Information
+#'@description Returns a list the default font format for the report element
+#'
+#'@param cfg ubiquity system object    
+#'@param rptname report name initialized with \code{system_report_init}
+#'@param element report element to fetch: for Word reports it can be 
+#' "default" (default),       "Normal",        "Code",  "TOC",          
+#' "Heading_1",  "Heading_2", "Heading_3", "Table",
+#' "Table_Caption", "Figure",  and  "Figure_Caption"
+#'
+#'@return list of current parameter gauesses
+system_fetch_report_format <- function(cfg, rptname="default", element="Table"){
+
+default_format = NULL
+isgood = TRUE
+
+if(cfg[["reporting"]][["enabled"]]){
+  if(element %in% names(cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["md_def"]])){
+    default_format = cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["md_def"]][[element]]
+  } else if(!(rptname %in% names(cfg[["reporting"]][["reports"]]))){
+    isgood = FALSE
+    vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
+  } else if(!(element %in% names(cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["md_def"]]))){
+    isgood = FALSE
+    vp(cfg, paste("Error: The report element >", element,"< not found", sep=""))
+  } 
+} else {
+  isgood = FALSE
+  vp(cfg, "Error: Reporting not enabled")
+}
+
+# If we failed to get the report element formatting for the rptname we try to
+# pull a default ubiquity format:
+if(!isgood){
+  # First we try the word format
+  if(element %in% names(cfg[["reporting"]][["meta_docx"]][["md_def"]])){
+    default_format = cfg[["reporting"]][["meta_docx"]][["md_def"]][[element]]
+    vp(cfg, paste("Returning default format for Word element >", element,"< for ubiquity default document", sep=""))
+  }else if(element %in% names(cfg[["reporting"]][["meta_pptx"]][["md_def"]])){
+  # Then we try the powerpoint format
+    default_format = cfg[["reporting"]][["meta_pptx"]][["md_def"]][[element]]
+    vp(cfg, paste("Returning default format for PowerPoint element >", element,"< for ubiquity default document", sep=""))
+
+  } else {
+    vp(cfg, paste("Unable to find formatting for element >", element,"< in either Word or Powerpoint default ubiquity documents", sep=""))
+    vp(cfg, "Returning NULL")
+  }
+  vp(cfg, "system_fetch_report_format()")
+}
+
+
+  res = list(isgood         = isgood,
+             default_format = default_format)
+res}
+#/system_fetch_report_format
+#-----------------------------------------------------------
 #system_fetch_guess
 #'@export
 #'@title Fetch Current Parameter Guesses
@@ -9003,8 +9061,8 @@ return(rpt)}
 # /system_report_view_layout
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
-# system_report_fetch
-# rpt = system_report_fetch(cfg, 
+# system_fetch_report
+# rpt = system_fetch_report(cfg, 
 #     rptname       =  "default")
 #'@export
 #'@title Retrieve the officer Object of a Report 
@@ -9016,7 +9074,7 @@ return(rpt)}
 #'
 #'@return officer pptx object with the of the report named \code{rptname}
 #'@seealso \code{\link{system_report_init}} and \code{\link{system_report_set}}
-system_report_fetch = function (cfg,
+system_fetch_report = function (cfg,
                                rptname     = "default"){
 
   rpt = NULL
@@ -9025,12 +9083,12 @@ system_report_fetch = function (cfg,
     if(rptname %in% names(cfg$reporting$reports)){
       rpt = cfg$reporting$reports[[rptname]]$report
     } else {
-      vp(cfg, sprintf("system_report_fetch()"))
+      vp(cfg, sprintf("system_fetch_report()"))
       vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
     }
   }
 return(rpt)}
-# /system_report_fetch
+# /system_fetch_report
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
 # system_report_set  
@@ -9046,7 +9104,7 @@ return(rpt)}
 #'@param rpt officer object 
 #'
 #'@return ubiquity system object with \code{rpt} as content for \code{rptname}
-#'@seealso \code{\link{system_report_init}} and \code{\link{system_report_fetch}}
+#'@seealso \code{\link{system_report_init}} and \code{\link{system_fetch_report}}
 system_report_set = function (cfg,
                               rptname     = "default",
                               rpt         = NULL){
@@ -9070,7 +9128,7 @@ system_report_set = function (cfg,
   if(!isgood){
     vp(cfg, sprintf("system_report_set()")) }
 return(cfg)}
-# /system_report_fetch
+# /system_fetch_report
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
 # system_report_save 
@@ -9893,6 +9951,7 @@ return(cfg)}
 #'   \itemize{
 #'      \item \code{table} Data frame containing the tabular data
 #'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
+#'      \item \code{header_format} string containing the format, either \code{"text"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
 #'      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
 #'      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
 #'      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
@@ -9947,6 +10006,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       header_top            = NULL
       header_middle         = NULL
       header_bottom         = NULL
+      header_format           = NULL
       merge_header          = TRUE
       table_body_alignment  ="center"
       table_header_alignment  ="center"
@@ -9956,6 +10016,7 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       cheight               = 0.25
 
       ftops = c("header_top",             "header_middle",    "header_bottom", 
+                "header_format", 
                 "merge_header",           "table_theme",      "table_body_alignment",
                 "table_header_alignment", "table_autofit",    "cwidth", 
                 "cheight")
@@ -9972,33 +10033,93 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       invisible(system_req("flextable"))
       ft = flextable::regulartable(content$table,  cwidth = cwidth, cheight=cheight)
       
-      # Adding headers
-      header_types = c("header_bottom", "header_middle", "header_top")
-      first_header = TRUE
-      for(header_type in header_types){
-       
-        if(!is.null(eval(parse(text=header_type)))){
-          eval(parse(text=sprintf("header =  %s", header_type)))
-          # Creating the header
-          if(!is.null(header)){
-            if(length(names(header)) > 0){
-              if(first_header){
-                first_header = FALSE
-                shstr = ' ft = flextable::set_header_labels(ft'
-              } else {
-                shstr = ' ft = flextable::add_header(ft'
-              }
-              for(hname in names(header)){
-                shstr = sprintf('%s, %s="%s"', shstr, hname, header[[hname]])
-              }
-              # The top=FALSE seems to be breaking things
-              #shstr = sprintf('%s, top=FALSE)', shstr)
-              shstr = sprintf('%s)', shstr)
-              eval(parse(text=shstr))
+   #   #--------
+   #   # JMH update from word implementation
+   #   # Adding headers
+   #   header_types = c("header_bottom", "header_middle", "header_top")
+   #   first_header = TRUE
+   #   for(header_type in header_types){
+   #    
+   #     if(!is.null(eval(parse(text=header_type)))){
+   #       eval(parse(text=sprintf("header =  %s", header_type)))
+   #       # Creating the header
+   #       if(!is.null(header)){
+   #         if(length(names(header)) > 0){
+   #           if(first_header){
+   #             first_header = FALSE
+   #             shstr = ' ft = flextable::set_header_labels(ft'
+   #           } else {
+   #             shstr = ' ft = flextable::add_header(ft'
+   #           }
+   #           for(hname in names(header)){
+   #             shstr = sprintf('%s, %s="%s"', shstr, hname, header[[hname]])
+   #           }
+   #           # The top=FALSE seems to be breaking things
+   #           #shstr = sprintf('%s, top=FALSE)', shstr)
+   #           shstr = sprintf('%s)', shstr)
+   #           eval(parse(text=shstr))
+   #         }
+   #       }
+   #     }
+   #   }
+   #   #--------
+      #-------
+      # Defining the default formatting for tables. We default to NULL and
+      # if it's currently defined in the meta for this report template then
+      # we use that
+
+      # determining the header depth:
+      if(!is.null(names(header_bottom))){
+        num_headers = 3
+      }else if(!is.null(names(header_middle))){
+        num_headers = 2
+      }else if(!is.null(names(header_top))){
+        num_headers = 1
+      } else {
+        num_headers = 0
+      }
+      #-------
+      # Processing user defined headers. These will get stuck in header_list
+      header_list    = list()
+      if(num_headers > 0){
+        for(cname in names(content[["table"]])){
+          # creating an empty header by default
+          header_list[[cname]] = rep("", times=num_headers)
+          if(cname %in% names(header_top)){
+             header_list[[cname]][1] = header_top[[cname]] }
+          if(cname %in% names(header_middle)){
+             header_list[[cname]][2] = header_middle[[cname]] }
+          if(cname %in% names(header_bottom)){
+             header_list[[cname]][3] = header_bottom[[cname]] }
+        }
+        ft = flextable::delete_part(ft, part   = "header")          
+        ft = flextable::add_header(ft,  values = header_list)  
+
+      }
+      #-------
+      # Processing markdown
+      if(!is.null(header_format)){
+        if(header_format == "md"){
+
+          # Pulling out the default format for the Table element
+          default_format_table = system_fetch_report_format(cfg, rptname=rptname, element="Table")
+
+          for(cname in names(content[["table"]])){
+            mdvals = c() 
+            for(header in header_list[[cname]]){
+              # If header is an empy string we use a space
+              if(header == ""){
+                header = " "}
+              mdvals = c(mdvals,  md_to_oo(str=header, default_format=default_format_table)$oo)
             }
+            ft = flextable::compose(ft,
+                              j     = cname,                                                    
+                              part  = "header",                                                          
+                              value = mdvals)      
           }
         }
       }
+      #-------
       
 
      # Setting the theme
@@ -10087,6 +10208,7 @@ return(rpt)}
 #'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
 #'      \item \code{key} unique key for cross referencing e.g. "TAB_DATA" (\code{NULL})  
 #'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
+#'      \item \code{header_format} string containing the format, either \code{"text"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
 #'      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
 #'      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
 #'      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
@@ -10256,6 +10378,7 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       header_top              = NULL
       header_middle           = NULL
       header_bottom           = NULL
+      header_format           = NULL
       merge_header            = TRUE
       table_body_alignment    ="center"
       table_header_alignment  ="center"
@@ -10265,6 +10388,7 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       cheight                 = 0.25
 
       ftops = c("header_top",             "header_middle",    "header_bottom", 
+                "header_format",  
                 "merge_header",           "table_theme",      "table_body_alignment",
                 "table_header_alignment", "table_autofit",    "cwidth", 
                 "cheight")
@@ -10281,33 +10405,63 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
       invisible(system_req("flextable"))
       ft = flextable::regulartable(content[["table"]],  cwidth = cwidth, cheight=cheight)
       
-      # Adding headers
-      header_types = c("header_bottom", "header_middle", "header_top")
-      first_header = TRUE
-      for(header_type in header_types){
-       
-        if(!is.null(eval(parse(text=header_type)))){
-          eval(parse(text=sprintf("header =  %s", header_type)))
-          # Creating the header
-          if(!is.null(header)){
-            if(length(names(header)) > 0){
-              if(first_header){
-                first_header = FALSE
-                shstr = ' ft = flextable::set_header_labels(ft'
-              } else {
-                shstr = ' ft = flextable::add_header(ft'
-              }
-              for(hname in names(header)){
-                shstr = sprintf('%s, %s="%s"', shstr, hname, header[[hname]])
-              }
-              # The top=FALSE seems to be breaking things
-              #shstr = sprintf('%s, top=FALSE)', shstr)
-              shstr = sprintf('%s)', shstr)
-              eval(parse(text=shstr))
+      #-------
+      # Defining the default formatting for tables. We default to NULL and
+      # if it's currently defined in the meta for this report template then
+      # we use that
+
+      # determining the header depth:
+      if(!is.null(names(header_bottom))){
+        num_headers = 3
+      }else if(!is.null(names(header_middle))){
+        num_headers = 2
+      }else if(!is.null(names(header_top))){
+        num_headers = 1
+      } else {
+        num_headers = 0
+      }
+      #-------
+      # Processing user defined headers. These will get stuck in header_list
+      header_list    = list()
+      if(num_headers > 0){
+        for(cname in names(content[["table"]])){
+          # creating an empty header by default
+          header_list[[cname]] = rep("", times=num_headers)
+          if(cname %in% names(header_top)){
+             header_list[[cname]][1] = header_top[[cname]] }
+          if(cname %in% names(header_middle)){
+             header_list[[cname]][2] = header_middle[[cname]] }
+          if(cname %in% names(header_bottom)){
+             header_list[[cname]][3] = header_bottom[[cname]] }
+        }
+        ft = flextable::delete_part(ft, part   = "header") 
+        ft = flextable::add_header(ft,  values = header_list)  
+
+      }
+      #-------
+      # Processing markdown
+      if(!is.null(header_format)){
+        if(header_format == "md"){
+
+          # Pulling out the default format for the Table element
+          default_format_table = system_fetch_report_format(cfg, rptname=rptname, element="Table")$default_format
+
+          for(cname in names(content[["table"]])){
+            mdvals = c() 
+            for(header in header_list[[cname]]){
+              # If header is an empy string we use a space
+              if(header == ""){
+                header = " "}
+              mdvals = c(mdvals,  md_to_oo(str=header, default_format=default_format_table)$oo)
             }
+            ft = flextable::compose(ft,
+                               j     = cname,                                                    
+                               part  = "header",                                                          
+                               value = mdvals)      
           }
         }
       }
+      #-------
       
 
       # Setting the theme
@@ -12909,92 +13063,92 @@ isgood = TRUE
 # "aucinf.pred.dn"       
 
 res_PKNCA = list(
-   auclast                 = list(label = "AUC last"),
-   aucall                  = list(label = "AUC all"),
-   aumclast                = list(label = "AUMC last"),
-   aumcall                 = list(label = "AUMC all"),
-   aumcint.last            = list(label = "AUMC last (interval)"),
-   aumcint.last.dose       = list(label = "AUMC last (dose)"),
-   aumcint.all             = list(label = "AUMC all"),
-   aumcint.all.dose        = list(label = "AUMC all (dose)"),
-   auclast.dn              = list(label = "AUC last/Dose"),
-   aucall.dn               = list(label = "AUC all/Dose"),
-   aumclast.dn             = list(label = "AUMC last/Dose"),
-   aumcall.dn              = list(label = "AUMC all/Dose"),
-   tmax                    = list(label = "Tmax"),
-   tlast                   = list(label = "Tlast"),
-   tfirst                  = list(label = "Tfirst"),
-   clast.obs               = list(label = "C (last)"),
-   cl.last                 = list(label = "CL (last)"),
-   f                       = list(label = "Fbio"),
-   mrt.last                = list(label = "MRT"),
-   mrt.iv.last             = list(label = "MRT IV"),
-   vss.last                = list(label = "Vss"),
-   vss.iv.last             = list(label = "Vss IV"),
-   cav                     = list(label = "Cave"),
-   ctrough                 = list(label = "Ctr"),
-   ptr                     = list(label = "Peak/Trough"),
-   tlag                    = list(label = "Tlag"), 
-   deg.fluc                = list(label = "Fluctuation"), 
-   swing                   = list(label = "Cmin Swing"), 
-   ceoi                    = list(label = "Conc (EOI)"), 
-   ae                      = list(label = "Excreted (amount)"), 
-   clr.last                = list(label = "Renal CL (last)"), 
-   clr.obs                 = list(label = "Renal CL (obs)"), 
-   clr.pred                = list(label = "Renal CL (pred)"), 
-   fe                      = list(label = "Excreted (fr)"), 
-   half.life               = list(label = "Half-life"), 
-   adj.r.squared           = list(label = "Adj rsq HL"), 
-   r.squared               = list(label = "r-squared"), 
-   lambda.z                = list(label = "Term Rate"),
-   lambda.z.time.first     = list(label = "T first (Term Rate)"),
-   lambda.z.n.points       = list(label = "N Half-life"),
-   clast.pred              = list(label = "Clast (pred)"),
-   span.ratio              = list(label = "Frac Half-life"),
-   cmax.dn                 = list(label = "Cmax/Dose"),
-   cmin.dn                 = list(label = "Cmin/Dose"),
-   clast.obs.dn            = list(label = "Clast (obs)/Dose"),
-   clast.pred.dn           = list(label = "Clast (pred)/Dose"),
-   cav.dn                  = list(label = "Cave/Dose"),
-   ctrough.dn              = list(label = "Ctr/Dose"),
-   thalf.eff.last          = list(label = "Halflife (eff)"),
-   thalf.eff.iv.last       = list(label = "Halflife (eff,IV)"),
-   kel.last                = list(label = "kel"),
-   kel.iv.last             = list(label = "kel (iv)"),
-   aucinf.obs              = list(label = "AUC (inf,obs)"),
-   aucinf.pred             = list(label = "AUC (inf,pred)"),
-   aumcinf.obs             = list(label = "AMUC (inf,obs)"),
-   aumcinf.pred            = list(label = "AMUC (inf,pred)"),
-   aucminf.obs.dn          = list(label = "AMUC (inf,obs)/Dose"),
-   aucminf.pred.dn         = list(label = "AMUC (inf,pred)/Dose"),
-   aucpext.obs             = list(label = "AUC Extrap (obs,%)"),
-   aucpext.pred            = list(label = "AUC Extrap (pred,%)"),
-   cl.obs                  = list(label = "CL (obs)"),
-   cl.pred                 = list(label = "CL (pred)"),
-   mrt.obs                 = list(label = "MRT (obs)"),
-   mrt.pred                = list(label = "MRT (pred)"),
-   mrt.iv.pred             = list(label = "MRT (pred,IV)"),
-   mrt.iv.obs              = list(label = "MRT (obs,IV)"),
-   mrt.md.pred             = list(label = "MRT (pred,MD)"),
-   mrt.md.obs              = list(label = "MRT (obs,MD)"),
-   vz.obs                  = list(label = "Vz (obs)"),   
-   vz.pred                 = list(label = "Vz (pred)"),   
-   vss.obs                 = list(label = "Vss (obs)"),   
-   vss.pred                = list(label = "Vss (pred)"),   
-   vss.iv.obs              = list(label = "Vss (obs,IV)"),   
-   vss.iv.pred             = list(label = "Vss (pred,IV)"),   
-   vss.md.obs              = list(label = "Vss (obs,MD)"),   
-   vss.md.pred             = list(label = "Vss (pred,MD)"),   
-   vd.obs                  = list(label = "Vd (obs,MD)"),   
-   vd.pred                 = list(label = "Vd (pred,MD)"),   
-   thalf.eff.obs           = list(label = "Half-life (obs,eff)"),   
-   thalf.eff.pred          = list(label = "Half-life (pred,eff)"),   
-   thalf.eff.iv.obs        = list(label = "Half-life (obs,eff,IV)"),   
-   thalf.eff.iv.pred       = list(label = "Half-life (pred,eff,IV)"),   
-   kel.last.obs            = list(label = "kel (obs)"),
-   kel.last.pred           = list(label = "kel (pred)"),
-   kel.iv.obs              = list(label = "kel (obs,IV)"),
-   kel.iv.pred             = list(label = "kel (pred,IV)"))
+   auclast                 = list(label = "AUC last"                   ),
+   aucall                  = list(label = "AUC all"                    ),
+   aumclast                = list(label = "AUMC last"                  ),
+   aumcall                 = list(label = "AUMC all"                   ),
+   aumcint.last            = list(label = "AUMC last (interval)"       ),
+   aumcint.last.dose       = list(label = "AUMC last (dose)"           ),
+   aumcint.all             = list(label = "AUMC all"                   ),
+   aumcint.all.dose        = list(label = "AUMC all (dose)"            ),
+   auclast.dn              = list(label = "AUC last/Dose"              ),
+   aucall.dn               = list(label = "AUC all/Dose"               ),
+   aumclast.dn             = list(label = "AUMC last/Dose"             ),
+   aumcall.dn              = list(label = "AUMC all/Dose"              ),
+   tmax                    = list(label = "Tmax"                       ),
+   tlast                   = list(label = "Tlast"                      ),
+   tfirst                  = list(label = "Tfirst"                     ),
+   clast.obs               = list(label = "C (last)"                   ),
+   cl.last                 = list(label = "CL (last)"                  ),
+   f                       = list(label = "Fbio"                       ),
+   mrt.last                = list(label = "MRT"                        ),
+   mrt.iv.last             = list(label = "MRT IV"                     ),
+   vss.last                = list(label = "Vss"                        ),
+   vss.iv.last             = list(label = "Vss IV"                     ),
+   cav                     = list(label = "Cave"                       ),
+   ctrough                 = list(label = "Ctr"                        ),
+   ptr                     = list(label = "Peak/Trough"                ),
+   tlag                    = list(label = "Tlag"                       ), 
+   deg.fluc                = list(label = "Fluctuation"                ), 
+   swing                   = list(label = "Cmin Swing"                 ), 
+   ceoi                    = list(label = "Conc (EOI)"                 ), 
+   ae                      = list(label = "Excreted (amount)"          ), 
+   clr.last                = list(label = "Renal CL (last)"            ), 
+   clr.obs                 = list(label = "Renal CL (obs)"             ), 
+   clr.pred                = list(label = "Renal CL (pred)"            ), 
+   fe                      = list(label = "Excreted (fr)"              ), 
+   half.life               = list(label = "Half-life"                  ), 
+   adj.r.squared           = list(label = "Adj rsq HL"                 ), 
+   r.squared               = list(label = "r-squared"                  ), 
+   lambda.z                = list(label = "Term Rate"                  ),
+   lambda.z.time.first     = list(label = "T first (Term Rate)"        ),
+   lambda.z.n.points       = list(label = "N Half-life"                ),
+   clast.pred              = list(label = "Clast (pred)"               ),
+   span.ratio              = list(label = "Frac Half-life"             ),
+   cmax.dn                 = list(label = "Cmax/Dose"                  ),
+   cmin.dn                 = list(label = "Cmin/Dose"                  ),
+   clast.obs.dn            = list(label = "Clast (obs)/Dose"           ),
+   clast.pred.dn           = list(label = "Clast (pred)/Dose"          ),
+   cav.dn                  = list(label = "Cave/Dose"                  ),
+   ctrough.dn              = list(label = "Ctr/Dose"                   ),
+   thalf.eff.last          = list(label = "Halflife (eff)"             ),
+   thalf.eff.iv.last       = list(label = "Halflife (eff,IV)"          ),
+   kel.last                = list(label = "kel"                        ),
+   kel.iv.last             = list(label = "kel (iv)"                   ),
+   aucinf.obs              = list(label = "AUC (inf,obs)"              ),
+   aucinf.pred             = list(label = "AUC (inf,pred)"             ),
+   aumcinf.obs             = list(label = "AMUC (inf,obs)"             ),
+   aumcinf.pred            = list(label = "AMUC (inf,pred)"            ),
+   aucminf.obs.dn          = list(label = "AMUC (inf,obs)/Dose"        ),
+   aucminf.pred.dn         = list(label = "AMUC (inf,pred)/Dose"       ),
+   aucpext.obs             = list(label = "AUC Extrap (obs,%)"         ),
+   aucpext.pred            = list(label = "AUC Extrap (pred,%)"        ),
+   cl.obs                  = list(label = "CL (obs)"                   ),
+   cl.pred                 = list(label = "CL (pred)"                  ),
+   mrt.obs                 = list(label = "MRT (obs)"                  ),
+   mrt.pred                = list(label = "MRT (pred)"                 ),
+   mrt.iv.pred             = list(label = "MRT (pred,IV)"              ),
+   mrt.iv.obs              = list(label = "MRT (obs,IV)"               ),
+   mrt.md.pred             = list(label = "MRT (pred,MD)"              ),
+   mrt.md.obs              = list(label = "MRT (obs,MD)"               ),
+   vz.obs                  = list(label = "Vz (obs)"                   ),   
+   vz.pred                 = list(label = "Vz (pred)"                  ),   
+   vss.obs                 = list(label = "Vss (obs)"                  ),   
+   vss.pred                = list(label = "Vss (pred)"                 ),   
+   vss.iv.obs              = list(label = "Vss (obs,IV)"               ),   
+   vss.iv.pred             = list(label = "Vss (pred,IV)"              ),   
+   vss.md.obs              = list(label = "Vss (obs,MD)"               ),   
+   vss.md.pred             = list(label = "Vss (pred,MD)"              ),   
+   vd.obs                  = list(label = "Vd (obs,MD)"                ),   
+   vd.pred                 = list(label = "Vd (pred,MD)"               ),   
+   thalf.eff.obs           = list(label = "Half-life (obs,eff)"        ),   
+   thalf.eff.pred          = list(label = "Half-life (pred,eff)"       ),   
+   thalf.eff.iv.obs        = list(label = "Half-life (obs,eff,IV)"     ),   
+   thalf.eff.iv.pred       = list(label = "Half-life (pred,eff,IV)"    ),   
+   kel.last.obs            = list(label = "kel (obs)"                  ),
+   kel.last.pred           = list(label = "kel (pred)"                 ),
+   kel.iv.obs              = list(label = "kel (obs,IV)"               ),
+   kel.iv.pred             = list(label = "kel (pred,IV)"              ))
 
 PKNCA_interval_cols = PKNCA::get.interval.cols()
 

@@ -72,6 +72,7 @@ format (\code{?md_to_officer} for markdown details).
      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
      \item \code{key} unique key for cross referencing e.g. "TAB_DATA" (\code{NULL})  
      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
+     \item \code{header_format} string containing the format, either \code{"text"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})

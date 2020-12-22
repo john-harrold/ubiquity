@@ -32,7 +32,12 @@ org_pptx_meta = function(){
 # Set sub_title fields to NULL if they do not exist in the template
 #
 
-meta = list()
+meta = list(title          = list(),
+            section        = list(),
+            content        = list(),
+            two_col        = list(),
+            md_def         = list())
+
 # this is the information the title slide
 meta$title$layout$general                      = "title_slide"
 meta$title$master$general                      = "Office Theme"             
@@ -128,6 +133,23 @@ meta$two_col$indices$text_right               = 1
 meta$two_col$ph_labels$text_sub_title         = "Content Placeholder 10" 
 meta$two_col$ph_labels$text_left              = "Content Placeholder 2" 
 meta$two_col$ph_labels$text_right             = "Content Placeholder 3" 
+
+
+# When using markdown text you have to specify the default properties of text
+# for the Table 
+
+meta[["md_def"]][["Table"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+
+
 
 return(meta)}
 

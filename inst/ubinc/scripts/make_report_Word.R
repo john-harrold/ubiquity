@@ -30,7 +30,6 @@ cfg = system_fetch_cfg()
 #
 cfg = system_report_init(cfg, rpttype="Word")
 
-
 #
 # Dumping the layout of the  current report
 #
@@ -136,13 +135,15 @@ cfg = system_report_doc_add_content(cfg,
 library(magrittr)
 library(flextable)
 
-data = data.frame(fname = c("bob",   "jim",     "sam"),
-                  lname = c("smith", "johnson", "spade"),
-                  age   = c(22,       43,        13))
+data = data.frame(property = c("mean",   "variance"),
+                  Cmax     = c(2,         0.1),
+                  AUCinf   = c(22,       0.21),
+                  AUClast  = c(22,       0.21))
 
-header = data.frame(fname = c("First", "Name"),
-                    lname = c("Last", "Name"),
-                    age   = c("Age", "years"))
+header = list(property = c("",              ""),
+              Cmax     = c("Cmax",          "ng/ml"),
+              AUCinf   = c("AUCinf",        "mL/hr"),
+              AUClast  = c("AUClast",       "mL/hr"))
 
 # This creates a flextable object:
 ft = flextable::flextable(data)                     %>% 
@@ -210,8 +211,112 @@ cfg = system_report_doc_set_ph(cfg,
 
 cfg = system_report_doc_add_content(cfg, 
   content_type  = "text",
+  content       = list(style   = "h2",
+                       text    = "Formatting Table Contents"))
+
+
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "text",
+  content       = list(style   = "normal",
+                       text    = 'You can put Markdown into the header definitions and have them interpreted when you create a flextable, all you need to do is set the header_format to "md"'))
+
+tcf = list()
+
+tcf$table  = data.frame(property = c("mean",   "variance"),
+                  Cmax     = c(2,         0.1),
+                  AUCinf   = c(22,       0.21),
+                  AUClast  = c(22,       0.21))
+
+tcf$header_top = list(property = c(""       ), 
+                      Cmax     = c("C~max~"   ), 
+                      AUCinf   = c("AUC~inf~" ), 
+                      AUClast  = c("AUC~last~")) 
+
+tcf$header_middle = list(property = c(""),
+                         Cmax     = c("ng/ml"),
+                         AUCinf   = c("mL\U00B7hr^-1^"),
+                         AUClast  = c("mL\U00B7hr^-1^"))
+
+tcf$header_format = "md"
+
+tcf$caption = "This is a flextable with markdown formatting"
+
+tcf$cwidth        = 0.8 
+tcf$table_autofit = TRUE
+tcf$table_theme   ='theme_zebra'
+
+
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "flextable",
+  content       = tcf)
+
+
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "text",
+  content       = list(style   = "normal",
+                       text    = 'You can use the function md_to_oo within flextable calls to turn Markdown into the formatted objects that flextable expects. This can be used to modify both headers and text within the table. Note that you can use unicode for symbols like the dot multiplication is unicode format U+00B7 which can be witten as a backslash and removing the + to produce "\U00B7" '))
+
+data = data.frame(property = c("mean",   "variance"),
+                  Cmax     = c(2,         0.1),
+                  AUCinf   = c(22,       0.21),
+                  AUClast  = c(22,       0.21))
+
+header = list(property = c("",              ""),
+              Cmax     = c("Cmax",          "ng/ml"),
+              AUCinf   = c("AUCinf",        "mL/hr"),
+              AUClast  = c("AUClast",       "mL/hr"))
+
+
+# To get the formatting correct we need to pull out the default format for
+# tables (dft):
+dft = system_fetch_report_format(cfg, element="Table")$default_format
+
+
+# This creates a flextable object:
+ftf = flextable::flextable(data)                                                                                  %>% 
+      flextable::delete_part(part = "header")                                                                     %>%
+      flextable::add_header(values =as.list(header))                                                              %>%
+      flextable::compose(j    = "Cmax",                                                    
+                        part  = "header",                                                          
+                        value = c(md_to_oo("*C*~*max*~", dft)$oo, md_to_oo("*ng/ml*", dft)$oo))                   %>%
+      flextable::compose(j    = "AUClast",                                                    
+                        part  = "header",                                                          
+                        value = c(md_to_oo("*AUC*~*last*~", dft)$oo, md_to_oo("*ml\U00B7hr*^*-1*^", dft)$oo))     %>%
+      flextable::compose(j    = "AUCinf",                                                    
+                        part  = "header",                                                          
+                        value = c(md_to_oo("*AUC*~*inf*~", dft)$oo, md_to_oo("*ml\U00B7hr*^*-1*^", dft)$oo))      %>%
+      flextable::compose(j     = "property",                                                         
+                         i     = match("mean", data$property),                        
+                         part  = "body",                                                          
+                         value = c(md_to_oo("Mean (<ff:symbol>m</ff>)", dft)$oo))                                 %>%
+      flextable::compose(j     = "property",                                                                      
+                         i     = match("variance", data$property),                                                
+                         part  = "body",                                                                          
+                         value = c(md_to_oo("Variance (<ff:symbol>s</ff>^2^)", dft)$oo))                          %>%
+      flextable::autofit()                                                                                        %>%
+      flextable::theme_zebra()
+
+tcfo = list(caption = "This is a flextable object with Markdown formatting",
+            key     = "TAB_FTO_FORMATTED",
+            ft      = ftf)
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "flextable_object",
+  content       = tcfo)
+
+
+
+
+
+
+
+
+
+
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "text",
   content       = list(style   = "h1",
                        text    = "Referencing Tables and Figures"))
+
 
 
 

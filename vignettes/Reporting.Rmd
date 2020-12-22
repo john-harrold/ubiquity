@@ -234,13 +234,15 @@ cfg = system_report_slide_two_col(cfg,
 The ``flextable`` content type is intended to provide a quick way to turn a data frame into a flextable, but if you want to create more complex tables you can use the ``flextable_object`` content type. Consider the two data frames containing the data and header information:
 
 ```{r results="hide", message=FALSE, warning=FALSE}
-data = data.frame(fname = c("bob",   "jim",     "sam"),
-                  lname = c("smith", "johnson", "spade"),
-                  age   = c(22,       43,        13))
+data = data.frame(property = c("mean",   "variance"),
+                  Cmax     = c(2,         0.1),
+                  AUCinf   = c(22,       0.21),
+                  AUClast  = c(22,       0.21))
 
-header = data.frame(fname = c("First", "Name"),
-                    lname = c("Last", "Name"),
-                    age   = c("Age", "years"))
+header = list(property = c("",              ""),
+              Cmax     = c("Cmax",          "ng/ml"),
+              AUCinf   = c("AUCinf",        "mL/hr"),
+              AUClast  = c("AUClast",       "mL/hr"))
 ```
 
 Next we create the flextable object:
@@ -495,26 +497,41 @@ cfg = system_report_doc_add_content(cfg,
 Similar to the presentation components above, you can create more complex tables by using the 
 ``flextable_object`` content type:
 
-```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
+```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
 library(magrittr)
 library(flextable)
 
-data = data.frame(fname = c("bob",   "jim",     "sam"),
-                  lname = c("smith", "johnson", "spade"),
-                  age   = c(22,       43,        13))
+data = data.frame(property = c("mean",   "variance"),
+                  Cmax     = c(2,         0.1),
+                  AUCinf   = c(22,       0.21),
+                  AUClast  = c(22,       0.21))
 
-header = data.frame(fname = c("First", "Name"),
-                    lname = c("Last", "Name"),
-                    age   = c("Age", "years"))
+header = list(property = c("",              ""),
+              Cmax     = c("Cmax",          "ng/ml"),
+              AUCinf   = c("AUCinf",        "mL/hr"),
+              AUClast  = c("AUClast",       "mL/hr"))
 
 # This creates a flextable object:
 ft = flextable::flextable(data)                     %>% 
      flextable::delete_part(part = "header")        %>%
      flextable::add_header(values =as.list(header)) %>%
      flextable::theme_zebra()
+```
 
-# We need to supply a list containing both the caption and the flextable object:
+The code above creates the following flextable:
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+knitr::knit_print(ft)
+```
+
+
+
+To insert this inot the document we need to supply a list containing both the caption and the flextable object. The 
+reference key field is optional:
+
+```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
 tcfo = list(caption = "This is a flextable object",
+            key     = "TAB_FTO",  
             ft      = ft)
 
 cfg = system_report_doc_add_content(cfg, 
@@ -523,6 +540,50 @@ cfg = system_report_doc_add_content(cfg,
 ```
 
 
+To use markdown in the flextable object you can use the function ``md_to_oo``. The following code will format the table above: 
+
+```{r results="hide", message=FALSE, warning=FALSE, eval=TRUE}
+ftf = flextable::flextable(data)                                                                       %>% 
+      flextable::delete_part(part = "header")                                                          %>%
+      flextable::add_header(values =as.list(header)) %>%
+      flextable::compose(j    = "Cmax",                                                    
+                        part  = "header",                                                          
+                        value = c(md_to_oo("*C*~*max*~")$oo, md_to_oo("*ng/ml*")$oo))                  %>%
+      flextable::compose(j    = "AUClast",                                                    
+                        part  = "header",                                                          
+                        value = c(md_to_oo("*AUC*~*last*~")$oo, md_to_oo("*ml.hr*^*-1*^")$oo))         %>%
+      flextable::compose(j    = "AUCinf",                                                    
+                        part  = "header",                                                          
+                        value = c(md_to_oo("*AUC*~*inf*~")$oo, md_to_oo("*ml.hr*^*-1*^")$oo))          %>%
+      flextable::compose(j     = "property",                                                         
+                         i     = match("mean", data$property),                        
+                         part  = "body",                                                          
+                         value = c(md_to_oo("Mean (<ff:symbol>m</ff>)")$oo))                            %>%
+      flextable::compose(j     = "property",                                                         
+                         i     = match("variance", data$property),                        
+                         part  = "body",                                                          
+                         value = c(md_to_oo("Variance (<ff:symbol>s</ff>^2^)")$oo))                     %>%
+      flextable::autofit()                                                                             %>%
+      flextable::theme_zebra()
+```
+
+
+This produces the following formatted output:
+
+```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
+knitr::knit_print(ftf)
+```
+
+Which is inserted into the document in the same way. 
+
+```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
+tcfo = list(caption = "This is a flextable object",
+            key     = "TAB_FTO_FORMATTED",
+            ft      = ftf)
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "flextable_object",
+  content       = tcfo)
+```
 
 
 #### Placeholders                 

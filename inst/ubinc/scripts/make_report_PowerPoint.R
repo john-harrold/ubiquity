@@ -113,7 +113,6 @@ cfg = system_report_slide_section(cfg,
 #
 
 
-# 
 cfg = system_report_slide_two_col(cfg,
         title                  = "Two columns of plain text",      
         sub_title              = "Subtitle", 
@@ -180,19 +179,13 @@ cfg = system_report_slide_two_col(cfg,
 library(magrittr)
 library(flextable)
 
-data = data.frame(fname = c("bob",   "jim",     "sam"),
-                  lname = c("smith", "johnson", "spade"),
-                  age   = c(22,       43,        13))
-
-header = data.frame(fname = c("First", "Name"),
-                    lname = c("Last", "Name"),
-                    age   = c("Age", "years"))
+data = data.frame(property = c("mean",   "variance"),
+                  Cmax     = c(2,         0.1),
+                  AUCinf   = c(22,       0.21),
+                  AUClast  = c(22,       0.21))
 
 # This creates a flextable object:
-ft = flextable::flextable(data)                     %>% 
-     flextable::delete_part(part = "header")        %>%
-     flextable::add_header(values =as.list(header)) %>%
-     flextable::theme_zebra()
+ft = flextable::flextable(data)                      
 
 cfg = system_report_slide_content(cfg,
        title        = "Userdefined Flextable",
@@ -201,7 +194,7 @@ cfg = system_report_slide_content(cfg,
        content      = ft)
 
 # Pulling the report
-rpt = system_report_fetch(cfg)
+rpt = system_fetch_report(cfg)
 
 # you can make changes to rpt directly using the 
 # functions from officer here

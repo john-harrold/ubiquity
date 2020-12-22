@@ -20,5 +20,5 @@ ubiquity system object with \code{rpt} as content for \code{rptname}
 Replace the report named \code{rptname} with the contents in \code{rpt}
 }
 \seealso{
-\code{\link{system_report_init}} and \code{\link{system_report_fetch}}
+\code{\link{system_report_init}} and \code{\link{system_fetch_report}}
 }
