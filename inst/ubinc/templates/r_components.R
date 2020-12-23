@@ -44,7 +44,8 @@ cfg[["estimation"]]    = list(options        = list(),
 
 
 cfg[["reporting"]]                    = list(meta_pptx      = list(),
-                                             meta_docx      = list())
+                                             meta_docx      = list(),
+                                             enabled        = FALSE)
                                     
 cfg[["reporting"]][["meta_pptx"]]     = 
                          list(title          = list(),
@@ -302,6 +303,18 @@ cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_left         
 cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_right              = "Content Placeholder 3" 
 
 # MD format for tables
+# Table_Labels is the footers and headers while Table is the defaults for the
+# body of the table
+cfg[["reporting"]][["meta_pptx"]][["md_def"]][["Table_Labels"]] = list(
+        color          = "black",
+        font.size      = 11,
+        bold           = TRUE, 
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Helvetica",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
 cfg[["reporting"]][["meta_pptx"]][["md_def"]][["Table"]] = list(
         color          = "black",
         font.size      = 11,
@@ -419,16 +432,29 @@ cfg[["reporting"]][["meta_docx"]][["md_def"]][["Heading_3"]] = list(
         vertical.align = "baseline",
         shading.color  = "transparent")
 
+# MD format for tables
+# Table_Labels is the footers and headers while Table is the defaults for the
+# body of the table
+cfg[["reporting"]][["meta_docx"]][["md_def"]][["Table_Labels"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = TRUE, 
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Helvetica", 
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
+
 cfg[["reporting"]][["meta_docx"]][["md_def"]][["Table"]] = list(
         color          = "black",
         font.size      = 12,
         bold           = FALSE,
         italic         = FALSE,
         underlined     = FALSE,
-        font.family    = "Cambria (Body)",
+        font.family    = "Helvetica", 
         vertical.align = "baseline",
         shading.color  = "transparent")
-
 
 cfg[["reporting"]][["meta_docx"]][["md_def"]][["Table_Caption"]] = list(
         color          = "black",

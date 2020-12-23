@@ -190,6 +190,25 @@ also change the font to things like <ff:symbol>*symbol*</ff>."
 
 cfg = system_report_doc_add_content(cfg, 
   content_type  = "text",
+  content       = list(style   = "h2",
+                       format  = "text",
+                       text    = "Text Containing Markdown"))
+
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "text",
+  content       = list(style  = "normal",
+                       format = "text",
+                       text   = mdtext))
+
+
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "text",
+  content       = list(style   = "h2",
+                       format  = "text",
+                       text    = "Text With Markdown Rendered"))
+
+cfg = system_report_doc_add_content(cfg, 
+  content_type  = "text",
   content       = list(style  = "normal",
                        format = "md",
                        text   = mdtext))
@@ -269,7 +288,8 @@ header = list(property = c("",              ""),
 
 # To get the formatting correct we need to pull out the default format for
 # tables (dft):
-dft = system_fetch_report_format(cfg, element="Table")$default_format
+dft      = system_fetch_report_format(cfg, element="Table_Labels")$default_format
+dft_body = system_fetch_report_format(cfg, element="Table")$default_format
 
 
 # This creates a flextable object:
@@ -288,11 +308,11 @@ ftf = flextable::flextable(data)                                                
       flextable::compose(j     = "property",                                                         
                          i     = match("mean", data$property),                        
                          part  = "body",                                                          
-                         value = c(md_to_oo("Mean (<ff:symbol>m</ff>)", dft)$oo))                                 %>%
+                         value = c(md_to_oo("Mean (<ff:symbol>m</ff>)", dft_body)$oo))                            %>%
       flextable::compose(j     = "property",                                                                      
                          i     = match("variance", data$property),                                                
                          part  = "body",                                                                          
-                         value = c(md_to_oo("Variance (<ff:symbol>s</ff>^2^)", dft)$oo))                          %>%
+                         value = c(md_to_oo("Variance (<ff:symbol>s</ff>^2^)", dft_body)$oo))                     %>%
       flextable::autofit()                                                                                        %>%
       flextable::theme_zebra()
 

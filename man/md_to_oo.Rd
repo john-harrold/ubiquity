@@ -4,10 +4,10 @@
 \alias{md_to_oo}
 \title{Parse Markdown into Officer as_paragraph Result}
 \usage{
-md_to_oo(str, default_format = NULL)
+md_to_oo(strs, default_format = NULL)
 }
 \arguments{
-\item{str}{string containing Markdown can contain the following elements:}
+\item{strs}{vector of strings containing Markdown can contain the following elements:}
 
 \item{default_format}{list containing the default format for elements not defined with markdown default values (format the same as \code{\link{md_to_officer}}, default is \code{NULL})}
 }

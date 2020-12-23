@@ -10,6 +10,8 @@ system_nca_summary(
   treat_as_factor = c("ID", "Dose_Number", "Dose"),
   params_include = c("ID", "cmax", "tmax", "auclast"),
   params_header = NULL,
+  rptname = "default",
+  label_format = NULL,
   summary_stats = NULL,
   summary_labels = list(MEAN = "Mean", STD = "Std Dev", MEDIAN = "Median", N = "N obs",
     SE = "Std Err."),
@@ -29,6 +31,10 @@ system_nca_summary(
 \item{params_include}{vector with names of parameters to include (default c("ID", "cmax", "tmax", "auclast"))}
 
 \item{params_header}{list with names of parameters followed by a vector of headers. You can use the placeholder "<label>" to include the standard label (e.g. list(cmax=c("<label>", "(ng/ml)"))), with a default of \code{NULL}.}
+
+\item{rptname}{report name (either PowerPoint or Word) that this table will be used in (\code{"default"})}
+
+\item{label_format}{string containing the format in which headers and labels are being specified, either \code{"text"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)}
 
 \item{summary_stats}{list with strings as names containing placeholders for
 summary statistics and the values indicate the parameters to apply those

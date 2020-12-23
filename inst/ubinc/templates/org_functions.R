@@ -137,6 +137,19 @@ meta$two_col$ph_labels$text_right             = "Content Placeholder 3"
 
 # When using markdown text you have to specify the default properties of text
 # for the Table 
+#
+# Table_Labels is the footers and headers while Table is the defaults for the
+# body of the table
+meta[["md_def"]][["Table_Labels"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = TRUE, 
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Helvetica",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
 
 meta[["md_def"]][["Table"]] = list(
         color          = "black",
@@ -144,11 +157,9 @@ meta[["md_def"]][["Table"]] = list(
         bold           = FALSE,
         italic         = FALSE,
         underlined     = FALSE,
-        font.family    = "Cambria (Body)",
+        font.family    = "Helvetica",
         vertical.align = "baseline",
         shading.color  = "transparent")
-
-
 
 
 return(meta)}
@@ -287,13 +298,29 @@ meta[["md_def"]][["Heading_3"]] = list(
         vertical.align = "baseline",
         shading.color  = "transparent")
 
+# When using markdown text you have to specify the default properties of text
+# for the Table 
+#
+# Table_Labels is the footers and headers while Table is the defaults for the
+# body of the table
+
+meta[["md_def"]][["Table_Labels"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = TRUE, 
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Helvetica",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+
 meta[["md_def"]][["Table"]] = list(
         color          = "black",
         font.size      = 12,
         bold           = FALSE,
         italic         = FALSE,
         underlined     = FALSE,
-        font.family    = "Cambria (Body)",
+        font.family    = "Helvetica",
         vertical.align = "baseline",
         shading.color  = "transparent")
 

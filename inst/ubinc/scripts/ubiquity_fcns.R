@@ -6459,11 +6459,11 @@ system_simulate_estimation_results <- function(pest, cfg, details=FALSE){
 #'@param rptname report name initialized with \code{system_report_init}
 #'@param element report element to fetch: for Word reports it can be 
 #' "default" (default),       "Normal",        "Code",  "TOC",          
-#' "Heading_1",  "Heading_2", "Heading_3", "Table",
+#' "Heading_1",  "Heading_2", "Heading_3", "Table", "Table_Labels",
 #' "Table_Caption", "Figure",  and  "Figure_Caption"
 #'
 #'@return list of current parameter gauesses
-system_fetch_report_format <- function(cfg, rptname="default", element="Table"){
+system_fetch_report_format <- function(cfg, rptname="default", element="Table_Labels"){
 
 default_format = NULL
 isgood = TRUE
@@ -10032,37 +10032,6 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
       # Creating the table
       invisible(system_req("flextable"))
       ft = flextable::regulartable(content$table,  cwidth = cwidth, cheight=cheight)
-      
-   #   #--------
-   #   # JMH update from word implementation
-   #   # Adding headers
-   #   header_types = c("header_bottom", "header_middle", "header_top")
-   #   first_header = TRUE
-   #   for(header_type in header_types){
-   #    
-   #     if(!is.null(eval(parse(text=header_type)))){
-   #       eval(parse(text=sprintf("header =  %s", header_type)))
-   #       # Creating the header
-   #       if(!is.null(header)){
-   #         if(length(names(header)) > 0){
-   #           if(first_header){
-   #             first_header = FALSE
-   #             shstr = ' ft = flextable::set_header_labels(ft'
-   #           } else {
-   #             shstr = ' ft = flextable::add_header(ft'
-   #           }
-   #           for(hname in names(header)){
-   #             shstr = sprintf('%s, %s="%s"', shstr, hname, header[[hname]])
-   #           }
-   #           # The top=FALSE seems to be breaking things
-   #           #shstr = sprintf('%s, top=FALSE)', shstr)
-   #           shstr = sprintf('%s)', shstr)
-   #           eval(parse(text=shstr))
-   #         }
-   #       }
-   #     }
-   #   }
-   #   #--------
       #-------
       # Defining the default formatting for tables. We default to NULL and
       # if it's currently defined in the meta for this report template then
@@ -10102,20 +10071,15 @@ system_report_ph_content = function(cfg, rpt, content_type, content, type, index
         if(header_format == "md"){
 
           # Pulling out the default format for the Table element
-          default_format_table = system_fetch_report_format(cfg, rptname=rptname, element="Table")
+          default_format_table = system_fetch_report_format(cfg, rptname=rptname, element="Table_Labels")
 
           for(cname in names(content[["table"]])){
-            mdvals = c() 
-            for(header in header_list[[cname]]){
-              # If header is an empy string we use a space
-              if(header == ""){
-                header = " "}
-              mdvals = c(mdvals,  md_to_oo(str=header, default_format=default_format_table)$oo)
-            }
+            # For each column name we run the header text through the markdown
+            # conversion to produce the as_paragraph output:
             ft = flextable::compose(ft,
                               j     = cname,                                                    
                               part  = "header",                                                          
-                              value = mdvals)      
+                              value = md_to_oo(strs= header_list[[cname]], default_format=default_format_table)$oo)
           }
         }
       }
@@ -10444,20 +10408,15 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
         if(header_format == "md"){
 
           # Pulling out the default format for the Table element
-          default_format_table = system_fetch_report_format(cfg, rptname=rptname, element="Table")$default_format
+          default_format_table = system_fetch_report_format(cfg, rptname=rptname, element="Table_Labels")$default_format
 
           for(cname in names(content[["table"]])){
-            mdvals = c() 
-            for(header in header_list[[cname]]){
-              # If header is an empy string we use a space
-              if(header == ""){
-                header = " "}
-              mdvals = c(mdvals,  md_to_oo(str=header, default_format=default_format_table)$oo)
-            }
+            # For each column name we run the header text through the markdown
+            # conversion to produce the as_paragraph output:
             ft = flextable::compose(ft,
-                               j     = cname,                                                    
-                               part  = "header",                                                          
-                               value = mdvals)      
+                              j     = cname,                                                    
+                              part  = "header",                                                          
+                              value = md_to_oo(strs= header_list[[cname]], default_format=default_format_table)$oo)
           }
         }
       }
@@ -10748,7 +10707,7 @@ cfg}
 #' md_to_officer, evals the as_paragraph field from the first paragraph
 #' returned, evals that result and returns the object from the as_paragraph
 #' command.
-#'@param str     string containing Markdown can contain the following elements:
+#'@param strs    vector of strings containing Markdown can contain the following elements:
 #'@param default_format  list containing the default format for elements not defined with markdown default values (format the same as \code{\link{md_to_officer}}, default is \code{NULL})
 #'@return list with the following elements
 #' \itemize{
@@ -10757,41 +10716,56 @@ cfg}
 #'  \item \code{as_par_cmd} as_paragraph generated code from md_to_officer
 #'  \item \code{oo}         as_paragraph officer object resulting from running the as_par_cmd code
 #'}
-md_to_oo     = function(str,default_format=NULL){
+md_to_oo     = function(strs,default_format=NULL){
 
   isgood     = TRUE
   as_par_cmd = NULL
   oo         = NULL
   msgs       = c()
 
-  if(is.null(default_format)){
-    mdres = md_to_officer(str)
-  } else {
-    mdres = md_to_officer(str, default_format)
-  }
 
-  
-
-  
-  # Checking to make sure we got what we needed from the md_to_officer command
-  # above
-  isgood_mdres = FALSE
-  if("pgraph_1" %in% names(mdres)){
-    if("as_paragraph_cmd" %in% names(mdres[["pgraph_1"]])){
-      isgood_mdres = TRUE
-      as_par_cmd =  paste("oo =", mdres[["pgraph_1"]][["as_paragraph_cmd"]])
-      eval(parse(text=as_par_cmd))
+  str = strs
+  for(str in strs){
+    # IFf str is empty we need something to hold it's place this way the
+    # length and order of oo will match strs
+    if(str == ""){
+      str = " " 
     }
-  }
 
-  # If either of the fields above are missing then something failed
-  if(!isgood_mdres){
-    isgood = FALSE
-    msgs = c(msgs, "md_to_officer call failed")
-  }
 
-  if(!isgood){
-     msgs = c(msgs, "md_to_oo()", "Unable to evaluate markdown, see above for details")
+    if(is.null(default_format)){
+      mdres = md_to_officer(str)
+    } else {
+      mdres = md_to_officer(str, default_format)
+    }
+    
+    
+    
+    
+    # Checking to make sure we got what we needed from the md_to_officer command
+    # above
+    isgood_mdres = FALSE
+    tmpoo = NULL
+    if("pgraph_1" %in% names(mdres)){
+      if("as_paragraph_cmd" %in% names(mdres[["pgraph_1"]])){
+        isgood_mdres = TRUE
+        as_par_cmd =  paste("tmpoo =", mdres[["pgraph_1"]][["as_paragraph_cmd"]])
+        eval(parse(text=as_par_cmd))
+      }
+    }
+    
+    # If either of the fields above are missing then something failed
+    if(!isgood_mdres){
+      isgood = FALSE
+      msgs = c(msgs, "md_to_officer call failed")
+    }
+    
+    if(!isgood){
+       msgs = c(msgs, "md_to_oo()", "Unable to evaluate markdown, see above for details")
+    }
+     
+    # Appending the temp officer object to the vector of officer objects
+    oo = c(oo, tmpoo)
   }
 
 
@@ -12698,6 +12672,8 @@ cfg}
 #'@param treat_as_factor sequence of column names to be treated as factors (default \code{c("ID", "Dose_Number", "Dose")}). Use this to report values without added decimals. 
 #'@param params_include vector with names of parameters to include (default c("ID", "cmax", "tmax", "auclast"))
 #'@param params_header  list with names of parameters followed by a vector of headers. You can use the placeholder "<label>" to include the standard label (e.g. list(cmax=c("<label>", "(ng/ml)"))), with a default of \code{NULL}.
+#'@param label_format string containing the format in which headers and labels are being specified, either \code{"text"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
+#'@param rptname report name (either PowerPoint or Word) that this table will be used in (\code{"default"})
 #'@param summary_stats list with strings as names containing placeholders for
 #' summary statistics and the values indicate the parameters to apply those
 #' statistics to. for example, if you want to calculate mean and standard deviation of
@@ -12740,6 +12716,8 @@ system_nca_summary = function(cfg,
                           treat_as_factor   = c("ID", "Dose_Number", "Dose"),
                           params_include    = c("ID", "cmax", "tmax", "auclast"),
                           params_header     = NULL,
+                          rptname           = "default",
+                          label_format      = NULL,
                           summary_stats     = NULL,
                           summary_labels    = list(MEAN   = "Mean", 
                                                    STD    = "Std Dev", 
@@ -12765,6 +12743,11 @@ rows_data    = NULL
 rows_summary = NULL
 sum_table    = NULL
 sum_table_ft = NULL
+
+# Making sure label_format has a value
+if(is.null(label_format)){
+  label_format = "text"
+}
 
 if((analysis_name %in% names(cfg[["nca"]]))){
   NCA_all       = cfg[["nca"]][[analysis_name]]
@@ -12862,7 +12845,6 @@ if(!is.null(summary_stats)){
 # If all of the checks above have passed then we can start building the
 # table
 if(isgood){
-
   #------------------------------------------
   # Defining headers:
   # maximum number of headers defaults to 1
@@ -12874,7 +12856,11 @@ if(isgood){
       # column names. Users will have to provide those headers explicitly
       plabel = pname
     } else {
-      plabel = c(cfg[["options"]][["nca_meta"]][["parameters"]][[pname]][["label"]])
+      if(label_format == "md"){
+        plabel = c(cfg[["options"]][["nca_meta"]][["parameters"]][[pname]][["md"]])
+      } else {
+        plabel = c(cfg[["options"]][["nca_meta"]][["parameters"]][[pname]][["label"]])
+      }
     }
     # If a parameter isn't mentioned in the header variable then we populate the
     # header for that parameter with the default label
@@ -13005,6 +12991,40 @@ if(isgood){
     eval(parse(text=paste("sum_table_ft = sum_table_ft %>% flextable::", table_theme, "()", sep="")))
   }
   #------------------------------------------
+  # Applying markdown formatting
+  if(label_format == "md"){
+     # Pulling out the default format for the Table element
+     default_format_table = system_fetch_report_format(cfg, rptname=rptname, element="Table_Labels")$default_format
+     # Applying markdown to headers
+     if(!is.null(rows_header)){
+       for(pname in names(rows_header)){
+          sum_table_ft = flextable::compose(sum_table_ft,
+                            j     = pname,                                                    
+                            part  = "header",                                                          
+                            value = md_to_oo(strs= rows_header[[pname]], default_format=default_format_table)$oo)
+       }
+     }
+
+     # Applying markdown to footers
+     if(!is.null(summary_stats)){
+       for(pname in names(rows_summary)){
+          sum_table_ft = flextable::compose(sum_table_ft,
+                            j     = pname,                                                    
+                            part  = "footer",                                                          
+                            value = md_to_oo(strs= rows_summary[[pname]], default_format=default_format_table)$oo)
+       }
+     }
+    # JMH 
+    # Create format Table_Labels in r_components
+    #   - Word
+    #   - PowerPoint
+    # Add defaults in org_functions.R
+
+
+    # Update documentation on org_functoins
+
+  }
+  #------------------------------------------
   
 }
 
@@ -13063,92 +13083,92 @@ isgood = TRUE
 # "aucinf.pred.dn"       
 
 res_PKNCA = list(
-   auclast                 = list(label = "AUC last"                   ),
-   aucall                  = list(label = "AUC all"                    ),
-   aumclast                = list(label = "AUMC last"                  ),
-   aumcall                 = list(label = "AUMC all"                   ),
-   aumcint.last            = list(label = "AUMC last (interval)"       ),
-   aumcint.last.dose       = list(label = "AUMC last (dose)"           ),
-   aumcint.all             = list(label = "AUMC all"                   ),
-   aumcint.all.dose        = list(label = "AUMC all (dose)"            ),
-   auclast.dn              = list(label = "AUC last/Dose"              ),
-   aucall.dn               = list(label = "AUC all/Dose"               ),
-   aumclast.dn             = list(label = "AUMC last/Dose"             ),
-   aumcall.dn              = list(label = "AUMC all/Dose"              ),
-   tmax                    = list(label = "Tmax"                       ),
-   tlast                   = list(label = "Tlast"                      ),
-   tfirst                  = list(label = "Tfirst"                     ),
-   clast.obs               = list(label = "C (last)"                   ),
-   cl.last                 = list(label = "CL (last)"                  ),
-   f                       = list(label = "Fbio"                       ),
-   mrt.last                = list(label = "MRT"                        ),
-   mrt.iv.last             = list(label = "MRT IV"                     ),
-   vss.last                = list(label = "Vss"                        ),
-   vss.iv.last             = list(label = "Vss IV"                     ),
-   cav                     = list(label = "Cave"                       ),
-   ctrough                 = list(label = "Ctr"                        ),
-   ptr                     = list(label = "Peak/Trough"                ),
-   tlag                    = list(label = "Tlag"                       ), 
-   deg.fluc                = list(label = "Fluctuation"                ), 
-   swing                   = list(label = "Cmin Swing"                 ), 
-   ceoi                    = list(label = "Conc (EOI)"                 ), 
-   ae                      = list(label = "Excreted (amount)"          ), 
-   clr.last                = list(label = "Renal CL (last)"            ), 
-   clr.obs                 = list(label = "Renal CL (obs)"             ), 
-   clr.pred                = list(label = "Renal CL (pred)"            ), 
-   fe                      = list(label = "Excreted (fr)"              ), 
-   half.life               = list(label = "Half-life"                  ), 
-   adj.r.squared           = list(label = "Adj rsq HL"                 ), 
-   r.squared               = list(label = "r-squared"                  ), 
-   lambda.z                = list(label = "Term Rate"                  ),
-   lambda.z.time.first     = list(label = "T first (Term Rate)"        ),
-   lambda.z.n.points       = list(label = "N Half-life"                ),
-   clast.pred              = list(label = "Clast (pred)"               ),
-   span.ratio              = list(label = "Frac Half-life"             ),
-   cmax.dn                 = list(label = "Cmax/Dose"                  ),
-   cmin.dn                 = list(label = "Cmin/Dose"                  ),
-   clast.obs.dn            = list(label = "Clast (obs)/Dose"           ),
-   clast.pred.dn           = list(label = "Clast (pred)/Dose"          ),
-   cav.dn                  = list(label = "Cave/Dose"                  ),
-   ctrough.dn              = list(label = "Ctr/Dose"                   ),
-   thalf.eff.last          = list(label = "Halflife (eff)"             ),
-   thalf.eff.iv.last       = list(label = "Halflife (eff,IV)"          ),
-   kel.last                = list(label = "kel"                        ),
-   kel.iv.last             = list(label = "kel (iv)"                   ),
-   aucinf.obs              = list(label = "AUC (inf,obs)"              ),
-   aucinf.pred             = list(label = "AUC (inf,pred)"             ),
-   aumcinf.obs             = list(label = "AMUC (inf,obs)"             ),
-   aumcinf.pred            = list(label = "AMUC (inf,pred)"            ),
-   aucminf.obs.dn          = list(label = "AMUC (inf,obs)/Dose"        ),
-   aucminf.pred.dn         = list(label = "AMUC (inf,pred)/Dose"       ),
-   aucpext.obs             = list(label = "AUC Extrap (obs,%)"         ),
-   aucpext.pred            = list(label = "AUC Extrap (pred,%)"        ),
-   cl.obs                  = list(label = "CL (obs)"                   ),
-   cl.pred                 = list(label = "CL (pred)"                  ),
-   mrt.obs                 = list(label = "MRT (obs)"                  ),
-   mrt.pred                = list(label = "MRT (pred)"                 ),
-   mrt.iv.pred             = list(label = "MRT (pred,IV)"              ),
-   mrt.iv.obs              = list(label = "MRT (obs,IV)"               ),
-   mrt.md.pred             = list(label = "MRT (pred,MD)"              ),
-   mrt.md.obs              = list(label = "MRT (obs,MD)"               ),
-   vz.obs                  = list(label = "Vz (obs)"                   ),   
-   vz.pred                 = list(label = "Vz (pred)"                  ),   
-   vss.obs                 = list(label = "Vss (obs)"                  ),   
-   vss.pred                = list(label = "Vss (pred)"                 ),   
-   vss.iv.obs              = list(label = "Vss (obs,IV)"               ),   
-   vss.iv.pred             = list(label = "Vss (pred,IV)"              ),   
-   vss.md.obs              = list(label = "Vss (obs,MD)"               ),   
-   vss.md.pred             = list(label = "Vss (pred,MD)"              ),   
-   vd.obs                  = list(label = "Vd (obs,MD)"                ),   
-   vd.pred                 = list(label = "Vd (pred,MD)"               ),   
-   thalf.eff.obs           = list(label = "Half-life (obs,eff)"        ),   
-   thalf.eff.pred          = list(label = "Half-life (pred,eff)"       ),   
-   thalf.eff.iv.obs        = list(label = "Half-life (obs,eff,IV)"     ),   
-   thalf.eff.iv.pred       = list(label = "Half-life (pred,eff,IV)"    ),   
-   kel.last.obs            = list(label = "kel (obs)"                  ),
-   kel.last.pred           = list(label = "kel (pred)"                 ),
-   kel.iv.obs              = list(label = "kel (obs,IV)"               ),
-   kel.iv.pred             = list(label = "kel (pred,IV)"              ))
+   auclast                 = list(label = "AUC last"               ,  md = "AUC~last~"                            ),
+   aucall                  = list(label = "AUC all"                ,  md = "AUC~all~"                             ),
+   aumclast                = list(label = "AUMC last"              ,  md = "AUMC~last~"                           ),
+   aumcall                 = list(label = "AUMC all"               ,  md = "AUMC~all~"                            ),
+   aumcint.last            = list(label = "AUMC last (interval)"   ,  md = "AUMC~last (interval)~"                ),
+   aumcint.last.dose       = list(label = "AUMC last (dose)"       ,  md = "AUMC~last (dose)~"                    ),
+   aumcint.all             = list(label = "AUMC all"               ,  md = "AUMC~all~"                            ),
+   aumcint.all.dose        = list(label = "AUMC all (dose)"        ,  md = "AUMC~all (dose)~"                     ),
+   auclast.dn              = list(label = "AUC last/Dose"          ,  md = "AUC~last~/Dose"                       ),
+   aucall.dn               = list(label = "AUC all/Dose"           ,  md = "AUC~all~/Dose"                        ),
+   aumclast.dn             = list(label = "AUMC last/Dose"         ,  md = "AUMC~last~/Dose"                      ),
+   aumcall.dn              = list(label = "AUMC all/Dose"          ,  md = "AUMC~all~/Dose"                       ),
+   tmax                    = list(label = "Tmax"                   ,  md = "T~max~"                               ),
+   tlast                   = list(label = "Tlast"                  ,  md = "T~last~"                              ),
+   tfirst                  = list(label = "Tfirst"                 ,  md = "T~first~"                             ),
+   clast.obs               = list(label = "C (last)"               ,  md = "C~last~"                              ),
+   cl.last                 = list(label = "CL (last)"              ,  md = "CL~last~"                             ),
+   f                       = list(label = "Fbio"                   ,  md = "F~b~"                                 ),
+   mrt.last                = list(label = "MRT (last)"             ,  md = "MRT~last~"                            ),
+   mrt.iv.last             = list(label = "MRT (IV, last)"         ,  md = "MRT~last,IV~"                         ),
+   vss.last                = list(label = "Vss"                    ,  md = "V~ss~"                                ),
+   vss.iv.last             = list(label = "Vss IV"                 ,  md = "V~ss,IV~"                             ),
+   cav                     = list(label = "Cave"                   ,  md = "C~ave~"                               ),
+   ctrough                 = list(label = "Ctr"                    ,  md = "C~tr~"                                ),
+   ptr                     = list(label = "Peak/Trough"            ,  md = "Peak/Trough"                          ),
+   tlag                    = list(label = "Tlag"                   ,  md = "T~lag~"                               ), 
+   deg.fluc                = list(label = "Fluctuation"            ,  md = "Fluctuation"                          ), 
+   swing                   = list(label = "Cmin Swing"             ,  md = "C~min,Swing~"                         ), 
+   ceoi                    = list(label = "C (EOI)"                ,  md = "C~EOI~"                               ), 
+   ae                      = list(label = "Ex (amt)"               ,  md = "Ex~amt~"                              ), 
+   clr.last                = list(label = "CL (R,last)"            ,  md = "CL~R,last~"                           ), 
+   clr.obs                 = list(label = "CL (R,obs)"             ,  md = "CL~R,obs~"                            ), 
+   clr.pred                = list(label = "CL (R,pred)"            ,  md = "CL~R,pred~"                           ), 
+   fe                      = list(label = "Ex (fr)"                ,  md = "Ex~fr~"                               ), 
+   half.life               = list(label = "Half-life"              ,  md = "t~1/2~"                               ), 
+   adj.r.squared           = list(label = "R-Sq (adj)"             ,  md = "R-Sq~adj~"                            ), 
+   r.squared               = list(label = "r-squared"              ,  md = "R^2^"                                 ), 
+   lambda.z                = list(label = "Term Rate"              ,  md = "<ff:symbol>l</ff>~z~"                 ), 
+   lambda.z.time.first     = list(label = "T first (Term Rate)"    ,  md = "T first <ff:symbol>l</ff>~z~"         ),
+   lambda.z.n.points       = list(label = "N Half-life"            ,  md = "N <ff:symbol>l</ff>~z~"               ),
+   clast.pred              = list(label = "Clast (pred)"           ,  md = "C~last,pred~"                         ),
+   span.ratio              = list(label = "Frac Half-life"         ,  md = "Fr t~1/2~"                            ),
+   cmax.dn                 = list(label = "Cmax/Dose"              ,  md = "C~max~/Dose"                          ),
+   cmin.dn                 = list(label = "Cmin/Dose"              ,  md = "C~min~/Dose"                          ),
+   clast.obs.dn            = list(label = "Clast (obs)/Dose"       ,  md = "C~last,obs~/Dose"                     ),
+   clast.pred.dn           = list(label = "Clast (pred)/Dose"      ,  md = "C~last,pred~/Dose"                    ),
+   cav.dn                  = list(label = "Cave/Dose"              ,  md = "C~ave~/Dose"                          ),
+   ctrough.dn              = list(label = "Ctr/Dose"               ,  md = "C~tr~/Dose"                           ),
+   thalf.eff.last          = list(label = "Halflife (eff)"         ,  md = "t~1/2,eff~"                           ),
+   thalf.eff.iv.last       = list(label = "Halflife (eff,IV)"      ,  md = "t~1/2,eff,IV~"                        ),
+   kel.last                = list(label = "kel"                    ,  md = "k~el~"                                ),
+   kel.iv.last             = list(label = "kel (iv)"               ,  md = "kel~iv~"                              ),
+   aucinf.obs              = list(label = "AUC (inf,obs)"          ,  md = "AUC~inf,obs~"                         ),
+   aucinf.pred             = list(label = "AUC (inf,pred)"         ,  md = "AUC~inf,pred~"                        ),
+   aumcinf.obs             = list(label = "AMUC (inf,obs)"         ,  md = "AMUC~inf,obs~"                        ),
+   aumcinf.pred            = list(label = "AMUC (inf,pred)"        ,  md = "AMUC~inf,pred~"                       ),
+   aucminf.obs.dn          = list(label = "AMUC (inf,obs)/Dose"    ,  md = "AMUC~inf,obs~/Dose"                   ),
+   aucminf.pred.dn         = list(label = "AMUC (inf,pred)/Dose"   ,  md = "AMUC~inf,pred~/Dose"                  ),
+   aucpext.obs             = list(label = "AUC Extrap (obs,%)"     ,  md = "AUC~Extrap,obs~(%)"                   ),
+   aucpext.pred            = list(label = "AUC Extrap (pred,%)"    ,  md = "AUC~Extrap,pred~(%)"                  ),
+   cl.obs                  = list(label = "CL (obs)"               ,  md = "CL~obs~"                              ),
+   cl.pred                 = list(label = "CL (pred)"              ,  md = "CL~pred~"                             ),
+   mrt.obs                 = list(label = "MRT (obs)"              ,  md = "MRT~obs~"                             ),
+   mrt.pred                = list(label = "MRT (pred)"             ,  md = "MRT~pred~"                            ),
+   mrt.iv.pred             = list(label = "MRT (pred,IV)"          ,  md = "MRT~pred,IV~"                         ),
+   mrt.iv.obs              = list(label = "MRT (obs,IV)"           ,  md = "MRT~obs,IV~"                          ),
+   mrt.md.pred             = list(label = "MRT (pred,MD)"          ,  md = "MRT~pred,MD~"                         ),
+   mrt.md.obs              = list(label = "MRT (obs,MD)"           ,  md = "MRT~obs,MD~"                          ),
+   vz.obs                  = list(label = "Vz (obs)"               ,  md = "Vz~obs~"                              ),   
+   vz.pred                 = list(label = "Vz (pred)"              ,  md = "Vz~pred~"                             ),   
+   vss.obs                 = list(label = "Vss (obs)"              ,  md = "Vss~obs~"                             ),   
+   vss.pred                = list(label = "Vss (pred)"             ,  md = "Vss~pred~"                            ),   
+   vss.iv.obs              = list(label = "Vss (obs,IV)"           ,  md = "Vss~obs,IV~"                          ),   
+   vss.iv.pred             = list(label = "Vss (pred,IV)"          ,  md = "Vss~pred,IV~"                         ),   
+   vss.md.obs              = list(label = "Vss (obs,MD)"           ,  md = "Vss~obs,MD~"                          ),   
+   vss.md.pred             = list(label = "Vss (pred,MD)"          ,  md = "Vss~pred,MD~"                         ),   
+   vd.obs                  = list(label = "Vd (obs,MD)"            ,  md = "Vd~obs,MD~"                           ),   
+   vd.pred                 = list(label = "Vd (pred,MD)"           ,  md = "Vd~pred,MD~"                          ),   
+   thalf.eff.obs           = list(label = "Half-life (obs,eff)"    ,  md = "t~1/2,obs,eff~"                       ),   
+   thalf.eff.pred          = list(label = "Half-life (pred,eff)"   ,  md = "t~1/2,pred,eff~"                      ),   
+   thalf.eff.iv.obs        = list(label = "Half-life (obs,eff,IV)" ,  md = "t~1/2,obs,eff,IV~"                    ),   
+   thalf.eff.iv.pred       = list(label = "Half-life (pred,eff,IV)",  md = "t~1/2,pred,eff,IV~"                   ),   
+   kel.last.obs            = list(label = "kel (obs)"              ,  md = "k~el,obs~"                            ),
+   kel.last.pred           = list(label = "kel (pred)"             ,  md = "k~el,pred~"                           ),
+   kel.iv.obs              = list(label = "kel (obs,IV)"           ,  md = "k~el,obs,IV~"                         ),
+   kel.iv.pred             = list(label = "kel (pred,IV)"          ,  md = "k~el,pred,IV~"                        ))
 
 PKNCA_interval_cols = PKNCA::get.interval.cols()
 
@@ -13161,37 +13181,48 @@ for(pkparam in names(res_PKNCA)){
 
 res_ubiquity = list(
   ID              = list(label       = "ID",       
+                         md          = "ID",
                          description = "Subject (serial sampling) or Group ID (sparse sampling)",
                          from        = "ubiquity"),
   Dose_Number     = list(label       = "Dose Num",       
+                         md          = "Dose~N~",
                          description = "Dose number",
                          from        = "ubiquity"),
   cmax            = list(label       = "Cmax",       
+                         md          = "C~max~",
                          description = "Maximum observed concentration",
                          from        = "ubiquity"),
-  tmax            = list(label       = "Tmax",       
-                         description = "Time of maximum observed concentration",
-                         from        = "ubiquity"),
+# tmax            = list(label       = "Tmax",       
+#                        md          = "T~max~",
+#                        description = "Time of maximum observed concentration",
+#                        from        = "ubiquity"),
   Nobs            = list(label       = "Nobs",       
+                         md          = "N~obs~",
                          description = "Number of observations",         
                          from        = "ubiquity"),
   Dose            = list(label       = "Dose",       
+                         md          = "Dose",
                          description = "Dose in dosing units",
                          from        = "ubiquity"),
   Dose_CU         = list(label       = "Dose (CU)",       
+                         md          = "Dose~CU~",
                          description = "Dose in concentration units",
                          from        = "ubiquity"),
   C0              = list(label       = "C0 Extrap",
-                         description = "C0 extrapolated to time zero",
+                         md          = "C~0,ext~",
+                         description = "Time zero extrapolated concentration",
                          from        = "ubiquity"),
   Vp_obs          = list(label       = "Vp (obs)",
+                         md          = "V~p,obs~",
                          description = "Plasma volume of IV dose based on first observed concentration", 
                          from        = "ubiquity"),
   AUCBailer       = list(label       = "AUC (sparse)",
-                         description = "AUC last using Bailers method",
+                         md          = "AUC~sparse~",
+                         description = "AUC to last time point using Bailers method",
                          from        = "ubiquity"),
   AUCBailer_var   = list(label       = "AUC (sparse) var",
-                         description = "Variance of AUC last using Bailers method",
+                         md          = "Var(AUC~sparse~)",
+                         description = "Variance of AUC to last time point using Bailers method",
                          from        = "ubiquity"))
 
 

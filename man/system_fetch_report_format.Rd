@@ -4,7 +4,7 @@
 \alias{system_fetch_report_format}
 \title{Fetch The Specified Report Formatting Information}
 \usage{
-system_fetch_report_format(cfg, rptname = "default", element = "Table")
+system_fetch_report_format(cfg, rptname = "default", element = "Table_Labels")
 }
 \arguments{
 \item{cfg}{ubiquity system object}
@@ -13,7 +13,7 @@ system_fetch_report_format(cfg, rptname = "default", element = "Table")
 
 \item{element}{report element to fetch: for Word reports it can be 
 "default" (default),       "Normal",        "Code",  "TOC",          
-"Heading_1",  "Heading_2", "Heading_3", "Table",
+"Heading_1",  "Heading_2", "Heading_3", "Table", "Table_Labels",
 "Table_Caption", "Figure",  and  "Figure_Caption"}
 }
 \value{
