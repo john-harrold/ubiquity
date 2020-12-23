@@ -184,7 +184,7 @@ also be combined *H*~*2*~*0*.
 
 You can change colors to  <color:red>red</color>, <color:blue>blue</color>,
 etc and change the <shade:#33ff33>shading</shade>. These can be used with
-_<::BODYPHEXAMPLE::>_ and can be combined such as changing
+_===BODYPHEXAMPLE===_ and can be combined such as changing
 <shade:orange><color:green>both color and shading</color></shade>. You can
 also change the font to things like <ff:symbol>*symbol*</ff>."
 
@@ -332,25 +332,25 @@ cfg = system_report_doc_add_content(cfg,
 
 
 
-cfg = system_report_doc_add_content(cfg, 
-  content_type  = "text",
-  content       = list(style   = "h1",
-                       text    = "Referencing Tables and Figures"))
-
-
-
-
-refing_text = "When you create a table or figure the content list has a key
-option. You can then use that key to reference that object in the text using
-<REF:KEY_VALUE> to insert that object number. For example: Above Table 
-<REF:TAB_FTO> shows how to insert a flextable object"
-
-cfg = system_report_doc_add_content(cfg, 
-  content_type  = "text",
-  content       = list(style  = "normal",
-                       format = "text",
-                       text   = refing_text))
-
+# To be added later:
+#  cfg = system_report_doc_add_content(cfg, 
+#    content_type  = "text",
+#    content       = list(style   = "h1",
+#                         text    = "Referencing Tables and Figures"))
+#  
+#  
+#  refing_text = "When you create a table or figure the content list has a key
+#  option. You can then use that key to reference that object in the text using
+#  <REF:KEY_VALUE> to insert that object number. For example: Above Table 
+#  <REF:TAB_FTO> shows how to insert a flextable object and Table 
+#  <REF:TAB_FTO_FORMATTED> shows how to format flextable objects using markdown
+#  notation. This is another reference to Table <REF:TAB_FTO>."
+#  
+#  cfg = system_report_doc_add_content(cfg, 
+#    content_type  = "text",
+#    content       = list(style  = "normal",
+#                         format = "text",
+#                         text   = refing_text))
 
 #--------------------
 # Document formatting

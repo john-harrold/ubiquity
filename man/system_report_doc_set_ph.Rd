@@ -29,14 +29,14 @@ cfg ubiquity system object with the placeholder content set
 \description{
 Adds or updates content to be substituted for placeholders in the specified report.  
 
-For example if you have <::HEADER_LEFT::> in the header of your document and you wanted to
+For example if you have ===HEADERLEFT=== in the header of your document and you wanted to
 replace it with the text "Upper left" you would do the following:
 
 \code{
   cfg = system_report_doc_set_ph(cfg, 
         ph_content  = "Upper Left" ,
-        ph_name     = "HEADER_LEFT", 
+        ph_name     = "HEADERLEFT", 
         ph_location = "header")}
 
-Notice the \code{ph_name} just has \code{HEADER_LEFT} and leaves off the \code{<::::>}
+Notice the \code{ph_name} just has \code{HEADERLEFT} and leaves off the \code{===} at the beginning and end of the string.
 }

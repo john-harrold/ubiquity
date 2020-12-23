@@ -329,14 +329,14 @@ cfg[["reporting"]][["meta_pptx"]][["md_def"]][["Table"]] = list(
 
 #--------------------------------------------------------------------
 # default reporting options for Word
-cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HEADER_LEFT$location               = "header"
-cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HEADER_LEFT$content                = ""
-cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HEADER_RIGHT$location              = "header"
-cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HEADER_RIGHT$content               = ""
-cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FOOTER_LEFT$location               = "footer"
-cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FOOTER_LEFT$content                = ""
-cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FOOTER_RIGHT$location              = "footer"
-cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FOOTER_RIGHT$content               = ""
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HEADERLEFT$location                = "header"
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HEADERLEFT$content                 = ""
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HEADERRIGHT$location               = "header"
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$HEADERRIGHT$content                = ""
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FOOTERLEFT$location                = "footer"
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FOOTERLEFT$content                 = ""
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FOOTERRIGHT$location               = "footer"
+cfg[["reporting"]][["meta_docx"]][["ph_content"]]$FOOTERRIGHT$content                = ""
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Normal                                 = "Normal"
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Code                                   = "Code"
 cfg[["reporting"]][["meta_docx"]][["styles"]]$Default                                = "Default"

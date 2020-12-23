@@ -9199,7 +9199,7 @@ system_report_save = function (cfg,
       for(phn in names(cfg$reporting$reports[[rptname]]$meta$ph_content)){
         # Here we pull out the value (phv) and locatio (phl) of each
         # placeholder:
-        pht = paste("<::",phn,"::>", sep="") 
+        pht = paste("===",phn,"===", sep="") 
         phv = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$content
         phl = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$location
         if(phl == "body"){
@@ -9234,24 +9234,63 @@ system_report_save = function (cfg,
         }
       }
 
-      # Putting the report back into cfg
-      cfg$reporting$reports[[rptname]]$report = tmprpt
 
-    }
 
-    # Substituting reference keys for their sequence
-    if(!is.null(cfg[["reporting"]][["reports"]][[rptname]][["key_table"]])){
-    # JMH process references here
-    #   browser()
-    #       tmprpt = officer::body_replace_all_text(
-    #            old_value      = pht, 
-    #            new_value      = phv ,
-    #            fixed          = TRUE,
-    #            only_at_cursor = FALSE,
-    #            warn           = FALSE,
-    #            x              = tmprpt
-    #            )
-    }
+    # Cross referencing with placeholders not working right now
+    #   # Substituting reference keys for their sequence
+    #   if(!is.null(cfg[["reporting"]][["reports"]][[rptname]][["key_table"]])){
+    #     key_table = cfg[["reporting"]][["reports"]][[rptname]][["key_table"]]
+    #     # Walking through each user key
+    #     for(ridx in 1:nrow(key_table)){
+
+    #       user_key      = as.character(key_table[ridx, ]$user_key)
+    #       internal_key  = as.character(key_table[ridx, ]$internal_key)
+    #       seq_text      = as.character(key_table[ridx, ]$seq_text)
+    #       ref_text      = as.character(key_table[ridx, ]$ref_text)
+
+    #       # For each key we try to find the reference key and put the cursor
+    #       # there. 
+    #       key_found = TRUE
+    #       while(key_found){
+    #          # if we find the user reference text
+    #          tcres = tryCatch(
+    #            { 
+    #             tmprpt = cursor_reach(tmprpt, ref_text)
+    #             list(key_found = TRUE, tmprpt = tmprpt)},
+    #           error = function(e) {
+    #             list(key_found=FALSE)})
+    #          
+    #          # If we find the key we replace it with "" and slip in the
+    #          # sequence
+    #          if(tcres[["key_found"]]){
+    #            cat('Key found:', ref_text) 
+    #            # Pulling the report out of the tryCatch 
+    #            tmprpt = tcres[["tmprpt"]]
+
+    #            # Removing the placeholder text:
+    #            tmprpt = officer::body_replace_all_text(
+    #                 x              = tmprpt,
+    #                 old_value      = ref_text, 
+    #                 new_value      = "",
+    #                 fixed          = TRUE,
+    #                 only_at_cursor = TRUE,
+    #                 warn           = FALSE)
+
+    #             # Slipping in a sequence
+    #             tmprpt = slip_in_seqfield(
+    #                 x     = tmprpt,
+    #                 str   = seq_text,  
+    #                 style = 'Default Paragraph Font', 
+    #                 pos   = 'after')
+    #          } else {
+    #             key_found = FALSE
+    #          }
+    #       }
+    #     }
+    #  }
+    # Putting the report back into cfg
+    cfg$reporting$reports[[rptname]]$report = tmprpt
+  }
   }
   
   if(isgood){
@@ -10262,6 +10301,8 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
     # Checking reference keys. These only make sense if there is a caption
     # otherwise there is no number to reference:
     if("key" %in% names(content) & !is.null(content[["caption"]])){
+      # JMH probably wrap this up in a funciton where you check for key names,
+      # see if the same key has been used already, etc.
       ref_key = paste("ubr_", content[["key"]], sep="")
       # Adding reference to the key table
       cfg[["reporting"]][["reports"]][[rptname]][["key_table"]] = 
@@ -10269,7 +10310,8 @@ system_report_doc_add_content = function(cfg, rptname="default", content_type=NU
           cfg[["reporting"]][["reports"]][[rptname]][["key_table"]],
           data.frame(user_key     = content[["key"]],
                      internal_key = ref_key,
-                     ref_text     = paste0(' REF ',  ref_key, ' \\h ')))
+                     seq_text     = paste0(' REF ',  ref_key, ' \\h '),
+                     ref_text     = paste0("<REF:", content[["key"]], ">")))
     }
   }
 
@@ -11161,16 +11203,16 @@ pgraphs_parse}
 #'@title Sets Placeholder Content for Word Document Report
 #'@description Adds or updates content to be substituted for placeholders in the specified report.  
 #'
-#' For example if you have <::HEADER_LEFT::> in the header of your document and you wanted to
+#' For example if you have ===HEADERLEFT=== in the header of your document and you wanted to
 #' replace it with the text "Upper left" you would do the following:
 #'
 #' \code{
 #'   cfg = system_report_doc_set_ph(cfg, 
 #'         ph_content  = "Upper Left" ,
-#'         ph_name     = "HEADER_LEFT", 
+#'         ph_name     = "HEADERLEFT", 
 #'         ph_location = "header")}
 #'
-#' Notice the \code{ph_name} just has \code{HEADER_LEFT} and leaves off the \code{<::::>}
+#' Notice the \code{ph_name} just has \code{HEADERLEFT} and leaves off the \code{===} at the beginning and end of the string.
 #'
 #'@param cfg ubiquity system object    
 #'@param rptname   report name initialized with \code{system_report_init}
