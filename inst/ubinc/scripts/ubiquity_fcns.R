@@ -9153,20 +9153,20 @@ system_report_save = function (cfg,
 
   isgood = TRUE
   
-  if(cfg$reporting$enabled){
-    if(rptname %in% names(cfg$reporting$reports)){
+  if(cfg[["reporting"]][["enabled"]]){
+    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
       # saving to report.pptx or report.doc
       if(is.null(output_file)){
-        if(cfg$reporting$reports[[rptname]]$rpttype == "Word"){
+        if(cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] == "Word"){
           use_output_file = "report.docx"
         }
-        if(cfg$reporting$reports[[rptname]]$rpttype == "PowerPoint"){
+        if(cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] == "PowerPoint"){
           use_output_file = "report.pptx"
         }
       } else {
         use_output_file = output_file
         # comparing the extension with the report type
-        if(cfg$reporting$reports[[rptname]]$rpttype == "PowerPoint"){
+        if(cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] == "PowerPoint"){
           if(!grepl(pattern="pptx$", output_file)){
             isgood = FALSE
             vp(cfg, paste("Error: The report >", rptname,"< is a PowerPoint report", sep = ""))
@@ -9174,7 +9174,7 @@ system_report_save = function (cfg,
             vp(cfg, paste("       has the wroing extension should be '.pptx'", sep = ""))
           }
         }
-        if(cfg$reporting$reports[[rptname]]$rpttype == "Word"){
+        if(cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] == "Word"){
           if(!grepl(pattern="docx$", output_file)){
             isgood = FALSE
             vp(cfg, paste("Error: The report >", rptname,"< is a Word report", sep = ""))
@@ -9191,17 +9191,17 @@ system_report_save = function (cfg,
   } 
 
   # Applying place holders for Word templates
-  if(isgood & cfg$reporting$reports[[rptname]]$rpttype == "Word"){
-    if("ph_content" %in% names(cfg$reporting$reports[[rptname]]$meta)){
+  if(isgood & cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] == "Word"){
+    if("ph_content" %in% names(cfg[["reporting"]][["reports"]][[rptname]][["meta"]])){
       # Pulling out the report to make it easier to deal with
-      tmprpt  = cfg$reporting$reports[[rptname]]$report
+      tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
       # Looping through each placeholder
-      for(phn in names(cfg$reporting$reports[[rptname]]$meta$ph_content)){
+      for(phn in names(cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["ph_content"]])){
         # Here we pull out the value (phv) and locatio (phl) of each
         # placeholder:
         pht = paste("===",phn,"===", sep="") 
-        phv = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$content
-        phl = cfg$reporting$reports[[rptname]]$meta$ph_content[[phn]]$location
+        phv = cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["ph_content"]][[phn]][["content"]]
+        phl = cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["ph_content"]][[phn]][["location"]]
         if(phl == "body"){
           tmprpt = officer::body_replace_all_text(
                old_value      = pht, 
@@ -9233,8 +9233,6 @@ system_report_save = function (cfg,
                )
         }
       }
-
-
 
     # Cross referencing with placeholders not working right now
     #   # Substituting reference keys for their sequence
@@ -9289,12 +9287,13 @@ system_report_save = function (cfg,
     #     }
     #  }
     # Putting the report back into cfg
-    cfg$reporting$reports[[rptname]]$report = tmprpt
+    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
+    
   }
   }
   
   if(isgood){
-    print(cfg$reporting$reports[[rptname]]$report, use_output_file)
+    print(cfg[["reporting"]][["reports"]][[rptname]][["report"]], use_output_file)
     vp(cfg, "")
     vp(cfg, sprintf("Report saved to: %s", use_output_file))
   }
