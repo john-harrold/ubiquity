@@ -26,7 +26,7 @@
 #'@importFrom officer ph_location_label ph_with read_pptx read_docx shortcuts  slip_in_seqfield slip_in_text 
 #'@importFrom officer styles_info unordered_list
 #'@importFrom PKNCA PKNCA.options PKNCAconc PKNCAdose PKNCAdata pk.nca get.interval.cols
-#'@importFrom utils read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
+#'@importFrom utils capture.output read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
 #'@importFrom stats median qt var sd
 #'@importFrom MASS mvrnorm
 
@@ -6403,6 +6403,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       }
     message(pstr)
     pest$sysup = paste(pest$sysup, pstr, "\n")
+    }
 
     # Writing system update text to a file
     sysup_file =file.path(cfg[["options"]][["misc"]][["output_directory"]], "system_update.txt")
@@ -6412,10 +6413,12 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
 
     # Writing session information to a file
     SI_file = file.path(cfg[["options"]][["misc"]][["output_directory"]], "sessionInfo.RData")
+    SI_text = file.path(cfg[["options"]][["misc"]][["output_directory"]], "sessionInfo.txt")
     SI = sessionInfo()
+    # SI object
     save(SI, file=SI_file)
-
-    }
+    # SI text
+    utils::capture.output(sessionInfo(), file=SI_text)
 
   } else {
     vp(cfg, sprintf('The estimation was terminated. We were unable to   '))
@@ -7144,12 +7147,14 @@ f.source      = c(f.source,      file.path(output_directory, "parameters_all.csv
 f.source      = c(f.source,      file.path(output_directory, "parameters_est.csv"))
 f.source      = c(f.source,      file.path(output_directory, "report.txt"        ))
 f.source      = c(f.source,      file.path(output_directory, "sessionInfo.RData" ))
+f.source      = c(f.source,      file.path(output_directory, "sessionInfo.txt" ))
 f.source      = c(f.source,      file.path(output_directory, "system_update.txt" ))
 
 f.destination = c(f.destination, file.path(output_directory, paste(name, "-parameters_all.csv", sep="")))
 f.destination = c(f.destination, file.path(output_directory, paste(name, "-parameters_est.csv", sep="")))
 f.destination = c(f.destination, file.path(output_directory, paste(name, "-report.txt"        , sep="")))
 f.destination = c(f.destination, file.path(output_directory, paste(name, "-sessionInfo.RData" , sep="")))
+f.destination = c(f.destination, file.path(output_directory, paste(name, "-sessionInfo.txt" ,   sep="")))
 f.destination = c(f.destination, file.path(output_directory, paste(name, "-system_update.txt" , sep="")))
 
 # clearing out the destination files to prevent old results from lingering
@@ -11308,17 +11313,19 @@ system_report_estimation = function (cfg,
   if(isgood){
 
     # File names where the estimation results should be stored:
-    fname_estimate = file.path(output_directory, paste(analysis_name, ".RData",    sep=""))
-    fname_grobs    = file.path(output_directory, paste(analysis_name, "_pr.RData", sep=""))
+    fname_estimate = file.path(output_directory, paste(analysis_name, ".RData",          sep=""))
+    fname_grobs    = file.path(output_directory, paste(analysis_name, "_pr.RData",       sep=""))
+    fname_SI_text  = file.path(output_directory, paste(analysis_name, "-sessionInfo.txt", sep=""))
     vp(cfg, "")
     vp(cfg, paste("Appending estimation results to report"))
     vp(cfg, paste("  Report:   ", rptname,            sep=""))
     vp(cfg, paste("  Type:     ", rpttype,            sep=""))
     vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
     #---------------------------
-    pe    = NULL
-    pest  = NULL
-    grobs = NULL
+    pe      = NULL
+    pest    = NULL
+    grobs   = NULL
+    SI_text = NULL
     if(file.exists(fname_estimate)){
       vp(cfg, paste("Loading estimation results from file:", fname_estimate))
       # Loads the variable pe and pest
@@ -11332,6 +11339,12 @@ system_report_estimation = function (cfg,
       load(fname_grobs)
     } else {
       vp(cfg, paste("Unable to load the figures from file:", fname_grobs))
+    }
+    if(file.exists(fname_SI_text)){
+      vp(cfg, paste("Loading the session information from file:", fname_SI_text))
+      SI_text = readLines(fname_SI_text)
+    } else {
+      vp(cfg, paste("Unable to load the session information from file:", fname_SI_text))
     }
 
     #---------------------------
@@ -11507,6 +11520,19 @@ system_report_estimation = function (cfg,
           content_type  = "text",
           content       = list(style   = "code",
                                text    = line))
+      }
+      # Appending the sessionInfo()
+      if(!is.null(SI_text)){
+        cfg = system_report_doc_add_content(cfg, 
+          content_type  = "text",
+          content       = list(style   = "h2",
+                               text    = "sessionInfo()"))
+         for(line in SI_text){
+           cfg = system_report_doc_add_content(cfg, 
+             content_type  = "text",
+             content       = list(style   = "code",
+                                  text    = line))
+         }
       }
     }
     #---------------------------
