@@ -127,6 +127,27 @@ cfg = system_report_slide_two_col(cfg,
        left_content           = lcontent,
        right_content          = lcontent)
   
+cfg = system_report_slide_two_col(cfg,
+       title                  = "Two Col Text w/Headers",      
+       sub_title              = "Two columns of text with headers",
+       content_type           = "text", 
+       right_content          = "Right Text",
+       left_content_type      = "text",
+       left_content           = "Left Text",
+       left_content_header    = "Left Header",
+       right_content_header   = "Right Header")
+
+
+cfg = system_report_slide_two_col(cfg,
+       title                  = "Two Col Text w/Headers",      
+       sub_title              = "Two columns of text with headers",
+       content_type           = "list", 
+       right_content          = c(1, "Right Text"),
+       left_content_type      = "list",
+       left_content           = c(1, "Left Text"),
+       left_content_header    = "Left Header",
+       right_content_type     = "list",
+       right_content_header   = "Right Header")
   
 cfg = system_report_slide_two_col(cfg,
        title                  = "Two columns: image and table",      
@@ -164,15 +185,16 @@ tcf$table_autofit = TRUE
 tcf$table_theme   ='theme_zebra'
 
 cfg = system_report_slide_two_col(cfg,
-       title                       = "Two columns: flex table and image with header",      
+       title                       = "Two columns: flextable and image with header",      
        sub_title                   = "With a header",
        content_type                = "list",    
        right_content_type          = "flextable",
        right_content               = tcf,
        left_content_type           = "ggplot",
        left_content                = p,
-       left_content_header         =  "Header text",  
-       right_content_header_type   =  "ggplot",
+       left_content_header_type    = "text",  
+       left_content_header         = "Header text",  
+       right_content_header_type   = "ggplot",
        right_content_header        =  p)
 
 # Example using flextables explicitly 

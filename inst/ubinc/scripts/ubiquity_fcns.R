@@ -9498,11 +9498,11 @@ system_report_slide_content = function (cfg,
                                content                = 'Text'){
   #Checking user input:
   isgood = TRUE
-  if(cfg$reporting$enabled){
-    if(rptname %in% names(cfg$reporting$reports)){
-      if( "PowerPoint" != cfg$reporting$reports[[rptname]]$rpttype){
+  if(cfg[["reporting"]][["enabled"]]){
+    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
+      if( "PowerPoint" != cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]]){
         isgood = FALSE
-        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
+        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]],"< report", sep=""))
       }
     } else {
       isgood = FALSE
@@ -9515,29 +9515,27 @@ system_report_slide_content = function (cfg,
 
   if(isgood){
     # Pulling out the meta data for the report template
-    meta = cfg$reporting$reports[[rptname]]$meta 
-
+    meta = cfg[["reporting"]][["reports"]][[rptname]][["meta"]]
     # Pulling out the report to make it easier to deal with
-    tmprpt  = cfg$reporting$reports[[rptname]]$report
-
+    tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
     # Adding the slide
     if(content_type %in% c("text", "imagefile", "ggplot", "table", "flextable", "flextable_object")){
       tmprpt = officer::add_slide(x      = tmprpt, 
-                         layout = meta$content$layout$general,
-                         master = meta$content$master$general)
-      body_index          = meta$content$indices$content_body
-      sub_title_index     = meta$content$indices$content_sub_title
-      body_ph_label       = meta$content$ph_labels$content_body
-      sub_title_ph_label  = meta$content$ph_labels$content_sub_title
+                         layout = meta[["content"]][["layout"]][["general"]],
+                         master = meta[["content"]][["master"]][["general"]])
+      body_index          = meta[["content"]][["indices"]][["content_body"]]
+      sub_title_index     = meta[["content"]][["indices"]][["content_sub_title"]]
+      body_ph_label       = meta[["content"]][["ph_labels"]][["content_body"]]
+      sub_title_ph_label  = meta[["content"]][["ph_labels"]][["content_sub_title"]]
     }
     else if(content_type == "list"){
       tmprpt = officer::add_slide(x      = tmprpt, 
-                         layout = meta$content$layout$list,
-                         master = meta$content$master$list)
-      body_index          = meta$content$indices$list_body
-      sub_title_index     = meta$content$indices$list_sub_title
-      body_ph_label       = meta$content$ph_labels$list_body
-      sub_title_ph_label  = meta$content$ph_labels$list_sub_title
+                         layout = meta[["content"]][["layout"]][["list"]],
+                         master = meta[["content"]][["master"]][["list"]])
+      body_index          = meta[["content"]][["indices"]][["list_body"]]
+      sub_title_index     = meta[["content"]][["indices"]][["list_sub_title"]]
+      body_ph_label       = meta[["content"]][["ph_labels"]][["list_body"]]
+      sub_title_ph_label  = meta[["content"]][["ph_labels"]][["list_sub_title"]]
     }
 
     # Adding Slide title/subtitle information
@@ -9557,9 +9555,9 @@ system_report_slide_content = function (cfg,
                                       ph_label     = body_ph_label)
   
     # Putting the report back into cfg
-    cfg$reporting$reports[[rptname]]$report = tmprpt
+    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
   } else {
-    vp(cfg, "system_report_slide_content() ")
+    vp(cfg, "system_report_slide_content()")
     vp(cfg, "Unable to add slide, see above for details")
   }
   
@@ -9607,11 +9605,11 @@ system_report_slide_two_col = function (cfg,
 
   #Checking user input:
   isgood = TRUE
-  if(cfg$reporting$enabled){
-    if(rptname %in% names(cfg$reporting$reports)){
-      if( "PowerPoint" != cfg$reporting$reports[[rptname]]$rpttype){
+  if(cfg[["reporting"]][["enabled"]]){
+    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
+      if( "PowerPoint" != cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]]){
         isgood = FALSE
-        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
+        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]],"< report", sep=""))
       }
     } else {
       isgood = FALSE
@@ -9625,69 +9623,69 @@ system_report_slide_two_col = function (cfg,
 
   if(isgood){
     # Pulling out the meta data for the report template
-    meta = cfg$reporting$reports[[rptname]]$meta 
+    meta = cfg[["reporting"]][["reports"]][[rptname]][["meta"]]
     # Pulling out the report to make it easier to deal with
-    tmprpt  = cfg$reporting$reports[[rptname]]$report
+    tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
 
     #-------------------------------------------------------
     #  here we initialize the correct slide and 
-    #  define the indices
+    #  define the indices/placeholders
     #
     if(content_type %in% c('text')){
       if(is.null(left_content_header) & is.null(right_content_header)){
         # Text without headers
         tmprpt = officer::add_slide(x      = tmprpt, 
-                           layout = meta$two_col$layout$text,
-                           master = meta$two_col$master$text)
+                           layout = meta[["two_col"]][["layout"]][["text"]],
+                           master = meta[["two_col"]][["master"]][["text"]])
 
-        left_index               = meta$two_col$indices$text_left
-        right_index              = meta$two_col$indices$text_right
+        left_index               = meta[["two_col"]][["indices"]][["text_left"]]
+        right_index              = meta[["two_col"]][["indices"]][["text_right"]]
         left_title_index         = NULL
         right_title_index        = NULL
 
-        sub_title_index          = meta$two_col$indices$text_sub_title
-        sub_title_ph_label       = meta$two_col$ph_labels$text_sub_title
-        left_ph_label            = meta$two_col$ph_labels$text_left
-        right_ph_label           = meta$two_col$ph_labels$text_right
+        sub_title_index          = meta[["two_col"]][["indices"]][["text_sub_title"]]
+        sub_title_ph_label       = meta[["two_col"]][["ph_labels"]][["text_sub_title"]]
+        left_ph_label            = meta[["two_col"]][["ph_labels"]][["text_left"]]
+        right_ph_label           = meta[["two_col"]][["ph_labels"]][["text_right"]]
         left_title_ph_label      = NULL
         right_title_ph_label     = NULL
 
       } else {
         # Text with headers
         tmprpt = officer::add_slide(x      = tmprpt, 
-                           layout = meta$two_col$layout$text_head,
-                           master = meta$two_col$master$text_head)
+                           layout = meta[["two_col"]][["layout"]][["text_head"]],
+                           master = meta[["two_col"]][["master"]][["text_head"]])
 
-        left_index               = meta$two_col$indices$text_head_left
-        right_index              = meta$two_col$indices$text_head_right
-        left_title_index         = meta$two_col$indices$text_head_left_title
-        right_title_index        = meta$two_col$indices$text_head_right_title
-        sub_title_index          = meta$two_col$indices$text_head_sub_title
+        left_index               = meta[["two_col"]][["indices"]][["text_head_left"]]
+        right_index              = meta[["two_col"]][["indices"]][["text_head_right"]]
+        left_title_index         = meta[["two_col"]][["indices"]][["text_head_left_title"]]
+        right_title_index        = meta[["two_col"]][["indices"]][["text_head_right_title"]]
+        sub_title_index          = meta[["two_col"]][["indices"]][["text_head_sub_title"]]
+       #sub_title_index          = meta[["two_col"]][["indices"]][["text_head_sub_title"]]
 
-        sub_title_index          = meta$two_col$indices$text_head_sub_title
-        sub_title_ph_label       = meta$two_col$ph_labels$text_head_sub_title
-        left_ph_label            = meta$two_col$ph_labels$text_head_left
-        right_ph_label           = meta$two_col$ph_labels$text_head_right
-        left_title_ph_label      = meta$two_col$ph_labels$text_head_left_title
-        right_title_ph_label     = meta$two_col$ph_labels$text_head_right_title
+        sub_title_ph_label       = meta[["two_col"]][["ph_labels"]][["text_head_sub_title"]]
+        left_ph_label            = meta[["two_col"]][["ph_labels"]][["text_head_left"]]
+        right_ph_label           = meta[["two_col"]][["ph_labels"]][["text_head_right"]]
+        left_title_ph_label      = meta[["two_col"]][["ph_labels"]][["text_head_left_title"]]
+        right_title_ph_label     = meta[["two_col"]][["ph_labels"]][["text_head_right_title"]]
       }
     }else if(content_type %in% c('list')){
       if(is.null(left_content_header) & is.null(right_content_header)){
         # List without headers
         tmprpt = officer::add_slide(x      = tmprpt, 
-                           layout = meta$two_col$layout$list,
-                           master = meta$two_col$master$list)
+                           layout = meta[["two_col"]][["layout"]][["list"]],
+                           master = meta[["two_col"]][["master"]][["list"]])
 
-        left_index               = meta$two_col$indices$list_left
-        right_index              = meta$two_col$indices$list_right
+        left_index               = meta[["two_col"]][["indices"]][["list_left"]]
+        right_index              = meta[["two_col"]][["indices"]][["list_right"]]
         left_title_index         = NULL
         right_title_index        = NULL
-        sub_title_index          = meta$two_col$indices$list_sub_title
+        sub_title_index          = meta[["two_col"]][["indices"]][["list_sub_title"]]
 
-        sub_title_index          = meta$two_col$indices$list_sub_title
-        sub_title_ph_label       = meta$two_col$ph_labels$list_sub_title
-        left_ph_label            = meta$two_col$ph_labels$list_left
-        right_ph_label           = meta$two_col$ph_labels$list_right
+      # sub_title_index          = meta[["two_col"]][["indices"]][["list_sub_title"]]
+        sub_title_ph_label       = meta[["two_col"]][["ph_labels"]][["list_sub_title"]]
+        left_ph_label            = meta[["two_col"]][["ph_labels"]][["list_left"]]
+        right_ph_label           = meta[["two_col"]][["ph_labels"]][["list_right"]]
         left_title_ph_label      = NULL
         right_title_ph_label     = NULL
 
@@ -9696,21 +9694,21 @@ system_report_slide_two_col = function (cfg,
       } else {
         # List with headers
         tmprpt = officer::add_slide(x      = tmprpt, 
-                           layout = meta$two_col$layout$list_head,
-                           master = meta$two_col$master$list_head)
+                           layout = meta[["two_col"]][["layout"]][["list_head"]],
+                           master = meta[["two_col"]][["master"]][["list_head"]])
 
-        left_index         = meta$two_col$indices$list_head_left
-        right_index        = meta$two_col$indices$list_head_right
-        left_title_index   = meta$two_col$indices$list_head_left_title
-        right_title_index  = meta$two_col$indices$list_head_right_title
-        sub_title_index    = meta$two_col$indices$list_head_sub_title
+        left_index         = meta[["two_col"]][["indices"]][["list_head_left"]]
+        right_index        = meta[["two_col"]][["indices"]][["list_head_right"]]
+        left_title_index   = meta[["two_col"]][["indices"]][["list_head_left_title"]]
+        right_title_index  = meta[["two_col"]][["indices"]][["list_head_right_title"]]
+        sub_title_index    = meta[["two_col"]][["indices"]][["list_head_sub_title"]]
 
-        sub_title_index          = meta$two_col$indices$list_head_sub_title
-        sub_title_ph_label       = meta$two_col$ph_labels$list_head_sub_title
-        left_ph_label            = meta$two_col$ph_labels$list_head_left
-        right_ph_label           = meta$two_col$ph_labels$list_head_right
-        left_title_ph_label      = meta$two_col$ph_labels$list_head_left_title
-        right_title_ph_label     = meta$two_col$ph_labels$list_head_right_title
+       #sub_title_index          = meta$two_col$indices$list_head_sub_title
+        sub_title_ph_label       = meta[["two_col"]][["ph_labels"]][["list_head_sub_title"]]
+        left_ph_label            = meta[["two_col"]][["ph_labels"]][["list_head_left"]]
+        right_ph_label           = meta[["two_col"]][["ph_labels"]][["list_head_right"]]
+        left_title_ph_label      = meta[["two_col"]][["ph_labels"]][["list_head_left_title"]]
+        right_title_ph_label     = meta[["two_col"]][["ph_labels"]][["list_head_right_title"]]
       }
     }
 
@@ -9727,8 +9725,6 @@ system_report_slide_two_col = function (cfg,
       tmprpt = officer::ph_with(x=tmprpt, location = officer::ph_location_type(type = "title"),  value=title) } 
     if(!is.null(sub_title_index) & !is.null(sub_title)){
       tmprpt = officer::ph_with(x=tmprpt,  location=officer::ph_location_label(ph_label=sub_title_ph_label), value=sub_title) }
-
-
 
     #
     # Creating the headers
@@ -9776,7 +9772,7 @@ system_report_slide_two_col = function (cfg,
 
 
     # Putting the report back into cfg
-    cfg$reporting$reports[[rptname]]$report = tmprpt
+    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
   } else {
     vp(cfg, "system_report_slide_two_col() ")
     vp(cfg, "Unable to add slide, see above for details")
@@ -9813,11 +9809,11 @@ system_report_slide_section = function (cfg,
 
   #Checking user input:
   isgood = TRUE
-  if(cfg$reporting$enabled){
-    if(rptname %in% names(cfg$reporting$reports)){
-      if( "PowerPoint" != cfg$reporting$reports[[rptname]]$rpttype){
+  if(cfg[["reporting"]][["enabled"]]){
+    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
+      if( "PowerPoint" != cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]]){
         isgood = FALSE
-        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
+        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]],"< report", sep=""))
       }
     } else {
       isgood = FALSE
@@ -9830,14 +9826,14 @@ system_report_slide_section = function (cfg,
 
   if(isgood){
     # Pulling out the meta data for the report template
-    meta = cfg$reporting$reports[[rptname]]$meta 
+    meta = cfg[["reporting"]][["reports"]][[rptname]][["meta"]]
     # Pulling out the report to make it easier to deal with
-    tmprpt  = cfg$reporting$reports[[rptname]]$report
+    tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
 
     # Adding the title slide
     tmprpt = officer::add_slide(x      = tmprpt, 
-                       layout = meta$section$layout$general,
-                       master = meta$section$master$general)
+                       layout = meta[["section"]][["layout"]][["general"]],
+                       master = meta[["section"]][["master"]][["general"]])
 
 
     # Adding Slide title/subtitle information
@@ -9845,8 +9841,8 @@ system_report_slide_section = function (cfg,
       if(meta$section$type$title == "ctrTitle"){
         tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "ctrTitle"), value=title) 
        } else {
-         tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta$section$type$title), 
-                                              index    = meta$section$indices$title, 
+         tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta[["section"]][["type"]][["title"]]), 
+                                              index    = meta[["section"]][["indices"]][["title"]],
                                               value    = title) 
        }
      } 
@@ -9854,14 +9850,14 @@ system_report_slide_section = function (cfg,
       if(meta$section$type$sub_title == "subTitle"){
         tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "subTitle"), value=sub_title) 
        } else {
-        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta$section$type$sub_title), 
-                                    index    = meta$section$indices$sub_title, 
+        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta[["section"]][["type"]][["sub_title"]]),
+                                    index    = meta[["section"]][["indices"]][["sub_title"]],
                                     value    = sub_title) 
        }
      }
 
     # Putting the report back into cfg
-    cfg$reporting$reports[[rptname]]$report = tmprpt
+    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
   } 
 
   if(!isgood){
@@ -9898,11 +9894,11 @@ system_report_slide_title   = function (cfg,
 
   #Checking user input:
   isgood = TRUE
-  if(cfg$reporting$enabled){
-    if(rptname %in% names(cfg$reporting$reports)){
-      if( "PowerPoint" != cfg$reporting$reports[[rptname]]$rpttype){
+  if(cfg[["reporting"]][["enabled"]]){
+    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
+      if( "PowerPoint" != cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]]){
         isgood = FALSE
-        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
+        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]],"< report", sep=""))
       }
     } else {
       isgood = FALSE
@@ -9915,37 +9911,36 @@ system_report_slide_title   = function (cfg,
 
   if(isgood){
     # Pulling out the meta data for the report template
-    meta = cfg$reporting$reports[[rptname]]$meta 
+    meta = cfg[["reporting"]][["reports"]][[rptname]][["meta"]]
     # Pulling out the report to make it easier to deal with
-    tmprpt  = cfg$reporting$reports[[rptname]]$report
-
+    tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
     # Adding the title slide
     tmprpt = officer::add_slide(x      = tmprpt, 
-                       layout = meta$title$layout$general,
-                       master = meta$title$master$general)
+                       layout = meta[["title"]][["layout"]][["general"]],
+                       master = meta[["title"]][["master"]][["general"]])
 
     # Adding Slide title/subtitle information
     if(meta$title$type$title == "ctrTitle"){
       tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "ctrTitle"), value=title) 
      } else {
-      tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta$title$type$title), 
-                                           index    = meta$title$indices$title, 
+      tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta[["title"]][["type"]][["title"]]), 
+                                           index    = meta[["title"]][["indices"]][["title"]],
                                            value    = title) 
      }
     if(!is.null(sub_title)){
       if(meta$title$type$sub_title == "subTitle"){
         tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "subTitle"), value=sub_title) 
        } else {
-        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta$title$type$sub_title), 
-                                             index    = meta$title$indices$sub_title, 
-                                             value    = sub_title) 
+        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta[["title"]][["type"]][["sub_title"]]),
+                                    index    = meta[["title"]][["indices"]][["sub_title"]],
+                                    value    = sub_title) 
        }
      }
 
     # Putting the report back into cfg
-    cfg$reporting$reports[[rptname]]$report = tmprpt
+    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
   } else {
-    vp(cfg, "system_report_slide_title() ")
+    vp(cfg, "system_report_slide_title()")
     vp(cfg, "Unable to add slide, see above for details")
 
   }

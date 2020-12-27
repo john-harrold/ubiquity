@@ -268,16 +268,15 @@ cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$list_head_right   
 cfg[["reporting"]][["meta_pptx"]][["two_col"]][["layout"]]$text_head                  = "two_content_header_text"
 cfg[["reporting"]][["meta_pptx"]][["two_col"]][["master"]]$text_head                  = "Office Theme"             
 cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_sub_title       = 6
-cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_left_title      = 1 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_left_title      = 2 
 cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_left            = 3 
-cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_right_title     = 2 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_right_title     = 1 
 cfg[["reporting"]][["meta_pptx"]][["two_col"]][["indices"]]$text_head_right           = 4 
-cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_sub_title     = "Content Placeholder 10"
-cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_left_title    = "Text Placeholder 2" 
-cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_left          = "Content Placeholder 2" 
-cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_right_title   = "Text Placeholder 4" 
-cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_right         = "Content Placeholder 3" 
-
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_sub_title     = "Text Placeholder 2"
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_left_title    = "Content Placeholder 3" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_left          = "Picture 7" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_right_title   = "Content Placeholder 2" 
+cfg[["reporting"]][["meta_pptx"]][["two_col"]][["ph_labels"]]$text_head_right         = "Content Placeholder 10" 
 
 
 # Each place holder has dimensions of:

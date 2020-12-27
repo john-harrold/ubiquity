@@ -25,7 +25,18 @@ org_pptx_meta = function(){
 # system_report_view_layout(cfg, output_file="layout.pptx")
 #
 # Open the layout.pptx file in PowerPoint and fill in the information below
-# for each of the slide masters:
+# for each of the slide masters.
+#
+# Once that is done you can use your organization template in the following
+# way:
+#   - source your myOrg.R file
+#   - initialize the report with the correct template and meta functions
+# 
+# source(myOrg.R)
+# cfg = system_report_init(cfg, 
+#         meta     = org_pptx_meta(),
+#         template = "myOrg.pptx")
+# 
 #--------------------------------------------------------------------
 # default reporting options
 # 
@@ -183,8 +194,19 @@ org_docx_meta = function(){
 #
 # system_report_view_layout(cfg, output_file="layout.docx")
 #
-# Open the layout.docx file in Word and fill in the information below for each
-# of the placeholders and styles
+# Open the layout.docx file in Word and fill in the information below
+# for each of the placeholders, styles, captions and markdown definitions
+#
+# Once that is done you can use your organization template in the following
+# way:
+#   - source your myOrg.R file
+#   - initialize the report with the correct template and meta functions
+# 
+# source(myOrg.R)
+# cfg = system_report_init(cfg, 
+#         meta     = org_docx_meta(),
+#         template = "myOrg.docx")
+
 meta = list(ph_content = list(),
             styles     = list(),
             captions   = list(),
