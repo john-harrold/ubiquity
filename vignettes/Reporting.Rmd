@@ -38,13 +38,13 @@ This should create the following scripts
 Then general process for creating a report is:
 
 1. Initialize a report using the function ``system_report_init``
-2. Use the functions that begin with ``system_report`` to add content to the report
+2. Use the functions that begin with ``system_report_slide`` to add content to the report
 3. Lastly, save the output using ``system_report_save``
 
 
 ## PowerPoint reports (``make_report_PowerPoint.R``)
 
-Trying to keep track of different slide layouts and their indices can be cumbersome.  The following functions have been created to allow slides to be created easily: 
+Trying to keep track of different slide layouts, placeholder names, and indices can be cumbersome.  The following functions have been created to allow slides to be created easily: 
 
 * ``system_report_init`` - Initialize a new report from a template
 * ``system_report_view_layout`` - Generate a PowerPoint file from a template labeling the different elements each slide layout
@@ -204,7 +204,27 @@ cfg = system_report_slide_content(cfg,
            content      = tcont)
 ```
 
-To provide a little more formatting, two column masters are provided. The ``content_type`` argument indicates the type of text that can be included. It  should be either ``"list"`` or ``"text"``. If the left or right content is to contain a table or figure it can be overwritten. 
+To provide a little more formatting, two column slides are provided. The ``content_type`` argument indicates the type of text that can be included. It  should be either ``"list"`` or ``"text"``. 
+
+```{r results="hide", message=FALSE, warning=FALSE}
+cfg = system_report_slide_two_col(cfg,
+        title                  = "Two columns of plain text",      
+        sub_title              = "Subtitle", 
+        content_type           = "text", 
+        left_content           = "Left Side",
+        right_content          = "Right Side")
+
+cfg = system_report_slide_two_col(cfg,
+       title                  = "Two Col Text w/Headers",      
+       sub_title              = "Two columns of text with headers",
+       content_type           = "list", 
+       right_content          = c(1, "Right Text"),
+       left_content_type      = "list",
+       left_content           = c(1, "Left Text"),
+       right_content_type     = "list")
+```
+
+The main content type can be overwritten if the left or right content is to contain a table or figure it can be overwritten. 
 
 ```{r results="hide", message=FALSE, warning=FALSE}
 cfg = system_report_slide_two_col(cfg,
@@ -216,7 +236,33 @@ cfg = system_report_slide_two_col(cfg,
        right_content          = tcont)
 ```
 
-You can specify column headers if you like. These can be ``text``, ``imagefile``, ``ggplot``, ``table`` or ``flextable``.
+You can specify column headers if you like:
+
+```{r results="hide", message=FALSE, warning=FALSE}
+
+cfg = system_report_slide_two_col(cfg,
+       title                  = "Two Col Text w/Headers",      
+       sub_title              = "Two columns of text with headers",
+       content_type           = "text", 
+       right_content          = "Right Text",
+       left_content_type      = "text",
+       left_content           = "Left Text",
+       left_content_header    = "Left Header",
+       right_content_header   = "Right Header")
+
+cfg = system_report_slide_two_col(cfg,
+       title                  = "Two Col Text w/Headers",      
+       sub_title              = "Two columns of text with headers",
+       content_type           = "list", 
+       right_content          = c(1, "Right Text"),
+       left_content_type      = "list",
+       left_content           = c(1, "Left Text"),
+       left_content_header    = "Left Header",
+       right_content_type     = "list",
+       right_content_header   = "Right Header")
+```
+
+Headers can be can be ``text``, ``imagefile``, ``ggplot``, ``table`` or ``flextable``.
 
 ```{r results="hide", message=FALSE, warning=FALSE}
 cfg = system_report_slide_two_col(cfg,
@@ -311,9 +357,9 @@ list provides the available content types followed by a description of the forma
      - ``"level"`` number indicating the depth of the contents to display (``3``)
 * ``"text"`` content is a list containing a paragraph of text with the following elements
      - ``"text"`` string containing the text content either a string or the output of ``"fpar"`` for formatted text.
-     - ``"style"`` string containing the style either ``"normal"``, ``"code"``, ``"h1"``, ``"h2"``, ``h3``
-     - ``"format"`` string containing the format, either ``"text"``, ``"fpar"``, or ``"md"`` (default ``NULL`` assumes ``"text"`` format)
-* ``"imagefile"`` content is a list containing describing an image file with the following elements
+     - ``"style"`` string containing the style either ``"normal"``, ``"code"``, ``"h1"``, ``"h2"``, ``"h3"``
+     - ``"format"`` string containing the format, either ``"text"`` (default ``NULL`` assumes ``"text"`` format), ``"fpar"`` (output of ``fpar`` formatted text), or ``"md"`` (text with Markdown to be rendered internally) 
+* ``"imagefile"`` content is a list containing information describing an image file with the following elements
      - ``image`` string containing path to image file
      - ``caption`` caption of the image
      - ``caption_format`` string containing the format, either ``"text"``, ``"fpar"``, or ``"md"`` (default ``NULL`` assumes ``"text"`` format)
@@ -327,14 +373,14 @@ list provides the available content types followed by a description of the forma
      - ``key`` unique key for cross referencing e.g. "FIG_DATA" (``NULL``) 
      - ``height`` height of the image (``NULL``)
      - ``width`` width of the image (``NULL``)
-* ``"table"`` content list containing the table content and other options with the following elements
+* ``"table"`` content is a list containing the table content and other options with the following elements
      - ``table`` data frame containing the tabular data
      - ``caption`` caption of the table 
      - ``caption_format`` string containing the format, either ``"text"``, ``"fpar"``, or ``"md"`` (default ``NULL`` assumes ``"text"`` format)
      - ``key`` unique key for cross referencing e.g. "TAB_DATA" (``NULL``) 
      - ``header`` Boolean variable to control displaying the header (``TRUE``)
      - ``first_row`` Boolean variable to indicate that the first row contains header information (``TRUE``)
-* ``"flextable"`` list containing flextable content and other options with the following elements (defaults in parenthesis):
+* ``"flextable"`` content is a list containing flextable content and other options with the following elements (defaults in parenthesis):
      - ``table`` Data frame containing the tabular data
      - ``caption`` caption of the table 
      - ``caption_format`` string containing the format, either ``"text"``, ``"fpar"``, or ``"md"`` (default ``NULL`` assumes ``"text"`` format)
@@ -344,8 +390,8 @@ list provides the available content types followed by a description of the forma
      - ``table_body_alignment``, ``table_header_alignment`` ("center") Controls alignment
      - ``table_autofit`` (``TRUE``) Automatically fit content, or specify the cell width and height with ``cwidth`` (``0.75``) and ``cheight`` (``0.25``)
      - ``table_theme`` (``"theme_vanilla"``) Table theme
-* ``"flextable_object"``  List specifying the a user defined flextable object with the following elements:
-     - ``caption`` text containing the caption of the figure
+* ``"flextable_object"``  content is a list specifying the a user defined flextable object with the following elements:
+     - ``caption`` caption of the table (``NULL``)  
      - ``ft`` flextable object
      - ``key`` unique key for cross referencing e.g. "TAB_DATA" (``NULL``) 
 
@@ -387,7 +433,7 @@ cfg = system_report_doc_add_content(cfg,
                        text    = "This is plain text"))
 ```
 
-You can also format text using two methods.First you can use the ``fpar``
+Formatted text can be created using two methods.First you can use the ``fpar``
 command from ``officer``:
 
 ```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
@@ -403,9 +449,8 @@ cfg = system_report_doc_add_content(cfg,
                        text    = fpartext))
 ```
 
-Lastly you can specify formatting use a type of markdown. This also includes
-options for font colors and font families. For more information see
-``?md_to_officer``.  
+Lastly you can specify formatting using Markdown. This also includes
+options for font colors and font families. The following text demonstrates the different types of Markdown. For more information see ``?md_to_officer``.  
 
 ```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
 mdtext = "Text can be specified in markdown format as well. You can specify
@@ -424,7 +469,6 @@ cfg = system_report_doc_add_content(cfg,
                        text   = mdtext))
 ```
 
-
 #### Including figures
 
 First we create an image (ggplot object and file):
@@ -435,7 +479,7 @@ imagefile = tempfile(pattern="image", fileext=".png")
 ggsave(filename=imagefile, plot=p, height=5.15, width=9, units="in")
 ```
 
-Figures can be added by either referencing them from a file or inserting a ggplot object directly. This is done by specifying the content type ``"imagefile"`` or ``"ggplot"``. The content contains the file name or ggplot object and other information such as the image width, caption text, etc. 
+Figures can be added by either referencing them from a file or inserting a ggplot object directly. This is done by specifying the content type ``"imagefile"`` or ``"ggplot"``, respectively. The content contains the filename or ggplot object and other information such as the image width, caption text, etc. 
 
 ```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
 cfg = system_report_doc_add_content(cfg, 
@@ -524,10 +568,7 @@ The code above creates the following flextable:
 knitr::knit_print(ft)
 ```
 
-
-
-To insert this inot the document we need to supply a list containing both the caption and the flextable object. The 
-reference key field is optional:
+To insert this into the document we need to supply a list containing both the caption and the flextable object. The reference key field is optional:
 
 ```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
 tcfo = list(caption = "This is a flextable object",
@@ -538,7 +579,6 @@ cfg = system_report_doc_add_content(cfg,
   content_type  = "flextable_object",
   content       = tcfo)
 ```
-
 
 To use markdown in the flextable object you can use the function ``md_to_oo``. The following code will format the table above: 
 
@@ -551,10 +591,10 @@ ftf = flextable::flextable(data)                                                
                         value = c(md_to_oo("*C*~*max*~")$oo, md_to_oo("*ng/ml*")$oo))                  %>%
       flextable::compose(j    = "AUClast",                                                    
                         part  = "header",                                                          
-                        value = c(md_to_oo("*AUC*~*last*~")$oo, md_to_oo("*ml.hr*^*-1*^")$oo))         %>%
+                        value = c(md_to_oo("*AUC*~*last*~")$oo, md_to_oo("*ml\U00B7hr*^*-1*^")$oo))         %>%
       flextable::compose(j    = "AUCinf",                                                    
                         part  = "header",                                                          
-                        value = c(md_to_oo("*AUC*~*inf*~")$oo, md_to_oo("*ml.hr*^*-1*^")$oo))          %>%
+                        value = c(md_to_oo("*AUC*~*inf*~")$oo, md_to_oo("*ml\U00B7hr*^*-1*^")$oo))          %>%
       flextable::compose(j     = "property",                                                         
                          i     = match("mean", data$property),                        
                          part  = "body",                                                          
@@ -568,7 +608,7 @@ ftf = flextable::flextable(data)                                                
 ```
 
 
-This produces the following formatted output:
+This produces the following formatted output (note that the symbols will not be rendered correctly here but will be rendered correclty in Word):
 
 ```{r eval=TRUE, message=FALSE, warning=FALSE, echo=FALSE}
 knitr::knit_print(ftf)
@@ -601,7 +641,7 @@ The ``ph_location`` can be either ``"header"``, ``"footer"``, or ``"body"``. Not
 
 #### Page orientation and columns 
 
-To alter the orientation of the page (portrait vs. landscape) or the number of columns. This is done using the ``system_report_doc_format_section``. When this function is called it applies to all of the added content since the last time this function was called. For example to switch to landscape for a figure we must end the current section:
+To alter the orientation of the page (portrait vs. landscape) or the number of columns you would use ``system_report_doc_format_section``. When this function is called it applies to all of the added content since the last time this function was called. For example to switch to landscape for a figure we must end the current section:
 
 ```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
 cfg = system_report_doc_format_section(cfg, section_type="continuous")
@@ -621,7 +661,6 @@ cfg = system_report_doc_add_content(cfg,
 ```
 
 Next we can apply the apply the landscape orientation to the figure.
-
 
 ```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
 cfg = system_report_doc_format_section(cfg, section_type="landscape", h=8, w=10)
@@ -651,7 +690,7 @@ To use a custom template for your organization you need to do the following:
 
 #### Creating a PowerPoint template for your organization
 
-Using your organizational template create slide masters below with the content elements to the right. The title and subtitle elements of the ``title_slide`` and ``section_slide`` should be of the type ``ctrTitle`` and ``subTitle``, respecitvely. For the rest of the slides the title elements should be of the type ``title``, and the other elements should simply be of type ``body``. The format of the body elements should be plain text unless identified parenthetically below.
+Using your organizational template create slide masters below with the content elements to the right. The title element of the ``title_slide`` and ``section_slide`` should be of the type ``ctrTitle``. For the rest of the slides the title elements should be of the type ``title``, and the other elements should simply be of type ``body``. The format of the body elements should be plain text unless identified parenthetically below.
 
 
 ----------------------------------------------------------------------------------------------------------------
@@ -677,6 +716,7 @@ Master layout name          Content elements
 
 ----------------------------------------------------------------------------------------------------------------
 
+
 #### Creating a Word template for your organization
 
 In your Word organizational template you will need to create a Word template file with the
@@ -691,22 +731,6 @@ following styles:
 * Table - General/plain table format
 * Table_Caption - Format of captions for tables
 * Figure_Caption- Format of captions for figures
-
-You will need to edit the ``org_docx_meta`` function and put the style names from your word doucment into the appropriate location in the ``meta`` list defiend in that fuction. You can also customize how figure and table captions are displayed. Because of how markdown is created elements using the ``"md"`` format need to have their default font attributes defined. You need to do this for each of the styles above. For example the following defines the default text properties for the ``Normal`` style:
-
-```
-meta[["md_def"]][["Normal"]] = list(
-        color          = "black",
-        font.size      = 12,
-        bold           = FALSE,
-        italic         = FALSE,
-        underlined     = FALSE,
-        font.family    = "Cambria (Body)",
-        vertical.align = "baseline",
-        shading.color  = "transparent")
-```
-
-To do this open each style in Word and set the elements in the list to the values in Word. 
 
 
 #### Creating the layout file for the PowerPoint template
@@ -745,9 +769,29 @@ Next you need to map information in your document templates. This will be done w
 tr = system_fetch_template(cfg, template="myOrg")
 ```
 
-This should create the file ``myOrg.R`` in the current directory. In this file modify the function named ``org_pptx_meta`` for PowerPoint templates. This returns the variable ``meta`` which contains this mapping information.  You need to look at the information in ``layout.pptx`` and make sure it matches the information returned in ``meta``.
+This should create the file ``myOrg.R`` in the current directory. In this file has two functions defined:  modify the  ``org_pptx_meta`` contains the mapping information for PowerPoint templates and ``org_docx_meta`` contains the same information for Word templates. The comments in ``myOrg.R`` can be useful in understanding how the content should be modified. 
 
-Similarly you can modify the function ``org_docx_meta`` for Word templates. Make sure that the styles in this function point to the correct styles in your Word template.
+#### PowerPoint template mapping
+
+In the ``myOrg.R`` file you need to edit the ``org_pptx_meta`` function. The list ``meta`` contains default mapping information. You should open the ``layout.pptx`` generated above and alter the values in ``meta`` to match the values in the layout. 
+
+#### Word template mapping
+
+Similarly, you will need to edit the ``org_docx_meta`` function and put the style names from your Word document into the appropriate location in the ``meta`` list defined in that function. You can also customize how figure and table captions are displayed. Because of how markdown is created, elements using the ``"md"`` format need to have their default font attributes defined. You need to do this for each of the styles above. For example the following defines the default text properties for the ``Normal`` style:
+
+```
+meta[["md_def"]][["Normal"]] = list(
+        color          = "black",
+        font.size      = 12,
+        bold           = FALSE,
+        italic         = FALSE,
+        underlined     = FALSE,
+        font.family    = "Cambria (Body)",
+        vertical.align = "baseline",
+        shading.color  = "transparent")
+```
+
+To do this open each style in Word and set the elements in the list to the values in Word. 
 
 #### Using your own template
 
@@ -769,12 +813,11 @@ cfg = system_report_init(cfg  = cfg,
             template = "mytemplate.docx")
 ```
 
-Now you can use the functions outlined above to add content to these reports.
+Note that you do not have to specify the ``repttype`` because that is inferred from the ``template``. Now you can use the functions outlined above to add content to these reports.
 
 ## Integration with ubiquity workflows
 
-Ubiquity provides reporting functionality for the different workflows by
-allowing the results of those workflows to be appended to open reports. 
+Ubiquity provides reporting functionality for the different workflows by allowing the results of those workflows to be appended to open reports. 
 
 ### Parameter estimation
 
@@ -798,7 +841,7 @@ cfg = system_report_nca(cfg, analysis_name = "default")
 
 ## Modifying reports directly with ``officer``
 
-Sometimes the functions provided above are not sufficient to get what you want done. It may be more convenient to directly use the ``officer`` functions to add content or modify your report. If you have report initialized, you can pull that report of the ubiquity system object using ``system_report_fetch``:
+Sometimes the functions provided above are not sufficient to get what you want done. It may be more convenient to directly use the ``officer`` functions to add content or modify your report. If you have report initialized, you can pull that report out of the ubiquity system object using ``system_report_fetch``:
 
 ```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
 rpt = system_report_fetch(cfg)

@@ -10176,7 +10176,7 @@ return(rpt)}
 #'      \item \code{"style"} string containing the style either \code{"normal"}, \code{"code"}, \code{"h1"}, \code{"h2"}, \code{"h3"}
 #'      \item \code{"format"} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
 #'    }
-#'  \item \code{"imagefile"} content is a list containing describing an image file with the following elements
+#'  \item \code{"imagefile"} content is a list containing information describing an image file with the following elements
 #'   \itemize{
 #'      \item \code{image} string containing path to image file
 #'      \item \code{caption} caption of the image (\code{NULL})  
@@ -10194,7 +10194,7 @@ return(rpt)}
 #'      \item \code{height} height of the image (\code{NULL})
 #'      \item \code{width} width of the image (\code{NULL})
 #'    }
-#'  \item \code{"table"} content list containing the table content and other options with the following elements:
+#'  \item \code{"table"} content is a list containing the table content and other options with the following elements:
 #'   \itemize{
 #'      \item \code{table} data frame containing the tabular data
 #'      \item \code{caption} caption of the table (\code{NULL})  
@@ -10203,7 +10203,7 @@ return(rpt)}
 #'      \item \code{header} Boolean variable to control displaying the header (\code{TRUE})
 #'      \item \code{first_row} Boolean variable to indicate that the first row contains header information (\code{TRUE})
 #'    }
-#'  \item \code{"flextable"} list containing flextable content and other options with the following elements (defaults in parenthesis):
+#'  \item \code{"flextable"} content is a list containing flextable content and other options with the following elements (defaults in parenthesis):
 #'   \itemize{
 #'      \item \code{table} data frame containing the tabular data
 #'      \item \code{caption} caption of the table (\code{NULL})  
@@ -10216,7 +10216,7 @@ return(rpt)}
 #'      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
 #'      \item \code{table_theme} (\code{"theme_vanilla"}) Table theme
 #'    }
-#'  \item \code{"flextable_object"} user defined flextable object 
+#'  \item \code{"flextable_object"} content is a list specifying the a user defined flextable object with the following elements:
 #'   \itemize{
 #'      \item \code{ft} flextable object 
 #'      \item \code{caption} caption of the table (\code{NULL})  
