@@ -6152,12 +6152,12 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
   if(odtest$isgood){
       vp(cfg,'------------------------------------------')
       vp(cfg,'Starting Estimation ')
-      vp(cfg, sprintf('Parameters:          %s', paste(names(cfg$estimation$mi), collapse=", ")))
-      vp(cfg, sprintf('Objective Function:  %s', cfg$estimation$objective_type))
-      vp(cfg, sprintf('Optimizer:           %s', cfg$estimation$options$optimizer))
-      vp(cfg, sprintf('Method:              %s', cfg$estimation$options$method))
-      vp(cfg, sprintf('Observation Detials: %s', cfg$estimation$options$observation_function))
-      vp(cfg, sprintf('Integrating with:    %s', cfg$options$simulation_options$integrate_with))
+      vp(cfg, sprintf('Parameters:          %s', paste(names(cfg[["estimation"]][["mi"]]), collapse=", ")))
+      vp(cfg, sprintf('Objective Function:  %s', cfg[["estimation"]][["objective_type"]]))
+      vp(cfg, sprintf('Optimizer:           %s', cfg[["estimation"]][["options"]][["optimizer"]]))
+      vp(cfg, sprintf('Method:              %s', cfg[["estimation"]][["options"]][["method"]]))
+      vp(cfg, sprintf('Observation Detials: %s', cfg[["estimation"]][["options"]][["observation_function"]]))
+      vp(cfg, sprintf('Integrating with:    %s', cfg[["options"]][["simulation_options"]][["integrate_with"]]))
 
 
       #
@@ -6167,49 +6167,83 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       if(file.exists(file.path(output_directory,"report.txt"        ))){file.remove(file.path(output_directory,"report.txt"        ))}
       if(file.exists(file.path(output_directory,"parameters_all.csv"))){file.remove(file.path(output_directory,"parameters_all.csv"))}
       if(file.exists(file.path(output_directory,"parameters_est.csv"))){file.remove(file.path(output_directory,"parameters_est.csv"))}
+ 
 
+      # For global optimizers we want to check to see if the bounds make
+      # sense. 
+      if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c("pso", "ga")){
+        warn_bounds = FALSE
+        for(pidx in 1:length(cfg[["estimation"]][["parameters"]][["guess"]])){
 
+           pname = names(cfg[["estimation"]][["parameters"]][["guess"]])[pidx]
+           plb   = cfg[["estimation"]][["parameters"]][["matrix"]][["lower_bound"]][pidx]
+           pub   = cfg[["estimation"]][["parameters"]][["matrix"]][["upper_bound"]][pidx]
+
+          if(plb ==   .Machine$double.eps){
+            warn_bounds = TRUE
+            vp(cfg, paste("Warning: The lower bound of", pname, "is eps"))
+          }
+          if(plb ==  -.Machine$double.xmax){
+            warn_bounds = TRUE
+            vp(cfg, paste("Warning: The lower bound of", pname, "is -inf"))
+          }
+          if(pub ==   -.Machine$double.eps){
+            warn_bounds = TRUE
+            vp(cfg, paste("Warning: The upper bound of", pname, "is -eps"))
+          }
+          if(pub ==  .Machine$double.xmax){
+            warn_bounds = TRUE
+            vp(cfg, paste("Warning: The upper bound of", pname, "is inf"))
+          }
+        }
+
+        if(warn_bounds){
+          vp(cfg, paste("The global optimizer",cfg[["estimation"]][["options"]][["optimizer"]], "needs reasonable parameter bounds."))  
+          vp(cfg, "The bounds listed above may cause problems")
+        }
+      }
 
       tic()
 
       #
       # We perform the estimation depending on the optimizer selected 
       #
-      if(cfg$estimation$options$optimizer %in% c('optim', 'optimx', 'optimr')){
-        if( cfg$estimation$options$method %in% c("Brent", "L-BGFS-B")){
-          eval(parse(text=sprintf('p = %s(cfg$estimation$parameters$guess, 
+      if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c('optim', 'optimx', 'optimr')){
+        if(cfg[["estimation"]][["options"]][["method"]]  %in% c("Brent", "L-BGFS-B")){
+          eval(parse(text=sprintf('p = %s(cfg[["estimation"]][["parameters"]][["guess"]], 
                                           calculate_objective, 
                                           cfg     = cfg, 
-                                          lower   = cfg$estimation$parameters$matrix$lower_bound,
-                                          upper   = cfg$estimation$parameters$matrix$upper_bound,
-                                          method  = cfg$estimation$options$method, 
-                                          control = cfg$estimation$options$control)', 
-                                          cfg$estimation$options$optimizer)))
+                                          lower   = cfg[["estimation"]][["parameters"]][["matrix"]][["lower_bound"]],
+                                          upper   = cfg[["estimation"]][["parameters"]][["matrix"]][["upper_bound"]],
+                                          method  = cfg[["estimation"]][["options"]][["method"]] , 
+                                          control = cfg[["estimation"]][["options"]][["control"]])', 
+                                          cfg[["estimation"]][["options"]][["optimizer"]])))
         } else {
-          eval(parse(text=sprintf('p = %s(cfg$estimation$parameters$guess, 
+          eval(parse(text=sprintf('p = %s(cfg[["estimation"]][["parameters"]][["guess"]],
                                           calculate_objective, 
                                           cfg     = cfg, 
-                                          method  = cfg$estimation$options$method, 
-                                          control = cfg$estimation$options$control)', 
-                                          cfg$estimation$options$optimizer)))
+                                          method  = cfg[["estimation"]][["options"]][["method"]] , 
+                                          control = cfg[["estimation"]][["options"]][["control"]])', 
+                                          cfg[["estimation"]][["options"]][["optimizer"]])))
         
         }
       }
-      else if(cfg$estimation$options$optimizer %in% c('pso')){
-      # Setting the random seed to that 
-        vp(cfg, paste('Random seed:         ', cfg$options$stochastic$seed, sep=""))
-        set.seed(cfg$options$stochastic$seed)
-        p = pso::psoptim(par     = as.vector(cfg$estimation$parameters$guess),
+      else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c('pso')){
+        # Setting the random seed
+        vp(cfg, paste('Random seed:         ', cfg[["options"]][["stochastic"]][["seed"]], sep=""))
+        set.seed(cfg[["options"]][["stochastic"]][["seed"]])
+        p = pso::psoptim(par     = as.vector(cfg[["estimation"]][["parameters"]][["guess"]]),
                          fn      = calculate_objective_pso, 
                          cfg     = cfg, 
-                         lower   = cfg$estimation$parameters$matrix$lower_bound,
-                         upper   = cfg$estimation$parameters$matrix$upper_bound,
-                         control = cfg$estimation$options$control)
+                         lower   = cfg[["estimation"]][["parameters"]][["matrix"]][["lower_bound"]],
+                         upper   = cfg[["estimation"]][["parameters"]][["matrix"]][["upper_bound"]],
+                         control = cfg[["estimation"]][["options"]][["control"]])
       
       }
-      else if(cfg$estimation$options$optimizer %in% c('ga')){
-        vp(cfg, paste('Random seed:         ', cfg$options$stochastic$seed, sep=""))
-        set.seed(cfg$options$stochastic$seed)
+      else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c('ga')){
+        # Setting the random seed
+        vp(cfg, paste('Random seed:         ', cfg[["options"]][["stochastic"]][["seed"]], sep=""))
+        set.seed(cfg[["options"]][["stochastic"]][["seed"]])
         # par     = as.vector(cfg$estimation$parameters$guess),
 
         # This is a string of the control variables that the user passed on.
@@ -6217,9 +6251,9 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
         ctl_list = c(" ")
 
         # now we loop through each option and construct cs 
-        if(!is.null(cfg$estimation$options$control)){
-          for(cname in names(cfg$estimation$options$control)){
-             ctl_list = c(ctl_list, sprintf("%s=cfg$estimation$options$control$%s", cname, cname))
+        if(!is.null(cfg[["estimation"]][["options"]][["control"]])){
+          for(cname in names(cfg[["estimation"]][["options"]][["control"]])){
+             ctl_list = c(ctl_list, sprintf('%s=cfg[["estimation"]][["options"]][["control"]]$%s', cname, cname))
             }
             ctl_str = paste(ctl_list, collapse=",\n ")
         }
@@ -6229,8 +6263,8 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
           eval(parse(text=sprintf('p = ga(type    = "real-valued",
                                           fitness = calculate_objective_ga , 
                                           cfg     = cfg, 
-                                          min     = cfg$estimation$parameters$matrix$lower_bound,
-                                          max     = cfg$estimation$parameters$matrix$upper_bound%s)', ctl_str)))
+                                          min     = cfg[["estimation"]][["parameters"]][["matrix"]][["lower_bound"]],
+                                          max     = cfg[["estimation"]][["parameters"]][["matrix"]][["upper_bound"]]%s)', ctl_str)))
 
       }
 
@@ -6258,36 +6292,36 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
     # First we keep the 'raw' data
     pest$raw = p
 
-    if(cfg$estimation$options$optimizer == "optim"){
+    if(cfg[["estimation"]][["options"]][["optimizer"]] == "optim"){
       pest$estimate = p$par 
       pest$obj      = p$value
     } 
-    else if(cfg$estimation$options$optimizer == "optimx"){
+    else if(cfg[["estimation"]][["options"]][["optimizer"]] == "optimx"){
       pest$obj               = p$value
-      for(pname in names(cfg$estimation$parameters$guess)){
-        pest$estimate[[pname]] = p[[pname]]
+      for(pname in names(cfg[["estimation"]][["parameters"]][["guess"]])){
+        pest[["estimate"]][[pname]] = p[[pname]]
       }
 
     } 
     # Particle swarm (pso) 
-    else if(cfg$estimation$options$optimizer %in% c("pso")){
+    else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c("pso")){
       # Pso returns the parameters as a vector so we 
       # have to put it back into a list for the other functions
-      pest$obj      = p$value
-      pest$estimate = list()
+      pest[["obj"]]      = p[["value"]]
+      pest[["estimate"]] = list()
       pidx = 1
-      for(pname in names(cfg$estimation$parameters$guess)){
+      for(pname in names(cfg[["estimation"]][["parameters"]][["guess"]])){
         pest$estimate[[pname]] = p$par[pidx]
         pidx = pidx+1
       }
     } 
     # Genetic algorithm (ga) output
-    else if(cfg$estimation$options$optimizer %in% c("ga")){
+    else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c("ga")){
        pest$obj = p@fitnessValue
-       pest$estimation = structure(rep(-1, length(cfg$estimation$parameters$guess)), 
-                                      names=names(cfg$estimation$parameters$guess))
+       pest$estimation = structure(rep(-1, length(cfg[["estimation"]][["parameters"]][["guess"]])), 
+                                      names=names(cfg[["estimation"]][["parameters"]][["guess"]]))
        pidx = 1
-       for(pname in names(cfg$estimation$parameters$guess)){
+       for(pname in names(cfg[["estimation"]][["parameters"]][["guess"]])){
          pest$estimate[[pname]] = p@solution[pidx]
          pidx = pidx+1
        }
@@ -6403,6 +6437,28 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       }
     message(pstr)
     pest$sysup = paste(pest$sysup, pstr, "\n")
+    }
+
+    # Notifying the user if any parameters were found at their upper bound
+    warn_bounds = FALSE
+    for(pname in names(pest[["estimate"]])){
+      if(compare_estimate(cfg = cfg, parameters = pest[["estimate"]], pname=pname) %in% c("U", "L")){
+        if(!warn_bounds){
+          vp(cfg,'------------------------------------------')
+          vp(cfg, "The following parameters were found at ")
+          vp(cfg, "or near their bounds:")
+        }
+        if(compare_estimate(cfg = cfg, parameters = pest[["estimate"]], pname=pname) == "U"){
+          vp(cfg, paste(pname, ": upper bound", sep=""))
+        } 
+        if(compare_estimate(cfg = cfg, parameters = pest[["estimate"]], pname=pname) == "L"){
+          vp(cfg, paste(pname, ": lower bound", sep=""))
+        } 
+        warn_bounds = TRUE
+      }
+    }
+    if(warn_bounds){
+      vp(cfg,'------------------------------------------')
     }
 
     # Writing system update text to a file
