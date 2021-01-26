@@ -1,0 +1,13 @@
+pandoc: 2.11.2
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  Deployment: Deployment.html
+  Estimation: Estimation.html
+  Language: Language.html
+  NCA: NCA.html
+  Reporting: Reporting.html
+  Simulation: Simulation.html
+  Titration: Titration.html
+last_built: 2021-01-25T23:37Z
+
