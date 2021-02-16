@@ -29,6 +29,6 @@ cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
       temporary_directory       = tempdir())
 
 # Initialzing the log file
-system_log_init(cfg)
+cfg = system_log_init(cfg)
 }
 }

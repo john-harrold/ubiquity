@@ -83,7 +83,10 @@ To customize this report, you have access the following variables:
  * som - Mapped simulation output
  * parameters - current system parameters
  
-To understand the structure of som and access the components of cfg see the documentation at: 
+To understand the structure of som and access the components of cfg see the
+documentation in the simulation vignette or view the [tutorial on
+simulations](http://r.ubiquity.tools/)
+
 
 [presentation.ubiquity.grok.tv](http://presentation.ubiquity.grok.tv)
 

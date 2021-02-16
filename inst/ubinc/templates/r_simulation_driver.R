@@ -7,9 +7,12 @@ options(show.error.locations = TRUE)
 if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
 {source(file.path("library", "r_general", "ubiquity.R")) }
 
-# For documentation explaining how to modify the commands below
-# See the "R Workflow" section at the link below:
-# http://presentation.ubiquity.grok.tv
+# For documentation explaining how to modify the commands below see 
+# the simulation vignette:
+# vignette(package="ubiquity", topic="Simulation")
+# Or the simulation tutorial at the bottom of this page:
+# http://r.ubiquity.tools/
+
 
 # Rebuilding the system (R scripts and compiling C code)
 cfg = build_system(system_file="<SYSTEM_FILE>",

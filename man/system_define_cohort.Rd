@@ -56,6 +56,14 @@ cohort you would do the following:
 
 Note that you can only fix parameters that are not being estimated.
 
+By default the underlying simulation output times will be taken from the
+general output_times option (see \code{\link{system_set_option}}). However It may also be 
+necessary to specify simulation output times for a specific cohort. The
+\code{output_times} field can be used for this. Simply provide a vector of
+ output times:
+
+\preformatted{cohort[["output_times"]]   = seq(0,100,2)}
+
 Next we define the dosing for this cohort. It is only necessary to define
 those inputs that are non-zero. So if the data here were generated from
 animals given a single 5 mpk IV at time 0. Bolus dosing is defined 

@@ -31,3 +31,6 @@ list with the following elements:
 \description{
 Show the columns available in a given NCA analysis
 }
+\seealso{
+Vignette on NCA (\code{\link{system_nca_parameters_meta}})
+}

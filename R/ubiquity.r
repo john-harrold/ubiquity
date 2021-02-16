@@ -517,7 +517,7 @@ isgood}
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
 #'@export
-#'@title Fetch list of internal system templates
+#'@title Fetch List of Available System Templates
 #'
 #'@description  Returns a list of internal templates with descriptions of their contents and file locations
 #'
@@ -575,7 +575,7 @@ sfs}
 # -------------------------------------------------------------------------
 
 #'@export
-#'@title Create New Template After Building System File
+#'@title Create New Analysis Template 
 #'
 #'@description Building a system file will produce templates for R and other languages.
 #' This function provides a method to make local copies of these templates.
@@ -2642,7 +2642,7 @@ toc <- function()
 #'       output_directory          = file.path(tempdir(), "output"),
 #'       temporary_directory       = tempdir())
 #'
-#'   system_view(cfg, verbose=TRUE)
+#'   msgs = system_view(cfg, verbose=TRUE)
 #' }
 system_view <- function(cfg,field="all", verbose=FALSE) {
   
@@ -2859,7 +2859,16 @@ system_view <- function(cfg,field="all", verbose=FALSE) {
          msgs = c(msgs,sprintf(" Cohort: %s", ch_name))
          msgs = c(msgs, paste(replicate(20, "-"), collapse = ""))
          msgs = c(msgs,sprintf(" dataset: %s; (%s)", cfg$cohorts[[ch_name]]$dataset, cfg$data[[cfg$cohorts[[ch_name]]$dataset]]$data_file$name))
+
+         # output times
+         if("output_times" %in% names(cfg[["cohorts"]][[ch_name]])){
+           msgs = c(msgs,sprintf(" Cohort-specific output times (output_times) "))
+           msgs = c(msgs, sprintf("     output_times = %s", var2string_gen(cfg[["cohorts"]][[ch_name]][["output_times"]])))
+           msgs = c(msgs, "")
+         }
+
          msgs = c(msgs,sprintf(" Cohort options (options) "))
+
          #options
          if('options' %in% names(cfg$cohorts[[ch_name]])){
            for(opname in names(cfg$cohorts[[ch_name]]$options)){
@@ -4069,7 +4078,7 @@ generate_parameter = function (SIMINT_parameters, SIMINT_cfg, SIMINT_PARAMETER_T
 #'       temporary_directory       = tempdir())
 #'
 #' # Initialzing the log file
-#' system_log_init(cfg)
+#' cfg = system_log_init(cfg)
 #'}
 system_log_init = function (cfg){
 # initializes the log file then enables logging
@@ -4318,7 +4327,7 @@ system_ts_to_simtime <-function(cfg, tstime, ts){
 #'
 #'@return ubiquity system object with no cohorts defined
 system_clear_cohorts  <- function(cfg){
-  cfg$cohorts = c()
+  cfg[["cohorts"]] = c()
 return(cfg)}
 
 #'@export
@@ -4368,6 +4377,14 @@ return(cfg)}
 #' \preformatted{cohort[["cp"]]   = list(BW        = c(70))}
 #'
 #' Note that you can only fix parameters that are not being estimated.
+#'
+#' By default the underlying simulation output times will be taken from the
+#' general output_times option (see \code{\link{system_set_option}}). However It may also be 
+#' necessary to specify simulation output times for a specific cohort. The
+#' \code{output_times} field can be used for this. Simply provide a vector of
+#'  output times:
+#'
+#' \preformatted{cohort[["output_times"]]   = seq(0,100,2)}
 #'
 #' Next we define the dosing for this cohort. It is only necessary to define
 #' those inputs that are non-zero. So if the data here were generated from
@@ -4457,9 +4474,9 @@ system_define_cohort <- function(cfg, cohort){
    cohort$options = c() }
 
  defopts = c()
- defopts$marker_color   = 'black'           
- defopts$marker_shape   = 0           
- defopts$marker_line    = 1
+ defopts[["marker_color"]]   = 'black'           
+ defopts[["marker_shape"]]   = 0           
+ defopts[["marker_line"]]    = 1
  
  validopts = c('marker_color', 'marker_shape', 'marker_line')
 
@@ -4474,19 +4491,19 @@ system_define_cohort <- function(cfg, cohort){
  # checking the cohort name
  #
  if('name' %in% names(cohort)){
-  if(cohort$name %in% names(cfg$cohorts)){
+  if(cohort[["name"]] %in% names(cfg[["cohorts"]])){
     isgood = FALSE
-    vp(cfg, sprintf('Error: cohort with name >%s< has already been defined', cohort$name))
+    vp(cfg, sprintf('Error: cohort with name >%s< has already been defined', cohort[["name"]]))
   }
   else{
-    name_check = ubiquity_name_check(cohort$name)
+    name_check = ubiquity_name_check(cohort[["name"]])
 
-    cohort_name = cohort$name 
+    cohort_name = cohort[["name"]]
     # Checking the cohort name
-    if(!name_check$isgood){
+    if(!name_check[["isgood"]]){
       isgood = FALSE
-      vp(cfg, sprintf('Error: cohort with name >%s< is invalid', cohort$name))
-      vp(cfg, sprintf('Problems: %s', name_check$msg))
+      vp(cfg, sprintf('Error: cohort with name >%s< is invalid', cohort[["name"]]))
+      vp(cfg, sprintf('Problems: %s', name_check[["msg"]]))
       }
     }
  }
@@ -4738,7 +4755,7 @@ system_define_cohort <- function(cfg, cohort){
        else{
          isgood = FALSE 
          vp(cfg, sprintf('Error: For the output >%s<the column for the "value" must be specified', oname))
-         vp(cfg, sprintf("       cohort$outputs$%s$obs$value  = 'name'; ", oname))
+         vp(cfg, sprintf('       cohort$outputs$%s$obs$value  = "name"; ', oname))
        }
 
      
@@ -4746,8 +4763,8 @@ system_define_cohort <- function(cfg, cohort){
      else{
       isgood = FALSE 
       vp(cfg, sprintf('Error: For the output >%s< no observation information was specified', oname))
-      vp(cfg, sprintf("       cohort$outputs$%s$obs$time  = 'name'; ", oname))
-      vp(cfg, sprintf("       cohort$outputs$%s$obs$value = 'name'; ", oname))
+      vp(cfg, sprintf('       cohort$outputs$%s$obs$time  = "name"; ', oname))
+      vp(cfg, sprintf('       cohort$outputs$%s$obs$value = "name"; ', oname))
      }
 
      # This checks the user information against 
@@ -4923,15 +4940,28 @@ if(isgood){
     # now we convert the time to the simulation timescale
     tmpop$simtime = system_ts_to_simtime(cfg, tmpop$time, cohort$outputs[[oname]]$model$time)
 
+
     # adding the observation times to the smooth output times
     choutput_times = unique(sort(c(tmpop$simtime, choutput_times)))
 
     # storing the data for the cohort/output 
     cohort$outputs[[oname]]$data = tmpop;
   }
-
+  
   # storing all of the observation times for the cohort
   cohort$observation_simtimes = choutput_times
+
+  # If the cohort has output times specified we check those to make sure that
+  # the observation times lie within the range
+  if("output_times" %in% names(cohort)){
+    if(min(choutput_times) < min(cohort[["output_times"]]) |
+       max(cohort[["output_times"]]) <  max(choutput_times)){
+       vp(cfg, "Warning: cohort specified observation times lie outside of the range of")
+       vp(cfg, "         specified output_times, the output_times will be automatically")
+       vp(cfg, "         expanded to include these observation times.")
+
+    }
+  } 
 }
 
 
@@ -5017,8 +5047,8 @@ for(cohort_name in names(cfg$cohorts)){
 
   # If this cohort has a different set of output times then 
   # we overwrite the defaults
-  if("output_times" %in% names(cohort$options)){
-    choutput_times = cohort$options$output_times
+  if("output_times" %in% names(cohort)){
+    choutput_times = cohort[["output_times"]]
   }
 
   # Adding all of the observation times to the output times to make sure the
@@ -12888,7 +12918,7 @@ if((analysis_name %in% names(cfg[["nca"]]))){
    } else {
      isgood = FALSE
      vp(cfg, "Error evaluating ds_wrangle option:")
-     # This shoudl push the actual error message out to the user:
+     # This should push the actual error message out to the user:
      vp(cfg, tcres$value$message)
    }
 
@@ -13413,6 +13443,7 @@ res}
 #'    \item \code{len_label}       maximum length of the \code{label} column
 #'    \item \code{len_description} maximum length of the \code{description} column
 #' }
+#'@seealso Vignette on NCA (\code{\link{system_nca_parameters_meta}}) 
 system_fetch_nca_columns = function(cfg, 
                                    analysis_name = "analysis"){
 

@@ -16,9 +16,11 @@ if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else
 analysis_name   = "ANAME"
 archive_results = TRUE 
 
-# For documentation explaining how to modify the commands below
-# See the "R Workflow" section at the link below:
-# http://presentation.ubiquity.grok.tv
+# For documentation explaining how to modify the commands below see
+# the estimation vignette:
+# vignette(package="ubiquity", topic="Estimation")
+# Or the estimation tutorial at the bottom of this page:
+# http://r.ubiquity.tools/
 
 # -------------------------------------------------------------------------
 # Rebuilding the system (R scripts and compiling C code)

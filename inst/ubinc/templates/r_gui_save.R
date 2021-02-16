@@ -12,11 +12,11 @@ require(doParallel)
 
 <user_def>
 
-# For documentation explaining how to modify the commands below
-# See the "R Workflow" section at the link below:
-# http://presentation.ubiquity.grok.tv
-
-
+# For documentation explaining how to modify the commands below see 
+# the simulation vignette:
+# vignette(package="ubiquity", topic="Simulation")
+# Or the simulation tutorial at the bottom of this page:
+# http://r.ubiquity.tools/
 
 # --------------------------------------------------------------
 # By default the system uses the stand-alone libraries generated

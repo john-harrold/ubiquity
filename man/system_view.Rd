@@ -48,6 +48,6 @@ cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
       output_directory          = file.path(tempdir(), "output"),
       temporary_directory       = tempdir())
 
-  system_view(cfg, verbose=TRUE)
+  msgs = system_view(cfg, verbose=TRUE)
 }
 }

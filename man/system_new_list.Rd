@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_new_list}
 \alias{system_new_list}
-\title{Fetch list of internal system templates}
+\title{Fetch List of Available System Templates}
 \usage{
 system_new_list()
 }

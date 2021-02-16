@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_fetch_template}
 \alias{system_fetch_template}
-\title{Create New Template After Building System File}
+\title{Create New Analysis Template}
 \usage{
 system_fetch_template(
   cfg,
