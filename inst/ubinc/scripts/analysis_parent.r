@@ -13,8 +13,8 @@ if(file.exists(file.path('library', 'r_general', 'ubiquity.R'))){
 analysis_name = 'parent_d1030'
 # flowctl = 'previous estimate as guess'
 # flowctl = 'plot previous estimate'
-# flowctl = 'plot guess'
-  flowctl = 'estimate'
+  flowctl = 'plot guess'
+# flowctl = 'estimate'
 archive_results = TRUE
 
 
