@@ -6764,13 +6764,16 @@ for(output in unique(erp$pred$OUTPUT)){
       }
       
       co_options  = cfg$cohorts[[cohort]]$outputs[[output]]$options
-      eval(parse(text = sprintf('p = p + geom_point(data=SAMPLE, aes(x=TIME, y=OBS), color="%s", shape=co_options$marker_shape,   size=2.0)', co_options$marker_color)))
-      eval(parse(text = sprintf('p = p + geom_line( data=SMOOTH, aes(x=TIME, y=PRED, color="%s"), linetype=co_options$marker_line, size=0.9)',cohort)))
+      #eval(parse(text = sprintf('p = p + geom_point(data=SAMPLE, aes(x=TIME, y=OBS), color="%s", shape=co_options$marker_shape,   size=2.0)', co_options[["marker_color"]])))
+      #eval(parse(text = sprintf('p = p + geom_line( data=SMOOTH, aes(x=TIME, y=PRED, color="%s"), linetype=co_options$marker_line, size=0.9)',cohort)))
       
+      eval(parse(text = paste('p = p + geom_point(data=SAMPLE, aes(x=TIME, y=OBS), color="',co_options[["marker_color"]],'", shape=',co_options[["marker_shape"]],', size=2.0)', sep="" )))
+      eval(parse(text = paste('p = p + geom_line( data=SMOOTH, aes(x=TIME, y=PRED, color="', cohort, '"), linetype=', co_options[["marker_line"]],', size=0.9)',sep="")))
+
       if(is.null(color_string)){
-        color_string = sprintf('"%s"="%s"', cohort, co_options$marker_color)
+        color_string = sprintf('"%s"="%s"', cohort, co_options[["marker_color"]])
       } else{
-        color_string = sprintf('%s, "%s"="%s"', color_string, cohort, co_options$marker_color)
+        color_string = sprintf('%s, "%s"="%s"', color_string, cohort, co_options[["marker_color"]])
       }
     }
 
@@ -6857,12 +6860,13 @@ for(output in unique(erp$pred$OUTPUT)){
       }
       
       co_options  = cfg$cohorts[[cohort]]$outputs[[output]]$options
-      eval(parse(text = sprintf('p = p + geom_point( data=SAMPLE, aes(x=PRED, y=OBS, color="%s"), shape=co_options$marker_shape, size=2.0)',cohort)))
+      #eval(parse(text = sprintf('p = p + geom_point( data=SAMPLE, aes(x=PRED, y=OBS, color="%s"), shape=co_options$marker_shape, size=2.0)',cohort)))
+      eval(parse(text = paste('p = p + geom_point( data=SAMPLE, aes(x=PRED, y=OBS, color="',cohort, '"), shape=co_options[["marker_shape"]], size=2.0)',sep = "")))
 
       if(is.null(color_string)){
-        color_string = sprintf('"%s"="%s"', cohort, co_options$marker_color)
+        color_string = sprintf('"%s"="%s"', cohort, co_options[["marker_color"]])
       } else{
-        color_string = sprintf('%s, "%s"="%s"', color_string, cohort, co_options$marker_color)
+        color_string = sprintf('%s, "%s"="%s"', color_string, cohort, co_options[["marker_color"]])
       }
     }
 
