@@ -2893,7 +2893,7 @@ system_view <- function(cfg,field="all", verbose=FALSE) {
          msgs = c(msgs, " Cohort-specific parameters (cp)")
          if('cp' %in% names(cfg$cohorts[[ch_name]])){
            for(pname in names(cfg$cohorts[[ch_name]]$cp)){
-             msgs = msgs(sprintf("     %s = %s", pname, toString(cfg$cohorts[[ch_name]]$cp[[pname]])))
+             msgs = c(msgs, sprintf("     %s = %s", pname, toString(cfg$cohorts[[ch_name]]$cp[[pname]])))
            }
          } else{
            msgs = c(msgs, "     none")
