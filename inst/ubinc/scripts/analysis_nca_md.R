@@ -62,6 +62,17 @@ NCA_cols = system_fetch_nca_columns(cfg, analysis_name = "pk_multiple_dose")
 # system_view command:
 # system_view(cfg, "nca", verbose=TRUE)
 
+# You can access the results as a csv file in the output directory
+# file.path("output", "pk_multiple_dose-nca_summary.csv")
+# Or you can pull them out programmatically with the fetch function:
+NCA_results = system_fetch_nca(cfg, analysis_name = "pk_multiple_dose")
+
+
+# -------------------------------------------------------------------------
+# Writing output to PowerPoint
+# Creating an empty report (this needs to be created before the table
+# generation below)
+cfg = system_report_init(cfg, rpttype="PowerPoint")
 
 # Here we can take the summary results table and calculate things like
 # Dose normalized Cmax and compare the first and last dose:
@@ -90,7 +101,6 @@ NCA_summary = system_nca_summary(cfg,
                                MEDIAN           = "Median", 
                                SE               = "Std Err."),
        summary_location = "ID")
-
 
 ds_wrangle_str = 'NCA_sum = NCA_sum             %>%
 dplyr::filter(Dose == 30) %>%
@@ -126,16 +136,7 @@ NCA_summary_wide = system_nca_summary(cfg,
                                SE               = "Std Err."),
        summary_location = "ID")
                           
-            
-# You can access the results as a csv file in the output directory
-# file.path("output", "pk_multiple_dose-nca_summary.csv")
-# Or you can pull them out programmatically with the fetch function:
-NCA_results = system_fetch_nca(cfg, analysis_name = "pk_multiple_dose")
 
-# -------------------------------------------------------------------------
-# Writing output to PowerPoint
-# Creating an empty report
-cfg = system_report_init(cfg, rpttype="PowerPoint")
 
 
 cfg = system_report_slide_content(cfg,

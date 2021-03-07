@@ -6823,6 +6823,7 @@ for(output in unique(erp$pred$OUTPUT)){
       p = p + ylim(plot_opts$outputs[[output]]$ylim) } 
   }
 
+
   fname_pdf = file.path(output_directory, paste(analysis_name, "_timecourse_", output, ".pdf", sep=""))
   ggsave(fname_pdf, plot=p, device="pdf", height=def$dim$tc$height, width=def$dim$tc$width)
   vp(cfg, sprintf('Figure written: %s', fname_pdf))
@@ -6923,6 +6924,8 @@ for(output in unique(erp$pred$OUTPUT)){
   p = prepare_figure(p, purpose=def$purpose)
   eval(parse(text=sprintf('p = p + scale_colour_manual(values=c(%s))', color_string)))
 
+
+
   fname_pdf = file.path(output_directory, paste(analysis_name, "_obs_pred_", output, ".pdf", sep=""))
   ggsave(fname_pdf, plot=p, device="pdf", height=def$dim$op$height, width=def$dim$op$width)
   vp(cfg, sprintf('Figure written: %s', fname_pdf))
@@ -6930,7 +6933,6 @@ for(output in unique(erp$pred$OUTPUT)){
   fname_png = file.path(output_directory, paste(analysis_name, "_obs_pred_", output, ".png", sep=""))
   ggsave(fname_png, plot=p, device="png", height=def$dim$op$height, width=def$dim$op$width)
   vp(cfg, sprintf('Figure written: %s', fname_png))
-
 
   # storing the plot object to be returned to the user
   eval(parse(text=sprintf('grobs$obs_pred$%s     = p',         output)))
@@ -7970,6 +7972,12 @@ gg_axis  = function(fo,
                      xlim_max     = NULL, 
                      x_tick_label = TRUE,
                      y_tick_label = TRUE){
+
+
+  # Defaulting the limits to null
+  myxlim = NULL
+  myylim = NULL
+
   # If any of the limits are null we build out the figure object so we can
   # pull the limits from that object
 
@@ -8069,6 +8077,7 @@ gg_axis  = function(fo,
       if(y_tick_label){
         fo = fo + scale_y_continuous(breaks       = ytick_major,
                                      minor_breaks = ytick_minor,
+                                     oob = scales::squish_infinite,
                                      trans        = 'log10',
                                      labels       = eval(parse(text="scales::trans_format('log10', scales::math_format(10^.x))")))
       }
@@ -8078,8 +8087,6 @@ gg_axis  = function(fo,
                                      trans        = 'log10',
                                      labels       = NULL)
       }
-
-      fo = fo + coord_cartesian(ylim=myylim)
     }
     fo = fo + annotation_logticks(sides='lr') 
     
@@ -8133,11 +8140,12 @@ gg_axis  = function(fo,
                                     #limits       = myxlim,
                                      labels       = NULL)
       }
-
-      fo = fo + coord_cartesian(xlim=myxlim)
     }
     fo = fo + annotation_logticks(sides='tb') 
   }
+
+
+  fo = fo + coord_cartesian(xlim=myxlim, ylim=myylim, default=TRUE, clip="on")
 
 fo}
 #/gg_axis
@@ -12768,6 +12776,8 @@ system_nca_run = function(cfg,
             }
             
             
+            # Creating shaded region:
+            ptmp = eval(parse(text="ptmp + geom_ribbon(data=NCA_CONCDS, aes(x=TIME, ymax=CONC), ymin=0, color=NA, fill='green', alpha=.09)"))
             # Overlaying the concentration values used
             ptmp = eval(parse(text="ptmp + geom_point(data=NCA_CONCDS, aes(x=TIME, y=CONC), shape=1,           color='green')"))
             ptmp = eval(parse(text="ptmp +  geom_line(data=NCA_CONCDS, aes(x=TIME, y=CONC), linetype='dashed', color='green')"))
@@ -13591,7 +13601,7 @@ system_report_nca = function(cfg,
     overview = paste(ana_type, " from ", ana_opts$dsname, " (", 
     cfg$data[[ana_opts$dsname]]$data_file$name, "). For each ", tolower(ID_label),
     " and dose the NCA parameters will be summarized. For each  ", tolower(ID_label), 
-    " the full time-course will be shown in grey, the data used for each analysis will be shown in green, and extrapolated values and data used for extrapolation will be shown in orange",
+    " the full time-course will be shown in grey, the data used for each analysis will be shown in green, the observed AUC will be shown by a green shaded region, and extrapolated values and data used for extrapolation will be shown in orange",
     sep="")
 
     if(rpttype == "PowerPoint"){
