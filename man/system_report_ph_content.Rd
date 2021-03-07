@@ -7,6 +7,7 @@
 system_report_ph_content(
   cfg,
   rpt,
+  rptname,
   content_type,
   content,
   type,
@@ -18,6 +19,8 @@ system_report_ph_content(
 \item{cfg}{ubiquity system object}
 
 \item{rpt}{officer pptx object}
+
+\item{rptname}{report name initialized with \code{system_report_init}}
 
 \item{content_type}{string indicating the content type}
 

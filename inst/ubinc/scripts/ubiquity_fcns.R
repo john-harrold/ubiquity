@@ -28,6 +28,7 @@
 #'@importFrom PKNCA PKNCA.options PKNCAconc PKNCAdose PKNCAdata pk.nca get.interval.cols
 #'@importFrom utils capture.output read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
 #'@importFrom stats median qt var sd
+#'@importFrom scales trans_format  math_format squish_infinite
 #'@importFrom MASS mvrnorm
 
 
@@ -9663,6 +9664,7 @@ system_report_slide_content = function (cfg,
     type   = "body"
     tmprpt = system_report_ph_content(cfg          = cfg,          
                                       rpt          = tmprpt, 
+                                      rptname      = rptname,
                                       content_type = content_type, 
                                       content      = content, 
                                       type         = type,         
@@ -9847,6 +9849,7 @@ system_report_slide_two_col = function (cfg,
     if(!is.null(left_content_header)){
       tmprpt = system_report_ph_content(cfg          = cfg,          
                                         rpt          = tmprpt, 
+                                        rptname      = rptname,
                                         content_type = left_content_header_type, 
                                         content      = left_content_header, 
                                         type         = "body",         
@@ -9856,6 +9859,7 @@ system_report_slide_two_col = function (cfg,
     if(!is.null(right_content_header)){
       tmprpt = system_report_ph_content(cfg          = cfg,          
                                         rpt          = tmprpt, 
+                                        rptname      = rptname,
                                         content_type = right_content_header_type, 
                                         content      = right_content_header, 
                                         type         = "body",         
@@ -9869,6 +9873,7 @@ system_report_slide_two_col = function (cfg,
     if(!is.null(left_content)){
       tmprpt = system_report_ph_content(cfg          = cfg,          
                                         rpt          = tmprpt, 
+                                        rptname      = rptname,
                                         content_type = left_content_type, 
                                         content      = left_content, 
                                         type         = "body",         
@@ -9878,6 +9883,7 @@ system_report_slide_two_col = function (cfg,
     if(!is.null(right_content)){
       tmprpt = system_report_ph_content(cfg          = cfg,          
                                         rpt          = tmprpt, 
+                                        rptname      = rptname,
                                         content_type = right_content_type, 
                                         content      = right_content, 
                                         type         = "body",         
@@ -10071,6 +10077,7 @@ return(cfg)}
 #'
 #'@param cfg ubiquity system object    
 #'@param rpt officer pptx object
+#'@param rptname report name initialized with \code{system_report_init}
 #'@param content_type string indicating the content type 
 #'@param content content
 #'@param type    placeholder type (\code{"body"})
@@ -10109,7 +10116,7 @@ return(cfg)}
 #'  }
 #'
 #'@seealso \code{\link{system_report_view_layout}}
-system_report_ph_content = function(cfg, rpt, content_type, content, type, index, ph_label){
+system_report_ph_content = function(cfg, rpt, rptname, content_type, content, type, index, ph_label){
 
     if(content_type == "text"){
       rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=content) 
