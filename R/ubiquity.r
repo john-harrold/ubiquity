@@ -12815,27 +12815,34 @@ system_nca_run = function(cfg,
     }
 
     # Sorting the NCA table by ID then Dose_Number
-    NCA_sum = NCA_sum[ with(NCA_sum, order(Dose_Number, ID)), ]
-
-    pkncaraw_file  = file.path(output_directory, paste(analysis_name, "-pknca_raw.csv" , sep=""))
-    csv_file       = file.path(output_directory, paste(analysis_name, "-nca_summary-pknca.csv" , sep=""))
-    data_file      = file.path(output_directory, paste(analysis_name, "-nca_data.RData" , sep=""))
-    write.csv(NCA_sum,       file=csv_file,      row.names=FALSE, quote=FALSE)
-    write.csv(PKNCA_raw_all, file=pkncaraw_file, row.names=FALSE, quote=FALSE)
-    save(grobs_sum, NCA_sum, file=data_file)
-
-    cfg[["nca"]][[analysis_name]]$grobs_sum     = grobs_sum
-    cfg[["nca"]][[analysis_name]]$NCA_sum       = NCA_sum
-    cfg[["nca"]][[analysis_name]]$data_raw      = DS
-    cfg[["nca"]][[analysis_name]]$PKNCA_raw     = PKNCA_raw_all
-    cfg[["nca"]][[analysis_name]]$rptobjs       = rptobjs      
-
     vp(cfg, "")
-    vp(cfg, paste("NCA results for ", analysis_name, " written to", sep=""))
-    vp(cfg, paste("  Summary output:   ", csv_file,      sep=""))
-    vp(cfg, paste("  R objects:        ", data_file,     sep=""))
-    vp(cfg, paste("  PKNCA raw output: ", pkncaraw_file, sep=""))
+    # If NCA_sum is null then something is up
+    if(is.null(NCA_sum)){
+      cfg[["nca"]][[analysis_name]] = NULL
+      vp(cfg, paste("NCA for ", analysis_name, " failed. This can happen when none of the subjects ", sep=""))
+      vp(cfg, paste("or groups have enough data for NCA_min", sep=""))
 
+    } else {
+      NCA_sum = NCA_sum[ with(NCA_sum, order(Dose_Number, ID)), ]
+      
+      pkncaraw_file  = file.path(output_directory, paste(analysis_name, "-pknca_raw.csv" , sep=""))
+      csv_file       = file.path(output_directory, paste(analysis_name, "-nca_summary-pknca.csv" , sep=""))
+      data_file      = file.path(output_directory, paste(analysis_name, "-nca_data.RData" , sep=""))
+      write.csv(NCA_sum,       file=csv_file,      row.names=FALSE, quote=FALSE)
+      write.csv(PKNCA_raw_all, file=pkncaraw_file, row.names=FALSE, quote=FALSE)
+      save(grobs_sum, NCA_sum, file=data_file)
+      
+      cfg[["nca"]][[analysis_name]]$grobs_sum     = grobs_sum
+      cfg[["nca"]][[analysis_name]]$NCA_sum       = NCA_sum
+      cfg[["nca"]][[analysis_name]]$data_raw      = DS
+      cfg[["nca"]][[analysis_name]]$PKNCA_raw     = PKNCA_raw_all
+      cfg[["nca"]][[analysis_name]]$rptobjs       = rptobjs      
+      
+      vp(cfg, paste("NCA results for ", analysis_name, " written to", sep=""))
+      vp(cfg, paste("  Summary output:   ", csv_file,      sep=""))
+      vp(cfg, paste("  R objects:        ", data_file,     sep=""))
+      vp(cfg, paste("  PKNCA raw output: ", pkncaraw_file, sep=""))
+    }
   } else {
      vp(cfg, "system_nca_run()")
      vp(cfg, "Errors were found see messages above for more information")
