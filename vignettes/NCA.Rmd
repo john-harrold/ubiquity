@@ -322,7 +322,7 @@ For more information on integrated report generation see the ``Reporting`` vigne
 
 ### Summarizing Data
 
-The automated reporting is meant to get results out quickly. But you may decided you need more control over what is being presented. To can control tabularized results with the function ``system_nca_summary()``. The first argument (``analysis_name``) indicates the NCA analysis you want to summarize. The parameters being summarized and their order in the table is specified by ``params_include``. By default it internal headers will be used, but you can overwrite or alter those defaults with optional ``params_header`` input. Here ``cmax`` is being overwriten with the internally predefined label (``"<label>"``) on the first header row, and the units (``"(ng/ml)"``) on the second header row. In this table we only want to present the 30 mg dose. The ``ds_wrangle`` option will filter down the results to just that dosing cohort. It may be desirable to further summarize results. The ``summary_stats`` option is a list of values to summarize and the columns where those summaries should appear. Each name in that list will create a row at the bottom of the column. You can specify the summary lables with ``summary_labels`` and indicate which column to contain those labels with ``summary_location``.
+The automated reporting is intended to generate results quickly in an easily digestable way (Word and PowerPoint). But you may decided you need more control over what is being presented. The function ``system_fetch_nca()`` mentioned above will give you access to all of the NCA output. If you want to filter, select columns and summarize results the function ``system_nca_summary()`` can be used. The first argument (``analysis_name``) indicates the NCA analysis you want to summarize. The parameters being summarized and their order in the table is specified by ``params_include``. By default internal headers will be used, but you can overwrite or alter those defaults with optional ``params_header`` input. Here ``cmax`` is being overwriten with the internally predefined label (``"<label>"``) on the first header row, and the units (``"(ng/ml)"``) on the second header row. In this table we only want to present the 30 mg dose. The ``ds_wrangle`` option will filter down the results to just that dosing cohort. It may be desirable to further summarize results. The ``summary_stats`` option is a list of values to summarize and the columns where those summaries should appear. Each name in that list will create a row at the bottom of the column. You can specify the summary lables with ``summary_labels`` and indicate which column to contain those labels with ``summary_location``.
 
 ```{r warning=FALSE, message=FALSE, echo=TRUE, error=FALSE}
 nca_table = system_nca_summary(cfg, 
@@ -338,6 +338,8 @@ nca_table = system_nca_summary(cfg,
                                MEDIAN           = "Median", 
                                SE               = "Std Err."),
        summary_location = "ID")
+
+nca_table[["vignette"]] = set_table_properties(nca_table$nca_summary_ft,layout = "autofit")
 ```
        
 ```{r warning=FALSE, message=FALSE, echo=FALSE, error=FALSE}
@@ -353,7 +355,7 @@ if(presim_loaded){
 The output of ``system_nca_summary()`` is a list with elements that are designed to facilitate reporting. The unformatted tabular information is provided in a dataframe (``nca_summary``) and this can be saved as text for archival purposes. Flextable output (``nca_summary_ft``) is also provided. This can be further customized if needed and eventually be used in Word or PowerPoint (see below). If you want to create your own output from this you can use the ``components`` field.
 
 ```{r warning=FALSE, echo=FALSE, eval=TRUE}
-set_table_properties(nca_table$nca_summary_ft,layout = "autofit")
+nca_table[["vignette"]]
 ```
 
        

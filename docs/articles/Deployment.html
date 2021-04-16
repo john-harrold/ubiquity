@@ -94,13 +94,13 @@
 
       
 
-      </header><script src="Deployment_files/header-attrs-2.6/header-attrs.js"></script><div class="row">
+      </header><script src="Deployment_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Model Deployment</h1>
                         <h4 class="author">John Harrold &amp; Anson K Abraham</h4>
             
-            <h4 class="date">2021-03-07</h4>
+            <h4 class="date">2021-04-15</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Deployment.Rmd"><code>vignettes/Deployment.Rmd</code></a></small>
       <div class="hidden name"><code>Deployment.Rmd</code></div>
@@ -247,7 +247,7 @@
 <span class="va">params</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">params</span><span class="op">$</span><span class="va">cfg</span> <span class="op">=</span> <span class="va">cfg</span>
 <span class="va">params</span><span class="op">$</span><span class="va">som</span> <span class="op">=</span> <span class="va">som</span>
-<span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rmarkdown/man/render.html">render</a></span><span class="op">(</span><span class="st">"system_report.Rmd"</span>,
+<span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/render.html">render</a></span><span class="op">(</span><span class="st">"system_report.Rmd"</span>,
                    params <span class="op">=</span> <span class="va">params</span>,
                    output_format <span class="op">=</span> <span class="st">"html_document"</span><span class="op">)</span></code></pre></div>
 <p>This should generate your report in HTML format. You can insert debugging commands in the report and test it while you add information. Once you have it working, you can enable the report as described above and it should appear as a tab viewable by the user.</p>

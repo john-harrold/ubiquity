@@ -2555,55 +2555,6 @@ system_set_iiv <- function(cfg, IIV1, IIV2, value){
   }
 return(cfg)}
 
-#'@export
-#'@title Implementation of Matlab \code{tic()} command
-#'@description Used in conjunction with \code{toc()} to find the elapsed time
-#' when code is executed. Adapted from:
-#' http://stackoverflow.com/questions/1716012/stopwatch-function-in-r
-#'
-#'@param gcFirst controls garbage collection
-#'@param type can be either \code{"elapsed"} \code{"user.self"} or \code{"sys.self"} 
-#'
-#'@return time tic was called
-#'
-#'@examples
-#' tic()
-#' Sys.sleep(3)
-#' toc()
-#'@seealso \code{\link{toc}}
-tic <- function(gcFirst = TRUE, type=c("elapsed", "user.self", "sys.self"))
-{
-  type <- match.arg(type)
-  assign(".type", type, envir=baseenv())
-  if(gcFirst) gc(FALSE)
-  tic <- proc.time()[type]         
-  assign(".tic", tic, envir=baseenv())
-  invisible(tic)
-}
-
-#'@export
-#'@title Implementation of Matlab \code{toc()} command
-#'@description Used in conjunction with \code{tic()} to find the elapsed time
-#' when code is executed. Adapted from:
-#' http://stackoverflow.com/questions/1716012/stopwatch-function-in-r
-#'
-#'@return time in seconds since tic() was called
-#'
-#'@examples
-#' tic()
-#' Sys.sleep(3)
-#' toc()
-#'@seealso \code{\link{tic}}
-toc <- function()
-{
-  type <- get(".type", envir=baseenv())
-  toc <- proc.time()[type]
-  tic <- get(".tic", envir=baseenv())
-  invisible(toc)
-
-  return(toc-tic)
-} 
-
 #-----------------------------------------------------------
 #'@export
 #'@title View Information About the System
@@ -6234,8 +6185,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
         }
       }
 
-      tic()
-
+      estimation_tic = proc.time()
       #
       # We perform the estimation depending on the optimizer selected 
       #
@@ -6299,7 +6249,8 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
 
       }
 
-      elapsed = toc()
+      estimation_toc = proc.time()
+      elapsed =  (estimation_toc - estimation_tic)[["elapsed"]]
 
       if(elapsed < 120){
         elapsed_time = var2string(elapsed, nsig_f=2, nsig_e=2)   

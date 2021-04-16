@@ -1,0 +1,74 @@
+reference:
+
+- title: "System Basics"  
+  desc: "Building systems, setting options, access workshop elements etc."
+- contents:
+  - build_system
+  - system_new
+  - system_new_list
+  - workshop_fetch
+  - system_fetch_template
+  - system_view
+  - system_check_requirements
+  - system_set_option
+  - system_set_iiv
+  
+- title: "Simulation"
+  desc: "Individual and population simulations"
+- contents:
+  - run_simulation_ubiquity
+  - simulate_subjects
+  - system_load_data
+  - system_select_set
+  - som_to_df
+  - system_check_steady_state
+  
+  - system_zero_inputs
+  - system_set_bolus
+  - system_set_rate
+  - system_set_covariate
+  
+  - run_simulation_titrate
+  - system_new_tt_rule
+  - system_set_tt_cond
+  - system_set_tt_rate
+  
+- title: "Estimation"
+  desc: "Naive-pooled parameters estimation"
+- contents:
+  - system_estimate_parameters
+  - system_set_guess
+  - system_plot_cohorts
+  - system_clear_cohorts
+  - system_define_cohort
+  - system_define_cohorts_nm
+  - system_simulate_estimation_results
+  - system_od_general
+  
+- title: "Reporting"
+  desc: "The following functions are used to create, modify and save Word and PowerPoint reports"
+- contents:
+  - starts_with("system_report_")
+  - system_fetch_report
+  - system_fetch_report_format
+  - md_to_officer
+  - md_to_oo
+  
+- title: "NCA"
+  desc: "The following functions are used to run NCA and summarize results"
+- contents:
+  - starts_with("system_nca_")
+  
+- title: "General Functions"
+  desc: ""
+- contents:
+  - calculate_halflife
+  - gg_axis  
+  - gg_log10_xaxis  
+  - gg_log10_yaxis  
+  - linspace
+  - logspace
+  - vp
+  - var2string
+  - system_log_debug_save
+  - system_log_init
