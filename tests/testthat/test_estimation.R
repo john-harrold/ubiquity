@@ -9,9 +9,11 @@ test_that("Running Scripts",{
   # Copying the sources to the current folder
   fr = workshop_fetch("Estimation", overwrite = TRUE)
   #--------------------
-  test_file("analysis_parent.r")
-  test_file("analysis_parent_metabolite.r")       
-  test_file("analysis_parent_metabolite_global.r")
-  test_file("analysis_parent_metabolite_nm_data.r")
+  if (Sys.getenv("USER") != "travis") {
+    expect_true(check_code("analysis_parent.r")[["isgood"]],                    "analysis_parent.r")
+    expect_true(check_code("analysis_parent_metabolite.r")[["isgood"]],         "analysis_parent_metabolite.r")       
+    expect_true(check_code("analysis_parent_metabolite_global.r")[["isgood"]],  "analysis_parent_metabolite_global.r")
+    expect_true(check_code("analysis_parent_metabolite_nm_data.r")[["isgood"]], "analysis_parent_metabolite_nm_data.r")
+  }
   #--------------------
 })

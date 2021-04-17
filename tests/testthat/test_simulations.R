@@ -9,9 +9,10 @@ test_that("Running Scripts",{
   # Copying the sources to the current folder
   fr = workshop_fetch("Simulation", overwrite = TRUE)
   #--------------------
-  # Single subje t example
-  test_file("analysis_single.r")
-  test_file("analysis_multiple.r")
-  test_file("analysis_multiple_file.r")
+  if (Sys.getenv("USER") != "travis") {
+    expect_true(check_code("analysis_single.r")[["isgood"]],           "analysis_single.r")
+    expect_true(check_code("analysis_multiple.r")[["isgood"]],         "analysis_multiple.r")
+    expect_true(check_code("analysis_multiple_file.r")[["isgood"]],    "analysis_multiple_file.r")
+  }
   #--------------------
 })

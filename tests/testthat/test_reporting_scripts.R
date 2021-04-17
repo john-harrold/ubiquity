@@ -9,8 +9,10 @@ test_that("Running Scripts",{
   # Copying the sources to the current folder
   fr = workshop_fetch("Reporting", overwrite = TRUE)
   #--------------------
-  test_file('make_report_PowerPoint.R')
-  test_file('make_report_Word.R')
+  if (Sys.getenv("USER") != "travis") {
+    expect_true(check_code('make_report_PowerPoint.R')[["isgood"]], "Make PowerPoint")
+    expect_true(check_code('make_report_Word.R')[["isgood"]],       "Make Word")
+  }
   #--------------------
   ttdir = getwd()
 })

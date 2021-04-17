@@ -11,7 +11,7 @@
 #'@import stringr
 #'@importFrom digest digest
 #'@importFrom dplyr  all_of select
-#'@importFrom flextable add_header add_footer align autofit body_add_flextable delete_part merge_h 
+#'@importFrom flextable add_header add_footer align as_chunk as_paragraph autofit body_add_flextable delete_part merge_h 
 #'@importFrom flextable regulartable set_header_labels theme_alafoli theme_box theme_tron_legacy 
 #'@importFrom flextable theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
 #'@importFrom parallel stopCluster makeCluster
@@ -11248,9 +11248,9 @@ pgraphs_parse = list()
   for(tmpele in pele){
     if(as_paragraph_cmd != ""){
      as_paragraph_cmd = paste(as_paragraph_cmd, ',\n') }
-    as_paragraph_cmd = paste(as_paragraph_cmd, 'as_chunk("', tmpele$text, '", ', tmpele$props_cmd, ')', sep="")
+    as_paragraph_cmd = paste(as_paragraph_cmd, 'flextable::as_chunk("', tmpele$text, '", ', tmpele$props_cmd, ')', sep="")
   }
-  as_paragraph_cmd = paste("as_paragraph(", as_paragraph_cmd, ")", sep="")
+  as_paragraph_cmd = paste("flextable::as_paragraph(", as_paragraph_cmd, ")", sep="")
 
 
 

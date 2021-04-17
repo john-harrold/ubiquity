@@ -1,6 +1,11 @@
 context("Creating new system files and model templates")
 test_that("System examples", {
 
+  ttdir = getwd()
+  # Changing the working directory to the 
+  # tempdir
+  setwd(tempdir())
+  
   require(tools)
   #Testing the template file
   expect_true(system_new(system_file="template", file_name="system_template.txt", overwrite=TRUE), info="copying system template")

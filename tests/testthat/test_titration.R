@@ -9,13 +9,14 @@ test_that("Running scripts", {
   # Copying the sources to the current folder
   fr = workshop_fetch("Titration", overwrite = TRUE)
   #--------------------
-  # Single subje t example
-  test_file("analysis_repeat_dosing.r")                    
-  test_file("analysis_repeat_infusion.r")
-  test_file("analysis_state_reset.r")                      
-  test_file("analysis_visit_dosing_titration.r")           
-  test_file("analysis_visit_dosing_titration_stochastic.r")
-  test_file("analysis_visit_infusion_dosing.r")  
+  if (Sys.getenv("USER") != "travis") {
+    expect_true(check_code("analysis_repeat_dosing.r")[["isgood"]],                        "analysis_repeat_dosing.r")                     
+    expect_true(check_code("analysis_repeat_infusion.r")[["isgood"]],                      "analysis_repeat_infusion.r")
+    expect_true(check_code("analysis_state_reset.r")[["isgood"]],                          "analysis_state_reset.r")                      
+    expect_true(check_code("analysis_visit_dosing_titration.r")[["isgood"]],               "analysis_visit_dosing_titration.r")           
+    expect_true(check_code("analysis_visit_dosing_titration_stochastic.r")[["isgood"]],    "analysis_visit_dosing_titration_stochastic.r")
+    expect_true(check_code("analysis_visit_infusion_dosing.r")[["isgood"]],                "analysis_visit_infusion_dosing.r")  
+  }
   #--------------------
 })
 
