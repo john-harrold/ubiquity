@@ -23,7 +23,6 @@ cfg = build_system(system_file="system.txt",
 # Loading the system information
 cfg = system_fetch_cfg()
 
-bob
 #
 # Starting a report
 #
