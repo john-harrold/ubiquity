@@ -464,9 +464,9 @@ return(res)}
 #'
 #' \itemize{
 #' \item{[ADAPT]} Adapt 5 Users Guide \url{https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf}
-#' \item{[DG]} Davda et. al. mAbs (2014) 6(4):1094-1102  \url{https://doi.org/10.4161/mabs.29095}
-#' \item{[LB]} Lobo, E.D. & Balthasar, J.P. AAPS J (2002) 4, 212-222  \url{https://doi.org/10.1208/ps040442}
-#' \item{[SB]} Shah, D.K. & Betts, A.M. JPKPD (2012) 39 (1), 67-86 \url{https://doi.org/10.1007/s10928-011-9232-2}
+#' \item{[DG]} Davda et. al. mAbs (2014) 6(4):1094-1102  \doi{doi.org/10.4161/mabs.29095}
+#' \item{[LB]} Lobo, E.D. & Balthasar, J.P. AAPS J (2002) 4, 212-222  \doi{doi.org/10.1208/ps040442}
+#' \item{[SB]} Shah, D.K. & Betts, A.M. JPKPD (2012) 39 (1), 67-86 \doi{doi.org/10.1007/s10928-011-9232-2}
 #'}
 #'
 #'
