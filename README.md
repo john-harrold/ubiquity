@@ -5,7 +5,7 @@
 [![version](https://www.r-pkg.org/badges/version/ubiquity)](https://CRAN.R-project.org/package=ubiquity)
 ![cranlogs](https://cranlogs.r-pkg.org/badges/ubiquity) 
 ![Active](https://www.repostatus.org/badges/latest/active.svg)
-[![Lifecycle: Stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
+[![Lifecycle: Stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 
 ### Information 
 
@@ -20,8 +20,8 @@ For detailed software requirements and installation instructions see this page:
 Briefly, install the following:
 
 * [R](<https://cran.r-project.org>)
-* [RStudio](<https://rstudio.com/products/rstudio/download/>)
-* [Perl (Windows)](<http://strawberryperl.com/>)
+* [RStudio](<https://www.rstudio.com/products/rstudio/>)
+* [Perl (Windows)](<https://strawberryperl.com/>)
 * [Rtools (Windows)](<https://cran.r-project.org/bin/windows/Rtools/>)
 
 To install the development version from GitHub:
