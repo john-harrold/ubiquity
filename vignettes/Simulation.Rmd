@@ -1,5 +1,5 @@
 ---
-title: 'Individual and Population Simulations in Ubiquity'
+title: 'Individual and Population Simulations'
 author: "John Harrold & Anson Abraham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette

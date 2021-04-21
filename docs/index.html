@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ubiquity</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.5</span>
       </span>
     </div>
 
@@ -69,7 +69,7 @@
       <a href="articles/Reporting.html">Report Generation</a>
     </li>
     <li>
-      <a href="articles/Simulation.html">Individual and Population Simulations in Ubiquity</a>
+      <a href="articles/Simulation.html">Individual and Population Simulations</a>
     </li>
     <li>
       <a href="articles/Titration.html">Titration/Rule-Based Simulations</a>
@@ -96,13 +96,13 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="ubiquity-r-package" class="section level2">
+<div id="ubiquity-r-workflow" class="section level2">
 <h2 class="hasAnchor">
-<a href="#ubiquity-r-package" class="anchor"></a>ubiquity R package</h2>
+<a href="#ubiquity-r-workflow" class="anchor"></a>ubiquity R Workflow</h2>
 
-<div id="information" class="section level3">
+<div id="overview" class="section level3">
 <h3 class="hasAnchor">
-<a href="#information" class="anchor"></a>Information</h3>
+<a href="#overview" class="anchor"></a>Overview</h3>
 <p>Provides an interface to the R workflow for <a href="https://ubiquity.tools/rworkflow">ubiquity</a>: a set of modeling tools created to accelerate the development and deployment of models of drug disposition and efficacy within an organization or institution. It is designed to make model development easier, reduce the pain when moving between modeling software, and provide a simple but customizable interface to allow other scientists to interrogate models. It is provide free under a BSD license with source code available in GitHub (<a href="https://github.com/john-harrold/ubiquity">R-package</a>, <a href="https://github.com/john-harrold/ubiquity-pkpd">ubiquity project</a>).</p>
 </div>
 <div id="installing-ubiquity" class="section level3">
@@ -112,37 +112,40 @@
 <p>Briefly, install the following:</p>
 <ul>
 <li><a href="https://cran.r-project.org">R</a></li>
-<li><a href="https://rstudio.com/products/rstudio/download/">RStudio</a></li>
-<li><a href="http://strawberryperl.com/">Perl (Windows)</a></li>
+<li><a href="https://www.rstudio.com/products/rstudio/">RStudio</a></li>
+<li><a href="https://strawberryperl.com/">Perl (Windows)</a></li>
 <li><a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools (Windows)</a></li>
 </ul>
 <p>To install the development version from GitHub:</p>
-<pre><code><a href="https://rdrr.io/r/utils/install.packages.html">install.packages("devtools") 
-devtools::install_github("john-harrold/ubiquity",                                       
-              force           = TRUE,
-              build           = TRUE, 
-              build_vignettes = TRUE,
-              build_opts      = c("--no-resave-data", "--no-manual"))</a></code></pre>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span> 
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"john-harrold/ubiquity"</span>,                                       
+              force           <span class="op">=</span> <span class="cn">TRUE</span>,
+              build           <span class="op">=</span> <span class="cn">TRUE</span>, 
+              build_vignettes <span class="op">=</span> <span class="cn">TRUE</span>,
+              build_opts      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"--no-resave-data"</span>, <span class="st">"--no-manual"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="getting-started" class="section level3">
 <h3 class="hasAnchor">
 <a href="#getting-started" class="anchor"></a>Getting started</h3>
+<p>For full documentation go to the <a href="https://john-harrold.github.io/ubiquity/">ubiquity vignettes and manuals</a> are available.</p>
 <p>For more information on specific tasks see the following vignettes:</p>
 <ul>
-<li>Constructing ODE based systems using the ubiquity language: <code><a href="articles/Language.html">vignette("Language", package = "ubiquity")</a></code>
+<li>
+<a href="https://john-harrold.github.io/ubiquity/articles/Language.html">Language</a>: Constructing ODE based systems using the ubiquity language</li>
+<li>
+<a href="https://john-harrold.github.io/ubiquity/articles/Simulation.html">Simulation</a>: Running individual and population simulations: <code><a href="articles/Simulation.html">vignette("Simulation", package = "ubiquity")</a></code>
 </li>
-<li>Running individual and population simulations: <code><a href="articles/Simulation.html">vignette("Simulation", package = "ubiquity")</a></code>
-</li>
-<li>Naive-pooled parameter estimation: <code><a href="articles/Estimation.html">vignette("Estimation", package = "ubiquity")</a></code>
-</li>
-<li>Rule-based/titration simulations: <code><a href="articles/Titration.html">vignette("Titration", package = "ubiquity")</a></code>
-</li>
-<li>ShinyApp for running and deploying models: <code><a href="articles/Deployment.html">vignette("Deployment", package = "ubiquity")</a></code>
-</li>
-<li>Inline generation of PowerPoint and Word reports: <code><a href="articles/Reporting.html">vignette("Reporting", package = "ubiquity")</a></code>
-</li>
-<li>Automated non-compartmental analysis with PKNCA: <code><a href="articles/NCA.html">vignette("NCA", package = "ubiquity")</a></code>
-</li>
+<li>
+<a href="https://john-harrold.github.io/ubiquity/articles/Estimation.html">Estimation</a>: Naive-pooled parameter estimation</li>
+<li>
+<a href="https://john-harrold.github.io/ubiquity/articles/Titration.html">Titration</a>:Rule-based/titration simulations</li>
+<li>
+<a href="https://john-harrold.github.io/ubiquity/articles/Deployment.html">Deployment</a>: ShinyApp for running and deploying models</li>
+<li>
+<a href="https://john-harrold.github.io/ubiquity/articles/Reporting.html">Reporting</a>: Inline generation of PowerPoint and Word reports</li>
+<li>
+<a href="https://john-harrold.github.io/ubiquity/articles/NCA.html">NCA</a>: Automated non-compartmental analysis with PKNCA</li>
 </ul>
 </div>
 <div id="changes-and-updates" class="section level3">
@@ -185,7 +188,7 @@ devtools::install_github("john-harrold/ubiquity",
 <ul class="list-unstyled">
 <li><a href="https://travis-ci.com/john-harrold/ubiquity"><img src="https://travis-ci.com/john-harrold/ubiquity.svg?branch=master" alt="Build Status"></a></li>
 <li><a href="https://CRAN.R-project.org/package=ubiquity"><img src="https://www.r-pkg.org/badges/version/ubiquity" alt="version"></a></li>
-<li><a href="https://www.tidyverse.org/lifecycle/#stable"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: Stable"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: Stable"></a></li>
 </ul>
 </div>
 </div>

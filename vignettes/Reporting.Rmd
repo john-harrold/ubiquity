@@ -693,28 +693,17 @@ To use a custom template for your organization you need to do the following:
 Using your organizational template create slide masters below with the content elements to the right. The title element of the ``title_slide`` and ``section_slide`` should be of the type ``ctrTitle``. For the rest of the slides the title elements should be of the type ``title``, and the other elements should simply be of type ``body``. The format of the body elements should be plain text unless identified parenthetically below.
 
 
-----------------------------------------------------------------------------------------------------------------
-Master layout name          Content elements
------------------------------------------------------------------------------------------------------------------
- title_slide                title, subtitle
-                           
- section_slide              title, subtitle
-                           
- content_text               title, subtitle, main content 
-                           
- content_list               title, subtitle, main content (list)
-                           
- two_content_list           title, subtitle, left, right, left body (list), right body (list)
- 
- two_content_text           title, subtitle, left, right, left body, right body 
-                           
- two_content_header_list    title, subtitle, left header, right header, left body (list), right body (list)
- 
- two_content_header_text    title, subtitle, left header, right header, left body, right body
- 
- title_only                 title
-
-----------------------------------------------------------------------------------------------------------------
+| Master layout name        | Content elements                                                                   | 
+|:--------------------------|:-----------------------------------------------------------------------------------|
+| title_slide               | title, subtitle                                                                    |
+| section_slide             | title, subtitle                                                                    | 
+| content_text              | title, subtitle, main content                                                      |
+| content_list              | title, subtitle, main content (list)                                               |
+| two_content_list          | title, subtitle, left, right, left body (list), right body (list)                  |
+| two_content_text          | title, subtitle, left, right, left body, right body                                |
+| two_content_header_list   | title, subtitle, left header, right header, left body (list), right body (list)    |
+| two_content_header_text   | title, subtitle, left header, right header, left body, right body                  |
+| title_only                | title                                                                              |
 
 
 #### Creating a Word template for your organization
@@ -847,7 +836,7 @@ Sometimes the functions provided above are not sufficient to get what you want d
 rpt = system_report_fetch(cfg)
 ```
 
-Now ``rpt`` is an ``officer`` object. If contains a PowerPoint presentation you can use all of the``officer`` functions for PowerPoint to modify that object. If it's a Word document you can use the Word functions from ``officer`` to modify/add content. Once you're done making changes you can put the object back using ``system_report_set``:
+Now ``rpt`` is an ``officer`` object. If it contains a PowerPoint presentation you can use all of the ``officer`` functions for PowerPoint to modify that object. If it's a Word document you can use the Word functions from ``officer`` to modify/add content. Once you're done making changes you can put the object back using ``system_report_set``:
 
 ```{r results="hide", message=FALSE, warning=FALSE, eval=FALSE}
 cfg = system_report_set(cfg, rpt = rpt) 

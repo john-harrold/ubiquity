@@ -1,4 +1,4 @@
-## ubiquity R package
+## ubiquity R Workflow 
 
 ![R-CMD-check](https://github.com/john-harrold/ubiquity/workflows/R-CMD-check/badge.svg)
 [![Build Status](https://travis-ci.com/john-harrold/ubiquity.svg?branch=master)](https://travis-ci.com/john-harrold/ubiquity)
@@ -7,7 +7,7 @@
 ![Active](https://www.repostatus.org/badges/latest/active.svg)
 [![Lifecycle: Stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 
-### Information 
+### Overview  
 
 Provides an interface to the R workflow for [ubiquity](<https://ubiquity.tools/rworkflow>): a set of modeling tools created to accelerate the development and deployment of models of drug disposition and efficacy within an organization or institution. It is designed to make model development easier, reduce the pain when moving between modeling software, and provide a simple but customizable interface to allow other scientists to interrogate models. It is provide free under a BSD license with source code available in GitHub ([R-package](https://github.com/john-harrold/ubiquity), [ubiquity project](https://github.com/john-harrold/ubiquity-pkpd)). 
 
@@ -25,7 +25,8 @@ Briefly, install the following:
 * [Rtools (Windows)](<https://cran.r-project.org/bin/windows/Rtools/>)
 
 To install the development version from GitHub:
-```
+
+```r
 install.packages("devtools") 
 devtools::install_github("john-harrold/ubiquity",                                       
               force           = TRUE,
@@ -36,15 +37,18 @@ devtools::install_github("john-harrold/ubiquity",
 
 ### Getting started
 
+For full documentation go to the [ubiquity vignettes and manuals](<https://john-harrold.github.io/ubiquity/>) are available.
+
 For more information on specific tasks see the following vignettes: 
 
-* Constructing ODE based systems using the ubiquity language: ``vignette("Language", package = "ubiquity")``
-* Running individual and population simulations: ``vignette("Simulation", package = "ubiquity")``
-* Naive-pooled parameter estimation: ``vignette("Estimation", package = "ubiquity")``
-* Rule-based/titration simulations: ``vignette("Titration", package = "ubiquity")``
-* ShinyApp for running and deploying models: ``vignette("Deployment", package = "ubiquity")``
-* Inline generation of PowerPoint and Word reports: ``vignette("Reporting", package = "ubiquity")``
-* Automated non-compartmental analysis with PKNCA: ``vignette("NCA", package = "ubiquity")``
+* [Language](https://john-harrold.github.io/ubiquity/articles/Language.html): Constructing ODE based systems using the ubiquity language
+* [Simulation](https://john-harrold.github.io/ubiquity/articles/Simulation.html): Running individual and population simulations: ``vignette("Simulation", package = "ubiquity")``
+* [Estimation](https://john-harrold.github.io/ubiquity/articles/Estimation.html):  Naive-pooled parameter estimation
+* [Titration](https://john-harrold.github.io/ubiquity/articles/Titration.html):Rule-based/titration simulations
+* [Deployment](https://john-harrold.github.io/ubiquity/articles/Deployment.html):  ShinyApp for running and deploying models
+* [Reporting](https://john-harrold.github.io/ubiquity/articles/Reporting.html): Inline generation of PowerPoint and Word reports
+* [NCA](https://john-harrold.github.io/ubiquity/articles/NCA.html):
+Automated non-compartmental analysis with PKNCA
 
 ### Changes and Updates
 See the 
