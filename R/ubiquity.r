@@ -15075,6 +15075,7 @@ tic <- function(type=c("elapsed", "user.self", "sys.self"))
 #'@seealso \code{\link{tic}}
 toc <- function()
 {
+  type = NULL
   tic_toc = NULL
   tic_file = file.path(tempdir(), "tic.RData")
   if(file.exists(tic_file)){
