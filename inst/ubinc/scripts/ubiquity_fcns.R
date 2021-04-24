@@ -15037,4 +15037,57 @@ system_glp_scenario = function(cfg,
 cfg }
 #-------------------------------------------------------------------------
 
+#'@export
+#'@title Implementation of Matlab \code{tic()} command
+#'@description Used in conjunction with \code{toc()} to find the elapsed time
+#' when code is executed. 
+#'
+#'@param type can be either \code{"elapsed"} \code{"user.self"} or \code{"sys.self"} 
+#'
+#'@return time tic was called
+#'
+#'@examples
+#' tic()
+#' Sys.sleep(3)
+#' toc()
+#'@seealso \code{\link{toc}}
+tic <- function(type=c("elapsed", "user.self", "sys.self"))
+{
+  type <- match.arg(type)
+  tic <- proc.time()[type]         
+  tic_file = file.path(tempdir(), "tic.RData")
+  save(tic, type, file=tic_file)
+  invisible(tic)
+}
+
+#-------------------------------------------------------------------------
+#'@export
+#'@title Implementation of Matlab \code{toc()} command
+#'@description Used in conjunction with \code{tic()} to find the elapsed time
+#' when code is executed. 
+#'
+#'@return time in seconds since tic() was called
+#'
+#'@examples
+#' tic()
+#' Sys.sleep(3)
+#' toc()
+#'@seealso \code{\link{tic}}
+toc <- function()
+{
+  tic_toc = NULL
+  tic_file = file.path(tempdir(), "tic.RData")
+  if(file.exists(tic_file)){
+    load(tic_file)
+    toc <- proc.time()[type]
+    tic_toc = toc-tic
+  } else {
+    warning("toc()\nUnable to find tic() information. Run tic() before toc()")
+  }
+
+tic_toc}
+
+
+
+
 

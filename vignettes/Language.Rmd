@@ -24,7 +24,7 @@ At its core, ubiquity is a modeling language and a set of scripts meant to facil
 ## Parameters 
 ### System parameters ``<P>``
 
-Each system parameter is specified with a name, value, lower bound, upper bound, units, whether it should be editable in the ShinyApp and the 'type' of parameter (grouping in the ShinyApp). The values of eps (machine precision, smallest value that is not zero) and inf (infinity) can be used. For example to specify a parameter koffR with a value of .1 that is positive and a parameter KDR with a value of .04 that is also positive:
+Each system parameter is specified with a name, value, lower bound, upper bound, units, whether it should be editable in the ShinyApp and the 'type' of parameter (grouping in the ShinyApp). The values of eps (machine precision, smallest value that is not zero) and inf (infinity) can be used. For example to specify a parameter koffR with a value of .1 that is positive and a parameter KDR with a value of .04 that is also positive the following would be used:
 
 ~~~
 #   name  value    lb     ub   units  editable type
@@ -207,13 +207,23 @@ In the system format this would be written in the following manner:
 H2O2 =kdeg=> H2O + [0.5]O2
 ~~~
 
+
 And this will be translated in to the following differential equations:
+
+$$
+\frac{dH_2O_2}{dt}=-k_{deg}H_2O_2 \\
+\frac{dH_2O}{dt}= k_{deg}H_2O_2 \\
+\frac{dO_2}{dt}= 0.5k_{deg}H_2O_2
+$$
+
+Which could also be defined as differential equations using the `<ODE:?>?`. This is the equivalent:
 
 ~~~
 <ODE:H2O2>   - kdeg*H2O2 
 <ODE:H2O>      kdeg*H2O2 
 <ODE:O2>   0.5*kdeg*H2O2 
 ~~~
+
 
 The rates (e.g. ``kdeg``) need to be defined as either a system or secondary parameter. This is where you can put saturable terms, such as Michaelis-Menten kinetics.
 
@@ -226,19 +236,46 @@ A + B =konR=>   C
 C     =koffR=>  A + B
 ~~~
 
-Or these can be written as equilibrium equations:
+Or these can be written as equilibrium equations with the forward (`konR`) and reverse (`koffR`) rates specified as:
 
 ~~~
 A + B  <=konR:koffR=>  C       
 ~~~
 
-To write this as differential equations, the following would be used:
+To specify this reaction as differential equations, the following could have also been used:
 
 ~~~
 <ODE:A>  koffR*C - konR*A*B
 <ODE:B>  koffR*C - konR*A*B
 <ODE:C> -koffR*C + konR*A*B
 ~~~
+
+The stoichiometric coefficients also define the reaction order here. For example, to create the following equilibrium reaction:
+
+$$ 2A + 3B \mathop{\rightleftarrows}^{\mathrm{k_f}}_{\mathrm{k_r}}  4C $$
+
+This rate notation could be used in the system file:
+
+~~~
+[2]A + [3]B  <=kf:kr=>  [4]C       
+~~~
+
+Which will produce the following in terms of differential equations:
+
+$$
+\frac{dA}{dt} = 2k_rC^4 - 2k_fA^2B^3 \\
+\frac{dB}{dt} = 3k_rC^4 - 3k_fA^2B^3 \\
+\frac{dC}{dt} =-4k_rC^4 + 4k_fA^2B^3
+$$
+To write this equilibrium reaction as differential equations the following would be used:
+
+~~~
+<ODE:A>   =  2*kr*SIMINT_POWER[C][4] - 2*kf*SIMINT_POWER[A][2]*SIMINT_POWER[B][3]
+<ODE:B>   =  3*kr*SIMINT_POWER[C][4] - 3*kf*SIMINT_POWER[A][2]*SIMINT_POWER[B][3]
+<ODE:C>   = -4*kr*SIMINT_POWER[C][4] + 4*kf*SIMINT_POWER[A][2]*SIMINT_POWER[B][3]
+~~~
+
+See below about generic functions such as `SIMINT_POWER[][]`.
 
 ### Sources and sinks  ``<S:?>``
 This method allows turnover to be described in terms of synthesis and degradation terms.
