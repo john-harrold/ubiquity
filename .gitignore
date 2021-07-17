@@ -1,0 +1,12 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+inst/doc
+vignettes/transient/*
+vignettes/output/*
+vignettes/*.html
+vignettes/*.R
+vignettes/*.txt
+vignettes/*.pptx
+vignettes/*.docx

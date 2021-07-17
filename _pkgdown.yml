@@ -1,5 +1,7 @@
+template:
+  params:
+    bootswatch: united 
 reference:
-
 - title: "System Basics"  
   desc: "Building systems, setting options, access workshop elements etc."
 - contents:
@@ -12,7 +14,6 @@ reference:
   - system_check_requirements
   - system_set_option
   - system_set_iiv
-  
 - title: "Simulation"
   desc: "Individual and population simulations"
 - contents:
@@ -22,17 +23,14 @@ reference:
   - system_select_set
   - som_to_df
   - system_check_steady_state
-  
   - system_zero_inputs
   - system_set_bolus
   - system_set_rate
   - system_set_covariate
-  
   - run_simulation_titrate
   - system_new_tt_rule
   - system_set_tt_cond
   - system_set_tt_rate
-  
 - title: "Estimation"
   desc: "Naive-pooled parameters estimation"
 - contents:
@@ -44,7 +42,6 @@ reference:
   - system_define_cohorts_nm
   - system_simulate_estimation_results
   - system_od_general
-  
 - title: "Reporting"
   desc: "The following functions are used to create, modify and save Word and PowerPoint reports"
 - contents:
@@ -53,12 +50,10 @@ reference:
   - system_fetch_report_format
   - md_to_officer
   - md_to_oo
-  
 - title: "NCA"
   desc: "The following functions are used to run NCA and summarize results"
 - contents:
   - starts_with("system_nca_")
-  
 - title: "General Functions"
   desc: ""
 - contents:
@@ -72,4 +67,29 @@ reference:
   - var2string
   - system_log_debug_save
   - system_log_init
-  
+navbar:
+  left:
+  - text: Tutorials
+    icon: fas fa-chalkboard-teacher
+    menu:
+        - text: "--------------------------"
+        - text: "Getting Started"
+        - text: "Individual and Population Simulations"
+          href: articles/Simulation.html
+        - text: "ubiquity Modeling Language"
+          href: articles/Language.html
+        - text: "Naive-Pooled Parameter Estimation"
+          href: articles/Estimation.html
+        - text: "--------------------------"
+        - text: "Other Analysis Options"
+        - text: "Deploying Your Models in a Shiny App"
+          href: articles/Deployment.html
+        - text: "Trial/Rule-Based Simulations"
+          href: articles/Titration.html
+        - text: "Non-Compartmental Analysis"
+          href: articles/NCA.html
+        - text: "Integrated Word and PowerPoint Reporting"
+          href: articles/Reporting.html
+  - text: "Functions"
+    icon: fa-file-code-o fa-lg
+    href: reference/index.html
