@@ -90,6 +90,15 @@ navbar:
           href: articles/NCA.html
         - text: "Integrated Word and PowerPoint Reporting"
           href: articles/Reporting.html
+  - text: Screencasts  
+    icon: fa-vimeo
+    menu:
+        - text: "Individual and Population Simulations"
+          href: https://vimeo.com/382859445
+        - text: "Model Deployment"
+          href: https://vimeo.com/382860283
+        - text: "Naive-Pooled Parameter Estimation"
+          href: https://vimeo.com/manage/videos/382829588 
   - text: "Functions"
     icon: fa-file-code-o fa-lg
     href: reference/index.html
