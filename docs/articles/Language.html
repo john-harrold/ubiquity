@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Modeling Language • ubiquity</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/united/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -37,44 +37,48 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    <span class="fas fa-chalkboard-teacher"></span>
+     
+    Tutorials
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/Deployment.html">Model Deployment</a>
-    </li>
-    <li>
-      <a href="../articles/Estimation.html">Naive-Pooled Parameter Estimation</a>
-    </li>
-    <li>
-      <a href="../articles/Language.html">Modeling Language</a>
-    </li>
-    <li>
-      <a href="../articles/NCA.html">Noncompartmental Analysis</a>
-    </li>
-    <li>
-      <a href="../articles/Reporting.html">Report Generation</a>
-    </li>
+<li class="divider">
+    <li class="dropdown-header">Getting Started</li>
     <li>
       <a href="../articles/Simulation.html">Individual and Population Simulations</a>
     </li>
     <li>
-      <a href="../articles/Titration.html">Titration/Rule-Based Simulations</a>
+      <a href="../articles/Language.html">ubiquity Modeling Language</a>
+    </li>
+    <li>
+      <a href="../articles/Estimation.html">Naive-Pooled Parameter Estimation</a>
+    </li>
+    <li class="divider">
+    <li class="dropdown-header">Other Analysis Options</li>
+    <li>
+      <a href="../articles/Deployment.html">Deploying Your Models in a Shiny App</a>
+    </li>
+    <li>
+      <a href="../articles/Titration.html">Trial/Rule-Based Simulations</a>
+    </li>
+    <li>
+      <a href="../articles/NCA.html">Non-Compartmental Analysis</a>
+    </li>
+    <li>
+      <a href="../articles/Reporting.html">Integrated Word and PowerPoint Reporting</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">
+    <span class="fas fa-file-code-o fa-lg"></span>
+     
+    Functions
+  </a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
@@ -94,13 +98,13 @@
 
       
 
-      </header><script src="Language_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="Language_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Modeling Language</h1>
                         <h4 class="author">John Harrold &amp; Anson Abraham</h4>
             
-            <h4 class="date">2021-04-19</h4>
+            <h4 class="date">2021-07-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Language.Rmd"><code>vignettes/Language.Rmd</code></a></small>
       <div class="hidden name"><code>Language.Rmd</code></div>
@@ -121,7 +125,7 @@
 <h3 class="hasAnchor">
 <a href="#system-parameters-p" class="anchor"></a>System parameters <code>&lt;P&gt;</code>
 </h3>
-<p>Each system parameter is specified with a name, value, lower bound, upper bound, units, whether it should be editable in the ShinyApp and the ‘type’ of parameter (grouping in the ShinyApp). The values of eps (machine precision, smallest value that is not zero) and inf (infinity) can be used. For example to specify a parameter koffR with a value of .1 that is positive and a parameter KDR with a value of .04 that is also positive:</p>
+<p>Each system parameter is specified with a name, value, lower bound, upper bound, units, whether it should be editable in the ShinyApp and the ‘type’ of parameter (grouping in the ShinyApp). The values of eps (machine precision, smallest value that is not zero) and inf (infinity) can be used. For example to specify a parameter koffR with a value of .1 that is positive and a parameter KDR with a value of .04 that is also positive the following would be used:</p>
 <pre><code>#   name  value    lb     ub   units  editable type
 &lt;P&gt; koffR 0.1      eps    inf   1/hr  yes      Target
 &lt;P&gt; KDR   0.04     eps    inf   nM    yes      Target</code></pre>
@@ -241,6 +245,12 @@
 <p>In the system format this would be written in the following manner:</p>
 <pre><code>H2O2 =kdeg=&gt; H2O + [0.5]O2</code></pre>
 <p>And this will be translated in to the following differential equations:</p>
+<p><span class="math display">\[
+\frac{dH_2O_2}{dt}=-k_{deg}H_2O_2 \\
+\frac{dH_2O}{dt}= k_{deg}H_2O_2 \\
+\frac{dO_2}{dt}= 0.5k_{deg}H_2O_2
+\]</span></p>
+<p>Which could also be defined as differential equations using the <code>&lt;ODE:?&gt;?</code>. This is the equivalent:</p>
 <pre><code>&lt;ODE:H2O2&gt;   - kdeg*H2O2 
 &lt;ODE:H2O&gt;      kdeg*H2O2 
 &lt;ODE:O2&gt;   0.5*kdeg*H2O2 </code></pre>
@@ -253,12 +263,26 @@
 <p>Forward and reverse reaction rates can be written separately:</p>
 <pre><code>A + B =konR=&gt;   C       
 C     =koffR=&gt;  A + B</code></pre>
-<p>Or these can be written as equilibrium equations:</p>
+<p>Or these can be written as equilibrium equations with the forward (<code>konR</code>) and reverse (<code>koffR</code>) rates specified as:</p>
 <pre><code>A + B  &lt;=konR:koffR=&gt;  C       </code></pre>
-<p>To write this as differential equations, the following would be used:</p>
+<p>To specify this reaction as differential equations, the following could have also been used:</p>
 <pre><code>&lt;ODE:A&gt;  koffR*C - konR*A*B
 &lt;ODE:B&gt;  koffR*C - konR*A*B
 &lt;ODE:C&gt; -koffR*C + konR*A*B</code></pre>
+<p>The stoichiometric coefficients also define the reaction order here. For example, to create the following equilibrium reaction:</p>
+<p><span class="math display">\[ 2A + 3B \mathop{\rightleftarrows}^{\mathrm{k_f}}_{\mathrm{k_r}}  4C \]</span></p>
+<p>This rate notation could be used in the system file:</p>
+<pre><code>[2]A + [3]B  &lt;=kf:kr=&gt;  [4]C       </code></pre>
+<p>Which will produce the following in terms of differential equations:</p>
+<p><span class="math display">\[
+\frac{dA}{dt} = 2k_rC^4 - 2k_fA^2B^3 \\
+\frac{dB}{dt} = 3k_rC^4 - 3k_fA^2B^3 \\
+\frac{dC}{dt} =-4k_rC^4 + 4k_fA^2B^3
+\]</span> To write this equilibrium reaction as differential equations the following would be used:</p>
+<pre><code>&lt;ODE:A&gt;   =  2*kr*SIMINT_POWER[C][4] - 2*kf*SIMINT_POWER[A][2]*SIMINT_POWER[B][3]
+&lt;ODE:B&gt;   =  3*kr*SIMINT_POWER[C][4] - 3*kf*SIMINT_POWER[A][2]*SIMINT_POWER[B][3]
+&lt;ODE:C&gt;   = -4*kr*SIMINT_POWER[C][4] + 4*kf*SIMINT_POWER[A][2]*SIMINT_POWER[B][3]</code></pre>
+<p>See below about generic functions such as <code>SIMINT_POWER[][]</code>.</p>
 </div>
 <div id="sources-and-sinks-s" class="section level3">
 <h3 class="hasAnchor">
