@@ -3,6 +3,7 @@
 .RData
 .Ruserdata
 inst/doc
+inst/ubinc/systems/R
 vignettes/transient/*
 vignettes/output/*
 vignettes/*.html

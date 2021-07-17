@@ -91,7 +91,7 @@ navbar:
         - text: "Integrated Word and PowerPoint Reporting"
           href: articles/Reporting.html
   - text: Screencasts  
-    icon: fa-vimeo
+    icon: fas fa-video
     menu:
         - text: "Individual and Population Simulations"
           href: https://vimeo.com/382859445
@@ -100,6 +100,6 @@ navbar:
         - text: "Naive-Pooled Parameter Estimation"
           href: https://vimeo.com/manage/videos/382829588 
   - text: "Functions"
-    icon: fa-file-code-o fa-lg
+    icon: fas fa-hat-wizard
     href: reference/index.html
     
