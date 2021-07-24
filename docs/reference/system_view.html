@@ -46,6 +46,8 @@ etc) about the system." />
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -56,10 +58,18 @@ etc) about the system." />
 <![endif]-->
 
 
+<!-- dependencies from examples -->
+
+
+  
+
+  
 
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -173,7 +183,7 @@ etc) about the system." />
 etc) about the system.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>system_view</span><span class='op'>(</span><span class='va'>cfg</span>, field <span class='op'>=</span> <span class='st'>"all"</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>system_view</span><span class='op'>(</span><span class='va'>cfg</span>, field <span class='op'>=</span> <span class='st'>"all"</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -210,22 +220,100 @@ etc) about the system.</p>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># To log and display the current system information:</span>
-<span class='co'># \donttest{</span>
-<span class='co'># Creating a system file from the mab_pk example</span>
-<span class='va'>fr</span> <span class='op'>=</span> <span class='fu'><a href='system_new.html'>system_new</a></span><span class='op'>(</span>file_name        <span class='op'>=</span> <span class='st'>"system.txt"</span>, 
-                system_file      <span class='op'>=</span> <span class='st'>"mab_pk"</span>, 
-                overwrite        <span class='op'>=</span> <span class='cn'>TRUE</span>, 
-                output_directory <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>
-
-<span class='co'># Building the system </span>
-<span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'><a href='build_system.html'>build_system</a></span><span class='op'>(</span>system_file  <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='st'>"system.txt"</span><span class='op'>)</span>,
-      output_directory          <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='st'>"output"</span><span class='op'>)</span>,
-      temporary_directory       <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>#&gt; Ubiquity: (https://ubiquity.tools)</span></div><div class='output co'>#&gt; <span class='message'>#&gt; Distribution:           package</span></div><div class='output co'>#&gt; <span class='message'>#&gt; Building the system:    /var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T//Rtmpjqdr3x/system.txt</span></div><div class='output co'>#&gt; <span class='message'>#&gt; Done </span></div><div class='output co'>#&gt; <span class='message'>#&gt; Compiling C version of system</span></div><div class='output co'>#&gt; <span class='message'>#&gt; Loading the shared C library</span></div><div class='output co'>#&gt; <span class='message'>#&gt; System built, to fetch a new template use the following commands:</span></div><div class='output co'>#&gt; <span class='message'>#&gt;   fr = system_fetch_template(cfg, template = "Simulation")</span></div><div class='output co'>#&gt; <span class='message'>#&gt;   fr = system_fetch_template(cfg, template = "Estimation")</span></div><div class='input'>
-  <span class='va'>msgs</span> <span class='op'>=</span> <span class='fu'>system_view</span><span class='op'>(</span><span class='va'>cfg</span>, verbose<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='message'>#&gt;  Parameter Information</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  Parameter set selected:</span></div><div class='output co'>#&gt; <span class='message'>#&gt;    Short Name:  default</span></div><div class='output co'>#&gt; <span class='message'>#&gt;    Description: mAb in Humans</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  Default parameters for current set:</span></div><div class='output co'>#&gt; <span class='message'>#&gt;               name |         value |           units</span></div><div class='output co'>#&gt; <span class='message'>#&gt; ----------------------------------------------------</span></div><div class='output co'>#&gt; <span class='message'>#&gt;                 F1 |        0.7440 |             ---</span></div><div class='output co'>#&gt; <span class='message'>#&gt;                 ka |        0.2820 |           1/day</span></div><div class='output co'>#&gt; <span class='message'>#&gt;                 CL |        0.2000 |           L/day</span></div><div class='output co'>#&gt; <span class='message'>#&gt;                 Vc |        3.6100 |               L</span></div><div class='output co'>#&gt; <span class='message'>#&gt;                 Vp |        2.7500 |               L</span></div><div class='output co'>#&gt; <span class='message'>#&gt;                  Q |        0.7470 |           L/day</span></div><div class='output co'>#&gt; <span class='message'>#&gt;                 MW |      140.0000 |              kD</span></div><div class='output co'>#&gt; <span class='message'>#&gt; ----------------------------------------------------</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  </span></div><div class='output co'>#&gt; <span class='message'>#&gt;  Bolus dosing details </span></div><div class='output co'>#&gt; <span class='message'>#&gt;      field |      values |    scaling |      units</span></div><div class='output co'>#&gt; <span class='message'>#&gt; --------------------------------------------------</span></div><div class='output co'>#&gt; <span class='message'>#&gt;      times |      0 7 14 |          1 |       days</span></div><div class='output co'>#&gt; <span class='message'>#&gt;         Cc |       0 0 0 |  1e3/MW/Vc |         mg</span></div><div class='output co'>#&gt; <span class='message'>#&gt;         At |     400 0 0 |     1e3/MW |         mg</span></div><div class='output co'>#&gt; <span class='message'>#&gt; --------------------------------------------------</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  Infusion rate details </span></div><div class='output co'>#&gt; <span class='message'>#&gt;      Rate  |      field |     values |    scaling |      units</span></div><div class='output co'>#&gt; <span class='message'>#&gt; -----------------------------------------------------------------</span></div><div class='output co'>#&gt; <span class='message'>#&gt;       Dinf |       time |       0 30 |    1/60/24 |        min</span></div><div class='output co'>#&gt; <span class='message'>#&gt;            |     levels |        0 0 | 60*24*1e3/MW |     mg/min</span></div><div class='output co'>#&gt; <span class='message'>#&gt; -----------------------------------------------------------------</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  </span></div><div class='output co'>#&gt; <span class='message'>#&gt;  Covariate details</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  Covariate |      field |     values |      units</span></div><div class='output co'>#&gt; <span class='message'>#&gt; --------------------------------------------------</span></div><div class='output co'>#&gt; <span class='message'>#&gt;       DOSE |       time |          0 |        day</span></div><div class='output co'>#&gt; <span class='message'>#&gt;     (step) |     levels |        400 |         mg</span></div><div class='output co'>#&gt; <span class='message'>#&gt;         WT |       time |          0 |        day</span></div><div class='output co'>#&gt; <span class='message'>#&gt;     (step) |     levels |         60 |         kg</span></div><div class='output co'>#&gt; <span class='message'>#&gt; --------------------------------------------------</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  </span></div><div class='output co'>#&gt; <span class='message'>#&gt;  IIV details</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  IIV/Parameter set:</span></div><div class='output co'>#&gt; <span class='message'>#&gt;    Short Name:  default </span></div><div class='output co'>#&gt; <span class='message'>#&gt;  Variance/covariance matrix</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  </span></div><div class='output co'>#&gt; <span class='message'>#&gt;                                ETAka             ETACL             ETAVc             ETAVp              ETAQ</span></div><div class='output co'>#&gt; <span class='message'>#&gt;              ETAka            0.4160                 0                 0                 0                 0</span></div><div class='output co'>#&gt; <span class='message'>#&gt;              ETACL                 0            0.0988            0.0786            0.0619                 0</span></div><div class='output co'>#&gt; <span class='message'>#&gt;              ETAVc                 0            0.0786            0.1160            0.0377                 0</span></div><div class='output co'>#&gt; <span class='message'>#&gt;              ETAVp                 0            0.0619            0.0377            0.0789                 0</span></div><div class='output co'>#&gt; <span class='message'>#&gt;               ETAQ                 0                 0                 0                 0            0.6990</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  </span></div><div class='output co'>#&gt; <span class='message'>#&gt;  On parameters</span></div><div class='output co'>#&gt; <span class='message'>#&gt;          Vc,      ETAVc(LN)</span></div><div class='output co'>#&gt; <span class='message'>#&gt;          Vp,      ETAVp(LN)</span></div><div class='output co'>#&gt; <span class='message'>#&gt;           Q,       ETAQ(LN)</span></div><div class='output co'>#&gt; <span class='message'>#&gt;          CL,      ETACL(LN)</span></div><div class='output co'>#&gt; <span class='message'>#&gt;          ka,      ETAka(LN)</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  </span></div><div class='output co'>#&gt; <span class='message'>#&gt;  integrate_with          c-file</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  output_times            min = 0; max = 10.0; length = 101  </span></div><div class='output co'>#&gt; <span class='message'>#&gt;  No datasets loaded</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  </span></div><div class='output co'>#&gt; <span class='message'>#&gt; Estimation details </span></div><div class='output co'>#&gt; <span class='message'>#&gt;  Parameter set:          default</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  Parameters estimated:   F1, ka, CL, Vc, Vp, Q, MW</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  objective_type          wls</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  observation_function    system_od_general</span></div><div class='output co'>#&gt; <span class='message'>#&gt;  No cohort information found</span></div><div class='output co'>#&gt; <span class='message'>#&gt; No NCA has been performed</span></div><div class='input'><span class='co'># }</span>
-</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># To log and display the current system information:</span></span>
+<span class='r-in'><span class='co'># \donttest{</span></span>
+<span class='r-in'><span class='co'># Creating a system file from the mab_pk example</span></span>
+<span class='r-in'><span class='va'>fr</span> <span class='op'>=</span> <span class='fu'><a href='system_new.html'>system_new</a></span><span class='op'>(</span>file_name        <span class='op'>=</span> <span class='st'>"system.txt"</span>, </span>
+<span class='r-in'>                system_file      <span class='op'>=</span> <span class='st'>"mab_pk"</span>, </span>
+<span class='r-in'>                overwrite        <span class='op'>=</span> <span class='cn'>TRUE</span>, </span>
+<span class='r-in'>                output_directory <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Building the system </span></span>
+<span class='r-in'><span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'><a href='build_system.html'>build_system</a></span><span class='op'>(</span>system_file  <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='st'>"system.txt"</span><span class='op'>)</span>,</span>
+<span class='r-in'>      output_directory          <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='st'>"output"</span><span class='op'>)</span>,</span>
+<span class='r-in'>      temporary_directory       <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Ubiquity: (https://ubiquity.tools)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Distribution:           package</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Building the system:    /var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T//RtmpwKzNHf/system.txt</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Done </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Compiling C version of system</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Loading the shared C library</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; System built, to fetch a new template use the following commands:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;   fr = system_fetch_template(cfg, template = "Simulation")</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;   fr = system_fetch_template(cfg, template = "Estimation")</span>
+<span class='r-in'></span>
+<span class='r-in'>  <span class='va'>msgs</span> <span class='op'>=</span> <span class='fu'>system_view</span><span class='op'>(</span><span class='va'>cfg</span>, verbose<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Parameter Information</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Parameter set selected:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;    Short Name:  default</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;    Description: mAb in Humans</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Default parameters for current set:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;               name |         value |           units</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; ----------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;                 F1 |        0.7440 |             ---</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;                 ka |        0.2820 |           1/day</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;                 CL |        0.2000 |           L/day</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;                 Vc |        3.6100 |               L</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;                 Vp |        2.7500 |               L</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;                  Q |        0.7470 |           L/day</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;                 MW |      140.0000 |              kD</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; ----------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Bolus dosing details </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;      field |      values |    scaling |      units</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; --------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;      times |      0 7 14 |          1 |       days</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;         Cc |       0 0 0 |  1e3/MW/Vc |         mg</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;         At |     400 0 0 |     1e3/MW |         mg</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; --------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Infusion rate details </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;      Rate  |      field |     values |    scaling |      units</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; -----------------------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;       Dinf |       time |       0 30 |    1/60/24 |        min</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;            |     levels |        0 0 | 60*24*1e3/MW |     mg/min</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; -----------------------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Covariate details</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Covariate |      field |     values |      units</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; --------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;       DOSE |       time |          0 |        day</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;     (step) |     levels |        400 |         mg</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;         WT |       time |          0 |        day</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;     (step) |     levels |         60 |         kg</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; --------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  IIV details</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  IIV/Parameter set:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;    Short Name:  default </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Variance/covariance matrix</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;                                ETAka             ETACL             ETAVc             ETAVp              ETAQ</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;              ETAka            0.4160                 0                 0                 0                 0</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;              ETACL                 0            0.0988            0.0786            0.0619                 0</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;              ETAVc                 0            0.0786            0.1160            0.0377                 0</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;              ETAVp                 0            0.0619            0.0377            0.0789                 0</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;               ETAQ                 0                 0                 0                 0            0.6990</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  On parameters</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;          ka,      ETAka(LN)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;           Q,       ETAQ(LN)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;          Vc,      ETAVc(LN)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;          CL,      ETACL(LN)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;          Vp,      ETAVp(LN)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  integrate_with          c-file</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  output_times            min = 0; max = 10.0; length = 101  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  No datasets loaded</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Estimation details </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Parameter set:          default</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Parameters estimated:   F1, ka, CL, Vc, Vp, Q, MW</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  objective_type          wls</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  observation_function    system_od_general</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  No cohort information found</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; No NCA has been performed</span>
+<span class='r-in'><span class='co'># }</span></span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -237,11 +325,11 @@ etc) about the system.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by John Harrold.</p>
+  <p><p>Developed by John Harrold.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -249,6 +337,8 @@ etc) about the system.</p>
 
   
 
+
+  
 
   </body>
 </html>

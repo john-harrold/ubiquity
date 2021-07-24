@@ -46,6 +46,8 @@ cohorts created with system_define_cohort" />
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -57,9 +59,15 @@ cohorts created with system_define_cohort" />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -173,7 +181,7 @@ cohorts created with system_define_cohort" />
 cohorts created with <code>system_define_cohort</code></p>
     </div>
 
-    <pre class="usage"><span class='fu'>system_od_general</span><span class='op'>(</span><span class='va'>pest</span>, <span class='va'>cfg</span>, estimation <span class='op'>=</span> <span class='cn'>TRUE</span>, details <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>system_od_general</span><span class='op'>(</span><span class='va'>pest</span>, <span class='va'>cfg</span>, estimation <span class='op'>=</span> <span class='cn'>TRUE</span>, details <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -198,13 +206,13 @@ cohorts created with <code>system_define_cohort</code></p>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>If estimation is TRUE then the output is a matrix  of observation details of the format:</p><pre>od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT] </pre>
+    <p>If estimation is TRUE then the output is a matrix  of observation details of the format:</p><pre><code>od$pred  = [TIME, OBS, PRED, VAR, OUTPUT, COHORT] </code></pre>
 
 <p>The values are the observed (<code>OBS</code>) data, predicted
   values (<code>PRED</code>) and variance (<code>VAR</code>) at the given <code>TIME</code>. The columns <code>OUTPUT</code> and
   <code>COHORT</code> can be used for sorting. These should be unique numbers.</p>
 <p>When estimation is <code>FALSE</code> we output <code>od$pred</code> is a data frame with the
- following headings:</p><pre>od$pred  = [TIME, OBS, PRED, VAR, SMOOTH, OUTPUT, COHORT] </pre>
+ following headings:</p><pre><code>od$pred  = [TIME, OBS, PRED, VAR, SMOOTH, OUTPUT, COHORT] </code></pre>
 
 <p>The <code>TIME</code>, <code>OBS</code>, <code>PRED</code> and <code>VAR</code> are the same as those listed above. The <code>SMOOTH</code>
   variable is <code>FALSE</code> for rows that correspond to records in the dataset and
@@ -212,7 +220,7 @@ cohorts created with <code>system_define_cohort</code></p>
   columns here are text values used when defining the cohorts.</p> 
  
 <p>Also the <code>od$all</code> list item is created with all of the simulation information
- stored for each cohort:</p><pre>od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]</pre>
+ stored for each cohort:</p><pre><code>od$all = [ts.time, ts.ts1, ... ts.tsn, pred, name, cohort]</code></pre>
 <ul>
 <li><p><code>tstime</code>             - timescale of the system</p></li>
 <li><p><code>ts.ts1, ... ts.tsn</code> - timescales defined in the system</p></li>
@@ -221,7 +229,7 @@ cohorts created with <code>system_define_cohort</code></p>
 <li><p><code>cohort</code>             - name of the cohort for these predictions</p></li>
 </ul>
 
-<p>Lastly the field <code>isgood</code> will be set to <code>FALSE</code> if any problems are encountered, and <code>TRUE</code> if everything worked.</p><pre><span class='va'>od</span><span class='op'>$</span><span class='va'>isgood</span> <span class='op'>=</span> <span class='cn'>TRUE</span></pre>
+<p>Lastly the field <code>isgood</code> will be set to <code>FALSE</code> if any problems are encountered, and <code>TRUE</code> if everything worked.</p><pre class='sourceCode r'><code><span class='va'>od</span><span class='op'>$</span><span class='va'>isgood</span> <span class='op'>=</span> <span class='cn'>TRUE</span></code></pre>
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -238,11 +246,11 @@ cohorts created with <code>system_define_cohort</code></p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by John Harrold.</p>
+  <p><p>Developed by John Harrold.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -250,6 +258,8 @@ cohorts created with <code>system_define_cohort</code></p>
 
   
 
+
+  
 
   </body>
 </html>

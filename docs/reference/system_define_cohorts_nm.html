@@ -46,6 +46,8 @@ from a NONMEM dataset" />
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -57,9 +59,15 @@ from a NONMEM dataset" />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -173,7 +181,7 @@ from a NONMEM dataset" />
 from a NONMEM dataset</p>
     </div>
 
-    <pre class="usage"><span class='fu'>system_define_cohorts_nm</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>system_define_cohorts_nm</span><span class='op'>(</span>
   <span class='va'>cfg</span>,
   DS <span class='op'>=</span> <span class='st'>"DSNAME"</span>,
   col_ID <span class='op'>=</span> <span class='st'>"ID"</span>,
@@ -187,7 +195,7 @@ from a NONMEM dataset</p>
   filter <span class='op'>=</span> <span class='cn'>NULL</span>,
   INPUTS <span class='op'>=</span> <span class='cn'>NULL</span>,
   OBS <span class='op'>=</span> <span class='cn'>NULL</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -251,12 +259,12 @@ from a NONMEM dataset</p>
     <p>ubiquity system object with cohorts defined.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><b>NOTE: to use this function it is necessary that a timescale be define for the system time scale. For example, if the system time scale was days, something like the following is needed:</b></p><pre>&lt;TS:days&gt; 1</pre>
+    <p><b>NOTE: to use this function it is necessary that a timescale be define for the system time scale. For example, if the system time scale was days, something like the following is needed:</b></p><pre><code>&lt;TS:days&gt; 1</code></pre>
 
-<p>Include all records in the dataset</p><pre><span class='va'>filter</span> <span class='op'>=</span> <span class='cn'>NULL</span></pre>
+<p>Include all records in the dataset</p><pre class='sourceCode r'><code><span class='va'>filter</span> <span class='op'>=</span> <span class='cn'>NULL</span></code></pre>
 
-<p>Include only records matching the following filter</p><pre><span class='va'>filter</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>
-<span class='va'>filter</span><span class='op'>$</span><span class='va'>COLNAME</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>)</span></pre>
+<p>Include only records matching the following filter</p><pre class='sourceCode r'><code><span class='va'>filter</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>
+<span class='va'>filter</span><span class='op'>$</span><span class='va'>COLNAME</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>)</span></code></pre>
 
 <p>Mapping information:</p>
 <p>The inputs mapping information (<code>INPUTMAP</code>) is alist with a field for each type of input:
@@ -264,10 +272,10 @@ input:</p><ul>
 <li><p><code>bolus</code> List with a name for each bolus state in the dataset (<code>&lt;B:?&gt;</code>): each bolus name should have a <code>CMT_NUM</code> field indicating the compartment number for that state</p></li>
 <li><p><code>infusion_rates</code> List with a name for each rate in the dataset (<code>&lt;R:?&gt;</code>): each rate name should have a <code>CMT_NUM</code> field indicating the compartment number for that state</p></li>
 <li><p><code>covariates</code> List with for each covariate in the dataset (<code>&lt;CV:?&gt;</code>): each covariate name should have a <code>col_COV</code> indicating the column in the database that contains that covariate</p></li>
-</ul><p>From a coding perspective it looks like this:</p><pre><span class='va'>INPUTMAP</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>
+</ul><p>From a coding perspective it looks like this:</p><pre class='sourceCode r'><code><span class='va'>INPUTMAP</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>
 <span class='va'>INPUTMAP</span><span class='op'>$</span><span class='va'>bolus</span><span class='op'>$</span><span class='va'>SPECIES</span><span class='op'>$</span><span class='va'>CMT_NUM</span>            <span class='op'>=</span>  <span class='fl'>1</span>
 <span class='va'>INPUTMAP</span><span class='op'>$</span><span class='va'>infusion_rates</span><span class='op'>$</span><span class='va'>RATE</span><span class='op'>$</span><span class='va'>CMT_NUM</span>      <span class='op'>=</span>  <span class='fl'>1</span>
-<span class='va'>INPUTMAP</span><span class='op'>$</span><span class='va'>covariates</span><span class='op'>$</span><span class='va'>CVNAME</span><span class='op'>$</span><span class='va'>col_COV</span>        <span class='op'>=</span> <span class='st'>'CNAME'</span></pre>
+<span class='va'>INPUTMAP</span><span class='op'>$</span><span class='va'>covariates</span><span class='op'>$</span><span class='va'>CVNAME</span><span class='op'>$</span><span class='va'>col_COV</span>        <span class='op'>=</span> <span class='st'>'CNAME'</span></code></pre>
 
 <p>The observation mapping information (<code>OBSMAP</code>) is a list with elements for each output as
 described in for system_define_cohort. Each output is a list with the following names:</p><ul>
@@ -275,11 +283,11 @@ described in for system_define_cohort. Each output is a list with the following 
 <li><p>CMT Compartment number mapping observations for this output</p></li>
 <li><p>output Name of the output (<code>&lt;O&gt;</code>) corresponding with the observations</p></li>
 <li><p>missing Value indicating a missing observation or <code>NULL</code></p></li>
-</ul><p>From a coding perspective it looks like this:</p><pre><span class='va'>OBSMAP</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>
+</ul><p>From a coding perspective it looks like this:</p><pre class='sourceCode r'><code><span class='va'>OBSMAP</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>
 <span class='va'>OBSMAP</span><span class='op'>$</span><span class='va'>ONAME</span><span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>variance     <span class='op'>=</span> <span class='st'>'PRED^2'</span>,
                  CMT          <span class='op'>=</span>  <span class='fl'>1</span>,
                  output       <span class='op'>=</span> <span class='st'>'&lt;O&gt;'</span>,
-                 missing      <span class='op'>=</span>  <span class='cn'>NULL</span> <span class='op'>)</span></pre>
+                 missing      <span class='op'>=</span>  <span class='cn'>NULL</span> <span class='op'>)</span></code></pre>
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -296,11 +304,11 @@ described in for system_define_cohort. Each output is a list with the following 
 
       <footer>
       <div class="copyright">
-  <p>Developed by John Harrold.</p>
+  <p><p>Developed by John Harrold.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -308,6 +316,8 @@ described in for system_define_cohort. Each output is a list with the following 
 
   
 
+
+  
 
   </body>
 </html>

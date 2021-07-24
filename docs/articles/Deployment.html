@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -83,13 +85,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="https://vimeo.com/382859445">Individual and Population Simulations</a>
+      <a href="https://vimeo.com/382859445" class="external-link">Individual and Population Simulations</a>
     </li>
     <li>
-      <a href="https://vimeo.com/382860283">Model Deployment</a>
+      <a href="https://vimeo.com/382860283" class="external-link">Model Deployment</a>
     </li>
     <li>
-      <a href="https://vimeo.com/manage/videos/382829588">Naive-Pooled Parameter Estimation</a>
+      <a href="https://vimeo.com/manage/videos/382829588" class="external-link">Naive-Pooled Parameter Estimation</a>
     </li>
   </ul>
 </li>
@@ -103,7 +105,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/john-harrold/ubiquity/">
+  <a href="https://github.com/john-harrold/ubiquity/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -118,15 +120,15 @@
 
       
 
-      </header><script src="Deployment_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="Deployment_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Model Deployment</h1>
-                        <h4 class="author">John Harrold &amp; Anson K Abraham</h4>
+                        <h4 data-toc-skip class="author">John Harrold &amp; Anson K Abraham</h4>
             
-            <h4 class="date">2021-07-17</h4>
+            <h4 data-toc-skip class="date">2021-07-24</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Deployment.Rmd"><code>vignettes/Deployment.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Deployment.Rmd" class="external-link"><code>vignettes/Deployment.Rmd</code></a></small>
       <div class="hidden name"><code>Deployment.Rmd</code></div>
 
     </div>
@@ -135,11 +137,11 @@
     
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h2>
+<a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction</h2>
 <p>Once a model has been developed it may be useful to provide an easy way to run simulations or automate specific analyses. Do to that, a ubiquity provides a ShinyApp that allows the model to be run from an easy to use interface that is highly customizable. This App can be run locally (useful during meetings to answer quick questions) or deployed on a Shiny server to allow others access to the model.</p>
-<p>To demonstrate this interface we can begin with the PK model of mAbs in humans (<a href="https://doi.org/10.4161/mabs.29095">Davda etal. mAbs, 6(4), 1094-1102</a>) :</p>
+<p>To demonstrate this interface we can begin with the PK model of mAbs in humans (<a href="https://doi.org/10.4161/mabs.29095" class="external-link">Davda etal. mAbs, 6(4), 1094-1102</a>) :</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ubiquity.tools/rworkflow">ubiquity</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ubiquity.tools/rworkflow" class="external-link">ubiquity</a></span><span class="op">)</span>
 <span class="fu"><a href="../reference/system_new.html">system_new</a></span><span class="op">(</span>file_name <span class="op">=</span> <span class="st">"system.txt"</span>, system_file <span class="op">=</span> <span class="st">"mab_pk"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/build_system.html">build_system</a></span><span class="op">(</span>system_file <span class="op">=</span> <span class="st">"system.txt"</span><span class="op">)</span></code></pre></div>
 <p>Use <code><a href="../reference/system_new.html">?system_new</a></code> to see a list of the available system file examples. After building any system you can then create the ShinyApp template:</p>
@@ -157,7 +159,7 @@
 </div>
 <div id="running-the-model" class="section level2">
 <h2 class="hasAnchor">
-<a href="#running-the-model" class="anchor"></a>Running the model</h2>
+<a href="#running-the-model" class="anchor" aria-hidden="true"></a>Running the model</h2>
 <p>Next simply open <code>ubiquity_app.R</code> in RStudio and source it, and RStudio will open in a window associated with that application. The ShinyApp tends to work better when run within a browser.</p>
 <p>After starting the App will load the default dosing from the  file and run the model. The first model output will be plotted. And as you make changes to the App, those changes will be reflected in the user log at the bottom of the screen. You can change the outputs being plotted, the axis limits, and other aspects of the plot using the plot controls below the figure.</p>
 <div class="figure">
@@ -166,7 +168,7 @@
 <p>The intent is to provide a quick method to get the model up and running with default behaviors that will provide for most of what users will need. The behavior of the ShinyApp can be further customized (described below). First we will discuss the default interface:</p>
 <div id="altering-dosing" class="section level3">
 <h3 class="hasAnchor">
-<a href="#altering-dosing" class="anchor"></a>Altering dosing</h3>
+<a href="#altering-dosing" class="anchor" aria-hidden="true"></a>Altering dosing</h3>
 <p>A list of bolus times and values can be specified as comma-separated values. To dose in a repeated fashion check the ``Repeat the last dose’’ box, provide a dosing interval (in the same units as the dosing times), and give the number of doses to administer. The example here will repeat the 400 mg dose every two weeks for two doses.</p>
 <div class="figure">
 <img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/vignettes/ShinyApp-ss-Bolus.png" style="width:50.0%" alt=""><p class="caption">Bolus Dosing</p>
@@ -178,7 +180,7 @@
 </div>
 <div id="population-simulations" class="section level3">
 <h3 class="hasAnchor">
-<a href="#population-simulations" class="anchor"></a>Population simulations</h3>
+<a href="#population-simulations" class="anchor" aria-hidden="true"></a>Population simulations</h3>
 <p>If the variability for system parameters has been specified (<code>&lt;IIV:?&gt;?</code> and <code>&lt;IIVCOR:?&gt;?</code>) then a “Variability” tab will be visible. Simply check the “Simulate with variability” box, alter the number of subjects, prediction interval, and elements of the variance-covariance matrix to simulate the desired population response.</p>
 <div class="figure">
 <img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/vignettes/ShinyApp-ss-IIV.png" style="width:50.0%" alt=""><p class="caption">Population simulation options</p>
@@ -191,7 +193,7 @@
 </div>
 <div id="saving-model-results" class="section level2">
 <h2 class="hasAnchor">
-<a href="#saving-model-results" class="anchor"></a>Saving model results</h2>
+<a href="#saving-model-results" class="anchor" aria-hidden="true"></a>Saving model results</h2>
 <div class="figure">
 <img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/vignettes/ShinyApp-ss-Save.png" style="width:60.0%" alt=""><p class="caption">Saving an analysis</p>
 </div>
@@ -212,19 +214,19 @@
 </ul>
 <div id="model-scripts" class="section level3">
 <h3 class="hasAnchor">
-<a href="#model-scripts" class="anchor"></a>Model scripts</h3>
+<a href="#model-scripts" class="anchor" aria-hidden="true"></a>Model scripts</h3>
 <p>The files <code>analysis_NAME.r</code> and <code>analysis_NAME_lib.r</code> can be used in two ways. First, these two files can be used as stand-alone files to recreate the simulation results from the ShinyApp. Creating Simulation Scripts The main script (<code>analysis_NAME.r</code>) can be used as a starting point to create simulation scripts. To do this it is necessary to modify First comment out the sourcing of the standalone library:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#source("analysis_NAME_lib.r");</span></code></pre></div>
 <p>Next (with this script and the <code>system.txt</code> file) uncommenting the following lines that will force the system to be rebuilt and any changes to the system file loaded.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="va"><a href="https://ubiquity.tools/rworkflow">ubiquity</a></span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/source.html">source</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">'library'</span>, <span class="st">'r_general'</span>, <span class="st">'ubiquity.R'</span><span class="op">)</span><span class="op">)</span> <span class="op">}</span>
+<code class="sourceCode R"><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://ubiquity.tools/rworkflow" class="external-link">ubiquity</a></span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
+  <span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">'library'</span>, <span class="st">'r_general'</span>, <span class="st">'ubiquity.R'</span><span class="op">)</span><span class="op">)</span> <span class="op">}</span>
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/build_system.html">build_system</a></span><span class="op">(</span>system_file<span class="op">=</span><span class="st">"system.txt"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="controlling-what-is-saved" class="section level3">
 <h3 class="hasAnchor">
-<a href="#controlling-what-is-saved" class="anchor"></a>Controlling what is saved</h3>
+<a href="#controlling-what-is-saved" class="anchor" aria-hidden="true"></a>Controlling what is saved</h3>
 <p>In certain instances you may not want to allow the user access to everything that is saved by default. If you edit the <code>ubiquity_app.R</code> you can alter what is being pushed to the user by setting the relevant fields to <code>FALSE</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span><span class="op">$</span><span class="va">gui</span><span class="op">$</span><span class="va">save</span><span class="op">$</span><span class="va">system_txt</span> <span class="op">=</span> <span class="cn">TRUE</span>
@@ -233,19 +235,19 @@
 </div>
 <div id="model-documentation" class="section level2">
 <h2 class="hasAnchor">
-<a href="#model-documentation" class="anchor"></a>Model documentation</h2>
+<a href="#model-documentation" class="anchor" aria-hidden="true"></a>Model documentation</h2>
 <div id="model-diagram" class="section level3">
 <h3 class="hasAnchor">
-<a href="#model-diagram" class="anchor"></a>Model diagram</h3>
+<a href="#model-diagram" class="anchor" aria-hidden="true"></a>Model diagram</h3>
 <p>It can be difficult for a user to look at a set of parameters, dosing inputs, and outputs and determine how a model works. To aid the user it can be useful to create a model diagram. To utilize the majority of the screen space, the image should be roughly twice as wide as it is tall.</p>
-<p>You can create this image in your favorite drawing program. Inkscape is a free vector drawing program available at <a href="https://inkscape.org">inkscape.org</a>. If you run the following:</p>
+<p>You can create this image in your favorite drawing program. Inkscape is a free vector drawing program available at <a href="https://inkscape.org" class="external-link">inkscape.org</a>. If you run the following:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/system_fetch_template.html">system_fetch_template</a></span><span class="op">(</span><span class="va">cfg</span>, template<span class="op">=</span><span class="st">"Model Diagram"</span><span class="op">)</span></code></pre></div>
 <p>it will create the file <code>system.svg</code>. You can edit it and save it as a portable network graphics (png) file named <code>system.png</code> in the directory with the <code>ubiquity_app.R</code> file. When you start the ShinyApp it should find that file and create a tab in the plotting area of the App.</p>
 </div>
 <div id="model-reports" class="section level3">
 <h3 class="hasAnchor">
-<a href="#model-reports" class="anchor"></a>Model reports</h3>
+<a href="#model-reports" class="anchor" aria-hidden="true"></a>Model reports</h3>
 <p>Sometimes you need more detail than an annotated model diagram. Or you may need to perform some calculations based on the results of a simulation. It may be better to present information in a tabulated format. For these scenarios you can create an RMarkdown file. Create a copy the report template (<code>system_report.Rmd</code>) and a script to test it (<code>test_system_report.r</code>):</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/system_fetch_template.html">system_fetch_template</a></span><span class="op">(</span><span class="va">cfg</span>, template<span class="op">=</span><span class="st">"Shiny Rmd Report"</span><span class="op">)</span></code></pre></div>
@@ -266,12 +268,12 @@
 </ul>
 <p>Next load the test script, modify the report name accordingly, and run it:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="st">"transient/rgui/default/gui_som.RData"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="st">"transient/rgui/default/gui_state.RData"</span><span class="op">)</span>
-<span class="va">params</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="st">"transient/rgui/default/gui_som.RData"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="st">"transient/rgui/default/gui_state.RData"</span><span class="op">)</span>
+<span class="va">params</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">params</span><span class="op">$</span><span class="va">cfg</span> <span class="op">=</span> <span class="va">cfg</span>
 <span class="va">params</span><span class="op">$</span><span class="va">som</span> <span class="op">=</span> <span class="va">som</span>
-<span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/render.html">render</a></span><span class="op">(</span><span class="st">"system_report.Rmd"</span>,
+<span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/render.html" class="external-link">render</a></span><span class="op">(</span><span class="st">"system_report.Rmd"</span>,
                    params <span class="op">=</span> <span class="va">params</span>,
                    output_format <span class="op">=</span> <span class="st">"html_document"</span><span class="op">)</span></code></pre></div>
 <p>This should generate your report in HTML format. You can insert debugging commands in the report and test it while you add information. Once you have it working, you can enable the report as described above and it should appear as a tab viewable by the user.</p>
@@ -284,13 +286,13 @@
 </div>
 <div id="user-definable-functions" class="section level2">
 <h2 class="hasAnchor">
-<a href="#user-definable-functions" class="anchor"></a>User definable functions</h2>
+<a href="#user-definable-functions" class="anchor" aria-hidden="true"></a>User definable functions</h2>
 <p>To customize the simulation and plotting within the ShinyApp it is necessary to create custom functions. These need to be placed in a file. For example these could be placed in <code>mylibs.r</code> in the main template directory. Lastly, you need to tell the ShinyApp to load this file. You need to edit <code>ubiquity_app.R</code> and add the following line:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span><span class="op">$</span><span class="va">gui</span><span class="op">$</span><span class="va">functions</span><span class="op">$</span><span class="va">user_def</span> <span class="op">=</span> <span class="st">'mylibs.r'</span></code></pre></div>
 <div id="custom-simulation-commands" class="section level3">
 <h3 class="hasAnchor">
-<a href="#custom-simulation-commands" class="anchor"></a>Custom simulation commands</h3>
+<a href="#custom-simulation-commands" class="anchor" aria-hidden="true"></a>Custom simulation commands</h3>
 <p>By default the ShinyApp will run simulations using <code>run_simulation_ubiquity</code> (individual) or <code>simulate_subjects</code> (population). These take as inputs the <code>parameters</code> vector containing the current parameter set with any changes made through the interface and <code>cfg</code> data structure. You can create your own functions and overwrite these by defining the following:</p>
 <p><strong>Individual Simulations</strong></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -302,7 +304,7 @@
 </div>
 <div id="custom-plotting-commands" class="section level3">
 <h3 class="hasAnchor">
-<a href="#custom-plotting-commands" class="anchor"></a>Custom plotting commands</h3>
+<a href="#custom-plotting-commands" class="anchor" aria-hidden="true"></a>Custom plotting commands</h3>
 <p>To customize the plotting output you need to create functions that can utilize the simulation output <code>som</code>. For individual and population simulations this is the output of <code>run_simulation_ubiquity</code> and <code>simulate_subjects</code>, respectively. Unless user-specified simulation functions are being used. In that case <code>som</code> can have any format needed. It is possible to also access the <code>parameters</code> vector containing current parameter set with any changes made through the interface and <code>cfg</code> data structure. You can create your own plotting functions and overwrite these by defining the following in <code>ubiquity_app.R</code>:</p>
 <p><strong>Indiviudal Plot</strong></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
@@ -314,13 +316,13 @@
 </div>
 <div id="deployment-on-a-shiny-server" class="section level2">
 <h2 class="hasAnchor">
-<a href="#deployment-on-a-shiny-server" class="anchor"></a>Deployment on a Shiny Server</h2>
+<a href="#deployment-on-a-shiny-server" class="anchor" aria-hidden="true"></a>Deployment on a Shiny Server</h2>
 <p>To deploy the ShinyApp on a shiny server you need to indicate this by modifying <code>ubiquity_app.R</code> and changing the deploying variable to <code>TRUE</code>:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">deploying</span> <span class="op">=</span> <span class="cn">TRUE</span></code></pre></div>
 <p>Then the ShinyApp needs to be initialized on the server. You can do this two ways. First you can create an empty file called <code>REBUILD</code> that needs to be deployed along side the other app files. You can do this with the <code>touch</code> command from the <code>nat.utils</code> package:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">nat.utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/nat.utils/man/touch.html">touch</a></span><span class="op">(</span><span class="st">"REBUILD"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu">nat.utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/nat.utils/man/touch.html" class="external-link">touch</a></span><span class="op">(</span><span class="st">"REBUILD"</span><span class="op">)</span></code></pre></div>
 <p>This will force the initialization the first time the app is loaded. This works well if you are using <code>rsconnect</code> to deploy your app. Alternatively, you can manually sync the files and run the following <strong>as the shiny user</strong> on the server.</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>R <span class="sc">-</span>e <span class="st">"source('ubiquity_app.R')"</span></span></code></pre></div>
 <p>If the App fails to run on the Shiny Server check the following:</p>
@@ -328,7 +330,7 @@
 <li>Make sure all of the correct packages have been installed and are available to the user the Shiny Server is running under.</li>
 <li>Make sure the ownership and permissions on the server files is correct.</li>
 </ul>
-<p>To test deployment you can install the <a href="https://github.com/nsh87/shinyVM">shinyVM</a></p>
+<p>To test deployment you can install the <a href="https://github.com/nsh87/shinyVM" class="external-link">shinyVM</a></p>
 </div>
   </div>
 
@@ -343,11 +345,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by John Harrold.</p>
+  <p></p>
+<p>Developed by John Harrold.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
 </div>
 
       </footer>
@@ -355,6 +359,8 @@
 
   
 
+
+  
 
   </body>
 </html>

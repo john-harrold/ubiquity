@@ -45,6 +45,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -56,9 +58,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -171,7 +179,7 @@
     <p>Define a cohort to include in a parameter estimation</p>
     </div>
 
-    <pre class="usage"><span class='fu'>system_define_cohort</span><span class='op'>(</span><span class='va'>cfg</span>, <span class='va'>cohort</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>system_define_cohort</span><span class='op'>(</span><span class='va'>cfg</span>, <span class='va'>cohort</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -193,34 +201,34 @@
 
     <p>Each cohort has a name (eg <code>d5mpk</code>), and the dataset containing the
 information for this cohort is identified (the name defined in <code><a href='system_load_data.html'>system_load_data</a></code>)</p>
-<pre><span class='va'>cohort</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
+<pre class='sourceCode r'><code><span class='va'>cohort</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
   name         <span class='op'>=</span> <span class='st'>"d5mpk"</span>,
   dataset      <span class='op'>=</span> <span class='st'>"pm_data"</span>,
   inputs       <span class='op'>=</span> <span class='cn'>NULL</span>,
-  outputs      <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+  outputs      <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></code></pre>
 
 <p>Next if only a portion of the dataset applies to the current cohort, you
 can define a filter (<code>cf</code> field). This will be 
 applied to the dataset to only return values relevant to this cohort. For
 example, if we only want records where the column <code>DOSE</code> is 5 (for the 5
 mpk cohort). We can use the following:</p>
-<pre><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"cf"</span><span class='op'>]</span><span class='op'>]</span>   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>DOSE   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>5</span><span class='op'>)</span><span class='op'>)</span></pre>
+<pre class='sourceCode r'><code><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"cf"</span><span class='op'>]</span><span class='op'>]</span>   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>DOSE   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>5</span><span class='op'>)</span><span class='op'>)</span></code></pre>
 
 <p>If the dataset has the headings <code>ID</code>, <code>DOSE</code> and <code>SEX</code>  and
 cohort filter had the following format:</p>
-<pre><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"cf"</span><span class='op'>]</span><span class='op'>]</span>   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>ID    <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span><span class='op'>)</span>,
+<pre class='sourceCode r'><code><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"cf"</span><span class='op'>]</span><span class='op'>]</span>   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>ID    <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span><span class='op'>)</span>,
                         DOSE  <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>5</span>,<span class='fl'>10</span><span class='op'>)</span>,
-                        SEX   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span></pre>
+                        SEX   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span></code></pre>
 
 <p>It would be translated into the boolean filter:</p>
-<pre>(ID==1) | (ID==2) | (ID==3) | (ID==4)) &amp; ((DOSE == 5) | (DOSE==10)) &amp; (SEX == 1)</pre>
+<pre><code>(ID==1) | (ID==2) | (ID==3) | (ID==4)) &amp; ((DOSE == 5) | (DOSE==10)) &amp; (SEX == 1)</code></pre>
 
 <p>Optionally you may want to fix a system parameter to a different value for a
 given cohort. This can be done using the cohort parameter (<code>cp</code>) field.
 For example if you had the body weight defined as a system parameter 
 (<code>BW</code>), and you wanted to fix the body weight to 70 for the current
 cohort you would do the following:</p>
-<pre><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"cp"</span><span class='op'>]</span><span class='op'>]</span>   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>BW        <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>70</span><span class='op'>)</span><span class='op'>)</span></pre>
+<pre class='sourceCode r'><code><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"cp"</span><span class='op'>]</span><span class='op'>]</span>   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>BW        <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>70</span><span class='op'>)</span><span class='op'>)</span></code></pre>
 
 <p>Note that you can only fix parameters that are not being estimated.</p>
 <p>By default the underlying simulation output times will be taken from the
@@ -228,7 +236,7 @@ general output_times option (see <code><a href='system_set_option.html'>system_s
 necessary to specify simulation output times for a specific cohort. The
 <code>output_times</code> field can be used for this. Simply provide a vector of
  output times:</p>
-<pre><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"output_times"</span><span class='op'>]</span><span class='op'>]</span>   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>100</span>,<span class='fl'>2</span><span class='op'>)</span></pre>
+<pre class='sourceCode r'><code><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"output_times"</span><span class='op'>]</span><span class='op'>]</span>   <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>100</span>,<span class='fl'>2</span><span class='op'>)</span></code></pre>
 
 <p>Next we define the dosing for this cohort. It is only necessary to define
 those inputs that are non-zero. So if the data here were generated from
@@ -236,10 +244,10 @@ animals given a single 5 mpk IV at time 0. Bolus dosing is defined
 using <code>&lt;B:times&gt;</code> and <code>&lt;B:events&gt;</code>. If <code>Cp</code> is the central
 compartment, you would pass this information to the cohort in the
 following manner:</p>
-<pre><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"inputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"bolus"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>
+<pre class='sourceCode r'><code><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"inputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"bolus"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>
 <span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"inputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"bolus"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"Cp"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>TIME<span class='op'>=</span><span class='cn'>NULL</span>, AMT<span class='op'>=</span><span class='cn'>NULL</span><span class='op'>)</span>
 <span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"inputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"bolus"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"Cp"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"TIME"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span> <span class='fl'>0</span><span class='op'>)</span> 
-<span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"inputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"bolus"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"Cp"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"AMT"</span><span class='op'>]</span><span class='op'>]</span>  <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span> <span class='fl'>5</span><span class='op'>)</span></pre>
+<span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"inputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"bolus"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"Cp"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"AMT"</span><span class='op'>]</span><span class='op'>]</span>  <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span> <span class='fl'>5</span><span class='op'>)</span></code></pre>
  
 <p>Inputs can also include any infusion rates (<code>infusion_rates</code>) or
 covariates (<code>covariates</code>). Covariates will have the default value
@@ -249,30 +257,30 @@ the same as those in the system file</p>
 dataset. Under the <code>outputs</code> field there is a field for each output. Here 
 the field <code>ONAME</code> can be replaced with something more useful (like 
 <code>PK</code>).</p>
-<pre><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"outputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"ONAME"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span></pre>
+<pre class='sourceCode r'><code><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"outputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"ONAME"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span></code></pre>
 
 <p>If you want to further filter the dataset. Say for example you
 have two outputs and the <code>cf</code> applied above reduces your dataset
 down to both outputs. Here you can use the  "of" field to apply an "output filter"
-to further filter the records down to those that apply to the current output ONAME.</p><pre><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"outputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"ONAME"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"of"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
+to further filter the records down to those that apply to the current output ONAME.</p><pre class='sourceCode r'><code><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"outputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"ONAME"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"of"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
        COLNAME          <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>)</span>,
-       COLNAME          <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></pre><p>If you do not need further filtering of data, you can you can just omit the field.</p>
+       COLNAME          <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></code></pre><p>If you do not need further filtering of data, you can you can just omit the field.</p>
 <p>Next you need to identify the columns in the dataset that contain your
 times and observations. This is found in the <code>obs</code> field for the 
-current observation:</p><pre><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"outputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"ONAME"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"obs"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
+current observation:</p><pre class='sourceCode r'><code><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"outputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"ONAME"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"obs"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
          time           <span class='op'>=</span> <span class='st'>"TIMECOL"</span>,
          value          <span class='op'>=</span> <span class='st'>"OBSCOL"</span>,
-         missing        <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span></pre>
+         missing        <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span><span class='op'>)</span></code></pre>
 
 <p>The times and observations in the dataset are found in the <code>’TIMECOL’</code> column 
 and the <code>’OBSCOL’</code> column (optional missing data option specified by -1).</p>
 <p>These observations in the dataset need to be mapped to the appropriate
 elements of your model defined in the system file. This is done with the
 <code>model</code> field:</p>
-<pre><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"outputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"ONAME"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"model"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
+<pre class='sourceCode r'><code><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"outputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"ONAME"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"model"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
          time           <span class='op'>=</span> <span class='st'>"TS"</span>,       
          value          <span class='op'>=</span> <span class='st'>"MODOUTPUT"</span>,
-         variance       <span class='op'>=</span> <span class='st'>"PRED^2"</span><span class='op'>)</span></pre>
+         variance       <span class='op'>=</span> <span class='st'>"PRED^2"</span><span class='op'>)</span></code></pre>
 
 <p>First the system time scale indicated by the <code>TS</code> placeholder above
 must be specfied. The time scale must correspond to the data found in
@@ -290,10 +298,10 @@ examples include:</p>
 
 <p>The following controls the plotting aspects associated with this output. The
 color, shape and line values are the values used by ggplot functions.</p>
-<pre><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"outputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"ONAME"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"options"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
+<pre class='sourceCode r'><code><span class='va'>cohort</span><span class='op'>[[</span><span class='st'>"outputs"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"ONAME"</span><span class='op'>]</span><span class='op'>]</span><span class='op'>[[</span><span class='st'>"options"</span><span class='op'>]</span><span class='op'>]</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
         marker_color   <span class='op'>=</span> <span class='st'>"black"</span>,
         marker_shape   <span class='op'>=</span> <span class='fl'>16</span>,
-        marker_line    <span class='op'>=</span> <span class='fl'>1</span> <span class='op'>)</span></pre>
+        marker_line    <span class='op'>=</span> <span class='fl'>1</span> <span class='op'>)</span></code></pre>
 
 <p>If the cohort has multiple outputs, simply repeat the process above for the. 
 additional cohorts. The estimation vignettes contains examples of this.</p>
@@ -313,11 +321,11 @@ additional cohorts. The estimation vignettes contains examples of this.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by John Harrold.</p>
+  <p><p>Developed by John Harrold.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -325,6 +333,8 @@ additional cohorts. The estimation vignettes contains examples of this.</p>
 
   
 
+
+  
 
   </body>
 </html>

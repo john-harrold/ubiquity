@@ -47,6 +47,8 @@ with this function" />
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -58,9 +60,15 @@ with this function" />
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -175,7 +183,7 @@ simulations, performing parameter estimation, logging, etc.) can be set
 with this function</p>
     </div>
 
-    <pre class="usage"><span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>, <span class='va'>group</span>, <span class='va'>option</span>, <span class='va'>value</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>, <span class='va'>group</span>, <span class='va'>option</span>, <span class='va'>value</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -206,38 +214,38 @@ with this function</p>
     <p><b><code>group="estimation"</code></b></p>
 <p>The default estimation in R is performed using either the <code>optim</code> or <code>optimx</code> libraries.
 This is selected by setting the <code>optimizer</code> option:</p> 
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>, 
                        group  <span class='op'>=</span> <span class='st'>"estimation"</span>,
                        option <span class='op'>=</span> <span class='st'>"optimizer"</span>,
                        value  <span class='op'>=</span> <span class='st'>"optim"</span><span class='op'>)</span>
-</pre>
+</code></pre>
  
 <p>The optimization routine then specified using the <code>method</code>. By default this <code>option</code> is
 set to <code>Nelder-Mead</code>.</p> 
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>, 
                        group  <span class='op'>=</span> <span class='st'>"estimation"</span>,
                        option <span class='op'>=</span> <span class='st'>"method"</span>,
                        value  <span class='op'>=</span> <span class='st'>"Nelder-Mead"</span><span class='op'>)</span>
-</pre>
+</code></pre>
  
 <p>And different attributes are then selected using the control.</p> 
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>, 
                        group  <span class='op'>=</span> <span class='st'>"estimation"</span>,
                        option <span class='op'>=</span> <span class='st'>"control"</span>,
                        value  <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>trace  <span class='op'>=</span> <span class='cn'>TRUE</span>,
                                      maxit  <span class='op'>=</span> <span class='fl'>500</span>,
                                      REPORT <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span>
-</pre>
+</code></pre>
 
 <p>For the different methods and control options, see the documentation for the <code>optim</code>
 and <code>optimx</code> libraries.</p>
 <p>To perform a global optimization you can install either the particle swarm (<code>pso</code>)
 genetic algorithm (<code>GA</code>) libraries.
 To use the particle swarm set the <code>optimizer</code> and <code>method</code>:</p> 
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>, 
                        group  <span class='op'>=</span> <span class='st'>"estimation"</span>,
                        option <span class='op'>=</span> <span class='st'>"optimizer"</span>,
@@ -247,11 +255,11 @@ To use the particle swarm set the <code>optimizer</code> and <code>method</code>
                        group  <span class='op'>=</span> <span class='st'>"estimation"</span>,
                        option <span class='op'>=</span> <span class='st'>"method"</span>,
                        value  <span class='op'>=</span> <span class='st'>"psoptim"</span><span class='op'>)</span>
-</pre>
+</code></pre>
 
 <p>The control option is a list described <code>pso</code> documentation.</p>
 <p>To use the genetic algorithm set the optimizer and method:</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>, 
                        group  <span class='op'>=</span> <span class='st'>"estimation"</span>,
                        option <span class='op'>=</span> <span class='st'>"optimizer"</span>,
@@ -261,11 +269,11 @@ To use the particle swarm set the <code>optimizer</code> and <code>method</code>
                        group  <span class='op'>=</span> <span class='st'>"estimation"</span>,
                        option <span class='op'>=</span> <span class='st'>"method"</span>,
                        value  <span class='op'>=</span> <span class='st'>"ga"</span><span class='op'>)</span>
-</pre>
+</code></pre>
 
 <p>The control option is a list and the list elements are the named options in the GA
 documentation. Use the following as an example:</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>, 
                        group  <span class='op'>=</span> <span class='st'>"estimation"</span>,
                        option <span class='op'>=</span> <span class='st'>"control"</span>,
@@ -273,7 +281,7 @@ documentation. Use the following as an example:</p>
                                     optimArgs <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>
                                       method  <span class='op'>=</span> <span class='st'>"Nelder-Mead"</span>,
                                       maxiter <span class='op'>=</span> <span class='fl'>1000</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>
-</pre>
+</code></pre>
 
 <p>To alter initial guesses see: <code><a href='system_set_guess.html'>system_set_guess</a></code></p>
 <p><b><code>group=general</code></b></p>
@@ -281,7 +289,7 @@ documentation. Use the following as an example:</p>
 <li><p><code>"output_directory"</code>   = String where analysis outputs will be
     placed. Generally you wont want to change this, but it can be useful in Shiny
     apps where you need to have each shiny user generate output in that
-    users directory : <code><a href='https://rdrr.io/r/base/file.path.html'>file.path(".", "output")</a></code></p></li>
+    users directory : <code>file.path(".", "output")</code></p></li>
 </ul>
 
 <p><b><code>group=logging</code></b></p>
@@ -290,7 +298,7 @@ information to a log file. The following options can be used to control
 this behavior:</p>
 <ul>
 <li><p><code>"enabled"</code>   = Boolean variable to control logging: <code>TRUE</code></p></li>
-<li><p><code>"file"</code>      = String containing the name of the log file: <code><a href='https://rdrr.io/r/base/file.path.html'>file.path("transient", "ubiquity_log.txt")</a></code></p></li>
+<li><p><code>"file"</code>      = String containing the name of the log file: <code>file.path("transient", "ubiquity_log.txt")</code></p></li>
 <li><p><code>"timestamp"</code> = Boolean switch to control appending a time stamp to log entries: <code>TRUE</code></p></li>
 <li><p><code>"ts_str"</code>    = String format of timestamp: "<!-- %Y-%m-%d %H:%M:%S" --></p></li>
 <li><p><code>"debug"</code>     = Boolean switch to control debugging (see below): <code>FALSE</code></p></li>
@@ -302,17 +310,17 @@ this behavior:</p>
 <p>To enable debugging of different functions (like when performing esitmation), 
 set the <code>debug</code> option to <code>TRUE</code>. Important function calls will be 
 trapped and information will be logged and reported to the console.</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>, 
                        group  <span class='op'>=</span> <span class='st'>"estimation"</span>,
                        option <span class='op'>=</span> <span class='st'>"debug"</span>,
                        value  <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
-</pre>
+</code></pre>
 
 <p><b><code>group="simulation"</code></b></p><ul>
 <li><p><code>"include_important_output_times"</code> - Automatically add bolus, infusion rate switching times, etc: <code>"yes"</code>(default), <code>"no"</code>.</p></li>
 <li><p><code>"integrate_with"</code> - Specify if the ODE solver should use the Rscript (<code>"r-file"</code>) or compiled C (<code>"c-file"</code>), if the build process can compile and load the C version it will be the default otherwise it will switch over to the R script.</p></li>
-<li><p><code>"output_times"</code> - Vector of times to evaulate the simulation (default <code><a href='https://rdrr.io/r/base/seq.html'>seq(0,100,1)</a></code>).</p></li>
+<li><p><code>"output_times"</code> - Vector of times to evaulate the simulation (default <code>seq(0,100,1)</code>).</p></li>
 <li><p><code>"solver"</code> - Selects the ODE solver: <code>"lsoda"</code> (default), <code>"lsode"</code>, <code>"vode"</code>, etc.; see the documentation for <code><a href='https://rdrr.io/pkg/deSolve/man/deSolve.html'>deSolve</a></code> for an exhaustive list.</p></li>
 <li><p><code>"sample_bolus_delta"</code> - Spacing used when sampling around bolus events (default <code>1e-6</code>).</p></li>
 <li><p><code>"sample_forcing_delta"</code> - Spacing used when sampling around forcing functions (infusion rates, covariates, etc) (default <code>1e-3</code>).</p></li>
@@ -328,7 +336,7 @@ to consider are:</p><ul>
 <li><p><code>"hmin"</code> - Minimum integration step size</p></li>
 <li><p><code>"hmax"</code> - Maximum integration step size</p></li>
 </ul><p>To select the <code>vode</code> solver and set the maximum step size to 0.01, the
-following would be used:</p><pre>
+following would be used:</p><pre class='sourceCode r'><code>
 <span class='va'>cfg</span><span class='op'>=</span><span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>,
                      group  <span class='op'>=</span> <span class='st'>"simulation"</span>,
                      option <span class='op'>=</span> <span class='st'>"solver"</span>, 
@@ -338,7 +346,7 @@ following would be used:</p><pre>
                      group  <span class='op'>=</span> <span class='st'>"solver"</span>,
                      option <span class='op'>=</span> <span class='st'>"hmax"</span>, 
                      value  <span class='op'>=</span> <span class='fl'>0.01</span><span class='op'>)</span>
-</pre>
+</code></pre>
 
 <p><b><code>group="stochastic"</code></b></p>
 <p>When running stochastic simulations (inter-individual variability applied to system
@@ -355,7 +363,7 @@ parameters) it can be useful to specify the following:</p><ul>
 </ul>
 
 <p>If you wanted to generate <code>1000</code> subjects but only wanted the parameters, you would
-use the following:</p><pre>
+use the following:</p><pre class='sourceCode r'><code>
 <span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>,
                        group  <span class='op'>=</span> <span class='st'>"stochastic"</span>, 
                        option <span class='op'>=</span> <span class='st'>"nsub "</span>,
@@ -365,11 +373,11 @@ use the following:</p><pre>
                        group  <span class='op'>=</span> <span class='st'>"stochastic"</span>, 
                        option <span class='op'>=</span> <span class='st'>"ponly"</span>,
                        value  <span class='op'>=</span> <span class='cn'>TRUE</span> <span class='op'>)</span>
-</pre>
+</code></pre>
 
 
 <p>If you wanted to exclude both states and secondary parameters, while only including 
-the output <code>Cp_nM</code>, you would do the following:</p><pre>
+the output <code>Cp_nM</code>, you would do the following:</p><pre class='sourceCode r'><code>
 
 <span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'>system_set_option</span> <span class='op'>(</span><span class='va'>cfg</span>, 
                         group  <span class='op'>=</span> <span class='st'>"stochastic"</span>,
@@ -385,26 +393,26 @@ the output <code>Cp_nM</code>, you would do the following:</p><pre>
                         group  <span class='op'>=</span> <span class='st'>"stochastic"</span>,
                         option <span class='op'>=</span> <span class='st'>"outputs"</span>,
                         value  <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Cp_nM"</span><span class='op'>)</span><span class='op'>)</span> 
-</pre>
+</code></pre>
 
 <p>To pull subject information from a data file instead of generating the subject
 parameters from IIV information the <code>sub_file</code> option can be used. The value here
 <code>SUBFILE_NAME</code> is the name given to a dataset loaded with
 (<code><a href='system_load_data.html'>system_load_data</a></code>):</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>cfg</span><span class='op'>=</span><span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>, 
                      group  <span class='op'>=</span> <span class='st'>"stochastic"</span>,
                      option <span class='op'>=</span> <span class='st'>"sub_file"</span>,
                      value  <span class='op'>=</span> <span class='st'>"SUBFILE_NAME"</span><span class='op'>)</span>
-</pre>
+</code></pre>
  
 <p>Sampling from the dataset can be controlled using the <code>sub_file_sample</code> option:</p> 
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>cfg</span><span class='op'>=</span><span class='fu'>system_set_option</span><span class='op'>(</span><span class='va'>cfg</span>, 
                      group  <span class='op'>=</span> <span class='st'>"stochastic"</span>,
                      option <span class='op'>=</span> <span class='st'>"sub_file_sample"</span>,
                      value  <span class='op'>=</span> <span class='st'>"with replacement"</span><span class='op'>)</span>
-</pre>
+</code></pre>
  
 <p>Sampling can be done sequentially (<code>"sequential"</code>), with replacement
 (<code>"with replacement"</code>), or without replacement (<code>"without replacement"</code>)</p>
@@ -425,11 +433,11 @@ This will force #' <code><a href='simulate_subjects.html'>simulate_subjects</a><
 
       <footer>
       <div class="copyright">
-  <p>Developed by John Harrold.</p>
+  <p><p>Developed by John Harrold.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -437,6 +445,8 @@ This will force #' <code><a href='simulate_subjects.html'>simulate_subjects</a><
 
   
 
+
+  
 
   </body>
 </html>

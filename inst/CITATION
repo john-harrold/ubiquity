@@ -1,0 +1,14 @@
+citHeader("To cite ubiquity in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "Ubiquity: a framework for physiological/mechanism-based pharmacokinetic/pharmacodynamic model development and deployment",
+  author   = "J.M. Harrold and A.K. Abraham",
+  journal  = "Journal of Pharmacokinetics and Pharmacodynamics",
+  year     = "2014",
+  volume   = "41",
+  number   = "2",
+  pages    = "141-151",
+  url      = "https://doi.org/10.1007/s10928-014-9352-6",
+  textVersion = "Harrold, J.M., Abraham, A.K. Ubiquity: a framework for physiological/mechanism-based pharmacokinetic/pharmacodynamic model development and deployment. J Pharmacokinet Pharmacodyn 41, 141–151 (2014). https://doi.org/10.1007/s10928-014-9352-6"
+)

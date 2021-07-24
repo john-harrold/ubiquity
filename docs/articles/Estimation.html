@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -83,13 +85,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="https://vimeo.com/382859445">Individual and Population Simulations</a>
+      <a href="https://vimeo.com/382859445" class="external-link">Individual and Population Simulations</a>
     </li>
     <li>
-      <a href="https://vimeo.com/382860283">Model Deployment</a>
+      <a href="https://vimeo.com/382860283" class="external-link">Model Deployment</a>
     </li>
     <li>
-      <a href="https://vimeo.com/manage/videos/382829588">Naive-Pooled Parameter Estimation</a>
+      <a href="https://vimeo.com/manage/videos/382829588" class="external-link">Naive-Pooled Parameter Estimation</a>
     </li>
   </ul>
 </li>
@@ -103,7 +105,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/john-harrold/ubiquity/">
+  <a href="https://github.com/john-harrold/ubiquity/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -118,15 +120,15 @@
 
       
 
-      </header><script src="Estimation_files/header-attrs-2.8/header-attrs.js"></script><div class="row">
+      </header><script src="Estimation_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Naive-Pooled Parameter Estimation</h1>
-                        <h4 class="author">John Harrold &amp; Anson Abraham</h4>
+                        <h4 data-toc-skip class="author">John Harrold &amp; Anson Abraham</h4>
             
-            <h4 class="date">2021-07-17</h4>
+            <h4 data-toc-skip class="date">2021-07-24</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Estimation.Rmd"><code>vignettes/Estimation.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Estimation.Rmd" class="external-link"><code>vignettes/Estimation.Rmd</code></a></small>
       <div class="hidden name"><code>Estimation.Rmd</code></div>
 
     </div>
@@ -135,10 +137,10 @@
     
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
-<a href="#introduction" class="anchor"></a>Introduction</h2>
-<p>The workshop (<a href="https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip">workshop.ubiquity.tools</a>) provides several examples of performing parameter estimation in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:</p>
+<a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction</h2>
+<p>The workshop (<a href="https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip" class="external-link">workshop.ubiquity.tools</a>) provides several examples of performing parameter estimation in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ubiquity.tools/rworkflow">ubiquity</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ubiquity.tools/rworkflow" class="external-link">ubiquity</a></span><span class="op">)</span>
 <span class="va">fr</span> <span class="op">=</span> <span class="fu"><a href="../reference/workshop_fetch.html">workshop_fetch</a></span><span class="op">(</span>section<span class="op">=</span><span class="st">"Estimation"</span>, overwrite<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <ul>
 <li>
@@ -151,13 +153,13 @@
 <li>
 <code>analysis_parent_metabolite_nm_data.r</code> - Reading cohorts in from a NONMEM file</li>
 </ul>
-<p>Each of these scripts build on the previous one to demonstrate different features of the ubiquity parameter estimation routines. All of these examples use a system (shown in the figure below) that contains three differential equations tracking the mass of the parent drug in the blood (<code>Mpb</code>) and in a tissue space (<code>Mpt</code>). In the blood the parent can form (<code>fmKp</code>) a metabolite (<code>Mmb</code>) with subsequent elimination (<code>Km</code>). The parent/metabolite model was adapted from the ADAPT5 Users Manual (<a href="https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf" class="uri">https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf</a>).</p>
+<p>Each of these scripts build on the previous one to demonstrate different features of the ubiquity parameter estimation routines. All of these examples use a system (shown in the figure below) that contains three differential equations tracking the mass of the parent drug in the blood (<code>Mpb</code>) and in a tissue space (<code>Mpt</code>). In the blood the parent can form (<code>fmKp</code>) a metabolite (<code>Mmb</code>) with subsequent elimination (<code>Km</code>). The parent/metabolite model was adapted from the ADAPT5 Users Manual (<a href="https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf" class="external-link uri">https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf</a>).</p>
 <div class="figure">
 <img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/vignettes/system-estimation_example.png" style="width:100.0%" alt=""><p class="caption">Model structure of parent/metabolite model</p>
 </div>
 <p>Using <code>system_new</code> (use <code><a href="../reference/system_new.html">?system_new</a></code> to see a list of the available system file examples) you can copy this template file into the current directory and build the system:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ubiquity.tools/rworkflow">ubiquity</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ubiquity.tools/rworkflow" class="external-link">ubiquity</a></span><span class="op">)</span>
 <span class="fu"><a href="../reference/system_new.html">system_new</a></span><span class="op">(</span>file_name<span class="op">=</span><span class="st">"system.txt"</span>, system_file<span class="op">=</span><span class="st">"adapt"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/build_system.html">build_system</a></span><span class="op">(</span>system_file <span class="op">=</span> <span class="st">"system.txt"</span><span class="op">)</span></code></pre></div>
 <p>Once the system has been built, you can create a local copy of an estimation template for the system:</p>
@@ -177,7 +179,7 @@
 </div>
 <div id="least-squares-estimationsingle-output-analysis_parent-r" class="section level2">
 <h2 class="hasAnchor">
-<a href="#least-squares-estimationsingle-output-analysis_parent-r" class="anchor"></a>Least squares estimation/single output (<code>analysis_parent.r</code>)</h2>
+<a href="#least-squares-estimationsingle-output-analysis_parent-r" class="anchor" aria-hidden="true"></a>Least squares estimation/single output (<code>analysis_parent.r</code>)</h2>
 <p>The first example above (<code>analysis_parent.r</code>) begins by specifying that we want to perform a parameter estimation and archive the results using the name<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> <code>parent_d1030</code> to indicate we are analyzing the parent PK for the 10 and 30 mg dosing cohorts:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">flowctl</span> <span class="op">=</span> <span class="st">'estimate'</span>
@@ -185,17 +187,17 @@
 <span class="va">analysis_name</span> <span class="op">=</span> <span class="st">'parent_d1030'</span></code></pre></div>
 <p>Next we select the parameters to estimate. Because we’re only estimating parent data, only the names of the parameters relevant to the parent PK (<code>pnames</code>) are selected. To estimate all parameters simply exclude the third argument. Because only system parameters are being estimated a weighted least squares objective will be used<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">pnames</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Vp'</span>, <span class="st">'Vt'</span>, <span class="st">'CLp'</span>, <span class="st">'Q'</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">pnames</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Vp'</span>, <span class="st">'Vt'</span>, <span class="st">'CLp'</span>, <span class="st">'Q'</span><span class="op">)</span>
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_select_set.html">system_select_set</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="st">"default"</span>, <span class="va">pnames</span><span class="op">)</span></code></pre></div>
 <p>Next we set options relevant to the estimation and the underlying simulation routines. In this example only the simulation output times have been specified, but any relevant parameters can be set. The template that is generated has several common options that are commented out. These can be uncommented and modified as needed.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span><span class="op">=</span><span class="fu"><a href="../reference/system_set_option.html">system_set_option</a></span><span class="op">(</span><span class="va">cfg</span>, group  <span class="op">=</span> <span class="st">"simulation"</span>, 
                            option <span class="op">=</span> <span class="st">"output_times"</span>, 
-                           <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">100</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+                           <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">100</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>The dataset (shown in the table below) is included with the <code>ubiquity</code> package and is accessed here using <code>system.file</code>. In the example script it is referenced explicitly. The format requirements of datasets is that they be flat files with a header row. The format is flexible and only requires time/observation information and columns required to filter the data and isolate cohorts that have received the same treatment. The inputs are defined when the cohorts themselves are defined. Data files are loaded using <code>system_load_data</code> and a name<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> is assigned the dataset. Data can be read from files (csv, xls, xlsx, and tab) or from an existing data frame. This name (<code>pm_data</code> here) will be used to reference this dataset later in the script.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_load_data.html">system_load_data</a></span><span class="op">(</span><span class="va">cfg</span>, dsname     <span class="op">=</span> <span class="st">"pm_data"</span>, 
-                            data_file  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"ubinc"</span>, <span class="st">"csv"</span>,
+                            data_file  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"ubinc"</span>, <span class="st">"csv"</span>,
                                                      <span class="st">"pm_data.csv"</span>, 
                                                      package <span class="op">=</span> <span class="st">"ubiquity"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>The dataset has a column for the observation time (<code>TIME</code>), the subject id (<code>ID</code>), concentrations for the parent (<code>PT</code>) and the metabolite (<code>MT</code>), a <code>BLQ</code> flag and the nominal dose (<code>DOSE</code>). But only some of these columns will be used (<code>TIME</code>, <code>PT</code>, <code>MT</code> and <code>DOSE</code>), and any others (<code>BQL</code>) will be ignored. This is intended to be an example and not a general guide for a dataset format. It is not necessary to have different outputs in different columns (wide format). The dataset could be loaded in the tall skinny format as well. In this example we are going to analyze the parent data for individuals given 10 or 30 mg using a least squares objective.</p>
@@ -204,42 +206,42 @@
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_clear_cohorts.html">system_clear_cohorts</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></code></pre></div>
 <p>For each cohort we define a list with information about that cohort. Each cohort should have a unique <code>name</code> field<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> and a <code>dataset</code> field pointing to the dataset (<code>pm_data</code>) loaded above. The optional cohort filter (<code>cf</code>) field is used to reduce the entire dataset to the records associated with this cohort. See the help for <code>system_define_cohort</code> for more information on how to construct cohort filters.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cohort</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">cohort</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
   name         <span class="op">=</span> <span class="st">"dose_10"</span>,
-  cf           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>DOSE      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span>,
+  cf           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>DOSE      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span>,
   inputs       <span class="op">=</span> <span class="cn">NULL</span>,
   outputs      <span class="op">=</span> <span class="cn">NULL</span>,
   dataset      <span class="op">=</span> <span class="st">"pm_data"</span><span class="op">)</span></code></pre></div>
 <p>Next it is necessary to define the inputs for this cohort. Here inputs refers to model inputs which may include both dosing as well as covariates, and the estimation template (generated using <code>system_fetch_template</code> above) should contain placeholders for each of these defined in the system file. Note: For bolus and infusion inputs, it is only necessary to define inputs that are nonzero, and for covariates it is only necessary to define those that differ from the definitions in the system file. For each input there is an <code>AMT</code> field and <code>TIME</code> field and the units here are those specified in the system file (both <code>AMT</code> and <code>TIME</code> are internal indentifiers and not taken from the dataset).</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>TIME<span class="op">=</span><span class="cn">NULL</span>, AMT<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TIME"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># hours </span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"AMT"</span><span class="op">]</span><span class="op">]</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="co"># mpk </span></code></pre></div>
+<code class="sourceCode R"><span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>TIME<span class="op">=</span><span class="cn">NULL</span>, AMT<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TIME"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># hours </span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"AMT"</span><span class="op">]</span><span class="op">]</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="co"># mpk </span></code></pre></div>
 <p>Next we need to match the outputs in the model to the outputs in the dataset. Under <code>cohort$outputs</code> there is a field used to group each output. Here the cohort <strong>output mapping</strong> for the blood PK of the parent output is <code>Parent</code>. The times and observations in the dataset are found in the <code>'TIME’</code> column and the <code>’PT’</code> column (missing data specified by -1 will be dropped). These are mapped to the model timescale (<code>'hours'</code>, speified with <code>&lt;TS:?&gt;</code>) and model output (<code>’Cpblood’</code>, specified with <code>&lt;O&gt;</code>). Note the units in the dataset must be the same as those in the model:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
 
 <span class="co"># Mapping to data set</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"obs"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"obs"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          time           <span class="op">=</span> <span class="st">"TIME"</span>,
          value          <span class="op">=</span> <span class="st">"PT"</span>,
          missing        <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>
 
 <span class="co"># Mapping to system file</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"model"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"model"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          time           <span class="op">=</span> <span class="st">"hours"</span>,       
          value          <span class="op">=</span> <span class="st">"Cpblood"</span>,   
          variance       <span class="op">=</span> <span class="st">"1"</span><span class="op">)</span>
 
 <span class="co"># Plot formatting</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"options"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"options"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          marker_color   <span class="op">=</span> <span class="st">"black"</span>,
          marker_shape   <span class="op">=</span> <span class="fl">1</span>,
          marker_line    <span class="op">=</span> <span class="fl">2</span> <span class="op">)</span></code></pre></div>
 <p>For each output grouping in the cohort the marker color, shape and line type can be specified (controlling the plotted output).</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"options"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"options"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          marker_color   <span class="op">=</span> <span class="st">"black"</span>,
          marker_shape   <span class="op">=</span> <span class="fl">1</span>,
          marker_line    <span class="op">=</span> <span class="fl">2</span> <span class="op">)</span></code></pre></div>
@@ -248,37 +250,37 @@
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_define_cohort.html">system_define_cohort</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">cohort</span><span class="op">)</span></code></pre></div>
 <p>We do the same thing for the 30 mg dose group:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cohort</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">cohort</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
   name         <span class="op">=</span> <span class="st">"dose_30"</span>,
-  cf           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>DOSE      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span><span class="op">)</span>,
+  cf           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>DOSE      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span><span class="op">)</span>,
   dataset      <span class="op">=</span> <span class="st">"pm_data"</span>,
   inputs       <span class="op">=</span> <span class="cn">NULL</span>,
   outputs      <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
 
 <span class="co"># Bolus inputs for the cohort</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>TIME<span class="op">=</span><span class="cn">NULL</span>, AMT<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TIME"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># hours </span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"AMT"</span><span class="op">]</span><span class="op">]</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span> <span class="co"># mpk </span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>TIME<span class="op">=</span><span class="cn">NULL</span>, AMT<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TIME"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># hours </span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"AMT"</span><span class="op">]</span><span class="op">]</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span> <span class="co"># mpk </span>
 
 
 <span class="co"># Defining Parent output</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
 
 <span class="co"># Mapping to data set</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"obs"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"obs"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          time           <span class="op">=</span> <span class="st">"TIME"</span>,
          value          <span class="op">=</span> <span class="st">"PT"</span>,
          missing        <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>
 
 <span class="co"># Mapping to system file</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"model"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"model"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          time           <span class="op">=</span> <span class="st">"hours"</span>,       
          value          <span class="op">=</span> <span class="st">"Cpblood"</span>,   
          variance       <span class="op">=</span> <span class="st">"1"</span><span class="op">)</span>
 
 <span class="co"># Plot formatting</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"options"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"options"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          marker_color   <span class="op">=</span> <span class="st">"red"</span>,
          marker_shape   <span class="op">=</span> <span class="fl">2</span>,
          marker_line    <span class="op">=</span> <span class="fl">2</span> <span class="op">)</span>
@@ -300,13 +302,13 @@
 <li>
 <code>output/parent_d1030-system_update.txt</code> - Text to update the <code>system.txt</code> file with the new parameter estiamtes</li>
 <li>
-<code>output/parent_d1030-sessionInfo.RData</code> - The output of <code><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo()</a></code> is stored in the <code>SI</code> object in this data file</li>
+<code>output/parent_d1030-sessionInfo.RData</code> - The output of <code><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo()</a></code> is stored in the <code>SI</code> object in this data file</li>
 </ul>
 <p>Next the system is simulated at the estimate and the data is stored in <code>erp</code>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span><span class="op">=</span><span class="fu"><a href="../reference/system_set_option.html">system_set_option</a></span><span class="op">(</span><span class="va">cfg</span>, group  <span class="op">=</span> <span class="st">"simulation"</span>, 
                            option <span class="op">=</span> <span class="st">"output_times"</span>, 
-                           <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">100</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+                           <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">100</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">erp</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_simulate_estimation_results.html">system_simulate_estimation_results</a></span><span class="op">(</span>pest <span class="op">=</span> <span class="va">pest</span>, cfg <span class="op">=</span> <span class="va">cfg</span><span class="op">)</span> </code></pre></div>
 <p>The information in this variable will be used to generate some standard plots below, but it may be desirable to save this information or generate your own figures. To do this it is necessary to understand the structure of <code>erp</code>. This list has two different fields.</p>
@@ -349,7 +351,7 @@
 </ul>
 <p>Lastly the predictions overlaying the data and the observed vs predicted plots are generated using <code>system_plot_cohorts</code>. Basic formatting of these figures is controlled using the <code>plot_opts</code> list (see the <code><a href="../reference/system_plot_cohorts.html">?system_plot_cohorts</a></code> for details).</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">plot_opts</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">plot_opts</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">plot_opts</span><span class="op">$</span><span class="va">outputs</span><span class="op">$</span><span class="va">Parent</span><span class="op">$</span><span class="va">yscale</span>       <span class="op">=</span> <span class="st">'log'</span></code></pre></div>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plinfo</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_plot_cohorts.html">system_plot_cohorts</a></span><span class="op">(</span><span class="va">erp</span>, <span class="va">plot_opts</span>, <span class="va">cfg</span>, analysis_name<span class="op">=</span><span class="va">analysis_name</span><span class="op">)</span></code></pre></div>
@@ -368,36 +370,36 @@
 </div>
 <div id="automated-reporting" class="section level3">
 <h3 class="hasAnchor">
-<a href="#automated-reporting" class="anchor"></a>Automated Reporting</h3>
+<a href="#automated-reporting" class="anchor" aria-hidden="true"></a>Automated Reporting</h3>
 <p>The outputs above provide components for generating presentations and other documents. Coping and pasting these figures and tables into documents can be tedious. It can be convenient to automate this process and this is accomplished with the function <code>system_report_estimation</code>.</p>
 <div id="powerpoint" class="section level4">
 <h4 class="hasAnchor">
-<a href="#powerpoint" class="anchor"></a>PowerPoint</h4>
+<a href="#powerpoint" class="anchor" aria-hidden="true"></a>PowerPoint</h4>
 <p>To append the results of an analysis to a PowerPoint document simply initialize a new report (<code>rpttype="PowerPoint"</code>), call <code>system_report_estiamtion</code> with the appropriate <code>analysis_name</code>, and the results of the analysis will be attached as slides.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_report_init.html">system_report_init</a></span><span class="op">(</span><span class="va">cfg</span>, rpttype<span class="op">=</span><span class="st">"PowerPoint"</span><span class="op">)</span>
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_report_estimation.html">system_report_estimation</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, analysis_name<span class="op">=</span><span class="va">analysis_name</span><span class="op">)</span>
-<span class="fu"><a href="../reference/system_report_save.html">system_report_save</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, output_file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"output"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">analysis_name</span>, <span class="st">"-report.pptx"</span>, sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="../reference/system_report_save.html">system_report_save</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, output_file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"output"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">analysis_name</span>, <span class="st">"-report.pptx"</span>, sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>This will then save the analysis results to the <code>output</code> directory.</p>
 </div>
 <div id="word" class="section level4">
 <h4 class="hasAnchor">
-<a href="#word" class="anchor"></a>Word</h4>
+<a href="#word" class="anchor" aria-hidden="true"></a>Word</h4>
 <p>The process for a Word document is the same. Just make sure that the <code>rpttype</code> is set to <code>"Word"</code> when the report is initialized:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_report_init.html">system_report_init</a></span><span class="op">(</span><span class="va">cfg</span>, rpttype<span class="op">=</span><span class="st">"Word"</span><span class="op">)</span>
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_report_estimation.html">system_report_estimation</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, analysis_name<span class="op">=</span><span class="va">analysis_name</span><span class="op">)</span>
-<span class="fu"><a href="../reference/system_report_save.html">system_report_save</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, output_file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"output"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">analysis_name</span>, <span class="st">"-report.docx"</span>, sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="../reference/system_report_save.html">system_report_save</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, output_file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"output"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">analysis_name</span>, <span class="st">"-report.docx"</span>, sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>For more information on integrated report generation see the <code>Reporting</code> vignette.</p>
 </div>
 </div>
 </div>
 <div id="maximum-likelihoodtwo-outputs-analysis_parent_metabolite-r" class="section level2">
 <h2 class="hasAnchor">
-<a href="#maximum-likelihoodtwo-outputs-analysis_parent_metabolite-r" class="anchor"></a>Maximum likelihood/two outputs (<code>analysis_parent_metabolite.r</code>)</h2>
+<a href="#maximum-likelihoodtwo-outputs-analysis_parent_metabolite-r" class="anchor" aria-hidden="true"></a>Maximum likelihood/two outputs (<code>analysis_parent_metabolite.r</code>)</h2>
 <p>This example is similar to the last except we are analyzing two different outputs (parent and metabolite) and we have a proportional variance model. So now we can estimate the parameters associated with those outputs as well as the variance parameters:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">pnames</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Vp'</span>,
+<code class="sourceCode R"><span class="va">pnames</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Vp'</span>,
            <span class="st">'Vt'</span>,
            <span class="st">'Vm'</span>,
            <span class="st">'CLp'</span>,
@@ -409,59 +411,59 @@
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_select_set.html">system_select_set</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="st">"default"</span>, <span class="va">pnames</span><span class="op">)</span></code></pre></div>
 <p>The parameters being estimated contain variance parameters (<code>slope_parent</code> and <code>slope_metabolite</code>) so a maximum likelihood objective will be used. The cohort definitions look much the same as those before except the variance model here is defined as <code>'slope_parent*PRED^2'</code>, and there is a separate output named <code>Metabolite</code>.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cohort</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<code class="sourceCode R"><span class="va">cohort</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
   name         <span class="op">=</span> <span class="st">"dose_10"</span>,
-  cf           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>DOSE      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span>,
+  cf           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>DOSE      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span>,
   inputs       <span class="op">=</span> <span class="cn">NULL</span>,
   outputs      <span class="op">=</span> <span class="cn">NULL</span>,
   dataset      <span class="op">=</span> <span class="st">"pm_data"</span><span class="op">)</span>
 
 
 <span class="co"># Bolus inputs for the cohort</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>TIME<span class="op">=</span><span class="cn">NULL</span>, AMT<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TIME"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># hours </span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"AMT"</span><span class="op">]</span><span class="op">]</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="co"># mpk </span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>TIME<span class="op">=</span><span class="cn">NULL</span>, AMT<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TIME"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># hours </span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"AMT"</span><span class="op">]</span><span class="op">]</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="co"># mpk </span>
 
 
 <span class="co"># Defining Parent output</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
 
 <span class="co"># Mapping to data set</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"obs"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"obs"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          time           <span class="op">=</span> <span class="st">"TIME"</span>,
          value          <span class="op">=</span> <span class="st">"PT"</span>,
          missing        <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>
 
 <span class="co"># Mapping to system file</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"model"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"model"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          time           <span class="op">=</span> <span class="st">"hours"</span>,       
          value          <span class="op">=</span> <span class="st">"Cpblood"</span>,   
          variance       <span class="op">=</span> <span class="st">"slope_parent*PRED^2"</span><span class="op">)</span>
 
 <span class="co"># Plot formatting</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"options"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"options"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          marker_color   <span class="op">=</span> <span class="st">"black"</span>,
          marker_shape   <span class="op">=</span> <span class="fl">1</span>,
          marker_line    <span class="op">=</span> <span class="fl">1</span> <span class="op">)</span>
 
 <span class="co"># Defining Metabolite output</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Metabolite"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Metabolite"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
 
 <span class="co"># Mapping to data set</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Metabolite"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"obs"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Metabolite"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"obs"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          time           <span class="op">=</span> <span class="st">"TIME"</span>,
          value          <span class="op">=</span> <span class="st">"MT"</span>,
          missing        <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>
 
 <span class="co"># Mapping to system file</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Metabolite"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"model"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Metabolite"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"model"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          time           <span class="op">=</span> <span class="st">"hours"</span>,       
          value          <span class="op">=</span> <span class="st">"Cmblood"</span>,   
          variance       <span class="op">=</span> <span class="st">"slope_metabolite*PRED^2"</span><span class="op">)</span>
 
 <span class="co"># Plot formatting</span>
-<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Metabolite"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"options"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Metabolite"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"options"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
          marker_color   <span class="op">=</span> <span class="st">"blue"</span>,
          marker_shape   <span class="op">=</span> <span class="fl">1</span>,
          marker_line    <span class="op">=</span> <span class="fl">1</span> <span class="op">)</span>
@@ -471,7 +473,7 @@
 </div>
 <div id="global-estimation-routines-analysis_parent_metabolite_global-r" class="section level2">
 <h2 class="hasAnchor">
-<a href="#global-estimation-routines-analysis_parent_metabolite_global-r" class="anchor"></a>Global estimation routines (<code>analysis_parent_metabolite_global.r</code>)</h2>
+<a href="#global-estimation-routines-analysis_parent_metabolite_global-r" class="anchor" aria-hidden="true"></a>Global estimation routines (<code>analysis_parent_metabolite_global.r</code>)</h2>
 <p>Now we build on the previous example to demonstrate how to select different optimization routines. By default, the parameter estimation is carried out using the <code>Nelder-Mead</code> optimization method from the <code>optim</code> library. You can specify different functions in the library. See the documentation for optim (?optim) for valid values for method and elements for the control. For example, to use simulated annealing change the <code>method</code> to <code>SANN</code>.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_set_option.html">system_set_option</a></span><span class="op">(</span><span class="va">cfg</span>, group  <span class="op">=</span> <span class="st">"estimation"</span>,
@@ -480,7 +482,7 @@
 <p>There are also global optimization libraries in R, and two of these can be readily used with ubiquity: Particle Swarm Optimizer (<code>pso</code> package) and Genetic Algorithms (<code>GA</code> package).</p>
 <p>To use the <code>pso</code> package set the following options:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st">"pso"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"pso"</span><span class="op">)</span>
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_set_option.html">system_set_option</a></span><span class="op">(</span><span class="va">cfg</span>, group  <span class="op">=</span> <span class="st">"estimation"</span>,
                              option <span class="op">=</span> <span class="st">"optimizer"</span>, 
                              value  <span class="op">=</span> <span class="st">"pso"</span><span class="op">)</span>
@@ -490,7 +492,7 @@
                              value  <span class="op">=</span> <span class="st">"psoptim"</span><span class="op">)</span></code></pre></div>
 <p>To use the <code>GA</code> package set the following options:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://luca-scr.github.io/GA/">GA</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://luca-scr.github.io/GA/" class="external-link">GA</a></span><span class="op">)</span>
 
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_set_option.html">system_set_option</a></span><span class="op">(</span><span class="va">cfg</span>, group  <span class="op">=</span> <span class="st">"estimation"</span>,
                              option <span class="op">=</span> <span class="st">"optimizer"</span>, 
@@ -502,42 +504,42 @@
 
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_set_option.html">system_set_option</a></span><span class="op">(</span><span class="va">cfg</span>, group  <span class="op">=</span> <span class="st">"estimation"</span>,
                              option <span class="op">=</span> <span class="st">"control"</span>, 
-                             value  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>maxiter   <span class="op">=</span> <span class="fl">10000</span>, 
-                                           optimArgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>method  <span class="op">=</span> <span class="st">"Nelder-Mead"</span>,
+                             value  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxiter   <span class="op">=</span> <span class="fl">10000</span>, 
+                                           optimArgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method  <span class="op">=</span> <span class="st">"Nelder-Mead"</span>,
                                                             maxiter <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><strong>Note:</strong> Optimizers like <code>SANN</code> and the global optimizers (<code>pso</code> and <code>GA</code>) are good for identifying parameter sets outside of the region of the initial guess. However, one consequence of these algorithms is they can quickly approach the bounds. Consequently it is important to provide realistic upper and lower bounds on the parameters (the <code>&lt;P&gt;</code> descriptor in the system file or using <code>system_set_guess</code> at the scripting level). If you use the default value of machine precision (<code>eps</code>) for the lower bound and infinity (<code>Inf</code>) for the upper bound these optimization routines can choose parameter values that can cause the internal simulations to fail.</p>
 </div>
 <div id="cohorts-from-nonmem-dataset-analysis_parent_metabolite_nm_data-r" class="section level2">
 <h2 class="hasAnchor">
-<a href="#cohorts-from-nonmem-dataset-analysis_parent_metabolite_nm_data-r" class="anchor"></a>Cohorts from NONMEM dataset (<code>analysis_parent_metabolite_nm_data.r</code>)</h2>
+<a href="#cohorts-from-nonmem-dataset-analysis_parent_metabolite_nm_data-r" class="anchor" aria-hidden="true"></a>Cohorts from NONMEM dataset (<code>analysis_parent_metabolite_nm_data.r</code>)</h2>
 <p>In the examples above, cohorts are defined manually. Sometimes you may have data in a NONMEM dataset where the dosing information is located in the dataset. It may be convenient to simply define a cohort for each subject in the dataset. To do that the function <code>system_define_cohorts_nm</code> can be used. The differences between the script <code>analysis_parent_metabolite.r</code> will now be highlighted:</p>
 <p>First we load the NONMEM dataset and clear the cohorts:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_load_data.html">system_load_data</a></span><span class="op">(</span><span class="va">cfg</span>, dsname     <span class="op">=</span> <span class="st">"nm_pm_data"</span>, 
-                            data_file  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span><span class="op">(</span><span class="st">"ubinc"</span>, <span class="st">"csv"</span>,
+                            data_file  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"ubinc"</span>, <span class="st">"csv"</span>,
                                                      <span class="st">"nm_data.csv"</span>, 
                                                      package <span class="op">=</span> <span class="st">"ubiquity"</span><span class="op">)</span><span class="op">)</span>
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_clear_cohorts.html">system_clear_cohorts</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span>;</code></pre></div>
 <p>Next we define a filter to use on the dataset (include only the 10 and 30 mg doses):</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">filter</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">filter</span><span class="op">$</span><span class="va">DOSE</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">30</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">filter</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">filter</span><span class="op">$</span><span class="va">DOSE</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">30</span><span class="op">)</span></code></pre></div>
 <p>For more information on filtering datasets see the help for <code>nm_select_records</code>.</p>
 <p>Now we define maps for the different outputs. For each output we specify the variance, compartment (<code>CMT</code>) number, model output and the missing number flag:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">OBSMAP</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">OBSMAP</span><span class="op">$</span><span class="va">PT</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>variance     <span class="op">=</span> <span class="st">'slope_parent*PRED^2'</span>,
+<code class="sourceCode R"><span class="va">OBSMAP</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">OBSMAP</span><span class="op">$</span><span class="va">PT</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>variance     <span class="op">=</span> <span class="st">'slope_parent*PRED^2'</span>,
                  CMT          <span class="op">=</span>  <span class="fl">1</span>,
                  output       <span class="op">=</span> <span class="st">'Cpblood'</span>, 
                  missing      <span class="op">=</span>  <span class="op">-</span><span class="fl">1</span> <span class="op">)</span>
 
-<span class="va">OBSMAP</span><span class="op">$</span><span class="va">MT</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>variance     <span class="op">=</span> <span class="st">'slope_metabolite*PRED^2'</span>,
+<span class="va">OBSMAP</span><span class="op">$</span><span class="va">MT</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>variance     <span class="op">=</span> <span class="st">'slope_metabolite*PRED^2'</span>,
                  CMT          <span class="op">=</span>  <span class="fl">2</span>,
                  output       <span class="op">=</span> <span class="st">'Cmblood'</span>, 
                  missing      <span class="op">=</span>  <span class="op">-</span><span class="fl">1</span> <span class="op">)</span></code></pre></div>
 <p>Lastly we define a map for the model inputs. In this case we only have a bolus in the <code>Mpb</code> compartment:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">INPUTMAP</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">INPUTMAP</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">INPUTMAP</span><span class="op">$</span><span class="va">bolus</span><span class="op">$</span><span class="va">Mpb</span><span class="op">$</span><span class="va">CMT_NUM</span>             <span class="op">=</span>  <span class="fl">1</span></code></pre></div>
 <p>Unused columns in the dataset will be ignored. With the filter, input and observation maps defined, we now add the cohorts</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
@@ -553,7 +555,7 @@
 </div>
 <div id="contents-of-system-txt" class="section level2">
 <h2 class="hasAnchor">
-<a href="#contents-of-system-txt" class="anchor"></a>Contents of <code>system.txt</code>
+<a href="#contents-of-system-txt" class="anchor" aria-hidden="true"></a>Contents of <code>system.txt</code>
 </h2>
 <pre><code>#
 # Parent/Metabolite example taken from Section 9.3 of the ADAPT5 Users Manual
@@ -620,11 +622,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by John Harrold.</p>
+  <p></p>
+<p>Developed by John Harrold.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
 </div>
 
       </footer>
@@ -632,6 +636,8 @@
 
   
 
+
+  
 
   </body>
 </html>

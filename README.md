@@ -9,7 +9,7 @@
 
 ### Overview  
 
-Provides an interface to the R workflow for [ubiquity](<https://ubiquity.tools/rworkflow>): a set of modeling tools created to accelerate the development and deployment of models of drug disposition and efficacy within an organization or institution. It is designed to make model development easier, reduce the pain when moving between modeling software, and provide a simple but customizable interface to allow other scientists to interrogate models. It is provide free under a BSD license with source code available in GitHub ([R-package](https://github.com/john-harrold/ubiquity), [ubiquity project](https://github.com/john-harrold/ubiquity-pkpd)). 
+Provides an interface to the R workflow for [ubiquity](<https://r.ubiquity.tools>): a set of modeling tools created to accelerate the development and deployment of models of drug disposition and efficacy within an organization or institution. It is designed to make model development easier, reduce the pain when moving between modeling software, and provide a simple but customizable interface to allow other scientists to interrogate models. It is provide free under a BSD license with source code available in GitHub ([R-package](https://github.com/john-harrold/ubiquity), [ubiquity project](https://github.com/john-harrold/ubiquity-pkpd)). 
 
 
 ### Installing ubiquity
@@ -37,12 +37,12 @@ devtools::install_github("john-harrold/ubiquity",
 
 ### Getting started
 
-For full documentation go to the [ubiquity vignettes and manuals](<https://john-harrold.github.io/ubiquity/>) are available.
+For full documentation the [ubiquity vignettes and manuals](<https://john-harrold.github.io/ubiquity/>) are available.
 
 For more information on specific tasks see the following vignettes: 
 
-* [Language](https://john-harrold.github.io/ubiquity/articles/Language.html): Constructing ODE based systems using the ubiquity language
-* [Simulation](https://john-harrold.github.io/ubiquity/articles/Simulation.html): Running individual and population simulations: ``vignette("Simulation", package = "ubiquity")``
+* [Language](https://john-harrold.github.io/ubiquity/articles/Language.html): Constructing ODE-based systems using the ubiquity language
+* [Simulation](https://john-harrold.github.io/ubiquity/articles/Simulation.html): Running individual and population simulations
 * [Estimation](https://john-harrold.github.io/ubiquity/articles/Estimation.html):  Naive-pooled parameter estimation
 * [Titration](https://john-harrold.github.io/ubiquity/articles/Titration.html):Rule-based/titration simulations
 * [Deployment](https://john-harrold.github.io/ubiquity/articles/Deployment.html):  ShinyApp for running and deploying models

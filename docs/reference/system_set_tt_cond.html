@@ -47,6 +47,8 @@ each of the titration time points that, when true, will perform some actions." /
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -58,9 +60,15 @@ each of the titration time points that, when true, will perform some actions." /
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -175,7 +183,7 @@ each of the titration time points that, when true, will perform some actions." /
 each of the titration time points that, when true, will perform some actions.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>system_set_tt_cond</span><span class='op'>(</span><span class='va'>cfg</span>, <span class='va'>name</span>, <span class='va'>cond</span>, <span class='va'>action</span>, value <span class='op'>=</span> <span class='st'>"-1"</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>system_set_tt_cond</span><span class='op'>(</span><span class='va'>cfg</span>, <span class='va'>name</span>, <span class='va'>cond</span>, <span class='va'>action</span>, value <span class='op'>=</span> <span class='st'>"-1"</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -208,13 +216,13 @@ each of the titration time points that, when true, will perform some actions.</p
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The general syntax for setting a new condition is:</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'>system_new_tt_cond</span><span class='op'>(</span><span class='va'>cfg</span>,
                         name   <span class='op'>=</span> <span class='st'>"rname"</span>,
                         cond   <span class='op'>=</span> <span class='st'>"BOOLEAN EXPRESSION"</span>,
                         action <span class='op'>=</span> <span class='st'>"EXPRESSION"</span>,
                         value  <span class='op'>=</span> <span class='st'>"VALUE"</span><span class='op'>)</span>
-</pre>
+</code></pre>
 
 <p>The <code>name</code>
 input will associate this condition with a previously defined rule. For each
@@ -244,25 +252,25 @@ specify strings within this string. For the main string use double quotes (")
 and for the internal strings use single quotes (')</p>
 <p><b><code>SI_TT_BOLUS</code></b></p>
 <p>The simplest way to apply a bolus when the condition is true is to use the following:</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>action</span> <span class='op'>=</span> <span class='st'>"SI_TT_BOLUS[state=’At’, 
                      values=c(10, 10, 10), 
                      times=c(0, 1, 2)]"</span>
-</pre>
+</code></pre>
 
 <p>The <code>values</code> and <code>times</code> are vectors of numbers of equal length. The dosing and
 time units are those specified in the <code>system.txt</code> file for the <code>&lt;B:?&gt;</code> delimiter. The
 times are relative to the titration time. So <code>0</code> above means at the titration time.</p>
 <p>It’s possible to specify an interval and a number of times to repeat the last dose
 using the following:</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>action</span> <span class='op'>=</span> <span class='st'>"SI_TT_BOLUS[state    = ’At’, 
                      values   = c(5, 5, 10), 
                      times    = c(0, 2, 4), 
                      repdose  = ’last’, 
                      number   = 7, 
                      interval = 4]"</span>
-</pre>
+</code></pre>
 
 <p>This will give a dose of <code>5</code> at the titration point and <code>2</code> time units later. The dose of <code>10</code>
 at time <code>4</code> will be repeated <code>7</code> times every <code>4</code> time units. So a total of 8 (<code>7 + 1</code>) doses
@@ -274,20 +282,20 @@ argument (e.g. <code>’last’</code>) are in single quotes <code>’ ’</code
 <p>If you created an infusion named <code>Dinf</code> using <code>&lt;R:?&gt;</code> and the infusion units
 are min (times) and mg/min (rates). To have a 60 minute infusion of 20
 mg/min then we would do the following:</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>action</span> <span class='op'>=</span> <span class='st'>"SI_TT_RATE[rate=’Dinf’, times=c(0, 60), levels=c(20.0, 0)]"</span>
-</pre>
+</code></pre>
 
 <p>If we wanted to do this every day for 9 more days (a total of 10 days) we can repeat
 the sequence:</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>action</span> <span class='op'>=</span> <span class='st'>"SI_TT_RATE[rate     = ’Dinf’, 
                     times    = c(0, 60), 
                     levels   = c(20, 0), 
                     repdose  = ’sequence’, 
                     number   = 9, 
                     interval = 24*60]"</span>
-</pre>
+</code></pre>
 
 <p>The input <code>repdose</code> can be either <code>’sequence’</code> or <code>’none’</code>.</p>
 <p><b>Note:</b> The time units and dosing rate are those specified using <code>&lt;R:?&gt;</code>.</p>
@@ -297,9 +305,9 @@ prototype is provided. For example, if you are modeling an assay where
 there is a wash step and you want to drop a concentration to zero. If you
 have a state named <code>Cc</code> defined in your <code>system.txt</code> and you want to set
 it to <code>0.0</code> in a condition the following action would work.</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>action</span> <span class='op'>=</span> <span class='st'>"SI_TT_STATE[Cc][0.0]"</span>
-</pre>
+</code></pre>
 
 <p>The value here is a number but you can use any mathematical
 combination of variables available in the titration environment. Also you
@@ -338,9 +346,9 @@ the values that are active for other actions.</p>
 
 <p><b>Individual Simulations</b></p>
 <p>To run an individual titration simulation use the following:</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>som</span> <span class='op'>=</span> <span class='fu'><a href='run_simulation_titrate.html'>run_simulation_titrate</a></span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>cfg</span><span class='op'>)</span>
-</pre>
+</code></pre>
 
 <p>This provides the same output as <code><a href='run_simulation_ubiquity.html'>run_simulation_ubiquity</a></code> with
  two extra fields. The first, <code>som$titration</code>, contains three columns for each
@@ -360,14 +368,14 @@ the values that are active for other actions.</p>
 </ul>
 
 <p>To convert this structured list into a data frame the <code><a href='som_to_df.html'>som_to_df</a></code> command can be used:</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>sdf</span> <span class='op'>=</span> <span class='fu'><a href='som_to_df.html'>som_to_df</a></span><span class='op'>(</span><span class='va'>cfg</span>, <span class='va'>som</span><span class='op'>)</span>
-</pre>
+</code></pre>
 
 <p>To run stochastic titration simulations, the same function is used:</p>
-<pre>
+<pre class='sourceCode r'><code>
 <span class='va'>som</span> <span class='op'>=</span> <span class='fu'><a href='simulate_subjects.html'>simulate_subjects</a></span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>cfg</span><span class='op'>)</span>
-</pre>
+</code></pre>
 
 <p>This will add a data a list element called <code>som$titration</code> with three
 fields for each titration rule:</p>
@@ -395,11 +403,11 @@ a data frame using <code>som_to_df</code>.</p>
 
       <footer>
       <div class="copyright">
-  <p>Developed by John Harrold.</p>
+  <p><p>Developed by John Harrold.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -407,6 +415,8 @@ a data frame using <code>som_to_df</code>.</p>
 
   
 
+
+  
 
   </body>
 </html>

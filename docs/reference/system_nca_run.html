@@ -45,6 +45,8 @@
 
 
 
+
+
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -56,9 +58,15 @@
 
 
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -171,7 +179,7 @@
     <p>Performs NCA in an automated fashion</p>
     </div>
 
-    <pre class="usage"><span class='fu'>system_nca_run</span><span class='op'>(</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>system_nca_run</span><span class='op'>(</span>
   <span class='va'>cfg</span>,
   dsname <span class='op'>=</span> <span class='st'>"PKDS"</span>,
   dscale <span class='op'>=</span> <span class='fl'>1</span>,
@@ -185,7 +193,7 @@
   dsmap <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>TIME <span class='op'>=</span> <span class='st'>"TIME"</span>, NTIME <span class='op'>=</span> <span class='st'>"NTIME"</span>, CONC <span class='op'>=</span> <span class='st'>"CONC"</span>, DOSE <span class='op'>=</span> <span class='st'>"DOSE"</span>, ID <span class='op'>=</span> <span class='st'>"ID"</span>,
     ROUTE <span class='op'>=</span> <span class='st'>"ROUTE"</span>, DOSENUM <span class='op'>=</span> <span class='cn'>NULL</span>, BACKEXTRAP <span class='op'>=</span> <span class='cn'>NULL</span>, SPARSEGROUP <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>,
   dsinc <span class='op'>=</span> <span class='cn'>NULL</span>
-<span class='op'>)</span></pre>
+<span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -208,7 +216,7 @@ if you are dosing in mg/kg and your concentrations is in ng/ml, then <code>dscal
       <td><p>specify a list of options for PKNCA to overwrite the
 defaults (default <code>NULL</code> will use defaults). For example if you want to
 set the maximum extrapolation of AUCinf to 10<!-- % and the minimum R-squared for -->
-half-life half-life of 0.8 you would use: <code><a href='https://rdrr.io/r/base/list.html'>list(max.aucinf.pext=10, min.hl.r.squared=.9)</a></code></p></td>
+half-life half-life of 0.8 you would use: <code>list(max.aucinf.pext=10, min.hl.r.squared=.9)</code></p></td>
     </tr>
     <tr>
       <th>NCA_min</th>
@@ -220,9 +228,9 @@ half-life half-life of 0.8 you would use: <code><a href='https://rdrr.io/r/base/
     </tr>
     <tr>
       <th>dsfilter</th>
-      <td><p>list of names corresponding to the column names in the dataset and values are a sequence indicating values to keep (default <code>NULL</code>. Multiple names are and-ed together. For example the following would keep all of the records where dose is 1, 2, or 5 and the dose_number is 1</p><pre>
+      <td><p>list of names corresponding to the column names in the dataset and values are a sequence indicating values to keep (default <code>NULL</code>. Multiple names are and-ed together. For example the following would keep all of the records where dose is 1, 2, or 5 and the dose_number is 1</p><pre class='sourceCode r'><code>
  <span class='va'>dsfilter</span> <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>dose<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>5</span><span class='op'>)</span>, dose_number <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span><span class='op'>)</span><span class='op'>)</span>
-</pre></td>
+</code></pre></td>
     </tr>
     <tr>
       <th>extrap_C0</th>
@@ -282,11 +290,11 @@ half-life half-life of 0.8 you would use: <code><a href='https://rdrr.io/r/base/
 
       <footer>
       <div class="copyright">
-  <p>Developed by John Harrold.</p>
+  <p><p>Developed by John Harrold.</p></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
       </footer>
@@ -294,6 +302,8 @@ half-life half-life of 0.8 you would use: <code><a href='https://rdrr.io/r/base/
 
   
 
+
+  
 
   </body>
 </html>
