@@ -355,7 +355,7 @@ if(presim_loaded){
 The output of ``system_nca_summary()`` is a list with elements that are designed to facilitate reporting. The unformatted tabular information is provided in a dataframe (``nca_summary``) and this can be saved as text for archival purposes. Flextable output (``nca_summary_ft``) is also provided. This can be further customized if needed and eventually be used in Word or PowerPoint (see below). If you want to create your own output from this you can use the ``components`` field.
 
 ```{r warning=FALSE, echo=FALSE, eval=TRUE}
-nca_table[["vignette"]]
+flextable::autofit(nca_table[["vignette"]])
 ```
 
        
