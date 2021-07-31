@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ubiquity</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.6</span>
       </span>
     </div>
 
@@ -126,7 +126,7 @@
       <h1 data-toc-skip>Naive-Pooled Parameter Estimation</h1>
                         <h4 data-toc-skip class="author">John Harrold &amp; Anson Abraham</h4>
             
-            <h4 data-toc-skip class="date">2021-07-24</h4>
+            <h4 data-toc-skip class="date">2021-07-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Estimation.Rmd" class="external-link"><code>vignettes/Estimation.Rmd</code></a></small>
       <div class="hidden name"><code>Estimation.Rmd</code></div>
@@ -155,7 +155,7 @@
 </ul>
 <p>Each of these scripts build on the previous one to demonstrate different features of the ubiquity parameter estimation routines. All of these examples use a system (shown in the figure below) that contains three differential equations tracking the mass of the parent drug in the blood (<code>Mpb</code>) and in a tissue space (<code>Mpt</code>). In the blood the parent can form (<code>fmKp</code>) a metabolite (<code>Mmb</code>) with subsequent elimination (<code>Km</code>). The parent/metabolite model was adapted from the ADAPT5 Users Manual (<a href="https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf" class="external-link uri">https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf</a>).</p>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/vignettes/system-estimation_example.png" style="width:100.0%" alt=""><p class="caption">Model structure of parent/metabolite model</p>
+<img src="system-estimation_example.png" style="width:100.0%" alt=""><p class="caption">Model structure of parent/metabolite model</p>
 </div>
 <p>Using <code>system_new</code> (use <code><a href="../reference/system_new.html">?system_new</a></code> to see a list of the available system file examples) you can copy this template file into the current directory and build the system:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -363,10 +363,10 @@
 <li>output/parent_d1030_obs_pred_Parent.png</li>
 </ul>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/vignettes/Estimation-parent-tc.png" style="width:80.0%" alt=""><p class="caption">Timecourse</p>
+<img src="Estimation-parent-tc.png" style="width:80.0%" alt=""><p class="caption">Timecourse</p>
 </div>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/vignettes/Estimation-parent-op.png" style="width:80.0%" alt=""><p class="caption">Observed vs Predicted</p>
+<img src="Estimation-parent-op.png" style="width:80.0%" alt=""><p class="caption">Observed vs Predicted</p>
 </div>
 <div id="automated-reporting" class="section level3">
 <h3 class="hasAnchor">

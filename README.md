@@ -1,7 +1,6 @@
 ## ubiquity R Workflow 
 
 ![R-CMD-check](https://github.com/john-harrold/ubiquity/workflows/R-CMD-check/badge.svg)
-[![Build Status](https://travis-ci.com/john-harrold/ubiquity.svg?branch=master)](https://travis-ci.com/john-harrold/ubiquity)
 [![version](https://www.r-pkg.org/badges/version/ubiquity)](https://CRAN.R-project.org/package=ubiquity)
 ![cranlogs](https://cranlogs.r-pkg.org/badges/ubiquity) 
 ![Active](https://www.repostatus.org/badges/latest/active.svg)
@@ -37,17 +36,17 @@ devtools::install_github("john-harrold/ubiquity",
 
 ### Getting started
 
-For full documentation the [ubiquity vignettes and manuals](<https://john-harrold.github.io/ubiquity/>) are available.
+For full documentation the [ubiquity vignettes and manuals](<https://r.ubiquity.tools/>) are available.
 
 For more information on specific tasks see the following vignettes: 
 
-* [Language](https://john-harrold.github.io/ubiquity/articles/Language.html): Constructing ODE-based systems using the ubiquity language
-* [Simulation](https://john-harrold.github.io/ubiquity/articles/Simulation.html): Running individual and population simulations
-* [Estimation](https://john-harrold.github.io/ubiquity/articles/Estimation.html):  Naive-pooled parameter estimation
-* [Titration](https://john-harrold.github.io/ubiquity/articles/Titration.html):Rule-based/titration simulations
-* [Deployment](https://john-harrold.github.io/ubiquity/articles/Deployment.html):  ShinyApp for running and deploying models
-* [Reporting](https://john-harrold.github.io/ubiquity/articles/Reporting.html): Inline generation of PowerPoint and Word reports
-* [NCA](https://john-harrold.github.io/ubiquity/articles/NCA.html):
+* [Language](https://r.ubiquity.tools/articles/Language.html): Constructing ODE-based systems using the ubiquity language
+* [Simulation](https://r.ubiquity.tools/articles/Simulation.html): Running individual and population simulations
+* [Estimation](https://r.ubiquity.tools/articles/Estimation.html):  Naive-pooled parameter estimation
+* [Titration](https://r.ubiquity.tools/articles/Titration.html): Rule-based/titration simulations
+* [Deployment](https://r.ubiquity.tools/articles/Deployment.html):  ShinyApp for running and deploying models
+* [Reporting](https://r.ubiquity.tools/articles/Reporting.html): Inline generation of PowerPoint and Word reports
+* [NCA](https://r.ubiquity.tools/articles/NCA.html):
 Automated non-compartmental analysis with PKNCA
 
 ### Changes and Updates

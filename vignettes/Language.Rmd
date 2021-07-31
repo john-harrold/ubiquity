@@ -10,10 +10,11 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+# knitr::opts_chunk$set(
+#   collapse = TRUE,
+#   comment = "#>"
+# )
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Introduction
@@ -37,7 +38,7 @@ Each system parameter is specified with a name, value, lower bound, upper bound,
 Often a model will be developed to incorporate different situations or scenarios. For example, a model may be used to describe both healthy and diseased individuals. When these differences are simply parametric in nature, it can be cumbersome to code a model multiple times (once for each parameterization). This framework provides a mechanism for including multiple parameterizations withing the same system file. Consider the system below where we want to describe antibody disposition. For humans this is described by a two compartment model, but for mice a single compartment is needed.
 
 
-![Model parameterizations](system-paper-parameter_sets.png){width=60%}
+![Model parameterizations](./system-paper-parameter_sets.png){width=60%}
 
 First we create a set of parameters describing the human scenario.
 These are the mean parameters taken from the literature [DM]:

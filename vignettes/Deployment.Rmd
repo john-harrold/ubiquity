@@ -2,7 +2,7 @@
 title: 'Model Deployment'
 author: "John Harrold & Anson K Abraham"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Deployment}
   %\VignetteEngine{knitr::rmarkdown}

@@ -9,7 +9,11 @@ reference:
   - system_new
   - system_new_list
   - workshop_fetch
+  - system_fetch_parameters
+  - system_fetch_iiv
+  - system_fetch_set
   - system_fetch_template
+  - system_fetch_TSsys
   - system_view
   - system_check_requirements
   - system_set_option
@@ -53,6 +57,8 @@ reference:
 - title: "NCA"
   desc: "The following functions are used to run NCA and summarize results"
 - contents:
+  - system_fetch_nca
+  - system_fetch_nca_columns
   - starts_with("system_nca_")
 - title: "General Functions"
   desc: ""
@@ -63,10 +69,14 @@ reference:
   - gg_log10_yaxis  
   - linspace
   - logspace
+  - pad_string
+  - prepare_figure
   - vp
   - var2string
   - system_log_debug_save
   - system_log_init
+  - tic
+  - toc 
 navbar:
   left:
   - text: Tutorials
