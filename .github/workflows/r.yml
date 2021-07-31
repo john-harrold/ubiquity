@@ -59,6 +59,7 @@ jobs:
       - name: Install system dependencies
         if: runner.os == 'Linux'
         run: |
+          sudo apt-get install libgfortran3
           while read -r cmd
           do
             eval sudo $cmd

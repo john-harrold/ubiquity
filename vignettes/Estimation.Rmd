@@ -34,7 +34,7 @@ fr = workshop_fetch(section="Estimation", overwrite=TRUE)
  
 Each of these scripts build on the previous one to demonstrate different features of the ubiquity parameter estimation routines. All of these examples use a system (shown in the figure below) that contains three differential equations tracking the mass of the parent drug in the blood (``Mpb``) and in a tissue space (``Mpt``). In the blood the parent can form (``fmKp``) a metabolite (``Mmb``) with subsequent elimination (``Km``). The parent/metabolite model was adapted from the ADAPT5 Users Manual (https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf). 
 
-![Model structure of parent/metabolite model](system-estimation_example.png){width=100%}
+![Model structure of parent/metabolite model](system-estimation_example.png){width=450}
 
 Using ``system_new`` (use ``?system_new`` to see a list of the available system file examples) you can copy this template file into the current directory and build the system:
 
