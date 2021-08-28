@@ -1,9 +1,50 @@
 # ubiquity 2.0.0
-
 [//]: ## Notes
 [//]: ## New Features
 [//]: ## Bug Fixes
 
+##Notes
+- Lots of small updates to function documentation and the vignettes
+
+- Completely replaced the reporting functionality. Now using the `onbrand`
+  package for templated reporting.  **Note:** This will break all reporting in 
+  version 1 of the R package. Old Word and PowerPoint templates will work, but
+  you will need to create a yaml mapping file. This is detailed in the Reporting
+  vignette.
+
+- Reporting changes added the following functions
+  - `system_rpt_add_slide()`
+  - `system_rpt_doc_content()`
+  - `system_rpt_read_template()`
+  - `system_rpt_save_report()`
+  - `system_rpt_template_details()`
+  - `system_fetch_rpt_officer_object()`
+  - `system_fetch_rpt_onbrand_object()`
+  - `system_set_rpt_officer_object()`
+  - `system_set_rpt_onbrand_object()`
+
+- Reporting changes removed the following functions:
+  - `system_report_doc_add_content()`
+  - `system_report_doc_format_section()`
+  - `system_report_doc_set_ph()`
+  - `system_report_estimation()`
+  - `system_report_glp()`
+  - `system_report_init()`
+  - `system_report_nca()`
+  - `system_report_ph_content()`
+  - `system_report_save()`
+  - `system_report_set()`
+  - `system_report_slide_content()`
+  - `system_report_slide_section()`
+  - `system_report_slide_title()`
+  - `system_report_slide_two_col()`
+  - `system_report_view_layout()`
+  - `system_fetch_report()`
+  - `system_fetch_report_format()`
+  - `md_to_officer()`
+  - `md_to_oo()`
+
+- Reporting changes updated vignettes, example scripts and function templates
 
 # ubiquity 1.0.4
 
