@@ -1,7 +1,5 @@
 ---
 title: 'Noncompartmental Analysis'
-author: "John Harrold & Anson K Abraham"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Noncompartmental Analysis}

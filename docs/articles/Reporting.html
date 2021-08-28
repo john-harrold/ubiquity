@@ -132,9 +132,7 @@
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Report Generation</h1>
-                        <h4 data-toc-skip class="author">John Harrold &amp; Anson Abraham</h4>
             
-            <h4 data-toc-skip class="date">2021-08-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Reporting.Rmd" class="external-link"><code>vignettes/Reporting.Rmd</code></a></small>
       <div class="hidden name"><code>Reporting.Rmd</code></div>
@@ -254,7 +252,7 @@
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fr</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_template_details.html">system_rpt_template_details</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></code></pre></div>
 <p>This will produce output in the console like the following:</p>
-<pre><code>## Mapping:     /private/var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T/RtmpY4NZlT/temp_libpath15c56514488c3/ubiquity/ubinc/templates/report.yaml
+<pre><code>## Mapping:     /private/var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T/RtmpY4NZlT/temp_libpath15c56283fe87a/ubiquity/ubinc/templates/report.yaml
 ## Report Type: PowerPoint
 ## title_slide (master/template)
 ##   &gt; title (text)
@@ -462,7 +460,7 @@
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fr</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_template_details.html">system_rpt_template_details</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></code></pre></div>
 <p>This will produce output in the console like the following:</p>
-<pre><code>## Mapping:     /private/var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T/RtmpY4NZlT/temp_libpath15c56514488c3/ubiquity/ubinc/templates/report.yaml
+<pre><code>## Mapping:     /private/var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T/RtmpY4NZlT/temp_libpath15c56283fe87a/ubiquity/ubinc/templates/report.yaml
 ## Report Type: Word
 ##   onbrand style (word style, style type)
 ##   --------------------------------------
@@ -548,13 +546,11 @@
 <a href="#using-custom-organizational-templates" class="anchor" aria-hidden="true"></a>Using custom organizational templates</h2>
 <p>Internally <code>ubiquity</code> uses the <code>onbrand</code> package for customizable templates. To create a template for your organization you should use the <code>onbrand</code> vignette for <a href="http://onbrand.ubiquity.tools/articles/Custom_Office_Templates.html" class="external-link">Custom Templates</a>. This will instruct you to create a yaml mapping file for your templates. You can use the built in organizational template as a starting point for that:</p>
 <p>In order to use the <code>ubiquity</code> workflows, you will need to have specific placeholders for PowerPoint and styles for Word. You can have others, but you will at least need those listed below. These should already be defined in the organizational template. You simply need to ensure that the placeholder names and content types from PowerPoint are correct and that the style names in Word you create are also assigned to the correct <code>onbrand</code> styles.</p>
-</div>
-<div id="introduction-1" class="section level2">
-<h2 class="hasAnchor">
-<a href="#introduction-1" class="anchor" aria-hidden="true"></a>Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px">
-</h2>
+<div id="powerpoint" class="section level3">
+<h3 class="hasAnchor">
+<a href="#powerpoint" class="anchor" aria-hidden="true"></a>PowerPoint</h3>
 <p>In PowerPoint you will need to have a document template with the following slide masters/templates. You will need to name the slide Master the name shown in the table below. For each slide master you will need to create placeholders for the specified content. Make sure the content type matches that shown below. When you create the <code>onbrand</code> mapping file you will need to use the placeholder names shown below.</p>
-<template id="fd650259-5c72-408e-85cf-484c31e76c1f"><style>
+<template id="5a2df40d-426d-480e-974c-5066eb3104ff"><style>
 .tabwid table{
   border-collapse:collapse;
   line-height:1;
@@ -590,160 +586,160 @@ background-color: transparent;
 }
 </style>
 <div class="tabwid">
-<style>.cl-acb62d74{border-collapse:collapse;}.cl-acafc1e6{font-family:'Helvetica';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-acafc204{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-acafd64a{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-acb01632{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acb01646{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acb01650{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
-<table class="table cl-acb62d74">
+<style>.cl-969bf19e{border-collapse:collapse;}.cl-9695e42a{font-family:'Helvetica';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-9695e452{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-9695f8ca{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-96963bb4{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96963bc8{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96963bdc{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table class="table cl-969bf19e">
 <thead>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01650"><p class="cl-acafd64a"><span class="cl-acafc1e6">Master/Template</span></p></td>
-<td class="cl-acb01650"><p class="cl-acafd64a"><span class="cl-acafc1e6">onbrand</span></p></td>
-<td class="cl-acb01650"><p class="cl-acafd64a"><span class="cl-acafc1e6">Content</span></p></td>
+<td class="cl-96963bdc"><p class="cl-9695f8ca"><span class="cl-9695e42a">Master/Template</span></p></td>
+<td class="cl-96963bdc"><p class="cl-9695f8ca"><span class="cl-9695e42a">onbrand</span></p></td>
+<td class="cl-96963bdc"><p class="cl-9695f8ca"><span class="cl-9695e42a">Content</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01650"><p class="cl-acafd64a"><span class="cl-acafc1e6">Name</span></p></td>
-<td class="cl-acb01650"><p class="cl-acafd64a"><span class="cl-acafc1e6">Placeholder</span></p></td>
-<td class="cl-acb01650"><p class="cl-acafd64a"><span class="cl-acafc1e6">Type</span></p></td>
+<td class="cl-96963bdc"><p class="cl-9695f8ca"><span class="cl-9695e42a">Name</span></p></td>
+<td class="cl-96963bdc"><p class="cl-9695f8ca"><span class="cl-9695e42a">Placeholder</span></p></td>
+<td class="cl-96963bdc"><p class="cl-9695f8ca"><span class="cl-9695e42a">Type</span></p></td>
 </tr>
 </thead>
 <tbody>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="2" class="cl-acb01632"><p class="cl-acafd64a"><span class="cl-acafc204">title_slide</span></p></td>
-<td class="cl-acb01632"><p class="cl-acafd64a"><span class="cl-acafc204">title</span></p></td>
-<td class="cl-acb01632"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td rowspan="2" class="cl-96963bb4"><p class="cl-9695f8ca"><span class="cl-9695e452">title_slide</span></p></td>
+<td class="cl-96963bb4"><p class="cl-9695f8ca"><span class="cl-9695e452">title</span></p></td>
+<td class="cl-96963bb4"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">sub_title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">sub_title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="2" class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">section_slide</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td rowspan="2" class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">section_slide</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">sub_title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">sub_title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">title_only</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">title_only</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="3" class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_text</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td rowspan="3" class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">sub_title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">sub_title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_body</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_body</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="3" class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_list</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td rowspan="3" class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_list</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">sub_title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">sub_title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_body</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">list</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_body</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">list</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="6" class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">two_content_header_list</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td rowspan="6" class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">two_content_header_list</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">sub_title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">sub_title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_left_header</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_left_header</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_left</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">list</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_left</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">list</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_right_header</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_right_header</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_right</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">list</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_right</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">list</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="6" class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">two_content_header_text</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td rowspan="6" class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">two_content_header_text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">sub_title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">sub_title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_left_header</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_left_header</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_left</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_left</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_right_header</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_right_header</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_right</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_right</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="4" class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">two_content_list</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td rowspan="4" class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">two_content_list</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">sub_title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">sub_title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_left</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">list</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_left</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">list</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_right</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">list</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_right</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">list</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="4" class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">two_content_text</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td rowspan="4" class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">two_content_text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">sub_title</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">sub_title</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_left</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_left</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">content_right</span></p></td>
-<td class="cl-acb01646"><p class="cl-acafd64a"><span class="cl-acafc204">text</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">content_right</span></p></td>
+<td class="cl-96963bc8"><p class="cl-9695f8ca"><span class="cl-9695e452">text</span></p></td>
 </tr>
 </tbody>
 </table>
-</div></template><div class="flextable-shadow-host" id="40ab9d3a-4b0d-4646-acd6-facc2c291a76"></div>
+</div></template><div class="flextable-shadow-host" id="4045f24a-4611-4028-af6c-fc4d935d5645"></div>
 <script>
-var dest = document.getElementById("40ab9d3a-4b0d-4646-acd6-facc2c291a76");
-var template = document.getElementById("fd650259-5c72-408e-85cf-484c31e76c1f");
+var dest = document.getElementById("4045f24a-4611-4028-af6c-fc4d935d5645");
+var template = document.getElementById("5a2df40d-426d-480e-974c-5066eb3104ff");
 var caption = template.content.querySelector("caption");
 if(caption) {
   caption.style.cssText = "display:block;text-align:center;";
@@ -754,11 +750,13 @@ if(caption) {
 var fantome = dest.attachShadow({mode: 'open'});
 var templateContent = template.content;
 fantome.appendChild(templateContent);
-</script><div id="word" class="section level3">
+</script>
+</div>
+<div id="word" class="section level3">
 <h3 class="hasAnchor">
 <a href="#word" class="anchor" aria-hidden="true"></a>Word</h3>
 <p>For Word reporting you will need to have a Word template with the following styles defined. When you create the <code>onbrand</code> mapping file you will need to use the onbrand Style name listed.</p>
-<template id="72897a4c-93c0-41f5-b1ad-dcd7eaf10d5f"><style>
+<template id="2e74ed66-58d3-4a6a-a7db-38bf15435b92"><style>
 .tabwid table{
   border-collapse:collapse;
   line-height:1;
@@ -794,72 +792,72 @@ background-color: transparent;
 }
 </style>
 <div class="tabwid">
-<style>.cl-acd81628{border-collapse:collapse;}.cl-acd2b7e6{font-family:'Helvetica';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-acd2b804{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-acd2c5a6{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-acd2f0c6{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f0da{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f0e4{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f0ee{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f0f8{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f0f9{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f102{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f10c{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f116{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f117{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f120{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f12a{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f12b{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f134{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f13e{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f13f{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f148{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-acd2f152{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
-<table class="table cl-acd81628">
+<style>.cl-96bda0f0{border-collapse:collapse;}.cl-96b84eac{font-family:'Helvetica';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-96b84eca{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-96b85be0{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-96b885a2{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b885c0{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b885ca{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b885cb{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b885d4{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b885de{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b885e8{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b885f2{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b885f3{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b885fc{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b88606{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b88610{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b88611{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b8861a{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b88624{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b8862e{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b8862f{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-96b88638{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table class="table cl-96bda0f0">
 <thead>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acd2f13f"><p class="cl-acd2c5a6"><span class="cl-acd2b7e6">onbrand</span></p></td>
-<td class="cl-acd2f148"><p class="cl-acd2c5a6"><span class="cl-acd2b7e6">Word</span></p></td>
-<td class="cl-acd2f152"><p class="cl-acd2c5a6"><span class="cl-acd2b7e6">Style</span></p></td>
+<td class="cl-96b8862e"><p class="cl-96b85be0"><span class="cl-96b84eac">onbrand</span></p></td>
+<td class="cl-96b8862f"><p class="cl-96b85be0"><span class="cl-96b84eac">Word</span></p></td>
+<td class="cl-96b88638"><p class="cl-96b85be0"><span class="cl-96b84eac">Style</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acd2f13f"><p class="cl-acd2c5a6"><span class="cl-acd2b7e6">Style</span></p></td>
-<td class="cl-acd2f148"><p class="cl-acd2c5a6"><span class="cl-acd2b7e6">Style</span></p></td>
-<td class="cl-acd2f152"><p class="cl-acd2c5a6"><span class="cl-acd2b7e6">Type</span></p></td>
+<td class="cl-96b8862e"><p class="cl-96b85be0"><span class="cl-96b84eac">Style</span></p></td>
+<td class="cl-96b8862f"><p class="cl-96b85be0"><span class="cl-96b84eac">Style</span></p></td>
+<td class="cl-96b88638"><p class="cl-96b85be0"><span class="cl-96b84eac">Type</span></p></td>
 </tr>
 </thead>
 <tbody>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acd2f0c6"><p class="cl-acd2c5a6"><span class="cl-acd2b804">Code</span></p></td>
-<td class="cl-acd2f0e4"><p class="cl-acd2c5a6"><span class="cl-acd2b804">Code</span></p></td>
-<td class="cl-acd2f0da"><p class="cl-acd2c5a6"><span class="cl-acd2b804">paragraph</span></p></td>
+<td class="cl-96b885a2"><p class="cl-96b85be0"><span class="cl-96b84eca">Code</span></p></td>
+<td class="cl-96b885ca"><p class="cl-96b85be0"><span class="cl-96b84eca">Code</span></p></td>
+<td class="cl-96b885c0"><p class="cl-96b85be0"><span class="cl-96b84eca">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acd2f0ee"><p class="cl-acd2c5a6"><span class="cl-acd2b804">Figure_Caption</span></p></td>
-<td class="cl-acd2f0f8"><p class="cl-acd2c5a6"><span class="cl-acd2b804">graphic title</span></p></td>
-<td class="cl-acd2f0f9"><p class="cl-acd2c5a6"><span class="cl-acd2b804">paragraph</span></p></td>
+<td class="cl-96b885cb"><p class="cl-96b85be0"><span class="cl-96b84eca">Figure_Caption</span></p></td>
+<td class="cl-96b885d4"><p class="cl-96b85be0"><span class="cl-96b84eca">graphic title</span></p></td>
+<td class="cl-96b885de"><p class="cl-96b85be0"><span class="cl-96b84eca">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acd2f102"><p class="cl-acd2c5a6"><span class="cl-acd2b804">Heading_1</span></p></td>
-<td class="cl-acd2f116"><p class="cl-acd2c5a6"><span class="cl-acd2b804">heading 1</span></p></td>
-<td class="cl-acd2f10c"><p class="cl-acd2c5a6"><span class="cl-acd2b804">paragraph</span></p></td>
+<td class="cl-96b885e8"><p class="cl-96b85be0"><span class="cl-96b84eca">Heading_1</span></p></td>
+<td class="cl-96b885f3"><p class="cl-96b85be0"><span class="cl-96b84eca">heading 1</span></p></td>
+<td class="cl-96b885f2"><p class="cl-96b85be0"><span class="cl-96b84eca">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acd2f102"><p class="cl-acd2c5a6"><span class="cl-acd2b804">Heading_2</span></p></td>
-<td class="cl-acd2f116"><p class="cl-acd2c5a6"><span class="cl-acd2b804">heading 2</span></p></td>
-<td class="cl-acd2f10c"><p class="cl-acd2c5a6"><span class="cl-acd2b804">paragraph</span></p></td>
+<td class="cl-96b885e8"><p class="cl-96b85be0"><span class="cl-96b84eca">Heading_2</span></p></td>
+<td class="cl-96b885f3"><p class="cl-96b85be0"><span class="cl-96b84eca">heading 2</span></p></td>
+<td class="cl-96b885f2"><p class="cl-96b85be0"><span class="cl-96b84eca">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acd2f102"><p class="cl-acd2c5a6"><span class="cl-acd2b804">Heading_3</span></p></td>
-<td class="cl-acd2f116"><p class="cl-acd2c5a6"><span class="cl-acd2b804">heading 3</span></p></td>
-<td class="cl-acd2f10c"><p class="cl-acd2c5a6"><span class="cl-acd2b804">paragraph</span></p></td>
+<td class="cl-96b885e8"><p class="cl-96b85be0"><span class="cl-96b84eca">Heading_3</span></p></td>
+<td class="cl-96b885f3"><p class="cl-96b85be0"><span class="cl-96b84eca">heading 3</span></p></td>
+<td class="cl-96b885f2"><p class="cl-96b85be0"><span class="cl-96b84eca">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acd2f102"><p class="cl-acd2c5a6"><span class="cl-acd2b804">Normal</span></p></td>
-<td class="cl-acd2f116"><p class="cl-acd2c5a6"><span class="cl-acd2b804">Normal</span></p></td>
-<td class="cl-acd2f10c"><p class="cl-acd2c5a6"><span class="cl-acd2b804">paragraph</span></p></td>
+<td class="cl-96b885e8"><p class="cl-96b85be0"><span class="cl-96b84eca">Normal</span></p></td>
+<td class="cl-96b885f3"><p class="cl-96b85be0"><span class="cl-96b84eca">Normal</span></p></td>
+<td class="cl-96b885f2"><p class="cl-96b85be0"><span class="cl-96b84eca">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acd2f117"><p class="cl-acd2c5a6"><span class="cl-acd2b804">Table_Caption</span></p></td>
-<td class="cl-acd2f12a"><p class="cl-acd2c5a6"><span class="cl-acd2b804">table title</span></p></td>
-<td class="cl-acd2f120"><p class="cl-acd2c5a6"><span class="cl-acd2b804">paragraph</span></p></td>
+<td class="cl-96b885fc"><p class="cl-96b85be0"><span class="cl-96b84eca">Table_Caption</span></p></td>
+<td class="cl-96b88610"><p class="cl-96b85be0"><span class="cl-96b84eca">table title</span></p></td>
+<td class="cl-96b88606"><p class="cl-96b85be0"><span class="cl-96b84eca">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acd2f102"><p class="cl-acd2c5a6"><span class="cl-acd2b804">TOC</span></p></td>
-<td class="cl-acd2f116"><p class="cl-acd2c5a6"><span class="cl-acd2b804">toc 1</span></p></td>
-<td class="cl-acd2f10c"><p class="cl-acd2c5a6"><span class="cl-acd2b804">paragraph</span></p></td>
+<td class="cl-96b885e8"><p class="cl-96b85be0"><span class="cl-96b84eca">TOC</span></p></td>
+<td class="cl-96b885f3"><p class="cl-96b85be0"><span class="cl-96b84eca">toc 1</span></p></td>
+<td class="cl-96b885f2"><p class="cl-96b85be0"><span class="cl-96b84eca">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-acd2f12b"><p class="cl-acd2c5a6"><span class="cl-acd2b804">Table</span></p></td>
-<td class="cl-acd2f13e"><p class="cl-acd2c5a6"><span class="cl-acd2b804">Table Grid</span></p></td>
-<td class="cl-acd2f134"><p class="cl-acd2c5a6"><span class="cl-acd2b804">table</span></p></td>
+<td class="cl-96b88611"><p class="cl-96b85be0"><span class="cl-96b84eca">Table</span></p></td>
+<td class="cl-96b88624"><p class="cl-96b85be0"><span class="cl-96b84eca">Table Grid</span></p></td>
+<td class="cl-96b8861a"><p class="cl-96b85be0"><span class="cl-96b84eca">table</span></p></td>
 </tr>
 </tbody>
 </table>
-</div></template><div class="flextable-shadow-host" id="aab2d9c5-33ff-489a-a2b8-acd15f1b81ef"></div>
+</div></template><div class="flextable-shadow-host" id="e9d0e355-0cde-4465-9471-de9d6b87c7be"></div>
 <script>
-var dest = document.getElementById("aab2d9c5-33ff-489a-a2b8-acd15f1b81ef");
-var template = document.getElementById("72897a4c-93c0-41f5-b1ad-dcd7eaf10d5f");
+var dest = document.getElementById("e9d0e355-0cde-4465-9471-de9d6b87c7be");
+var template = document.getElementById("2e74ed66-58d3-4a6a-a7db-38bf15435b92");
 var caption = template.content.querySelector("caption");
 if(caption) {
   caption.style.cssText = "display:block;text-align:center;";
@@ -935,7 +933,7 @@ fantome.appendChild(templateContent);
 <td align="left"><code><a href="https://john-harrold.github.io/onbrand/reference/report_add_slide.html" class="external-link">onbrand::report_add_slide()</a></code></td>
 </tr>
 <tr class="even">
-<td align="left"><code>system_rpt_doc_content()</code></td>
+<td align="left"><code><a href="../reference/system_rpt_add_doc_content.html">system_rpt_add_doc_content()</a></code></td>
 <td align="left"><code><a href="https://john-harrold.github.io/onbrand/reference/report_add_doc_content.html" class="external-link">onbrand::report_add_doc_content()</a></code></td>
 </tr>
 <tr class="odd">
