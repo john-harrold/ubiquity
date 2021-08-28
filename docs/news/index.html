@@ -183,13 +183,54 @@
     <div id="ubiquity-200" class="section level1">
 <h1 class="page-header" data-toc-text="2.0.0">
 <a href="#ubiquity-200" class="anchor" aria-hidden="true"></a>ubiquity 2.0.0<small> Unreleased </small></h1>
+<div id="notes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#notes" class="anchor" aria-hidden="true"></a>Notes</h2>
+<ul><li><p>Lots of small updates to function documentation and the vignettes</p></li>
+<li><p>Completely replaced the reporting functionality. Now using the <code>onbrand</code> package for templated reporting. <strong>Note:</strong> This will break all reporting in version 1 of the R package. Old Word and PowerPoint templates will work, but you will need to create a yaml mapping file. This is detailed in the Reporting vignette.</p></li>
+<li>
+<p>Reporting changes added the following functions</p>
+<ul><li><code><a href="../reference/system_rpt_add_slide.html">system_rpt_add_slide()</a></code></li>
+<li><code>system_rpt_doc_content()</code></li>
+<li><code><a href="../reference/system_rpt_read_template.html">system_rpt_read_template()</a></code></li>
+<li><code><a href="../reference/system_rpt_save_report.html">system_rpt_save_report()</a></code></li>
+<li><code><a href="../reference/system_rpt_template_details.html">system_rpt_template_details()</a></code></li>
+<li><code><a href="../reference/system_fetch_rpt_officer_object.html">system_fetch_rpt_officer_object()</a></code></li>
+<li><code><a href="../reference/system_fetch_rpt_onbrand_object.html">system_fetch_rpt_onbrand_object()</a></code></li>
+<li><code><a href="../reference/system_set_rpt_officer_object.html">system_set_rpt_officer_object()</a></code></li>
+<li><code><a href="../reference/system_set_rpt_onbrand_object.html">system_set_rpt_onbrand_object()</a></code></li>
+</ul></li>
+<li>
+<p>Reporting changes removed the following functions:</p>
+<ul><li><code>system_report_doc_add_content()</code></li>
+<li><code>system_report_doc_format_section()</code></li>
+<li><code>system_report_doc_set_ph()</code></li>
+<li><code>system_report_estimation()</code></li>
+<li><code>system_report_glp()</code></li>
+<li><code>system_report_init()</code></li>
+<li><code>system_report_nca()</code></li>
+<li><code>system_report_ph_content()</code></li>
+<li><code>system_report_save()</code></li>
+<li><code>system_report_set()</code></li>
+<li><code>system_report_slide_content()</code></li>
+<li><code>system_report_slide_section()</code></li>
+<li><code>system_report_slide_title()</code></li>
+<li><code>system_report_slide_two_col()</code></li>
+<li><code>system_report_view_layout()</code></li>
+<li><code>system_fetch_report()</code></li>
+<li><code>system_fetch_report_format()</code></li>
+<li><code>md_to_officer()</code></li>
+<li><code>md_to_oo()</code></li>
+</ul></li>
+<li><p>Reporting changes updated vignettes, example scripts and function templates</p></li>
+</ul></div>
 </div>
     <div id="ubiquity-104" class="section level1">
 <h1 class="page-header" data-toc-text="1.0.4">
 <a href="#ubiquity-104" class="anchor" aria-hidden="true"></a>ubiquity 1.0.4<small> 2021-04-18 </small></h1>
-<div id="notes" class="section level2">
+<div id="notes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#notes" class="anchor" aria-hidden="true"></a>Notes</h2>
+<a href="#notes-1" class="anchor" aria-hidden="true"></a>Notes</h2>
 <ul><li>Renamed <code>system_report_fetch</code> to <code>system_fetch_report</code>
 </li>
 <li>Added reporting scripts to the unit tests</li>
@@ -264,9 +305,9 @@
     <div id="ubiquity-103" class="section level1">
 <h1 class="page-header" data-toc-text="1.0.3">
 <a href="#ubiquity-103" class="anchor" aria-hidden="true"></a>ubiquity 1.0.3<small> 2020-09-13 </small></h1>
-<div id="notes-1" class="section level2">
+<div id="notes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#notes-1" class="anchor" aria-hidden="true"></a>Notes</h2>
+<a href="#notes-2" class="anchor" aria-hidden="true"></a>Notes</h2>
 <ul><li>Removed the gdata dependency</li>
 <li>Removed URL redirects from documentation to resolve CRAN submission warnings</li>
 </ul></div>

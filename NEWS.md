@@ -1,9 +1,10 @@
 # ubiquity 2.0.0
+
 [//]: ## Notes
 [//]: ## New Features
 [//]: ## Bug Fixes
 
-##Notes
+## Notes
 - Lots of small updates to function documentation and the vignettes
 
 - Completely replaced the reporting functionality. Now using the `onbrand`
@@ -14,7 +15,7 @@
 
 - Reporting changes added the following functions
   - `system_rpt_add_slide()`
-  - `system_rpt_doc_content()`
+  - `system_rpt_add_doc_content()`
   - `system_rpt_read_template()`
   - `system_rpt_save_report()`
   - `system_rpt_template_details()`
