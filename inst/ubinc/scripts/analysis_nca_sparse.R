@@ -37,23 +37,17 @@ cfg = system_nca_run(cfg, dsname        = "PKDATA",
 # file.path("output", "pk_sparse-nca_summary.csv")
 # Or you can pull them out programmatically with the fetch function:
 NCA_results = system_fetch_nca(cfg, analysis_name = "pk_sparse")
-            
-# -------------------------------------------------------------------------
-# Writing output to PowerPoint
-# Creating an empty report
-cfg = system_report_init(cfg, rpttype="PowerPoint")
-# Giving the report a title slide
-cfg = system_report_slide_title(cfg, title = "NCA of Sparsely Sampled PK")
-# Appending the NCA results to the report
-cfg = system_report_nca(cfg, analysis_name = "pk_sparse")
+#-------------------------------------------------------
 # Writing the results to a PowerPoint report
-system_report_save(cfg=cfg, output_file=file.path("output", "pk_sparse-report.pptx"))
-# -------------------------------------------------------------------------
-# Writing output to Word
-# Creating an empty report
-cfg = system_report_init(cfg, rpttype="Word")
-# Appending the NCA results to the report
-cfg = system_report_nca(cfg, analysis_name = "pk_sparse")
-# Writing the results to a Word report
-system_report_save(cfg=cfg, output_file=file.path("output", "pk_sparse-report.docx"))
-# -------------------------------------------------------------------------
+  cfg = system_rpt_read_template(cfg, template="PowerPoint")
+  cfg = system_rpt_add_slide(cfg, 
+    template = "title_slide",
+    elements = list( title= list(content = "NCA of Sparsely Sampled PK", type    = "text")))
+  cfg = system_rpt_nca(cfg=cfg, analysis_name="pk_sparse")         
+  system_rpt_save_report(cfg=cfg, output_file=file.path("output","pk_sparse-report.pptx"))
+#-------------------------------------------------------
+# Writing the results to a Word report  
+  cfg = system_rpt_read_template(cfg, template="Word")
+  cfg = system_rpt_nca(cfg=cfg, analysis_name="pk_sparse")
+  system_rpt_save_report(cfg=cfg, output_file=file.path("output","pk_sparse-report.docx"))
+#-------------------------------------------------------

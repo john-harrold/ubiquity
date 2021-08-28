@@ -334,13 +334,12 @@ system_plot_cohorts(erp, plot_opts, cfg, analysis_name=analysis_name)
 
 #-------------------------------------------------------
 # Writing the results to a PowerPoint report
-# cfg = system_report_init(cfg, rpttype="PowerPoint")
-# cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
-# system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.pptx", sep="")))
+# cfg = system_rpt_read_template(cfg, template="PowerPoint")
+# cfg = system_rpt_estimation(cfg=cfg, analysis_name=analysis_name)
+# system_rpt_save_report(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.pptx", sep="")))
 #-------------------------------------------------------
 # Writing the results to a Word report
-# cfg = system_report_init(cfg, rpttype="Word")
-# cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
-# system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.docx", sep="")))
+# cfg = system_rpt_read_template(cfg, template="Word")
+# cfg = system_rpt_estimation(cfg=cfg, analysis_name=analysis_name)
+# system_rpt_save_report(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.docx", sep="")))
 #-------------------------------------------------------
-

@@ -7,6 +7,8 @@ require(ggplot2)
 require(foreach)
 require(doParallel)
 require(rhandsontable)
+require(grid)          
+require(gridExtra)
 
 #
 # If we're operating out of a "stand alone" directory we load the files from

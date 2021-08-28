@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ubiquity</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -102,6 +102,13 @@
     Functions
   </a>
 </li>
+<li>
+  <a href="../news/index.html">
+    <span class="fas fa-rss"></span>
+     
+    News
+  </a>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
@@ -126,7 +133,7 @@
       <h1 data-toc-skip>Naive-Pooled Parameter Estimation</h1>
                         <h4 data-toc-skip class="author">John Harrold &amp; Anson Abraham</h4>
             
-            <h4 data-toc-skip class="date">2021-07-30</h4>
+            <h4 data-toc-skip class="date">2021-08-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Estimation.Rmd" class="external-link"><code>vignettes/Estimation.Rmd</code></a></small>
       <div class="hidden name"><code>Estimation.Rmd</code></div>
@@ -137,7 +144,8 @@
     
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
-<a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction</h2>
+<a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px">
+</h2>
 <p>The workshop (<a href="https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip" class="external-link">workshop.ubiquity.tools</a>) provides several examples of performing parameter estimation in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ubiquity.tools/rworkflow" class="external-link">ubiquity</a></span><span class="op">)</span>
@@ -155,7 +163,7 @@
 </ul>
 <p>Each of these scripts build on the previous one to demonstrate different features of the ubiquity parameter estimation routines. All of these examples use a system (shown in the figure below) that contains three differential equations tracking the mass of the parent drug in the blood (<code>Mpb</code>) and in a tissue space (<code>Mpt</code>). In the blood the parent can form (<code>fmKp</code>) a metabolite (<code>Mmb</code>) with subsequent elimination (<code>Km</code>). The parent/metabolite model was adapted from the ADAPT5 Users Manual (<a href="https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf" class="external-link uri">https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf</a>).</p>
 <div class="figure">
-<img src="system-estimation_example.png" style="width:100.0%" alt=""><p class="caption">Model structure of parent/metabolite model</p>
+<img src="system-estimation_example.png" width="450" alt=""><p class="caption">Model structure of parent/metabolite model</p>
 </div>
 <p>Using <code>system_new</code> (use <code><a href="../reference/system_new.html">?system_new</a></code> to see a list of the available system file examples) you can copy this template file into the current directory and build the system:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -194,17 +202,17 @@
 <code class="sourceCode R"><span class="va">cfg</span><span class="op">=</span><span class="fu"><a href="../reference/system_set_option.html">system_set_option</a></span><span class="op">(</span><span class="va">cfg</span>, group  <span class="op">=</span> <span class="st">"simulation"</span>, 
                            option <span class="op">=</span> <span class="st">"output_times"</span>, 
                            <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">100</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>The dataset (shown in the table below) is included with the <code>ubiquity</code> package and is accessed here using <code>system.file</code>. In the example script it is referenced explicitly. The format requirements of datasets is that they be flat files with a header row. The format is flexible and only requires time/observation information and columns required to filter the data and isolate cohorts that have received the same treatment. The inputs are defined when the cohorts themselves are defined. Data files are loaded using <code>system_load_data</code> and a name<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> is assigned the dataset. Data can be read from files (csv, xls, xlsx, and tab) or from an existing data frame. This name (<code>pm_data</code> here) will be used to reference this dataset later in the script.</p>
+<p>The dataset (shown in the table below) is included with the <code>ubiquity</code> package and is accessed here using <code>system.file</code>. In the example script it is referenced explicitly. The format requirements of datasets is that they be flat files with a header row. The format is flexible and only requires time/observation information and columns required to filter the data and isolate cohorts that have received the same treatment. The inputs are defined when the cohorts themselves are defined. Data files are loaded using <code><a href="../reference/system_load_data.html">system_load_data()</a></code> and a name<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> is assigned the dataset. Data can be read from files (csv, xls, xlsx, and tab) or from an existing data frame. This name (<code>pm_data</code> here) will be used to reference this dataset later in the script.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_load_data.html">system_load_data</a></span><span class="op">(</span><span class="va">cfg</span>, dsname     <span class="op">=</span> <span class="st">"pm_data"</span>, 
                             data_file  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"ubinc"</span>, <span class="st">"csv"</span>,
                                                      <span class="st">"pm_data.csv"</span>, 
                                                      package <span class="op">=</span> <span class="st">"ubiquity"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>The dataset has a column for the observation time (<code>TIME</code>), the subject id (<code>ID</code>), concentrations for the parent (<code>PT</code>) and the metabolite (<code>MT</code>), a <code>BLQ</code> flag and the nominal dose (<code>DOSE</code>). But only some of these columns will be used (<code>TIME</code>, <code>PT</code>, <code>MT</code> and <code>DOSE</code>), and any others (<code>BQL</code>) will be ignored. This is intended to be an example and not a general guide for a dataset format. It is not necessary to have different outputs in different columns (wide format). The dataset could be loaded in the tall skinny format as well. In this example we are going to analyze the parent data for individuals given 10 or 30 mg using a least squares objective.</p>
-<p>Next we need to identify the data and inputs associated with those data. This is done by defining <em>cohorts</em>, groups of data that receive the same treatment and the model inputs (bolus dosing, infusion rates, covariates) associated with those cohorts. In this example we will define a cohort for each dosing group. To make sure we are starting from a blank slate we can use <code>system_clear_cohorts</code> to remove any previously defined information.</p>
+<p>Next we need to identify the data and inputs associated with those data. This is done by defining <em>cohorts</em>, groups of data that receive the same treatment and the model inputs (bolus dosing, infusion rates, covariates) associated with those cohorts. In this example we will define a cohort for each dosing group. To make sure we are starting from a blank slate we can use <code><a href="../reference/system_clear_cohorts.html">system_clear_cohorts()</a></code> to remove any previously defined information.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_clear_cohorts.html">system_clear_cohorts</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></code></pre></div>
-<p>For each cohort we define a list with information about that cohort. Each cohort should have a unique <code>name</code> field<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> and a <code>dataset</code> field pointing to the dataset (<code>pm_data</code>) loaded above. The optional cohort filter (<code>cf</code>) field is used to reduce the entire dataset to the records associated with this cohort. See the help for <code>system_define_cohort</code> for more information on how to construct cohort filters.</p>
+<p>For each cohort we define a list with information about that cohort. Each cohort should have a unique <code>name</code> field<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> and a <code>dataset</code> field pointing to the dataset (<code>pm_data</code>) loaded above. The optional cohort filter (<code>cf</code>) field is used to reduce the entire dataset to the records associated with this cohort. See the help for <code><a href="../reference/system_define_cohort.html">system_define_cohort()</a></code> for more information on how to construct cohort filters.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cohort</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
   name         <span class="op">=</span> <span class="st">"dose_10"</span>,
@@ -212,13 +220,13 @@
   inputs       <span class="op">=</span> <span class="cn">NULL</span>,
   outputs      <span class="op">=</span> <span class="cn">NULL</span>,
   dataset      <span class="op">=</span> <span class="st">"pm_data"</span><span class="op">)</span></code></pre></div>
-<p>Next it is necessary to define the inputs for this cohort. Here inputs refers to model inputs which may include both dosing as well as covariates, and the estimation template (generated using <code>system_fetch_template</code> above) should contain placeholders for each of these defined in the system file. Note: For bolus and infusion inputs, it is only necessary to define inputs that are nonzero, and for covariates it is only necessary to define those that differ from the definitions in the system file. For each input there is an <code>AMT</code> field and <code>TIME</code> field and the units here are those specified in the system file (both <code>AMT</code> and <code>TIME</code> are internal indentifiers and not taken from the dataset).</p>
+<p>Next it is necessary to define the inputs for this cohort. Here inputs refers to model inputs which may include both dosing as well as covariates, and the estimation template (generated using <code><a href="../reference/system_fetch_template.html">system_fetch_template()</a></code> above) should contain placeholders for each of these defined in the system file. Note: For bolus and infusion inputs, it is only necessary to define inputs that are nonzero, and for covariates it is only necessary to define those that differ from the definitions in the system file. For each input there is an <code>AMT</code> field and <code>TIME</code> field and the units here are those specified in the system file (both <code>AMT</code> and <code>TIME</code> are internal indentifiers and not taken from the dataset).</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>TIME<span class="op">=</span><span class="cn">NULL</span>, AMT<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span>
 <span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"TIME"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0</span><span class="op">)</span> <span class="co"># hours </span>
 <span class="va">cohort</span><span class="op">[[</span><span class="st">"inputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"bolus"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Mpb"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"AMT"</span><span class="op">]</span><span class="op">]</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="co"># mpk </span></code></pre></div>
-<p>Next we need to match the outputs in the model to the outputs in the dataset. Under <code>cohort$outputs</code> there is a field used to group each output. Here the cohort <strong>output mapping</strong> for the blood PK of the parent output is <code>Parent</code>. The times and observations in the dataset are found in the <code>'TIME’</code> column and the <code>’PT’</code> column (missing data specified by -1 will be dropped). These are mapped to the model timescale (<code>'hours'</code>, speified with <code>&lt;TS:?&gt;</code>) and model output (<code>’Cpblood’</code>, specified with <code>&lt;O&gt;</code>). Note the units in the dataset must be the same as those in the model:</p>
+<p>Next we need to match the outputs in the model to the outputs in the dataset. Under <code>cohort$outputs</code> there is a field used to group each output. Here the cohort <strong>output mapping</strong> for the blood PK of the parent output is <code>Parent</code>. The times and observations in the dataset are found in the <code>'TIME’</code> column and the <code>’PT’</code> column (missing data specified by -1 will be dropped). These are mapped to the model timescale (<code>'hours'</code>, specified with <code>&lt;TS:?&gt;</code>) and model output (<code>’Cpblood’</code>, specified with <code>&lt;O&gt;</code>). Note the units in the dataset must be the same as those in the model:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cohort</span><span class="op">[[</span><span class="st">"outputs"</span><span class="op">]</span><span class="op">]</span><span class="op">[[</span><span class="st">"Parent"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
 
@@ -245,7 +253,7 @@
          marker_color   <span class="op">=</span> <span class="st">"black"</span>,
          marker_shape   <span class="op">=</span> <span class="fl">1</span>,
          marker_line    <span class="op">=</span> <span class="fl">2</span> <span class="op">)</span></code></pre></div>
-<p>Finally the cohort is defined using <code>system_define_cohort</code>:</p>
+<p>Finally the cohort is defined using <code><a href="../reference/system_define_cohort.html">system_define_cohort()</a></code>:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_define_cohort.html">system_define_cohort</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">cohort</span><span class="op">)</span></code></pre></div>
 <p>We do the same thing for the 30 mg dose group:</p>
@@ -285,7 +293,7 @@
          marker_shape   <span class="op">=</span> <span class="fl">2</span>,
          marker_line    <span class="op">=</span> <span class="fl">2</span> <span class="op">)</span>
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_define_cohort.html">system_define_cohort</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">cohort</span><span class="op">)</span></code></pre></div>
-<p>After the cohorts have been defined we call the estimation function (<code>system_estimate_parameters</code>). If <code>flowctl</code> is set to <code>'plot previous estimate'</code> or <code>'plot guess'</code> the those values will just be returned.</p>
+<p>After the cohorts have been defined we call the estimation function (<code><a href="../reference/system_estimate_parameters.html">system_estimate_parameters()</a></code>). If <code>flowctl</code> is set to <code>'plot previous estimate'</code> or <code>'plot guess'</code> the those values will just be returned.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pest</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_estimate_parameters.html">system_estimate_parameters</a></span><span class="op">(</span><span class="va">cfg</span>, 
                                   flowctl         <span class="op">=</span> <span class="va">flowctl</span>, 
@@ -300,7 +308,7 @@
 <li>
 <code>output/parent_d1030-parameters_est.csv</code> - Summary table with estimated parameters</li>
 <li>
-<code>output/parent_d1030-system_update.txt</code> - Text to update the <code>system.txt</code> file with the new parameter estiamtes</li>
+<code>output/parent_d1030-system_update.txt</code> - Text to update the <code>system.txt</code> file with the new parameter estimates</li>
 <li>
 <code>output/parent_d1030-sessionInfo.RData</code> - The output of <code><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo()</a></code> is stored in the <code>SI</code> object in this data file</li>
 </ul>
@@ -349,13 +357,13 @@
 </ul>
 </li>
 </ul>
-<p>Lastly the predictions overlaying the data and the observed vs predicted plots are generated using <code>system_plot_cohorts</code>. Basic formatting of these figures is controlled using the <code>plot_opts</code> list (see the <code><a href="../reference/system_plot_cohorts.html">?system_plot_cohorts</a></code> for details).</p>
+<p>Lastly the predictions overlaying the data and the observed vs predicted plots are generated using <code><a href="../reference/system_plot_cohorts.html">system_plot_cohorts()</a></code>. Basic formatting of these figures is controlled using the <code>plot_opts</code> list (see the <code><a href="../reference/system_plot_cohorts.html">?system_plot_cohorts</a></code> for details).</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plot_opts</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">plot_opts</span><span class="op">$</span><span class="va">outputs</span><span class="op">$</span><span class="va">Parent</span><span class="op">$</span><span class="va">yscale</span>       <span class="op">=</span> <span class="st">'log'</span></code></pre></div>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plinfo</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_plot_cohorts.html">system_plot_cohorts</a></span><span class="op">(</span><span class="va">erp</span>, <span class="va">plot_opts</span>, <span class="va">cfg</span>, analysis_name<span class="op">=</span><span class="va">analysis_name</span><span class="op">)</span></code></pre></div>
-<p>When called, <code>system_plot_cohorts</code> will write <code>png</code> and <code>pdf</code> output for the time course and observed vs predicted files. It will also return a list with the <code>ggplot</code> objects and relative paths to the files as well. In this example the following will be generated:</p>
+<p>When called, <code><a href="../reference/system_plot_cohorts.html">system_plot_cohorts()</a></code> will write <code>png</code> and <code>pdf</code> output for the time course and observed vs predicted files. It will also return a list with the <code>ggplot</code> objects and relative paths to the files as well. In this example the following will be generated:</p>
 <ul>
 <li>output/parent_d1030_time course_Parent.pdf</li>
 <li>output/parent_d1030_time course_Parent.png</li>
@@ -371,25 +379,27 @@
 <div id="automated-reporting" class="section level3">
 <h3 class="hasAnchor">
 <a href="#automated-reporting" class="anchor" aria-hidden="true"></a>Automated Reporting</h3>
-<p>The outputs above provide components for generating presentations and other documents. Coping and pasting these figures and tables into documents can be tedious. It can be convenient to automate this process and this is accomplished with the function <code>system_report_estimation</code>.</p>
+<p>The outputs above provide components for generating presentations and other documents. Coping and pasting these figures and tables into documents can be tedious. It can be convenient to automate this process and this is accomplished with the function <code><a href="../reference/system_rpt_estimation.html">system_rpt_estimation()</a></code>.</p>
 <div id="powerpoint" class="section level4">
 <h4 class="hasAnchor">
 <a href="#powerpoint" class="anchor" aria-hidden="true"></a>PowerPoint</h4>
-<p>To append the results of an analysis to a PowerPoint document simply initialize a new report (<code>rpttype="PowerPoint"</code>), call <code>system_report_estiamtion</code> with the appropriate <code>analysis_name</code>, and the results of the analysis will be attached as slides.</p>
+<p>To append the results of an analysis to a PowerPoint document simply initialize a new report (<code>template="PowerPoint"</code>), call <code><a href="../reference/system_rpt_read_template.html">system_rpt_read_template()</a></code> with the appropriate <code>analysis_name</code>, and the results of the analysis will be attached as slides.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_report_init.html">system_report_init</a></span><span class="op">(</span><span class="va">cfg</span>, rpttype<span class="op">=</span><span class="st">"PowerPoint"</span><span class="op">)</span>
-<span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_report_estimation.html">system_report_estimation</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, analysis_name<span class="op">=</span><span class="va">analysis_name</span><span class="op">)</span>
-<span class="fu"><a href="../reference/system_report_save.html">system_report_save</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, output_file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"output"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">analysis_name</span>, <span class="st">"-report.pptx"</span>, sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_read_template.html">system_rpt_read_template</a></span><span class="op">(</span><span class="va">cfg</span>, template<span class="op">=</span><span class="st">"PowerPoint"</span><span class="op">)</span>
+<span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_estimation.html">system_rpt_estimation</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, analysis_name<span class="op">=</span><span class="va">analysis_name</span><span class="op">)</span>
+<span class="fu"><a href="../reference/system_rpt_save_report.html">system_rpt_save_report</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>,
+ output_file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"output"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">analysis_name</span>, <span class="st">"-report.pptx"</span>, sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>This will then save the analysis results to the <code>output</code> directory.</p>
 </div>
 <div id="word" class="section level4">
 <h4 class="hasAnchor">
 <a href="#word" class="anchor" aria-hidden="true"></a>Word</h4>
-<p>The process for a Word document is the same. Just make sure that the <code>rpttype</code> is set to <code>"Word"</code> when the report is initialized:</p>
+<p>The process for a Word document is the same. Just make sure that the <code>template</code> is set to <code>"Word"</code> when the report is initialized:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_report_init.html">system_report_init</a></span><span class="op">(</span><span class="va">cfg</span>, rpttype<span class="op">=</span><span class="st">"Word"</span><span class="op">)</span>
-<span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_report_estimation.html">system_report_estimation</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, analysis_name<span class="op">=</span><span class="va">analysis_name</span><span class="op">)</span>
-<span class="fu"><a href="../reference/system_report_save.html">system_report_save</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, output_file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"output"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">analysis_name</span>, <span class="st">"-report.docx"</span>, sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_read_template.html">system_rpt_read_template</a></span><span class="op">(</span><span class="va">cfg</span>, template<span class="op">=</span><span class="st">"Word"</span><span class="op">)</span>
+<span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_estimation.html">system_rpt_estimation</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, analysis_name<span class="op">=</span><span class="va">analysis_name</span><span class="op">)</span>
+<span class="fu"><a href="../reference/system_rpt_save_report.html">system_rpt_save_report</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>,
+output_file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"output"</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">analysis_name</span>, <span class="st">"-report.docx"</span>, sep<span class="op">=</span><span class="st">""</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>For more information on integrated report generation see the <code>Reporting</code> vignette.</p>
 </div>
 </div>
@@ -507,7 +517,7 @@
                              value  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>maxiter   <span class="op">=</span> <span class="fl">10000</span>, 
                                            optimArgs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method  <span class="op">=</span> <span class="st">"Nelder-Mead"</span>,
                                                             maxiter <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p><strong>Note:</strong> Optimizers like <code>SANN</code> and the global optimizers (<code>pso</code> and <code>GA</code>) are good for identifying parameter sets outside of the region of the initial guess. However, one consequence of these algorithms is they can quickly approach the bounds. Consequently it is important to provide realistic upper and lower bounds on the parameters (the <code>&lt;P&gt;</code> descriptor in the system file or using <code>system_set_guess</code> at the scripting level). If you use the default value of machine precision (<code>eps</code>) for the lower bound and infinity (<code>Inf</code>) for the upper bound these optimization routines can choose parameter values that can cause the internal simulations to fail.</p>
+<p><strong>Note:</strong> Optimizers like <code>SANN</code> and the global optimizers (<code>pso</code> and <code>GA</code>) are good for identifying parameter sets outside of the region of the initial guess. However, one consequence of these algorithms is they can quickly approach the bounds. Consequently it is important to provide realistic upper and lower bounds on the parameters (the <code>&lt;P&gt;</code> descriptor in the system file or using <code><a href="../reference/system_set_guess.html">system_set_guess()</a></code> at the scripting level). If you use the default value of machine precision (<code>eps</code>) for the lower bound and infinity (<code>Inf</code>) for the upper bound these optimization routines can choose parameter values that can cause the internal simulations to fail.</p>
 </div>
 <div id="cohorts-from-nonmem-dataset-analysis_parent_metabolite_nm_data-r" class="section level2">
 <h2 class="hasAnchor">
@@ -524,7 +534,7 @@
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">filter</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
 <span class="va">filter</span><span class="op">$</span><span class="va">DOSE</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">30</span><span class="op">)</span></code></pre></div>
-<p>For more information on filtering datasets see the help for <code>nm_select_records</code>.</p>
+<p>For more information on filtering datasets see the help for <code><a href="../reference/nm_select_records.html">nm_select_records()</a></code>.</p>
 <p>Now we define maps for the different outputs. For each output we specify the variance, compartment (<code>CMT</code>) number, model output and the missing number flag:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">OBSMAP</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>

@@ -4,7 +4,14 @@ rm(list=ls())
 # Set to TRUE if you wish to deploy the gui on a shiny server
 deploying = FALSE
 
-library("shiny")
+require(shiny)
+require(shinydashboard)
+require(deSolve)
+require(ggplot2)
+require(foreach)
+require(doParallel)
+require(rhandsontable)
+require(rstudioapi)
 
 if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
 {source(file.path('library', 'r_general', 'ubiquity.R')) }

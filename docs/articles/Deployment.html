@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ubiquity</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -102,6 +102,13 @@
     Functions
   </a>
 </li>
+<li>
+  <a href="../news/index.html">
+    <span class="fas fa-rss"></span>
+     
+    News
+  </a>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
@@ -126,7 +133,7 @@
       <h1 data-toc-skip>Model Deployment</h1>
                         <h4 data-toc-skip class="author">John Harrold &amp; Anson K Abraham</h4>
             
-            <h4 data-toc-skip class="date">2021-07-30</h4>
+            <h4 data-toc-skip class="date">2021-08-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Deployment.Rmd" class="external-link"><code>vignettes/Deployment.Rmd</code></a></small>
       <div class="hidden name"><code>Deployment.Rmd</code></div>
@@ -137,7 +144,8 @@
     
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
-<a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction</h2>
+<a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px">
+</h2>
 <p>Once a model has been developed it may be useful to provide an easy way to run simulations or automate specific analyses. Do to that, a ubiquity provides a ShinyApp that allows the model to be run from an easy to use interface that is highly customizable. This App can be run locally (useful during meetings to answer quick questions) or deployed on a Shiny server to allow others access to the model.</p>
 <p>To demonstrate this interface we can begin with the PK model of mAbs in humans (<a href="https://doi.org/10.4161/mabs.29095" class="external-link">Davda etal. mAbs, 6(4), 1094-1102</a>) :</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -163,7 +171,7 @@
 <p>Next simply open <code>ubiquity_app.R</code> in RStudio and source it, and RStudio will open in a window associated with that application. The ShinyApp tends to work better when run within a browser.</p>
 <p>After starting the App will load the default dosing from the  file and run the model. The first model output will be plotted. And as you make changes to the App, those changes will be reflected in the user log at the bottom of the screen. You can change the outputs being plotted, the axis limits, and other aspects of the plot using the plot controls below the figure.</p>
 <div class="figure">
-<img src="ShinyApp-ss-Initialization.png" style="width:80.0%" alt=""><p class="caption">ShinyApp interface after initialization</p>
+<img src="ShinyApp-ss-Initialization.png" width="600" alt=""><p class="caption">ShinyApp interface after initialization</p>
 </div>
 <p>The intent is to provide a quick method to get the model up and running with default behaviors that will provide for most of what users will need. The behavior of the ShinyApp can be further customized (described below). First we will discuss the default interface:</p>
 <div id="altering-dosing" class="section level3">

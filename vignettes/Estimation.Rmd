@@ -19,7 +19,8 @@ require(doParallel)
 require(rhandsontable)
 ```
 
-## Introduction
+## Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px" />
+
 The workshop ([workshop.ubiquity.tools](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip)) provides several examples of performing parameter estimation in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
 ```{r eval=FALSE}
@@ -88,7 +89,7 @@ cfg=system_set_option(cfg, group  = "simulation",
                            seq(0,100,1))
 ```
 
-The dataset (shown in the table below) is included with the ``ubiquity`` package and is accessed here using ``system.file``. In the example script it is referenced explicitly. The format requirements of datasets is that they be flat files with a header row. The format is flexible and only requires time/observation information and columns required to filter the data and isolate cohorts that have received the same treatment. The inputs are defined when the cohorts themselves are defined. Data files are loaded using ``system_load_data`` and a name[^2] is assigned the dataset. Data can be read from files (csv, xls, xlsx, and tab) or from an existing data frame. This name (``pm_data`` here) will be used to reference this dataset later in the script.
+The dataset (shown in the table below) is included with the ``ubiquity`` package and is accessed here using ``system.file``. In the example script it is referenced explicitly. The format requirements of datasets is that they be flat files with a header row. The format is flexible and only requires time/observation information and columns required to filter the data and isolate cohorts that have received the same treatment. The inputs are defined when the cohorts themselves are defined. Data files are loaded using `system_load_data()` and a name[^2] is assigned the dataset. Data can be read from files (csv, xls, xlsx, and tab) or from an existing data frame. This name (``pm_data`` here) will be used to reference this dataset later in the script.
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
 cfg = system_load_data(cfg, dsname     = "pm_data", 
@@ -107,13 +108,13 @@ rhandsontable(dataset, width=400, height=200)
 
 The dataset has a column for the observation time (``TIME``), the subject id (``ID``), concentrations for the parent (``PT``) and the metabolite (``MT``), a ``BLQ`` flag and the nominal dose (``DOSE``). But only some of these columns will be used (``TIME``, ``PT``, ``MT`` and ``DOSE``), and any others (``BQL``) will be ignored. This is intended to be an example and not a general guide for a dataset format. It is not necessary to have different outputs in different columns (wide format). The dataset could be loaded in the tall skinny format as well. In this example we are going to analyze the parent data for individuals given 10 or 30 mg using a least squares objective.
 
-Next we need to identify the data and inputs associated with those data. This is done by defining *cohorts*, groups of data that receive the same treatment and the model inputs (bolus dosing, infusion rates, covariates) associated with those cohorts. In this example we will define a cohort for each dosing group. To make sure we are starting from a blank slate we can use ``system_clear_cohorts`` to remove any previously defined information.
+Next we need to identify the data and inputs associated with those data. This is done by defining *cohorts*, groups of data that receive the same treatment and the model inputs (bolus dosing, infusion rates, covariates) associated with those cohorts. In this example we will define a cohort for each dosing group. To make sure we are starting from a blank slate we can use `system_clear_cohorts()` to remove any previously defined information.
 ```{r results="hide", echo=TRUE, warning=FALSE}
 cfg = system_clear_cohorts(cfg)
 ```
 
 
-For each cohort we define a list with information about that cohort. Each cohort should have a unique ``name`` field[^3] and a ``dataset`` field pointing to the dataset (``pm_data``) loaded above. The optional  cohort filter (``cf``) field is used to reduce the entire dataset to the records associated with this cohort. See the help for ``system_define_cohort`` for more information on how to construct cohort filters.
+For each cohort we define a list with information about that cohort. Each cohort should have a unique ``name`` field[^3] and a ``dataset`` field pointing to the dataset (``pm_data``) loaded above. The optional  cohort filter (``cf``) field is used to reduce the entire dataset to the records associated with this cohort. See the help for `system_define_cohort()` for more information on how to construct cohort filters.
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
 cohort = list(
@@ -125,7 +126,7 @@ cohort = list(
 
 ```
 
-Next it is necessary to define the inputs for this cohort. Here inputs refers to model inputs which may include both dosing as well as covariates, and the estimation template (generated using ``system_fetch_template`` above) should contain placeholders for each of these defined in the system file. Note: For bolus and infusion inputs, it is only necessary to define inputs that are nonzero, and for covariates it is only necessary to define those that differ from the definitions in the system file. For each input there is an ``AMT`` field and ``TIME`` field and the units here are those specified in the system file (both ``AMT`` and ``TIME`` are internal indentifiers and not taken from the dataset).
+Next it is necessary to define the inputs for this cohort. Here inputs refers to model inputs which may include both dosing as well as covariates, and the estimation template (generated using `system_fetch_template()` above) should contain placeholders for each of these defined in the system file. Note: For bolus and infusion inputs, it is only necessary to define inputs that are nonzero, and for covariates it is only necessary to define those that differ from the definitions in the system file. For each input there is an ``AMT`` field and ``TIME`` field and the units here are those specified in the system file (both ``AMT`` and ``TIME`` are internal indentifiers and not taken from the dataset).
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
 cohort[["inputs"]][["bolus"]] = list()
@@ -135,7 +136,7 @@ cohort[["inputs"]][["bolus"]][["Mpb"]][["AMT"]]  = c(10) # mpk
 
 ```
 
-Next we need to match the outputs in the model to the outputs in the dataset. Under ``cohort$outputs`` there is a field used to group each output. Here the cohort **output mapping** for the blood PK of the parent output is ``Parent``. The times and observations in the dataset are found in the ``'TIME’`` column and the ``’PT’`` column (missing data specified by -1 will be dropped). These are mapped to the model timescale (``'hours'``, speified with ``<TS:?>``) and model output (``’Cpblood’``,  specified with ``<O>``). Note the units in the dataset must be the same as those in the model:
+Next we need to match the outputs in the model to the outputs in the dataset. Under ``cohort$outputs`` there is a field used to group each output. Here the cohort **output mapping** for the blood PK of the parent output is ``Parent``. The times and observations in the dataset are found in the ``'TIME’`` column and the ``’PT’`` column (missing data specified by -1 will be dropped). These are mapped to the model timescale (``'hours'``, specified with ``<TS:?>``) and model output (``’Cpblood’``,  specified with ``<O>``). Note the units in the dataset must be the same as those in the model:
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
 cohort[["outputs"]][["Parent"]] = list()
@@ -168,7 +169,7 @@ cohort[["outputs"]][["Parent"]][["options"]] = list(
          marker_line    = 2 )
 ```
 
-Finally the cohort is defined using ``system_define_cohort``:
+Finally the cohort is defined using `system_define_cohort()`:
 
 ```{r results="hide", echo=TRUE, warning=FALSE}
 cfg = system_define_cohort(cfg, cohort)
@@ -214,7 +215,7 @@ cohort[["outputs"]][["Parent"]][["options"]] = list(
 cfg = system_define_cohort(cfg, cohort)
 ```
 
-After the cohorts have been defined we call the estimation function (``system_estimate_parameters``). If ``flowctl`` is set to  ``'plot previous estimate'`` or ``'plot guess'`` the those values will just be returned.
+After the cohorts have been defined we call the estimation function (`system_estimate_parameters()`). If ``flowctl`` is set to  ``'plot previous estimate'`` or ``'plot guess'`` the those values will just be returned.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results="hide"}
 cfg = system_set_option(cfg, group  = "estimation",
@@ -236,7 +237,7 @@ If one of the estimation options are selected for the ``flowctl`` then several f
 * ``output/parent_d1030-report.txt`` - Text file with a summary of the estimation results. 
 * `` output/parent_d1030-parameters_all.csv`` - Summary table with all parameters (estimated and fixed)
 * `` output/parent_d1030-parameters_est.csv`` - Summary table with estimated parameters 
-* `` output/parent_d1030-system_update.txt`` - Text to update the ``system.txt`` file with the new parameter estiamtes
+* `` output/parent_d1030-system_update.txt`` - Text to update the ``system.txt`` file with the new parameter estimates
 * `` output/parent_d1030-sessionInfo.RData`` - The output of ``sessionInfo()`` is stored in the ``SI`` object in this data file
 
 Next the system is simulated at the estimate and the data is stored in ``erp``. 
@@ -268,7 +269,7 @@ The information in this variable will be used to generate some standard plots be
      +  ``name`` - State or model output
      +  ``cohort`` - Cohort name
 
-Lastly the predictions overlaying the data and the observed vs predicted plots are generated using ``system_plot_cohorts``. Basic formatting of these figures is controlled using the ``plot_opts`` list (see the ``?system_plot_cohorts`` for details). 
+Lastly the predictions overlaying the data and the observed vs predicted plots are generated using `system_plot_cohorts()`. Basic formatting of these figures is controlled using the ``plot_opts`` list (see the ``?system_plot_cohorts`` for details). 
 
 ```{r results="hide", echo=TRUE, warning=FALSE, fig.align="center", fig.width=2}
 plot_opts = c()
@@ -279,7 +280,7 @@ plot_opts$outputs$Parent$yscale       = 'log'
 plinfo = system_plot_cohorts(erp, plot_opts, cfg, analysis_name=analysis_name)
 ```
 
-When called, ``system_plot_cohorts`` will write ``png`` and ``pdf`` output for the time course and observed vs predicted files. It will also return a list with the ``ggplot`` objects and relative paths to the files as well. In this example the following will be generated:
+When called, `system_plot_cohorts()` will write ``png`` and ``pdf`` output for the time course and observed vs predicted files. It will also return a list with the ``ggplot`` objects and relative paths to the files as well. In this example the following will be generated:
 
 * output/parent_d1030_time course_Parent.pdf 
 * output/parent_d1030_time course_Parent.png 
@@ -305,20 +306,21 @@ ggsave(filename="Estimation-parent-op.png", plot=estout$op, height=4, width=7, u
 The outputs above provide components for generating presentations and other
 documents. Coping and pasting these figures and tables into documents can be
 tedious. It can be convenient to automate this process and this is
-accomplished with the function ``system_report_estimation``. 
+accomplished with the function ``system_rpt_estimation()``. 
 
 
 #### PowerPoint
 
 To append the results of an analysis to a PowerPoint document simply
-initialize a new report (``rpttype="PowerPoint"``), call
-``system_report_estiamtion`` with the appropriate  ``analysis_name``, and the
+initialize a new report (``template="PowerPoint"``), call
+``system_rpt_read_template()`` with the appropriate  ``analysis_name``, and the
 results of the analysis will be attached as slides. 
 
 ```{r results="hide", echo=TRUE, eval=FALSE}
-cfg = system_report_init(cfg, rpttype="PowerPoint")
-cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
-system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.pptx", sep="")))
+cfg = system_rpt_read_template(cfg, template="PowerPoint")
+cfg = system_rpt_estimation(cfg=cfg, analysis_name=analysis_name)
+system_rpt_save_report(cfg=cfg,
+ output_file=file.path("output",paste(analysis_name, "-report.pptx", sep="")))
 ```
 
 This will then save the analysis results to the ``output`` directory.
@@ -326,12 +328,13 @@ This will then save the analysis results to the ``output`` directory.
 #### Word
 
 The process for a Word document is the same. Just make sure that the
-``rpttype`` is set to ``"Word"`` when the report is initialized:
+``template`` is set to ``"Word"`` when the report is initialized:
 
 ```{r results="hide", echo=TRUE, eval=FALSE}
-cfg = system_report_init(cfg, rpttype="Word")
-cfg = system_report_estimation(cfg=cfg, analysis_name=analysis_name)
-system_report_save(cfg=cfg, output_file=file.path("output",paste(analysis_name, "-report.docx", sep="")))
+cfg = system_rpt_read_template(cfg, template="Word")
+cfg = system_rpt_estimation(cfg=cfg, analysis_name=analysis_name)
+system_rpt_save_report(cfg=cfg,
+output_file=file.path("output",paste(analysis_name, "-report.docx", sep="")))
 ```
 
 For more information on integrated report generation see the ``Reporting`` vignette. 
@@ -462,7 +465,7 @@ cfg = system_set_option(cfg, group  = "estimation",
                                                             maxiter = 1000)))
 ```
 
-**Note:** Optimizers like ``SANN`` and the global optimizers (``pso`` and ``GA``) are good for identifying parameter sets outside of the region of the initial guess. However, one consequence of these algorithms is they can quickly approach the bounds. Consequently it is important to provide realistic upper and lower bounds on the parameters (the ``<P>`` descriptor in the system file or using ``system_set_guess`` at the scripting level). If you use the default value of machine precision (``eps``) for the lower bound and infinity (``Inf``) for the upper bound these optimization routines can choose parameter values that can cause the internal simulations to fail.
+**Note:** Optimizers like ``SANN`` and the global optimizers (``pso`` and ``GA``) are good for identifying parameter sets outside of the region of the initial guess. However, one consequence of these algorithms is they can quickly approach the bounds. Consequently it is important to provide realistic upper and lower bounds on the parameters (the ``<P>`` descriptor in the system file or using `system_set_guess()` at the scripting level). If you use the default value of machine precision (``eps``) for the lower bound and infinity (``Inf``) for the upper bound these optimization routines can choose parameter values that can cause the internal simulations to fail.
 
 ## Cohorts from NONMEM dataset (``analysis_parent_metabolite_nm_data.r``)
 
@@ -482,11 +485,13 @@ cfg = system_clear_cohorts(cfg);
 
 
 Next we define a filter to use on the dataset (include only the 10 and 30 mg doses):
+
 ```{r eval=FALSE}
 filter = list()
 filter$DOSE = c(10, 30)
 ```
-For more information on filtering datasets see the help for ``nm_select_records``.
+
+For more information on filtering datasets see the help for `nm_select_records()`.
 
 Now we define maps for the different outputs. For each output we specify the variance, compartment (``CMT``) number, model output and the missing number flag:
 

@@ -17,7 +17,7 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+## Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px" />
 
 At its core, ubiquity is a modeling language and a set of scripts meant to facilitate model development and deployment. The focus of this document is on the model description language. This is a plain text file, referred to as a **system file**. Each line contains a descriptor (e.g. ``<P>``) which defines an aspect of the model, and comments are made with the hash sign (``#``). What follows is an overview of the different components of the language that can be used to create a system file.
 
@@ -388,7 +388,7 @@ of ``events`` containing the amount the specified  compartment will receive.
 
 Each of these has a ``scale`` that is used to convert the bolus dosing information from proscribed units (mg daily) into the units in which the system is coded (nM and hours). So if dosing is done on days 0, 1, 2... but the simulation time is hours, then the scale for the dosing times is 24.
 
-The events contain the magnitude of the bolus at a given time. If you have multiple compartments receiving a bolus, the times must include all times in which a bolus may be applied to the system. If a state does not receive a bolus on a particular time, it’s magnitude at that time is 0.
+The events contain the magnitude of the bolus at a given time. If you have multiple compartments receiving a bolus, the times must include all times in which a bolus may be applied to the system. If a state does not receive a bolus on a particular time, its magnitude at that time is 0.
 
 
 To illustrate this consider the following dosing schedule:
@@ -613,7 +613,7 @@ This statement contains two different sets (``TSi`` and ``TSk``). When multiple 
 
 #### Aligning Sets
 
-By default sets will interpreted by evaulating every possible permutation as shown above. However, it may be desireable to pair or align sets. Take for example the transit compartments implemented by Lobo and Balthasar to delay the onset of drug effect on cancer cells [LB]. The traisnt compartment are implemented using a series of differential equations:
+By default sets will interpreted by evaluating every possible permutation as shown above. However, it may be desirable to pair or align sets. Take for example the transit compartments implemented by Lobo and Balthasar to delay the onset of drug effect on cancer cells [LB]. The transit compartment are implemented using a series of differential equations:
 
 $$
   \frac{dK1}{dt} = (K-K1)\frac{1}{\tau} \\
@@ -628,13 +628,13 @@ It's possible to code each of these individually, but it's also possible to defi
 <SET:TRIN>    K; K1; K2; K3
 <SET:TROUT>  K1; K2; K3; K4 
 ```
-Next we write the ``<ODE:?>?`` statment in terms of these sets, but we use the ``SIMINT_SET_ALIGN`` function:
+Next we write the ``<ODE:?>?`` statement in terms of these sets, but we use the ``SIMINT_SET_ALIGN`` function:
 
 ```
 SIMINT_SET_ALIGN[TRIN;TROUT][<ODE:{TROUT}> 1.0/tau*({TRIN}-{TROUT})]
 ```
 
-The first argument is the names of sets to align separated by a simicolon ``;`` and the second argment is the system file descriptor written in terms of these sets. This will be expanded internally into:
+The first argument is the names of sets to align separated by a semicolon ``;`` and the second argument is the system file descriptor written in terms of these sets. This will be expanded internally into:
 
 ```
 <ODE:K1> 1.0/tau*(K-K1)
@@ -650,7 +650,7 @@ It can be useful to perform operations over sets. To do this you can use the fol
 * ``SIMINT_SET_SUM`` is the mathematical equivalent of $\sum_{SET}$
 * ``SIMINT_SET_PRODUCT`` is the mathematical equivalent of $\prod_{SET}$
 
-These functions take two bracketed arguments. The first argument is the set name and the second argument is the mathematical relationship to be expanded. For example, consider a system that has been parameterized for several species. The variable ``EN_Mouse`` is 1 if the species is mouse and 0 otherwise. Similarly for ``EN_Human``, ``EN_Monkey``, etc. We have also defined the body weights as system parameters: ``BW_Mouse`` for the mouse, ``BW_Human`` for human, etc. Now we want to assign ``BW`` to the value of the currently seleted species (where ``EN`` for that species is 1). First we would define the species parameter set:
+These functions take two bracketed arguments. The first argument is the set name and the second argument is the mathematical relationship to be expanded. For example, consider a system that has been parameterized for several species. The variable ``EN_Mouse`` is 1 if the species is mouse and 0 otherwise. Similarly for ``EN_Human``, ``EN_Monkey``, etc. We have also defined the body weights as system parameters: ``BW_Mouse`` for the mouse, ``BW_Human`` for human, etc. Now we want to assign ``BW`` to the value of the currently selected species (where ``EN`` for that species is 1). First we would define the species parameter set:
 
 ```
 <SET:SP> Mouse; Rat; Monkey; Human
@@ -665,11 +665,11 @@ Next we would define the secondary parameter ``BW`` by summing the product of th
 
 #### Set Evaluation
 
-Sets are evaulated in the following order:
+Sets are evaluated in the following order:
 
-* First set functions (``SIMINT_SET_SUM`` and ``SIMINT_SET_PRODUCT``) are evaulated.
+* First set functions (``SIMINT_SET_SUM`` and ``SIMINT_SET_PRODUCT``) are evaluated.
 * Next aligned sets are applied (``SIMINT_SET_ALIGN``)
-* Lastly, remaining sets are evaulated for every permutation 
+* Lastly, remaining sets are evaluated for every permutation 
 
 ## Piecewise-continuous functions/parameters ``<IF:?:?>``
 
@@ -750,15 +750,15 @@ To define the default output times for the ShinyApp and simulation scripts use t
 These example system files can be found in the examples directory of the stand-alone analysis template ([ubiquity_template.zip](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_analysis_development.zip)). Most can also be loaded form the R package (see the help for system_new).
 
 
-* ``system-adapt.txt`` - Parent/metabolite structural model taken from the ADAPT5 Users Manual [ADAPT]. This sytem is used in the estmation examples of the ubiquity workshop.
-* ``system-glp_study.txt`` - PK model paramterized for humans and NHPs, used as an example for GLP tox study design.
+* ``system-adapt.txt`` - Parent/metabolite structural model taken from the ADAPT5 Users Manual [ADAPT]. This system is used in the estimation examples of the ubiquity workshop.
+* ``system-glp_study.txt`` - PK model parameterized for humans and NHPs, used as an example for GLP tox study design.
 * ``system-mab_pk.txt`` - Linear model of mAb PK for humans taken from [DM]. This model is used in the simulation examples of the ubiquity workshop.
 * ``system-one_cmt_cl.txt``  - One compartment model parameterized in terms of clearances and volumes.
-* ``system-one_cmt_micro.txt`` - One compartment model parameterizedf or micro constants (rates).
+* ``system-one_cmt_micro.txt`` - One compartment model parameterized for micro constants (rates).
 * ``system-pbpk.txt`` - Implementation of large molecule PBPK model by Shah and Betts [SB]. This model provides good examples of how to use mathematical set notation.
 * ``system-pbpk_template.txt`` - Template containing the species parameter from [SB]. This can be used to construct systems parameterized for multiple species. 
 * ``system-pwc.txt`` - Example of how to construct piece-wise secondary parameters (i.e. using if/then/else statements).
-* ``system-sets.txt`` - Example of how to parameterize systems with multiple parameter sets.
+* ``system-sets.txt`` - Example of how to parameterized systems with multiple parameter sets.
 * ``system-tmdd.txt`` - Example of how to code a TMDD model using either ODEs or process descriptors. 
 * ``system-tumor.txt`` - Implementation of transit effect model in cancer cell inhibition from [LB]. This demonstrates how to use aligned mathematical sets. 
 * ``system-two_cmt_cl.txt`` - Two compartment model parameterized in terms of clearances and volumes
@@ -766,7 +766,7 @@ These example system files can be found in the examples directory of the stand-a
 
 ## References
 
-* [ADAPT][https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf](https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf)
+* [ADAPT] [Adapt 5 Users Guide](https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf)
 * [DM] [Dirks & Meibohm Clin. PK (2010) Oct 1;49(10):633-59](https://doi.org/10.2165/11535960-000000000-00000)
 * [LB] [Lobo, E.D. & Balthasar, J.P. AAPS J (2002) 4, 212-222](https://doi.org/10.1208/ps040442)
 * [MK] [Mager, D.E. & Krzyzanski, W. Pharm Res (2005) 22: 1589.](https://doi.org/10.1007/s11095-005-6650-0)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{AUC_Bailers_method}
 \alias{AUC_Bailers_method}
-\title{AUC for sparse data}
+\title{Calculate AUC for Sparse Data}
 \usage{
 AUC_Bailers_method(
   conc_data = NULL,
@@ -32,7 +32,6 @@ list with the following elements
 }
 }
 \description{
-Calculates AUCs with with sparse data using Bailers Method
 This is an implementation of Bailors method for calculating AUCs with
 sparse sampling. It is taken from the following publication:
 

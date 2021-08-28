@@ -35,7 +35,7 @@ if(file.exists("Titration_presim.RData")){
 }
 ```
 
-## Introduction
+## Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px" />
 
 In the Simulation vignette several examples are provided using fixed dosing regimens. This works well for compounds that are relatively safe, the PK is consistent over time, and for which the drug concentrations required to achieve efficacy are consistent. In fact these restrictions apply to many different compounds. However, there are many scenarios where it is necessary to adjust dosing based on periodic clinical visits: compounds with a narrow therapeutic index, disease progression which alters the drug PK or requires increases in the dose amount, etc. While it is possible to do this manually with the current simulation tools provided, this section outlines a generalized framework to make this easier for the users. The [workshop](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip) provides several examples of running titration or rule-based simulations. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
@@ -54,9 +54,9 @@ This should provide you with the following scripts:
 
 Titration or rule-based simulations are run using the following functions:
 
-* ``system_new_tt_rule`` - Defines a new rule and the times when it is evaluated
-* ``system_set_tt_cond`` - Adds a condition to a rule and an associated action to perform when that condition is true
-* ``run_simulation_titration`` - Runs an individual simulation using titration rules
+* `system_new_tt_rule()` - Defines a new rule and the times when it is evaluated
+* `system_set_tt_cond()` - Adds a condition to a rule and an associated action to perform when that condition is true
+* `run_simulation_titrate()` - Runs an individual simulation using titration rules
 
 ## Repeated Bolus Dosing (``analysis_repeat_dosing.r``)
 This example shows how to implement a dosing regimen using both the fixed-dosing methodologies and the titration functions above. This is meant as a means to bridge these two concepts. First we use the same model from the Simulation vignette ([Davda etal. mAbs, 6(4), 1094-1102](https://doi.org/10.4161/mabs.29095)), and simulate five doses of 500 mg IV given every two weeks:
@@ -86,7 +86,7 @@ cfg=system_set_option(cfg,
                       value       = TRUE)
 ```
 
-Next we need to define a rule using ``system_new_tt_rule``. A rule contains a set of times (and the timescale) where we want to evaluate that rule. Here we create a rule called ``"ivdose"`` and we evaluate this rule at weeks 0, 2, 4, 6 and 8. Any timescale defined using ``<TS:?>`` in the system file can be used:
+Next we need to define a rule using `system_new_tt_rule()`. A rule contains a set of times (and the timescale) where we want to evaluate that rule. Here we create a rule called ``"ivdose"`` and we evaluate this rule at weeks 0, 2, 4, 6 and 8. Any timescale defined using ``<TS:?>`` in the system file can be used:
 ```{r results="hide", message=FALSE}
 cfg=system_new_tt_rule(cfg,   
                        name       = "ivdose",
@@ -94,7 +94,7 @@ cfg=system_new_tt_rule(cfg,
                        timescale  = "weeks")
 ```
                                   
-Once a rule has been created you can attach conditions to that rule using ``system_set_tt_cond``. The name passed to this function is the name of the rule to which this condition applies. The ``cond`` argument is a string that will be evaluated internally. You put any kind of Boolean argument you want here, or even create a user definable function that returns a Boolean argument (eg, ``'myfunction(arguments)'``). When this condition evaluates as true the string in ``action`` will be evaluated. The string ``SI_TT_BOLUS`` is a prototype function used to modify dosing at the titration points. See the help (``?system_set_tt_cond``) for details on prototype functions and the variables available in the titration environment. This action will define the dosing into the specified state (as defined by ``<B:?>`` in the system file)  with the values and times shown. The units here are those specified in the system file and the times are relative to the titration time point. 
+Once a rule has been created you can attach conditions to that rule using `system_set_tt_cond()`. The name passed to this function is the name of the rule to which this condition applies. The ``cond`` argument is a string that will be evaluated internally. You put any kind of Boolean argument you want here, or even create a user definable function that returns a Boolean argument (eg, ``'myfunction(arguments)'``). When this condition evaluates as true the string in ``action`` will be evaluated. The string ``SI_TT_BOLUS`` is a prototype function used to modify dosing at the titration points. See the help (``?system_set_tt_cond``) for details on prototype functions and the variables available in the titration environment. This action will define the dosing into the specified state (as defined by ``<B:?>`` in the system file)  with the values and times shown. The units here are those specified in the system file and the times are relative to the titration time point. 
 ```{r results="hide", message=FALSE}
 cfg=system_set_tt_cond(cfg,       
                        name       = "ivdose",
@@ -137,7 +137,7 @@ Now we can overlay the predictions using both methods to show that they produce 
  print(myfig)
 ```
 
-The output of ``run_simulation_titrate`` is similar to that of ``run_simulation_ubiquity`` with two extra elements in the list that is returned:
+The output of `run_simulation_titrate()` is similar to that of `run_simulation_ubiquity()` with two extra elements in the list that is returned:
 
 * ``titration`` - A data frame with a row for each time course output and the following columns for titration rule ``tname``:
      + ``tt.tname.value`` - Value of the rule for the active condition or -1 if not triggered
@@ -271,6 +271,7 @@ myfig = ggplot() +
 myfig = prepare_figure('present', myfig) 
 print(myfig)
 ```
+
 Initially the concentration in the serum is 0 (``Cc < 900``), so dosing starts at 700. After six months the titration rule is triggered again. At this point the serum concentration is greater greater than 900 so the dose level is reduced to 600. All subsequent measurements are greater than 900 so the dose remains at 600.
 
 *Titration output: som_tt$titration*
@@ -285,7 +286,7 @@ rhandsontable(som_tt$titration_history, width=550)
 
 ## Monte Carlo Simulations (``analysis_visit_dosing_titration_stochastic.r``)
 
-This example is similar to the last except here we are performing population simulations (20 subjects). The same function (``simulate_subjects``) is used but setting the ``'titrate'`` option to ``TRUE`` tells that function to use the rule-based dosing. 
+This example is similar to the last except here we are performing population simulations (20 subjects). The same function (`simulate_subjects()`) is used but setting the ``'titrate'`` option to ``TRUE`` tells that function to use the rule-based dosing. 
 
 
 ```{r echo=TRUE, message=FALSE, results=FALSE, warning=FALSE}

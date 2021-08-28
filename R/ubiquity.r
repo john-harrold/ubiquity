@@ -4,10 +4,10 @@
 #'@import ggplot2
 #'@import knitr
 #'@import optimx
+#'@import onbrand
 #'@import pso
 #'@import rmarkdown
 #'@import rhandsontable
-#'@import rstudioapi
 #'@import stringr
 #'@importFrom digest digest
 #'@importFrom dplyr  all_of select
@@ -16,15 +16,7 @@
 #'@importFrom flextable theme_vanilla theme_booktabs theme_tron theme_vader theme_zebra
 #'@importFrom parallel stopCluster makeCluster
 #'@importFrom readxl read_xls read_xlsx
-#'@importFrom grid pushViewport viewport grid.newpage grid.layout
-#'@importFrom gridExtra grid.arrange
 #'@importFrom magrittr "%>%"
-#'@importFrom officer add_slide annotate_base body_add_break body_add_fpar body_add_par body_add_gg body_add_img 
-#'@importFrom officer body_add_table body_add_toc body_bookmark body_end_section_continuous 
-#'@importFrom officer body_end_section_landscape body_end_section_portrait body_replace_all_text external_img 
-#'@importFrom officer footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type 
-#'@importFrom officer ph_location_label ph_with read_pptx read_docx shortcuts  slip_in_seqfield slip_in_text 
-#'@importFrom officer styles_info unordered_list
 #'@importFrom PKNCA PKNCA.options PKNCAconc PKNCAdose PKNCAdata pk.nca get.interval.cols
 #'@importFrom utils capture.output read.csv read.delim txtProgressBar setTxtProgressBar write.csv tail packageVersion sessionInfo
 #'@importFrom stats median qt var sd
@@ -32,8 +24,22 @@
 #'@importFrom MASS mvrnorm
 
 
+# These were either pulled out because they are used in the shiny app or
+# because they were used in reporting and are now only used in onbrand
+#   #'@import rstudioapi
+#   #'@importFrom grid pushViewport viewport grid.newpage grid.layout
+#   #'@importFrom gridExtra grid.arrange
+#   #'@importFrom officer add_slide annotate_base body_add_break body_add_fpar body_add_par body_add_gg body_add_img 
+#   #'@importFrom officer body_add_table body_add_toc body_bookmark body_end_section_continuous 
+#   #'@importFrom officer body_end_section_landscape body_end_section_portrait body_replace_all_text external_img 
+#   #'@importFrom officer footers_replace_all_text headers_replace_all_text layout_properties layout_summary ph_location_type 
+#   #'@importFrom officer ph_location_label ph_with read_pptx read_docx shortcuts  slip_in_seqfield slip_in_text 
+#   #'@importFrom officer styles_info unordered_list
+
+
+
 #'@export
-#'@title Building The System
+#'@title Build the System File
 #'@description  Builds the specified system file creating the targets for R and other languages as well as the templates for performing simulations and estimations. 
 #'
 #'@param system_file name of the file defining the system in the \href{https://ubiquity.tools}{ubiquity} format (default = 'system.txt'), if the file does not exist a template will be created and compiled.
@@ -115,8 +121,12 @@ if(distribution == "automatic"){
 
 
 if(verbose == TRUE){
-  message("#> Ubiquity: (https://ubiquity.tools)")
-  message(paste("#> Distribution:           ", distribution, sep=""))
+  message("#> ubiquity: (https://r.ubiquity.tools)")
+  if(distribution == "package"){
+     message(paste("#> Distribution:           ", distribution, " (", packageVersion("ubiquity"), ")", sep=""))
+  } else {
+    message(paste("#> Distribution:           ", distribution, sep=""))
+  }
 }
 # Checking for perl
 if(as.character(Sys.which(perlcmd )) == ""){
@@ -703,8 +713,8 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
      write_file   = c(TRUE, TRUE)
    }
    if(template == "myOrg"){
-     sources      = c(file.path(template_dir, sprintf("org_functions.R")))
-     destinations = c("myOrg.R")
+     sources      = c(file.path(template_dir, sprintf("report.yaml")))
+     destinations = c("myOrg.yaml")
      write_file   = c(TRUE)
    }
 
@@ -749,7 +759,7 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
  }
 
   if(!isgood){
-    vp(cfg, "system_fetch_template()")
+    vp(cfg, "ubiquity::system_fetch_template()")
     vp(cfg, "One or more templates failed to copy. See messages above for details")
   }
   res$isgood = isgood
@@ -808,7 +818,7 @@ system_load_data <- function(cfg, dsname, data_file, data_sheet){
       cfg$data[[dsname]]$data_file$name  = data_file
     } else {
       vp(cfg, " ------------------------------------") 
-      vp(cfg, "system_load_data()") 
+      vp(cfg, "ubiquity::system_load_data()") 
       vp(cfg, sprintf("unable to find the specified file >%s<", data_file)) 
       vp(cfg, " ------------------------------------")
     
@@ -1053,7 +1063,7 @@ system_fetch_set <- function(cfg, set_name=NULL){
   }
 
   if(!isgood){
-    vp(cfg, "system_fetch_set()")
+    vp(cfg, "ubiquity::system_fetch_set()")
   }
   
   return(set_contents)}
@@ -1102,7 +1112,7 @@ system_fetch_iiv <- function(cfg, IIV1, IIV2){
       VALUE =  cfg$iiv$values[IIV1_idx, IIV2_idx]
     }
   } else {
-    vp(cfg, "system_fetch_iiv() ")
+    vp(cfg, "ubiquity::system_fetch_iiv() ")
     vp(cfg, "No IIV information was found") 
     vp(cfg, "These can be specified using: ") 
     vp(cfg, "<IIV:?>, <IIV:?:?>, and <IIVCOR:?:?> ")
@@ -1683,7 +1693,7 @@ system_set_option <- function(cfg, group, option, value){
   # If the error flag has been switched above, then we print some inforamtion for the user
   if(!isgood){
     vp(cfg, "------------------------------------") 
-    vp(cfg, "system_set_option()                 ") 
+    vp(cfg, "ubiquity::system_set_option()                 ") 
     vp(cfg, "Something went wrong and the option ") 
     vp(cfg, "was not set:")
     vp(cfg, errormsgs)
@@ -1746,7 +1756,7 @@ system_new_tt_rule <- function(cfg, name, times, timescale){
 
   if(!isgood){
     vp(cfg, "------------------------------------") 
-    vp(cfg, "system_new_tt_rule()                ") 
+    vp(cfg, "ubiquity::system_new_tt_rule()                ") 
     vp(cfg, "Something went wrong and the        ") 
     vp(cfg, "titration rule was not set          ") 
     vp(cfg, errormsgs) 
@@ -2022,7 +2032,7 @@ system_set_tt_cond <- function(cfg, name, cond, action, value='-1'){
 
   if(!isgood){
     vp(cfg, "------------------------------------") 
-    vp(cfg, "system_set_tt_cond()                ") 
+    vp(cfg, "ubiquity::system_set_tt_cond()                ") 
     vp(cfg, "Something went wrong and the        ") 
     vp(cfg, "titration condition was not set     ") 
     vp(cfg, errormsgs) 
@@ -2547,7 +2557,7 @@ system_set_iiv <- function(cfg, IIV1, IIV2, value){
     }
   } else {
     vp(cfg, "------------------------------------")
-    vp(cfg, "system_set_iiv()")
+    vp(cfg, "ubiquity::system_set_iiv()")
     vp(cfg, "No IIV information was found") 
     vp(cfg, "These can be specified using: ") 
     vp(cfg, "<IIV:?>, <IIV:?:?>, and <IIVCOR:?:?> ")
@@ -4085,7 +4095,7 @@ system_log_debug_save = function (cfg, file_name = "my_file", values = NULL){
    if(cfg$options$logging$debug){
      if(is.null(values)){
        isgood = FALSE
-       vp(cfg, 'system_log_debug_save()')
+       vp(cfg, "ubiquity::system_log_debug_save()")
        vp(cfg, "values set to NULL")
      } else if(!is.null(values)){
        # file name to hold the debugging information
@@ -4922,7 +4932,7 @@ if(isgood){
   cfg$cohorts[[cohort_name]] = cohort
 }
 else{
-  vp(cfg, 'system_define_cohort()')
+  vp(cfg, "ubiquity::system_define_cohort()")
   vp(cfg, sprintf('Cohort name: >%s<', cohort_name))
   vp(cfg, 'There was an error and the cohort information was not set.')
 }
@@ -5281,7 +5291,7 @@ system_set_parameter <- function(cfg, parameters, pname, value){
 if( pname %in% names(cfg$parameters$values)){
   parameters[[pname]] = value
 } else {
-  vp(cfg, 'system_set_parameter()') 
+  vp(cfg, "ubiquity::system_set_parameter()") 
   vp(cfg, sprintf('parameter name (%s) not found', pname)) 
 }
 
@@ -6058,7 +6068,7 @@ system_estimate_parameters <- function(cfg,
     # Checking the analysis_name
     name_check = ubiquity_name_check(analysis_name)
     if(!name_check$isgood){
-      vp(cfg, sprintf('system_plot_cohorts()'))
+      vp(cfg, sprintf('ubiquity::system_plot_cohorts()'))
       vp(cfg, sprintf('Error: the analyssis name >%s< is invalid', analysis_name))
       vp(cfg, sprintf('Problems: %s', name_check$msg))
       analysis_name = 'analysis'
@@ -6489,66 +6499,6 @@ system_simulate_estimation_results <- function(pest, cfg, details=FALSE){
 }
 #/system_simulate_estimation_results
 #-----------------------------------------------------------
-
-#-----------------------------------------------------------
-#system_fetch_report_format
-#'@export
-#'@title Fetch The Specified Report Formatting Information
-#'@description Returns a list the default font format for the report element
-#'
-#'@param cfg ubiquity system object    
-#'@param rptname report name initialized with \code{system_report_init}
-#'@param element report element to fetch: for Word reports it can be 
-#' "default" (default),       "Normal",        "Code",  "TOC",          
-#' "Heading_1",  "Heading_2", "Heading_3", "Table", "Table_Labels",
-#' "Table_Caption", "Figure",  and  "Figure_Caption"
-#'
-#'@return list of current parameter gauesses
-system_fetch_report_format <- function(cfg, rptname="default", element="Table_Labels"){
-
-default_format = NULL
-isgood = TRUE
-
-if(cfg[["reporting"]][["enabled"]]){
-  if(element %in% names(cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["md_def"]])){
-    default_format = cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["md_def"]][[element]]
-  } else if(!(rptname %in% names(cfg[["reporting"]][["reports"]]))){
-    isgood = FALSE
-    vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
-  } else if(!(element %in% names(cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["md_def"]]))){
-    isgood = FALSE
-    vp(cfg, paste("Error: The report element >", element,"< not found", sep=""))
-  } 
-} else {
-  isgood = FALSE
-  vp(cfg, "Error: Reporting not enabled")
-}
-
-# If we failed to get the report element formatting for the rptname we try to
-# pull a default ubiquity format:
-if(!isgood){
-  # First we try the word format
-  if(element %in% names(cfg[["reporting"]][["meta_docx"]][["md_def"]])){
-    default_format = cfg[["reporting"]][["meta_docx"]][["md_def"]][[element]]
-    vp(cfg, paste("Returning default format for Word element >", element,"< for ubiquity default document", sep=""))
-  }else if(element %in% names(cfg[["reporting"]][["meta_pptx"]][["md_def"]])){
-  # Then we try the powerpoint format
-    default_format = cfg[["reporting"]][["meta_pptx"]][["md_def"]][[element]]
-    vp(cfg, paste("Returning default format for PowerPoint element >", element,"< for ubiquity default document", sep=""))
-
-  } else {
-    vp(cfg, paste("Unable to find formatting for element >", element,"< in either Word or Powerpoint default ubiquity documents", sep=""))
-    vp(cfg, "Returning NULL")
-  }
-  vp(cfg, "system_fetch_report_format()")
-}
-
-
-  res = list(isgood         = isgood,
-             default_format = default_format)
-res}
-#/system_fetch_report_format
-#-----------------------------------------------------------
 #system_fetch_guess
 #'@export
 #'@title Fetch Current Parameter Guesses
@@ -6964,7 +6914,7 @@ if(pname %in% names(cfg$parameters$values)){
 }
 
 if(isgood == FALSE){
-  vp(cfg, 'system_set_guess()')
+  vp(cfg, "ubiquity::system_set_guess()")
 }
 
 return(cfg)
@@ -8704,7 +8654,7 @@ cr = system_nm_check_ds(cfg       =  cfg,
 
   
   if(!isgood){
-    vp(cfg, 'system_define_cohorts_nm()') }
+    vp(cfg, "ubiquity::system_define_cohorts_nm()") }
 
 
 vp(cfg,'------------------------------------------')
@@ -8993,2625 +8943,318 @@ if(isgood){
 }
 
   if(!isgood | mywarning){
-    vp(cfg, 'system_nm_check_ds()')
+    vp(cfg, "ubiquity::system_nm_check_ds()")
   }
 result}
 # /system_nm_check_ds 
 # -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
-# system_report_view_layout
-#'@export
-#'@title Generate Annotated Layout for Report Templates
-#'@description Elements of slide masters are identified by placeholder labels.
-#' As PowerPoint masters are created the labels
-#' can be difficult to predict. Word documents are identified by style names. 
-#' This function will create a layout file identifying all of the elements of 
-#' each slide master for a PowerPoint template or each paragraph and table 
-#' style for a Word template.
-#'
-#'@param cfg ubiquity system object    
-#'@param rptname report name initialized with \code{system_report_init}
-#'@param output_file name of file to place the annotated layout information, set to \code{NULL} and it will generate a file named layout with the appropriate extension
-#'
-#'@return officer object with the layout of the template annotated,
-#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
-system_report_view_layout = function(cfg,
-                                     rptname     = "default",
-                                     output_file = NULL){
-
-isgood = TRUE
-if(cfg$reporting$enabled){
-  if(!(rptname %in% names(cfg$reporting$reports))){
-    isgood = FALSE
-    vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
-  }
-} else {
-  isgood = FALSE
-  vp(cfg, "Error: Reporting not enabled")
-}
-
-if(isgood){
-  # No output was specified so we use layout + the correct file extension
-  if(is.null(output_file)){
-    if(cfg$reporting$reports[[rptname]]$rpttype  == "PowerPoint"){
-      output_file = "layout.pptx"
-    } else if (cfg$reporting$reports[[rptname]]$rpttype  == "Word"){
-      output_file = "layout.docx"}
-  } else {
-    # Now we test to make sure the extension matches the type
-    if(cfg$reporting$reports[[rptname]]$rpttype == "PowerPoint"){
-      if(!grepl(pattern="pptx$", output_file)){
-        isgood = FALSE
-        vp(cfg, paste("Error: The report >", rptname,"< is a PowerPoint report", sep = ""))
-        vp(cfg, paste("       but the output file >", output_file, "<", sep = ""))
-        vp(cfg, paste("       has the wroing extension should be '.pptx'", sep = ""))
-      }
-    }
-    if(cfg$reporting$reports[[rptname]]$rpttype == "Word"){
-      if(!grepl(pattern="docx$", output_file)){
-        isgood = FALSE
-        vp(cfg, paste("Error: The report >", rptname,"< is a Word report", sep = ""))
-        vp(cfg, paste("       but the output file >", output_file, "<", sep = ""))
-        vp(cfg, paste("       has the wroing extension should be '.docx'", sep = ""))
-      }
-    }
-  }
-}
-
-if(isgood){
-
-  # Dumping PowerPoint layout
-  if(cfg[["reporting"]][["reports"]][[rptname]]$rpttype  == "PowerPoint"){
-    # Getting the annotated report
-    rpt = officer::annotate_base(path=cfg[["reporting"]][["reports"]][[rptname]][["template"]], output_file=NULL)
-  } 
-
-  # Dumping Word layout
-  if(cfg$reporting$reports[[rptname]]$rpttype  == "Word"){
-    rpt = read_docx(cfg$reporting$reports[[rptname]]$template)
-    
-    tab_example = data.frame( Number = c(1,2,3,4),
-                              Text   = "Here")
-
-    list_exmaple = c(1, "Top level",
-                     1, "Also top level",
-                     2, "first sub bullet",
-                     2, "second sub bullet",
-                     1, "Third top level")
-
-    # Pulling out the different styles
-    lay_sum = officer::styles_info(rpt)
-    
-
-    disp_styles = c("paragraph", "character", "table")
-
-    for(style_type in disp_styles){
-      rpt = officer::body_add_par(x=rpt, value="")
-      rpt = officer::body_add_par(x=rpt, value=paste("STYLES: ", style_type))
-
-      tmp_lay_sum =  lay_sum[lay_sum$style_type == style_type, ]
-      for(lidx in 1:length(tmp_lay_sum[,1])){
-        #style_type   = tmp_lay_sum[lidx, ]$style_type
-        style_id     = tmp_lay_sum[lidx, ]$style_id
-        style_name   = tmp_lay_sum[lidx, ]$style_name
-
-        # Paragraph styles
-        if(style_type %in% c("paragraph", "charcter")){
-          rpt = officer::body_add_par(x=rpt, value=paste("style_name: ", style_name), style=style_name)
-        }
-
-        # Table styles
-        if(style_type %in% c("table")){
-          rpt = officer::body_add_par(x=rpt, value=paste("style_name: ", style_name))
-          rpt = officer::body_add_table(x=rpt, value=tab_example, style = style_name)
-        }
-      }
-    }
-  }
-
-  print(rpt, output_file)
-  vp(cfg, "--------------------------------")
-  vp(cfg, sprintf("Generating annotated layout for a report template"))
-  vp(cfg, sprintf("Name:             %s", rptname))
-  vp(cfg, sprintf("Template:         %s", cfg$reporting$reports[[rptname]]$template))
-  vp(cfg, sprintf("Annotated layout: %s", output_file))
-  vp(cfg, "--------------------------------")
-}
-
-
-if(!isgood){
-  rpt = NULL
-  vp(cfg, "system_report_view_layout()")
-  vp(cfg, "Layout not generated.")
-  }
-return(rpt)}
-# /system_report_view_layout
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
-# system_fetch_report
-# rpt = system_fetch_report(cfg, 
-#     rptname       =  "default")
-#'@export
-#'@title Retrieve the officer Object of a Report 
-#'
-#'@description Reports are stored in the ubiquity system object and this provides a method for retrieving them by name. They can then be modified using the officer functions directly.
-#'
-#'@param cfg ubiquity system object    
-#'@param rptname report name
-#'
-#'@return officer pptx object with the of the report named \code{rptname}
-#'@seealso \code{\link{system_report_init}} and \code{\link{system_report_set}}
-system_fetch_report = function (cfg,
-                               rptname     = "default"){
-
-  rpt = NULL
-
-  if(cfg$reporting$enabled){
-    if(rptname %in% names(cfg$reporting$reports)){
-      rpt = cfg$reporting$reports[[rptname]]$report
-    } else {
-      vp(cfg, sprintf("system_fetch_report()"))
-      vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
-    }
-  }
-return(rpt)}
-# /system_fetch_report
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
-# system_report_set  
-# cfg = system_report_set(cfg, 
-#     rptname =  "default",
-#     rpt     = NULL)
-#'@export
-#'@title Overwrite officer Object for a Given Report
-#'@description Replace the report named \code{rptname} with the contents in \code{rpt}
-#'
-#'@param cfg ubiquity system object    
-#'@param rptname report name initialized with \code{system_report_init}
-#'@param rpt officer object 
-#'
-#'@return ubiquity system object with \code{rpt} as content for \code{rptname}
-#'@seealso \code{\link{system_report_init}} and \code{\link{system_fetch_report}}
-system_report_set = function (cfg,
-                              rptname     = "default",
-                              rpt         = NULL){
-
-  isgood = TRUE
-
-  if(cfg$reporting$enabled){
-    if(rptname %in% names(cfg$reporting$reports)){
-      if(is.null(rpt)){
-        isgood = FALSE
-        vp(cfg, sprintf("Error: The report is NULL, need to specify an officer object"))
-      } else {
-        rpt = cfg$reporting$reports[[rptname]]$report
-      }
-    } else {
-      isgood = FALSE
-      vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
-    }
-  }
-
-  if(!isgood){
-    vp(cfg, sprintf("system_report_set()")) }
-return(cfg)}
-# /system_fetch_report
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
-# system_report_save 
-#'@export
-#'@title Save Report to File
-#'@description Save the contents of \code{rptname} to the file \code{output_file}
-#'
-#'@param cfg ubiquity system object    
-#'@param rptname report name initialized with \code{system_report_init}
-#'@param output_file file name of saved report
-#'
-#'@return Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
-#'
-#'@details If you don't specify an output file it will save the report either
-#'report.pptx or report.docx (depending on the type of report) in the current
-#'directory.
-#'
-#'@seealso \code{\link{system_report_init}}
-system_report_save = function (cfg,
-                               rptname     = "default",
-                               output_file = NULL){
-
-  isgood = TRUE
-  
-  if(cfg[["reporting"]][["enabled"]]){
-    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
-      # saving to report.pptx or report.doc
-      if(is.null(output_file)){
-        if(cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] == "Word"){
-          use_output_file = "report.docx"
-        }
-        if(cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] == "PowerPoint"){
-          use_output_file = "report.pptx"
-        }
-      } else {
-        use_output_file = output_file
-        # comparing the extension with the report type
-        if(cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] == "PowerPoint"){
-          if(!grepl(pattern="pptx$", output_file)){
-            isgood = FALSE
-            vp(cfg, paste("Error: The report >", rptname,"< is a PowerPoint report", sep = ""))
-            vp(cfg, paste("       but the output file >", output_file, "<", sep = ""))
-            vp(cfg, paste("       has the wroing extension should be '.pptx'", sep = ""))
-          }
-        }
-        if(cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] == "Word"){
-          if(!grepl(pattern="docx$", output_file)){
-            isgood = FALSE
-            vp(cfg, paste("Error: The report >", rptname,"< is a Word report", sep = ""))
-            vp(cfg, paste("       but the output file >", output_file, "<", sep = ""))
-            vp(cfg, paste("       has the wroing extension should be '.docx'", sep = ""))
-          }
-        }
-      
-      }
-    } else {
-      isgood = FALSE
-      vp(cfg, sprintf("Error: The report >%s< was not found", rptname))
-    }
-  } 
-
-  # Applying place holders for Word templates
-  if(isgood & cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] == "Word"){
-    if("ph_content" %in% names(cfg[["reporting"]][["reports"]][[rptname]][["meta"]])){
-      # Pulling out the report to make it easier to deal with
-      tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
-      # Looping through each placeholder
-      for(phn in names(cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["ph_content"]])){
-        # Here we pull out the value (phv) and locatio (phl) of each
-        # placeholder:
-        pht = paste("===",phn,"===", sep="") 
-        phv = cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["ph_content"]][[phn]][["content"]]
-        phl = cfg[["reporting"]][["reports"]][[rptname]][["meta"]][["ph_content"]][[phn]][["location"]]
-        if(phl == "body"){
-          tmprpt = officer::body_replace_all_text(
-               old_value      = pht, 
-               new_value      = phv ,
-               fixed          = TRUE,
-               only_at_cursor = FALSE,
-               warn           = FALSE,
-               x              = tmprpt
-               )
-        }
-        if(phl == "header"){
-          tmprpt = officer::headers_replace_all_text(
-               old_value      = pht,
-               new_value      = phv ,
-               fixed          = TRUE,
-               only_at_cursor = FALSE,
-               warn           = FALSE,
-               x              = tmprpt
-               )
-        }
-        if(phl == "footer"){
-          tmprpt = officer::footers_replace_all_text(
-               old_value      = pht, 
-               new_value      = phv ,
-               fixed          = TRUE,
-               only_at_cursor = FALSE,
-               warn           = FALSE,
-               x              = tmprpt
-               )
-        }
-      }
-
-    # Cross referencing with placeholders not working right now
-    #   # Substituting reference keys for their sequence
-    #   if(!is.null(cfg[["reporting"]][["reports"]][[rptname]][["key_table"]])){
-    #     key_table = cfg[["reporting"]][["reports"]][[rptname]][["key_table"]]
-    #     # Walking through each user key
-    #     for(ridx in 1:nrow(key_table)){
-
-    #       user_key      = as.character(key_table[ridx, ]$user_key)
-    #       internal_key  = as.character(key_table[ridx, ]$internal_key)
-    #       seq_text      = as.character(key_table[ridx, ]$seq_text)
-    #       ref_text      = as.character(key_table[ridx, ]$ref_text)
-
-    #       # For each key we try to find the reference key and put the cursor
-    #       # there. 
-    #       key_found = TRUE
-    #       while(key_found){
-    #          # if we find the user reference text
-    #          tcres = tryCatch(
-    #            { 
-    #             tmprpt = cursor_reach(tmprpt, ref_text)
-    #             list(key_found = TRUE, tmprpt = tmprpt)},
-    #           error = function(e) {
-    #             list(key_found=FALSE)})
-    #          
-    #          # If we find the key we replace it with "" and slip in the
-    #          # sequence
-    #          if(tcres[["key_found"]]){
-    #            cat('Key found:', ref_text) 
-    #            # Pulling the report out of the tryCatch 
-    #            tmprpt = tcres[["tmprpt"]]
-
-    #            # Removing the placeholder text:
-    #            tmprpt = officer::body_replace_all_text(
-    #                 x              = tmprpt,
-    #                 old_value      = ref_text, 
-    #                 new_value      = "",
-    #                 fixed          = TRUE,
-    #                 only_at_cursor = TRUE,
-    #                 warn           = FALSE)
-
-    #             # Slipping in a sequence
-    #             tmprpt = slip_in_seqfield(
-    #                 x     = tmprpt,
-    #                 str   = seq_text,  
-    #                 style = 'Default Paragraph Font', 
-    #                 pos   = 'after')
-    #          } else {
-    #             key_found = FALSE
-    #          }
-    #       }
-    #     }
-    #  }
-    # Putting the report back into cfg
-    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
-    
-  }
-  }
-  
-  if(isgood){
-    print(cfg[["reporting"]][["reports"]][[rptname]][["report"]], use_output_file)
-    vp(cfg, "")
-    vp(cfg, sprintf("Report saved to: %s", use_output_file))
-  }
-
-
-  if(!isgood){
-    vp(cfg, sprintf("system_report_save()"))
-    vp(cfg, sprintf("Report >%s< not saved.", rptname)) 
-  }
-isgood}
-# /system_report_save 
-# -------------------------------------------------------------------------
-# system_report_init 
-#'@export
-#'@title Initialize a New Officer Report
-#'@description Creates a new officer report based either on the ubiquity
-#' template or one specified by the user. Once created, content can then be
-#' added. 
-#'
-#'
-#'@param cfg ubiquity system object    
-#'@param template path to template file (\code{NULL} will load the default ubiquity template)
-#'@param rptname report name 
-#'@param rpttype type of report to create, can be either \code{NULL}, \code{"PowerPoint"} or \code{"Word"}
-#'@param meta list containing metadata identifying relevant indices for slide layouts
-#'
-#'@return ubiquity system object with estimation report initialized
-#'
-#'@details 
-#'   Either the rpttype can be specified or the template. If a report type is
-#'   specified the internal ubiquity template for that type will be used. If
-#'   the user specifies a template, the type will be determined from the file
-#'   extension. If both values are NULL the report type will default to 
-#'   "PowerPoint" internally. 
-#'
-#'@seealso Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
-system_report_init = function (cfg,
-                               template = NULL,
-                               rptname  = "default",
-                               rpttype  = NULL,
-                               meta     = NULL){
-
-isgood = TRUE
-
-# Allowed types of reports
-rpttypes     = c("PowerPoint", "Word")
-rptextension = c("docx" ,"pptx")
-
-# If they are both NULL we default to PowerPoint
-if(is.null(template) & is.null(rpttype)){
-  rpttype = "PowerPoint"
-}
-
-# The user specified both
-if(!is.null(template) & !is.null(rpttype)){
-  isgood = FALSE
-  vp(cfg, "Error: You can specify either rpttype or template but not both")
-} 
-
-# the user specified the rpttype
-if(!is.null(rpttype) & is.null(template)){
-  use_rpttype = rpttype
-  if(!(rpttype %in% rpttypes)){
-    isgood = FALSE
-    vp(cfg, paste("Error: Invalid report type: >", rpttype, "<", sep=""))
-    vp(cfg, paste("       Allowed types are: ", paste(rpttypes, collapse=", "), sep=""))
-  }else{
-    if( cfg$options$misc$distribution == "package"){
-      if(rpttype == "PowerPoint"){
-        use_template = system.file("ubinc", "templates", "report.pptx", package="ubiquity")
-      } else if(rpttype == "Word"){
-        use_template = system.file("ubinc", "templates", "report.docx", package="ubiquity")
-      } 
-     }else{
-       if(rpttype == "PowerPoint"){
-         use_template = file.path("library", "templates", "report.pptx") 
-       } else if(rpttype == "Word"){
-         use_template = file.path("library", "templates", "report.docx") 
-       } 
-    }
-  }
-}
-
-# the user specified the template
-if(is.null(rpttype) & !is.null(template)){
-  use_template = template
-  if(grepl(pattern="pptx$", template)){
-    use_rpttype = "PowerPoint"
-  } else if(grepl(pattern="docx$", template)){
-    use_rpttype = "Word"
-  } else {
-    isgood=FALSE
-    vp(cfg, "Error: The specified template has an incorrect file extension")
-    vp(cfg, "       it should be either .docx or .pptx")
-  }
-}
-
-# Making sure that officer is installed
-if(!system_req("officer")){
-  isgood = FALSE
-  vp(cfg, "Reporting is done through the 'officer' package. Unable to load ")
-  vp(cfg, "this package. Reporting will be disabled.")
-  cfg$reporting$enabled = FALSE
-} else if(utils::packageVersion("officer") < "0.3.5"){
-  # Now we make sure the correct version is installed.
-  isgood = FALSE
-  vp(cfg, paste("The currently installed version of officer is: >", utils::packageVersion("officer"),"<", sep=""))
-  vp(cfg, "Version officer version >= 0.3.5 required.")
-  vp(cfg, "Note: If you were using an organizational template with a")
-  vp(cfg, "      previous version you will need to update your myOrg.R")
-  vp(cfg, "      function. See the reporting vignette for more details,")
-  vp(cfg, "      specifically the ph_labels fields.")
-}
-
-if(isgood){
-  cfg$reporting$enabled = TRUE
-  # Checking to see if the template file exists
-  if(file.exists(use_template)){
-    # if no meta data has been specified then we pull the default meta data,
-    # otherwise we store the meta data provided
-    name_check = ubiquity_name_check(rptname)
-    if(name_check$isgood & isgood){
-      # Initializing the list to hold the report components
-      cfg[["reporting"]][["reports"]][[rptname]] = list(
-             meta      = list(),
-             rpttype   = "",
-             template  = "",
-             report    = "",
-             key_table = NULL)
-      # Sorting out the meta data. If the user didn't specify this
-      # information then we pull the reporting defaults:
-      if(is.null(meta)){
-        if(use_rpttype == "PowerPoint"){
-          cfg[["reporting"]][["reports"]][[rptname]][["meta"]]  = cfg[["reporting"]][["meta_pptx"]] }
-        if(use_rpttype == "Word"){
-          cfg[["reporting"]][["reports"]][[rptname]][["meta"]]  = cfg[["reporting"]][["meta_docx"]] }
-      } else {
-        # Here we use the user specified values
-        cfg[["reporting"]][["reports"]][[rptname]][["meta"]]  = meta 
-      }
-      # Storing the report type
-      cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] = use_rpttype
-      # Storing the original template location and creating the empty report
-      cfg[["reporting"]][["reports"]][[rptname]][["template"]] = use_template
-
-     
-      # Reading in the template depending on the report type
-      if(use_rpttype == "PowerPoint"){
-        cfg[["reporting"]][["reports"]][[rptname]][["report"]]   = officer::read_pptx(path=use_template) }
-      if(use_rpttype == "Word"){
-        cfg[["reporting"]][["reports"]][[rptname]][["report"]]   = officer::read_docx(path=use_template) }
-     
-      vp(cfg, "")
-      vp(cfg, sprintf("Report initialized..."))
-      vp(cfg, sprintf("  Name:     %s", rptname))
-      vp(cfg, sprintf("  Type:     %s", use_rpttype))
-      vp(cfg, sprintf("  Template: %s", use_template))
-    } else {
-      isgood = FALSE
-      vp(cfg, sprintf('Error: report name >%s< is invalid', rptname))
-    }
-  
-  } else {
-    isgood = FALSE
-    vp(cfg, sprintf("Unable to find template file >%s<. ", use_template))
-  }
-  
-}
-
-  if(!isgood){
-    vp(cfg, "system_report_init()")
-    vp(cfg, sprintf("Report >%s< initialization failed.", rptname)) }
-return(cfg)
-}
-# /system_report_init 
-# -------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------
-# system_report_slide_content
-#'@export
-#'@title Add Slide With Main Body of Content
-#'@description Creates a report slide with a title and single large area of content 
-#'
-#'@param cfg ubiquity system object    
-#'@param rptname report name initialized with \code{system_report_init}
-#'@param title                     string with slide title (\code{"Title"})
-#'@param sub_title                 string with slide sub title (code{NULL})
-#'@param content_type              type of content for main body of slide
-#'@param content                   content of main body of slide
-#'
-#'@return ubiquity system object with slide added to report
-#'
-#'@details 
-#'  For information on the format of content, see \code{\link{system_report_ph_content}}.
-#'
-#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
-system_report_slide_content = function (cfg,
-                               title                  = "Title",      
-                               sub_title              = NULL, 
-                               rptname                = "default",
-                               content_type           = 'text', 
-                               content                = 'Text'){
-  #Checking user input:
-  isgood = TRUE
-  if(cfg[["reporting"]][["enabled"]]){
-    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
-      if( "PowerPoint" != cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]]){
-        isgood = FALSE
-        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]],"< report", sep=""))
-      }
-    } else {
-      isgood = FALSE
-      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
-    }
-  } else {
-    isgood = FALSE
-    vp(cfg, "Error: Reporting not enabled")
-  }
-
-  if(isgood){
-    # Pulling out the meta data for the report template
-    meta = cfg[["reporting"]][["reports"]][[rptname]][["meta"]]
-    # Pulling out the report to make it easier to deal with
-    tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
-    # Adding the slide
-    if(content_type %in% c("text", "imagefile", "ggplot", "table", "flextable", "flextable_object")){
-      tmprpt = officer::add_slide(x      = tmprpt, 
-                         layout = meta[["content"]][["layout"]][["general"]],
-                         master = meta[["content"]][["master"]][["general"]])
-      body_index          = meta[["content"]][["indices"]][["content_body"]]
-      sub_title_index     = meta[["content"]][["indices"]][["content_sub_title"]]
-      body_ph_label       = meta[["content"]][["ph_labels"]][["content_body"]]
-      sub_title_ph_label  = meta[["content"]][["ph_labels"]][["content_sub_title"]]
-    }
-    else if(content_type == "list"){
-      tmprpt = officer::add_slide(x      = tmprpt, 
-                         layout = meta[["content"]][["layout"]][["list"]],
-                         master = meta[["content"]][["master"]][["list"]])
-      body_index          = meta[["content"]][["indices"]][["list_body"]]
-      sub_title_index     = meta[["content"]][["indices"]][["list_sub_title"]]
-      body_ph_label       = meta[["content"]][["ph_labels"]][["list_body"]]
-      sub_title_ph_label  = meta[["content"]][["ph_labels"]][["list_sub_title"]]
-    }
-
-    # Adding Slide title/subtitle information
-    if(!is.null(title)){
-      tmprpt = officer::ph_with(x=tmprpt, location = officer::ph_location_type(type = "title"),  value=title) } 
-    if(!is.null(sub_title_index) & !is.null(sub_title)){
-      tmprpt = officer::ph_with(x=tmprpt,  location=officer::ph_location_label(ph_label=sub_title_ph_label), value=sub_title) }
-      
-    # Adding the content
-    type   = "body"
-    tmprpt = system_report_ph_content(cfg          = cfg,          
-                                      rpt          = tmprpt, 
-                                      rptname      = rptname,
-                                      content_type = content_type, 
-                                      content      = content, 
-                                      type         = type,         
-                                      index        = body_index,
-                                      ph_label     = body_ph_label)
-  
-    # Putting the report back into cfg
-    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
-  } else {
-    vp(cfg, "system_report_slide_content()")
-    vp(cfg, "Unable to add slide, see above for details")
-  }
-  
-return(cfg)}
-#/system_report_slide_content
-# -------------------------------------------------------------------------
-# system_report_slide_two_col
-#'@export
-#'@title Generate Slide with Two Column Layout
-#'@description Creates a report slide with a title two columns of content with optional headers over the columns
-#'
-#'@param cfg ubiquity system object    
-#'@param title                     string with slide title (\code{"Title"})
-#'@param sub_title                 string with slide sub title (code{NULL})
-#'@param rptname                   report name initialized with \code{system_report_init}
-#'@param content_type              type of content for body text elements 'list' or 'text'
-#'@param left_content              content of left column
-#'@param left_content_type         inherits the main 'content_type' above unless you wish to specify an image or table
-#'@param left_content_header       content of left column header
-#'@param left_content_header_type  'text' unless you wish to specify an image or table
-#'@param right_content             content of right column
-#'@param right_content_type        inherits the main 'content_type' above unless you wish to specify an image or table
-#'@param right_content_header      content of right column header
-#'@param right_content_header_type 'text' unless you wish to specify an image or table
-#'
-#'@return ubiquity system object with slide added to report
-#'
-#'@details 
-#'  For information on the format of content, see \code{\link{system_report_ph_content}}.
-#'
-#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
-system_report_slide_two_col = function (cfg,
-                               title                       = "Title",      
-                               sub_title                   = NULL, 
-                               rptname                     = "default",
-                               content_type                = 'text', 
-                               left_content                =  NULL,
-                               left_content_type           =  NULL, 
-                               right_content               =  NULL,
-                               right_content_type          =  NULL, 
-                               left_content_header         =  NULL,  
-                               left_content_header_type    = 'text', 
-                               right_content_header        =  NULL,
-                               right_content_header_type   = 'text'){
-
-  #Checking user input:
-  isgood = TRUE
-  if(cfg[["reporting"]][["enabled"]]){
-    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
-      if( "PowerPoint" != cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]]){
-        isgood = FALSE
-        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]],"< report", sep=""))
-      }
-    } else {
-      isgood = FALSE
-      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
-    }
-  } else {
-    isgood = FALSE
-    vp(cfg, "Error: Reporting not enabled")
-  }
-
-
-  if(isgood){
-    # Pulling out the meta data for the report template
-    meta = cfg[["reporting"]][["reports"]][[rptname]][["meta"]]
-    # Pulling out the report to make it easier to deal with
-    tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
-
-    #-------------------------------------------------------
-    #  here we initialize the correct slide and 
-    #  define the indices/placeholders
-    #
-    if(content_type %in% c('text')){
-      if(is.null(left_content_header) & is.null(right_content_header)){
-        # Text without headers
-        tmprpt = officer::add_slide(x      = tmprpt, 
-                           layout = meta[["two_col"]][["layout"]][["text"]],
-                           master = meta[["two_col"]][["master"]][["text"]])
-
-        left_index               = meta[["two_col"]][["indices"]][["text_left"]]
-        right_index              = meta[["two_col"]][["indices"]][["text_right"]]
-        left_title_index         = NULL
-        right_title_index        = NULL
-
-        sub_title_index          = meta[["two_col"]][["indices"]][["text_sub_title"]]
-        sub_title_ph_label       = meta[["two_col"]][["ph_labels"]][["text_sub_title"]]
-        left_ph_label            = meta[["two_col"]][["ph_labels"]][["text_left"]]
-        right_ph_label           = meta[["two_col"]][["ph_labels"]][["text_right"]]
-        left_title_ph_label      = NULL
-        right_title_ph_label     = NULL
-
-      } else {
-        # Text with headers
-        tmprpt = officer::add_slide(x      = tmprpt, 
-                           layout = meta[["two_col"]][["layout"]][["text_head"]],
-                           master = meta[["two_col"]][["master"]][["text_head"]])
-
-        left_index               = meta[["two_col"]][["indices"]][["text_head_left"]]
-        right_index              = meta[["two_col"]][["indices"]][["text_head_right"]]
-        left_title_index         = meta[["two_col"]][["indices"]][["text_head_left_title"]]
-        right_title_index        = meta[["two_col"]][["indices"]][["text_head_right_title"]]
-        sub_title_index          = meta[["two_col"]][["indices"]][["text_head_sub_title"]]
-       #sub_title_index          = meta[["two_col"]][["indices"]][["text_head_sub_title"]]
-
-        sub_title_ph_label       = meta[["two_col"]][["ph_labels"]][["text_head_sub_title"]]
-        left_ph_label            = meta[["two_col"]][["ph_labels"]][["text_head_left"]]
-        right_ph_label           = meta[["two_col"]][["ph_labels"]][["text_head_right"]]
-        left_title_ph_label      = meta[["two_col"]][["ph_labels"]][["text_head_left_title"]]
-        right_title_ph_label     = meta[["two_col"]][["ph_labels"]][["text_head_right_title"]]
-      }
-    }else if(content_type %in% c('list')){
-      if(is.null(left_content_header) & is.null(right_content_header)){
-        # List without headers
-        tmprpt = officer::add_slide(x      = tmprpt, 
-                           layout = meta[["two_col"]][["layout"]][["list"]],
-                           master = meta[["two_col"]][["master"]][["list"]])
-
-        left_index               = meta[["two_col"]][["indices"]][["list_left"]]
-        right_index              = meta[["two_col"]][["indices"]][["list_right"]]
-        left_title_index         = NULL
-        right_title_index        = NULL
-        sub_title_index          = meta[["two_col"]][["indices"]][["list_sub_title"]]
-
-      # sub_title_index          = meta[["two_col"]][["indices"]][["list_sub_title"]]
-        sub_title_ph_label       = meta[["two_col"]][["ph_labels"]][["list_sub_title"]]
-        left_ph_label            = meta[["two_col"]][["ph_labels"]][["list_left"]]
-        right_ph_label           = meta[["two_col"]][["ph_labels"]][["list_right"]]
-        left_title_ph_label      = NULL
-        right_title_ph_label     = NULL
-
-
-      
-      } else {
-        # List with headers
-        tmprpt = officer::add_slide(x      = tmprpt, 
-                           layout = meta[["two_col"]][["layout"]][["list_head"]],
-                           master = meta[["two_col"]][["master"]][["list_head"]])
-
-        left_index         = meta[["two_col"]][["indices"]][["list_head_left"]]
-        right_index        = meta[["two_col"]][["indices"]][["list_head_right"]]
-        left_title_index   = meta[["two_col"]][["indices"]][["list_head_left_title"]]
-        right_title_index  = meta[["two_col"]][["indices"]][["list_head_right_title"]]
-        sub_title_index    = meta[["two_col"]][["indices"]][["list_head_sub_title"]]
-
-       #sub_title_index          = meta$two_col$indices$list_head_sub_title
-        sub_title_ph_label       = meta[["two_col"]][["ph_labels"]][["list_head_sub_title"]]
-        left_ph_label            = meta[["two_col"]][["ph_labels"]][["list_head_left"]]
-        right_ph_label           = meta[["two_col"]][["ph_labels"]][["list_head_right"]]
-        left_title_ph_label      = meta[["two_col"]][["ph_labels"]][["list_head_left_title"]]
-        right_title_ph_label     = meta[["two_col"]][["ph_labels"]][["list_head_right_title"]]
-      }
-    }
-
-    # If the content type hasn't been set then they inheret 
-    # the content type of the main slide
-    if(is.null(left_content_type)){
-      left_content_type = content_type }
-    if(is.null(right_content_type)){
-      right_content_type = content_type }
-    #-------------------------------------------------------
-
-    # Adding Slide title/subtitle information
-    if(!is.null(title)){
-      tmprpt = officer::ph_with(x=tmprpt, location = officer::ph_location_type(type = "title"),  value=title) } 
-    if(!is.null(sub_title_index) & !is.null(sub_title)){
-      tmprpt = officer::ph_with(x=tmprpt,  location=officer::ph_location_label(ph_label=sub_title_ph_label), value=sub_title) }
-
-    #
-    # Creating the headers
-    #
-    if(!is.null(left_content_header)){
-      tmprpt = system_report_ph_content(cfg          = cfg,          
-                                        rpt          = tmprpt, 
-                                        rptname      = rptname,
-                                        content_type = left_content_header_type, 
-                                        content      = left_content_header, 
-                                        type         = "body",         
-                                        index        = left_title_index,
-                                        ph_label     = left_title_ph_label)
-    }
-    if(!is.null(right_content_header)){
-      tmprpt = system_report_ph_content(cfg          = cfg,          
-                                        rpt          = tmprpt, 
-                                        rptname      = rptname,
-                                        content_type = right_content_header_type, 
-                                        content      = right_content_header, 
-                                        type         = "body",         
-                                        index        = right_title_index,
-                                        ph_label     = right_title_ph_label)
-    }
-
-    #
-    # Creating the main content
-    #
-    if(!is.null(left_content)){
-      tmprpt = system_report_ph_content(cfg          = cfg,          
-                                        rpt          = tmprpt, 
-                                        rptname      = rptname,
-                                        content_type = left_content_type, 
-                                        content      = left_content, 
-                                        type         = "body",         
-                                        index        = left_index,
-                                        ph_label     = left_ph_label)
-    }
-    if(!is.null(right_content)){
-      tmprpt = system_report_ph_content(cfg          = cfg,          
-                                        rpt          = tmprpt, 
-                                        rptname      = rptname,
-                                        content_type = right_content_type, 
-                                        content      = right_content, 
-                                        type         = "body",         
-                                        index        = right_index,
-                                        ph_label     = right_ph_label)
-    }
-
-
-    # Putting the report back into cfg
-    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
-  } else {
-    vp(cfg, "system_report_slide_two_col() ")
-    vp(cfg, "Unable to add slide, see above for details")
-  }
-
-
-return(cfg)}
-#/system_report_slide_two_col
-# -------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------
-# system_report_slide_section
-# Content dimensions:
-# units = inches, 
-# cfg = system_report_slide_section = function (cfg,
-#        title      = "Title",      
-#        sub_title  = NULL, 
-#        rptname    = "default")
-#'@export
-#'@title Generate Slide with Section Break
-#'@description Creates a report slide with a section break.
-#'@param cfg ubiquity system object    
-#'@param title                     string with slide title (\code{"Title"})
-#'@param sub_title                 string with slide sub title (\code{NULL})
-#'@param rptname                   report name initialized with \code{system_report_init}
-#'
-#'@return ubiquity system object with slide added to report
-#'
-#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
-system_report_slide_section = function (cfg,
-                               title                  = "Title",      
-                               sub_title              = NULL, 
-                               rptname                = "default"){
-
-  #Checking user input:
-  isgood = TRUE
-  if(cfg[["reporting"]][["enabled"]]){
-    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
-      if( "PowerPoint" != cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]]){
-        isgood = FALSE
-        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]],"< report", sep=""))
-      }
-    } else {
-      isgood = FALSE
-      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
-    }
-  } else {
-    isgood = FALSE
-    vp(cfg, "Error: Reporting not enabled")
-  }
-
-  if(isgood){
-    # Pulling out the meta data for the report template
-    meta = cfg[["reporting"]][["reports"]][[rptname]][["meta"]]
-    # Pulling out the report to make it easier to deal with
-    tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
-
-    # Adding the title slide
-    tmprpt = officer::add_slide(x      = tmprpt, 
-                       layout = meta[["section"]][["layout"]][["general"]],
-                       master = meta[["section"]][["master"]][["general"]])
-
-
-    # Adding Slide title/subtitle information
-    if(!is.null(title)){
-      if(meta$section$type$title == "ctrTitle"){
-        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "ctrTitle"), value=title) 
-       } else {
-         tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta[["section"]][["type"]][["title"]]), 
-                                              index    = meta[["section"]][["indices"]][["title"]],
-                                              value    = title) 
-       }
-     } 
-    if(!is.null(sub_title)){
-      if(meta$section$type$sub_title == "subTitle"){
-        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "subTitle"), value=sub_title) 
-       } else {
-        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta[["section"]][["type"]][["sub_title"]]),
-                                    index    = meta[["section"]][["indices"]][["sub_title"]],
-                                    value    = sub_title) 
-       }
-     }
-
-    # Putting the report back into cfg
-    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
-  } 
-
-  if(!isgood){
-    vp(cfg, "system_report_slide_section() ")
-    vp(cfg, "Unable to add slide, see above for details")
-  }
-
-return(cfg)}
-#/system_report_slide_section
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
-# system_report_slide_title
-# Content dimensions:
-# units = inches, 
-# cfg = system_report_slide_title   = function (cfg,
-#         title     = "Title",      
-#         sub_title = NULL, 
-#         rptname   = "default")
-#'@export
-#'@title Generate Title Slide
-#'@description Creates a report title slide.
-#'@param cfg ubiquity system object    
-#'@param title                     string with slide title (\code{"Title"})
-#'@param sub_title                 string with slide sub title (code{NULL})
-#'@param rptname                   report name initialized with \code{system_report_init}
-#'
-#'@return ubiquity system object with slide added to report
-#'
-#'@seealso \code{\link{system_report_init}} and the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
-system_report_slide_title   = function (cfg,
-                               title                  = "Title",      
-                               sub_title              = NULL, 
-                               rptname                = "default"){
-
-  #Checking user input:
-  isgood = TRUE
-  if(cfg[["reporting"]][["enabled"]]){
-    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
-      if( "PowerPoint" != cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]]){
-        isgood = FALSE
-        vp(cfg, paste("Error: Trying to add PowerPoint content to >", cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]],"< report", sep=""))
-      }
-    } else {
-      isgood = FALSE
-      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
-    }
-  } else {
-    isgood = FALSE
-    vp(cfg, "Error: Reporting not enabled")
-  }
-
-  if(isgood){
-    # Pulling out the meta data for the report template
-    meta = cfg[["reporting"]][["reports"]][[rptname]][["meta"]]
-    # Pulling out the report to make it easier to deal with
-    tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
-    # Adding the title slide
-    tmprpt = officer::add_slide(x      = tmprpt, 
-                       layout = meta[["title"]][["layout"]][["general"]],
-                       master = meta[["title"]][["master"]][["general"]])
-
-    # Adding Slide title/subtitle information
-    if(meta$title$type$title == "ctrTitle"){
-      tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "ctrTitle"), value=title) 
-     } else {
-      tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta[["title"]][["type"]][["title"]]), 
-                                           index    = meta[["title"]][["indices"]][["title"]],
-                                           value    = title) 
-     }
-    if(!is.null(sub_title)){
-      if(meta$title$type$sub_title == "subTitle"){
-        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = "subTitle"), value=sub_title) 
-       } else {
-        tmprpt = officer::ph_with(x=tmprpt,  location = officer::ph_location_type(type = meta[["title"]][["type"]][["sub_title"]]),
-                                    index    = meta[["title"]][["indices"]][["sub_title"]],
-                                    value    = sub_title) 
-       }
-     }
-
-    # Putting the report back into cfg
-    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
-  } else {
-    vp(cfg, "system_report_slide_title()")
-    vp(cfg, "Unable to add slide, see above for details")
-
-  }
-
-
-return(cfg)}
-#/system_report_slide_title  
-# -------------------------------------------------------------------------
-# system_report_ph_content
-#'@export
-#'@title Populate Placeholder In Officer Report
-#'@description Places content in a PowerPoint placeholder for a given Officer document.
-#'
-#'@param cfg ubiquity system object    
-#'@param rpt officer pptx object
-#'@param rptname report name initialized with \code{system_report_init}
-#'@param content_type string indicating the content type 
-#'@param content content
-#'@param type    placeholder type (\code{"body"})
-#'@param index   placeholder index (integer)
-#'@param ph_label  placeholder location (text)
-#'
-#'
-#'@return officer pptx object with the content added
-#'
-#'@details
-#'
-#' For each content type listed below the following content is expected:
-#'
-#' \itemize{
-#'  \item \code{"text"} text string of information
-#'  \item \code{"list"} vector of paired values (indent level and text), eg.  c(1, "Main Bullet", 2 "Sub Bullet")
-#'  \item \code{"imagefile"} string containing path to image file
-#'  \item \code{"ggplot"} ggplot object, eg. p = ggplot() + ....
-#'  \item \code{"table"} list containing the table content and other options with the following elements (defaults in parenthesis):
-#'   \itemize{
-#'      \item \code{table} Data frame containing the tabular data
-#'      \item \code{header} Boolean variable to control displaying the header (\code{TRUE})
-#'      \item \code{first_row} Boolean variable to indicate that the first row contains header information (\code{TRUE})
-#'    }
-#'  \item \code{"flextable"} list containing flextable content and other options with the following elements (defaults in parenthesis):
-#'   \itemize{
-#'      \item \code{table} Data frame containing the tabular data
-#'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
-#'      \item \code{header_format} string containing the format, either \code{"text"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
-#'      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
-#'      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
-#'      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
-#'      \item \code{table_theme} (\code{"theme_vanilla"}) Table theme
-#'    }
-#'  \item \code{"flextable_object"} user defined flextable object 
-#'  }
-#'
-#'@seealso \code{\link{system_report_view_layout}}
-system_report_ph_content = function(cfg, rpt, rptname, content_type, content, type, index, ph_label){
-
-    if(content_type == "text"){
-      rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=content) 
-    }
-    else if(content_type == "list"){
-      mcontent = matrix(data = content, ncol=2, byrow=TRUE)
-      
-      # constructing the elements for unordered_list below
-      level_list  = c()
-      str_list    = c()
-      for(lidx in 1:length(mcontent[,1])){
-        level_list  = c(level_list,  as.numeric(mcontent[lidx, 1]))
-        str_list    = c(str_list, mcontent[lidx, 2])
-      }
-
-      # packing the list pieces into the ul object
-      ul = officer::unordered_list(level_list = level_list, str_list = str_list)
-      # adding it to the report
-      rpt = officer::ph_with(x  = rpt,  
-                             location  = officer::ph_location_label(ph_label=ph_label),
-                             value     = ul) 
-    }
-    else if(content_type == "imagefile"){
-      rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=officer::external_img(src=content)) 
-    }
-    else if(content_type == "ggplot"){
-      rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=content) 
-    }
-    else if(content_type == "table"){
-      if('header' %in% names(content)){
-        header = content$header
-      } else {header = TRUE}
-      if('first_row' %in% names(content)){
-        first_row = content$first_row
-      } else {first_row = TRUE}
-      rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=content$table, header=header, first_row=first_row) 
-    }
-    else if(content_type == "flextable"){
-      # These are the default table options
-      # and they can be over written by specifying 
-      # the same fields of the content list
-      header_top            = NULL
-      header_middle         = NULL
-      header_bottom         = NULL
-      header_format           = NULL
-      merge_header          = TRUE
-      table_body_alignment  ="center"
-      table_header_alignment  ="center"
-      table_autofit         = TRUE
-      table_theme           ="theme_vanilla"
-      cwidth                = 0.75
-      cheight               = 0.25
-
-      ftops = c("header_top",             "header_middle",    "header_bottom", 
-                "header_format", 
-                "merge_header",           "table_theme",      "table_body_alignment",
-                "table_header_alignment", "table_autofit",    "cwidth", 
-                "cheight")
-
-
-      # Defining the user specified flextable options:
-      for(ftop in ftops){
-        if(!is.null(content[[ftop]])){
-          eval(parse(text=sprintf('%s = content[[ftop]]', ftop)))
-        }
-      }
-
-      # Creating the table
-      invisible(system_req("flextable"))
-      ft = flextable::regulartable(content$table,  cwidth = cwidth, cheight=cheight)
-      #-------
-      # Defining the default formatting for tables. We default to NULL and
-      # if it's currently defined in the meta for this report template then
-      # we use that
-
-      # determining the header depth:
-      if(!is.null(names(header_bottom))){
-        num_headers = 3
-      }else if(!is.null(names(header_middle))){
-        num_headers = 2
-      }else if(!is.null(names(header_top))){
-        num_headers = 1
-      } else {
-        num_headers = 0
-      }
-      #-------
-      # Processing user defined headers. These will get stuck in header_list
-      header_list    = list()
-      if(num_headers > 0){
-        for(cname in names(content[["table"]])){
-          # creating an empty header by default
-          header_list[[cname]] = rep("", times=num_headers)
-          if(cname %in% names(header_top)){
-             header_list[[cname]][1] = header_top[[cname]] }
-          if(cname %in% names(header_middle)){
-             header_list[[cname]][2] = header_middle[[cname]] }
-          if(cname %in% names(header_bottom)){
-             header_list[[cname]][3] = header_bottom[[cname]] }
-        }
-        ft = flextable::delete_part(ft, part   = "header")          
-        ft = flextable::add_header(ft,  values = header_list)  
-
-      }
-      #-------
-      # Processing markdown
-      if(!is.null(header_format)){
-        if(header_format == "md"){
-
-          # Pulling out the default format for the Table element
-          default_format_table = system_fetch_report_format(cfg, rptname=rptname, element="Table_Labels")
-
-          for(cname in names(content[["table"]])){
-            # For each column name we run the header text through the markdown
-            # conversion to produce the as_paragraph output:
-            ft = flextable::compose(ft,
-                              j     = cname,                                                    
-                              part  = "header",                                                          
-                              value = md_to_oo(strs= header_list[[cname]], default_format=default_format_table)$oo)
-          }
-        }
-      }
-      #-------
-      
-
-     # Setting the theme
-     if(!is.null(table_theme)){
-       eval(parse(text=paste("ft = flextable::", table_theme, "(ft)", sep=""))) }
-     
-     # Merging headers
-     if(merge_header){
-       ft = flextable::merge_h(ft, part="header") }
-
-     if(table_autofit){
-       ft = flextable::autofit(ft) }
-
-     # Applying the aligment
-     ft = flextable::align(ft, align=table_header_alignment, part="header")
-     ft = flextable::align(ft, align=table_body_alignment,   part="body"  )
-
-    rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=ft) 
-
-    } 
-    else if(content_type == "flextable_object"){
-      rpt = officer::ph_with(x=rpt,  location=officer::ph_location_label(ph_label=ph_label), value=content) 
-    }
-return(rpt)}
-# /system_report_ph_content
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
-# system_report_doc_add_content
-#'@export
-#'@title Add content to Body of a Word Document Report
-#'@description Appends content to the body of a word document
-#'@param cfg ubiquity system object    
-#'@param rptname        report name initialized with \code{system_report_init}
-#'@param content_type   name of the placeholder
-#'@param content        list containing content to add 
-#'
-#' For each content type listed below the different content is expected. Text
-#' can be specified in different formats: \code{"text"} indicates plain text,
-#' \code{"fpar"} is formatted text defined by the \code{fpar} command from the
-#' \code{officer} package, and \code{"md"} is text formatted in markdown
-#' format (\code{?md_to_officer} for markdown details).
-#'
-#' \itemize{
-#'  \item \code{"break"} page break, content is (\code{NULL}) and a page break will be inserted here
-#'  \item \code{"toc"} generates the table of contents, and content is a list 
-#'   \itemize{
-#'      \item \code{"level"} number indicating the depth of the contents to display (\code{3})
-#'    }
-#'  \item \code{"text"} content is a list containing a paragraph of text with the following elements
-#'   \itemize{
-#'      \item \code{"text"} string containing the text content either a string or the output of \code{"fpar"} for formatted text.
-#'      \item \code{"style"} string containing the style either \code{"normal"}, \code{"code"}, \code{"h1"}, \code{"h2"}, \code{"h3"}
-#'      \item \code{"format"} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
-#'    }
-#'  \item \code{"imagefile"} content is a list containing information describing an image file with the following elements
-#'   \itemize{
-#'      \item \code{image} string containing path to image file
-#'      \item \code{caption} caption of the image (\code{NULL})  
-#'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
-#'      \item \code{key} unique key for cross referencing e.g. "FIG_DATA" (\code{NULL})  
-#'      \item \code{height} height of the image (\code{NULL})
-#'      \item \code{width} width of the image (\code{NULL})
-#'    }
-#'  \item \code{"ggplot"} content is a list containing an image from a ggplot object, (eg. p = ggplot() + ....) with the following elements
-#'   \itemize{
-#'      \item \code{image} ggplot object
-#'      \item \code{caption} caption of the image (\code{NULL})  
-#'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
-#'      \item \code{key} unique key for cross referencing e.g. "FIG_DATA" (\code{NULL})  
-#'      \item \code{height} height of the image (\code{NULL})
-#'      \item \code{width} width of the image (\code{NULL})
-#'    }
-#'  \item \code{"table"} content is a list containing the table content and other options with the following elements:
-#'   \itemize{
-#'      \item \code{table} data frame containing the tabular data
-#'      \item \code{caption} caption of the table (\code{NULL})  
-#'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
-#'      \item \code{key} unique key for cross referencing e.g. "TAB_DATA" (\code{NULL})  
-#'      \item \code{header} Boolean variable to control displaying the header (\code{TRUE})
-#'      \item \code{first_row} Boolean variable to indicate that the first row contains header information (\code{TRUE})
-#'    }
-#'  \item \code{"flextable"} content is a list containing flextable content and other options with the following elements (defaults in parenthesis):
-#'   \itemize{
-#'      \item \code{table} data frame containing the tabular data
-#'      \item \code{caption} caption of the table (\code{NULL})  
-#'      \item \code{caption_format} string containing the format, either \code{"text"}, \code{"fpar"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
-#'      \item \code{key} unique key for cross referencing e.g. "TAB_DATA" (\code{NULL})  
-#'      \item \code{header_top}, \code{header_middle}, \code{header_bottom} (\code{NULL}) a list with the same names as the data frame names containing the tabular data and values with the header text to show in the table
-#'      \item \code{header_format} string containing the format, either \code{"text"}, or \code{"md"} (default \code{NULL} assumes \code{"text"} format)
-#'      \item \code{merge_header} (\code{TRUE}) Set to true to combine column headers with the same information
-#'      \item \code{table_body_alignment}, table_header_alignment ("center") Controls alignment
-#'      \item \code{table_autofit} (\code{TRUE}) Automatically fit content, or specify the cell width and height with \code{cwidth} (\code{0.75}) and \code{cheight} (\code{0.25})
-#'      \item \code{table_theme} (\code{"theme_vanilla"}) Table theme
-#'    }
-#'  \item \code{"flextable_object"} content is a list specifying the a user defined flextable object with the following elements:
-#'   \itemize{
-#'      \item \code{ft} flextable object 
-#'      \item \code{caption} caption of the table (\code{NULL})  
-#'      \item \code{key} unique key for cross referencing e.g. "TAB_DATA" (\code{NULL})  
-#'    }
-#'}
-#'@return cfg ubiquity system object with the content added to the body
-system_report_doc_add_content = function(cfg, rptname="default", content_type=NULL, content=NULL){
-
-  isgood  = TRUE
-  ref_key = NULL
-
- if(content_type == "break"){
-  content = list()
- }
-
-  # Checking things
-  if(cfg[["reporting"]][["enabled"]]){
-    if(rptname %in% names(cfg[["reporting"]][["reports"]])){
-      if( "Word" != cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]]){
-        isgood = FALSE
-        vp(cfg, paste("Error: Trying to add Word content to >", cfg[["reporting"]][["reports"]][[rptname]][["rpttype"]] ,"< report", sep=""))
-      }
-    } else {
-      isgood = FALSE
-      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
-    }
-  } else {
-    isgood = FALSE
-    vp(cfg, "Error: Reporting not enabled")
-  }
-
-  # Making sure both the content and content type were defined
-  if(is.null(content) | is.null(content_type)){
-    isgood = FALSE
-    vp(cfg, "Either the content or the content_type was not specified")
-  } else {
-    # Checking the content type
-    if(!(content_type %in% c("break", "text", "toc", "imagefile", "ggplot", "table", "flextable", "flextable_object"))){
-      vp(cfg, paste("the content type >", content_type, "< is not supported",sep=""))
-      isgood = FALSE
-    } else{
-      # Checking to make sure the text format is correct
-      if(content_type == "text"){
-        ok_styles = c("normal", "code", "h1", "h2", "h3", "toc")
-        if(!(content[["style"]] %in% ok_styles)){
-          vp(cfg, paste("the content$style >", content[["style"]], "< is not correct, it should be one of: ", paste(ok_styles, collapse=", "), sep=""))
-          isgood = FALSE
-        }
-      }
-      # Checking to make sure the image file exists
-      if(content_type == "imagefile"){
-        if(!file.exists(content[["image"]])){
-          vp(cfg, paste("the imagefile >", content[["image"]], "< does not exist", sep=""))
-          isgood = FALSE
-        }
-      }
-      if(content_type == "ggplot"){
-        if(!is.ggplot(content[["image"]])){
-          vp(cfg, paste("the image data found in >content$image< is not a ggplot object",sep=""))
-          isgood = FALSE
-        }
-      }
-      if(content_type == "table"){
-        if(!is.data.frame(content[["table"]])){
-          vp(cfg, paste("the tabular information found in >content$table< is not a data.frame object",sep=""))
-          isgood = FALSE
-        }
-      }
-      if(content_type == "flextable_object"){
-        # Making sure the caption defaults to NULL if it's not defined
-        if(!("caption" %in% names(content))){
-          content[["caption"]] = NULL
-        }
-        if(!("ft" %in% names(content))){
-          vp(cfg, paste("the flextable object >content$ft< was not found",sep=""))
-          isgood = FALSE
-        }
-      }
-    }
-    # Checking reference keys. These only make sense if there is a caption
-    # otherwise there is no number to reference:
-    if("key" %in% names(content) & !is.null(content[["caption"]])){
-      # JMH probably wrap this up in a funciton where you check for key names,
-      # see if the same key has been used already, etc.
-      ref_key = paste("ubr_", content[["key"]], sep="")
-      # Adding reference to the key table
-      cfg[["reporting"]][["reports"]][[rptname]][["key_table"]] = 
-        rbind(
-          cfg[["reporting"]][["reports"]][[rptname]][["key_table"]],
-          data.frame(user_key     = content[["key"]],
-                     internal_key = ref_key,
-                     seq_text     = paste0(' REF ',  ref_key, ' \\h '),
-                     ref_text     = paste0("<REF:", content[["key"]], ">")))
-    }
-  }
-
-  # If all the checks have passed we add the content
-  if(isgood){
-    # Pulling out the meta data for the report template
-    meta = cfg[["reporting"]][["reports"]][[rptname]][["meta"]]
-    # Pulling out the report to make it easier to deal with
-    tmprpt  = cfg[["reporting"]][["reports"]][[rptname]][["report"]]
-
-
-    #-------
-    # Determining the current depth
-    if(is.null(cfg[["reporting"]][["reports"]][[rptname]][["depth"]])){
-      depth = 1 
-    } else {
-      depth = cfg[["reporting"]][["reports"]][[rptname]][["depth"]]
-    }
-    #-------
-
-    Caption_Location = "none"
-    Caption_Format  = "text"
-    if("caption_format" %in% names(content)){
-      Caption_Format = content[["caption_format"]]
-    }
-
-    #------
-    # Figure options 
-    if(content_type == "ggplot" | content_type == "imagefile"){
-      Figure_Width =  meta[["styles"]][["Figure_Width"]]
-      if("width" %in% names(content)){
-        Figure_Width = content[["width"]]
-      }
-      
-      Figure_Height =  meta[["styles"]][["Figure_Height"]]
-      if("height" %in% names(content)){
-        Figure_Height = content[["height"]]
-      }
-      Caption_Location = meta[["styles"]][["Figure_Caption_Location"]]
-      Caption_Style    = meta[["styles"]][["Figure_Caption"]]
-      Caption_Ref_str    = paste('tmprpt = officer::slip_in_seqfield(tmprpt, str = "SEQ Figure \\\\@ arabic", style = "Default Paragraph Font", pos = "before")', sep="")
-      Caption_Label_Pre  = meta[["captions"]][["figure"]][["pre_number"]] 
-      Caption_Label_Post = meta[["captions"]][["figure"]][["post_number"]]
-    }
-    
-    #-------
-    # Table options
-    if(content_type == "table" | content_type == "flextable" | content_type=="flextable_object"){
-      Caption_Location = meta[["styles"]][["Table_Caption_Location"]]
-      Caption_Style    = meta[["styles"]][["Table_Caption"]]
-      Caption_Ref_str    = paste('tmprpt = officer::slip_in_seqfield(tmprpt, str = "SEQ Table \\\\@ arabic", style = "Default Paragraph Font", pos = "before")', sep="")
-      Caption_Label_Pre  = meta[["captions"]][["table"]][["pre_number"]]  
-      Caption_Label_Post = meta[["captions"]][["table"]][["post_number"]] 
-    }
-    if(content_type == "table"){
-      header    = TRUE
-      if('header' %in% names(content)){
-        header = content[["header"]]
-      } 
-      first_row = TRUE
-      if('first_row' %in% names(content)){
-        first_row = content[["first_row"]]
-      } 
-    }
-    #-------
-    if(content_type == "flextable"){
-      # These are the default table options
-      # and they can be over written by specifying 
-      # the same fields of the content list
-      header_top              = NULL
-      header_middle           = NULL
-      header_bottom           = NULL
-      header_format           = NULL
-      merge_header            = TRUE
-      table_body_alignment    ="center"
-      table_header_alignment  ="center"
-      table_autofit           = TRUE
-      table_theme             ="theme_vanilla"
-      cwidth                  = 0.75
-      cheight                 = 0.25
-
-      ftops = c("header_top",             "header_middle",    "header_bottom", 
-                "header_format",  
-                "merge_header",           "table_theme",      "table_body_alignment",
-                "table_header_alignment", "table_autofit",    "cwidth", 
-                "cheight")
-
-
-      # Defining the user specified flextable options:
-      for(ftop in ftops){
-        if(!is.null(content[[ftop]])){
-          eval(parse(text=sprintf('%s = content[[ftop]]', ftop)))
-        }
-      }
-
-      # Creating the table
-      invisible(system_req("flextable"))
-      ft = flextable::regulartable(content[["table"]],  cwidth = cwidth, cheight=cheight)
-      
-      #-------
-      # Defining the default formatting for tables. We default to NULL and
-      # if it's currently defined in the meta for this report template then
-      # we use that
-
-      # determining the header depth:
-      if(!is.null(names(header_bottom))){
-        num_headers = 3
-      }else if(!is.null(names(header_middle))){
-        num_headers = 2
-      }else if(!is.null(names(header_top))){
-        num_headers = 1
-      } else {
-        num_headers = 0
-      }
-      #-------
-      # Processing user defined headers. These will get stuck in header_list
-      header_list    = list()
-      if(num_headers > 0){
-        for(cname in names(content[["table"]])){
-          # creating an empty header by default
-          header_list[[cname]] = rep("", times=num_headers)
-          if(cname %in% names(header_top)){
-             header_list[[cname]][1] = header_top[[cname]] }
-          if(cname %in% names(header_middle)){
-             header_list[[cname]][2] = header_middle[[cname]] }
-          if(cname %in% names(header_bottom)){
-             header_list[[cname]][3] = header_bottom[[cname]] }
-        }
-        ft = flextable::delete_part(ft, part   = "header") 
-        ft = flextable::add_header(ft,  values = header_list)  
-
-      }
-      #-------
-      # Processing markdown
-      if(!is.null(header_format)){
-        if(header_format == "md"){
-
-          # Pulling out the default format for the Table element
-          default_format_table = system_fetch_report_format(cfg, rptname=rptname, element="Table_Labels")$default_format
-
-          for(cname in names(content[["table"]])){
-            # For each column name we run the header text through the markdown
-            # conversion to produce the as_paragraph output:
-            ft = flextable::compose(ft,
-                              j     = cname,                                                    
-                              part  = "header",                                                          
-                              value = md_to_oo(strs= header_list[[cname]], default_format=default_format_table)$oo)
-          }
-        }
-      }
-      #-------
-      
-
-      # Setting the theme
-      if(!is.null(table_theme)){
-        eval(parse(text=paste("ft = flextable::", table_theme, "(ft)", sep=""))) }
-      
-      # Merging headers
-      if(merge_header){
-        ft = flextable::merge_h(ft, part="header") }
-      
-      if(table_autofit){
-        ft = flextable::autofit(ft) }
-      
-      # Applying the aligment
-      ft = flextable::align(ft, align=table_header_alignment, part="header")
-      ft = flextable::align(ft, align=table_body_alignment,   part="body"  )
-      
-    }
-    #-------
-    if(content_type == "flextable_object"){
-      ft = content[["ft"]]
-    }
-
-    #------
-    # Adding caption to the top of the object
-    if(!is.null(content[["caption"]]) & Caption_Location == "top"){
-      if(Caption_Format == "text"){
-        tmprpt = officer::body_add_par(tmprpt, content[["caption"]], style=Caption_Style)
-      } else if(Caption_Format == "fpar"){
-        tmprpt = officer::body_add_fpar(tmprpt, value=content[["text"]], style=Caption_Style)
-      } else if(Caption_Format == "md"){
-        mdout = md_to_officer(content[["text"]])
-        for(pgraph in mdout){
-          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph[["fpar_cmd"]])), style=Caption_Style)
-        }
-      }
-
-      # Appending the Figure X and Table X
-      tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Post, style = "Default Paragraph Font", pos = "before") 
-      eval(parse(text=Caption_Ref_str))
-      # If a key has been defined we add that here
-      if(!is.null(ref_key)){
-         officer::body_bookmark(tmprpt, ref_key) }
-      tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Pre, style = "Default Paragraph Font", pos = "before") 
-    }
-
-    # Adding the image/table
-    if(content_type == "ggplot"){
-      tmprpt = officer::body_add_gg(tmprpt, value=content[["image"]], width = Figure_Width, height = Figure_Height)
-    }
-    if(content_type == "imagefile"){
-      tmprpt = officer::body_add_img(tmprpt, src=content[["image"]], width = Figure_Width, height = Figure_Height)
-    }
-
-    if(content_type == "table"){
-     tmprpt = officer::body_add_table(tmprpt, value=content[["table"]], header=header, first_row=first_row, style=meta[["styles"]][["Table"]])
-    }
-
-    if(content_type == "flextable" | content_type=="flextable_object"){
-      tmprpt = flextable::body_add_flextable(x = tmprpt, value = ft)
-    }
-
-    # Adding caption to the bottom of the object
-    if(!is.null(content[["caption"]]) & Caption_Location == "bottom"){
-      if(Caption_Format == "text"){
-        tmprpt = officer::body_add_par(tmprpt, content[["caption"]], style=Caption_Style)
-      } else if(Caption_Format == "fpar"){
-        tmprpt = officer::body_add_fpar(tmprpt, value=content[["text"]], style=Caption_Style)
-      } else if(Caption_Format == "md"){
-        mdout = md_to_officer(content[["text"]])
-        for(pgraph in mdout){
-          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph[["fpar_cmd"]])), style=Caption_Style)
-        }
-      }
-
-      # Appending the Figure X and Table X
-      tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Post, style = "Default Paragraph Font", pos = "before") 
-      eval(parse(text=Caption_Ref_str))
-      # If a key has been defined we add that here
-      if(!is.null(ref_key)){
-         officer::body_bookmark(tmprpt, ref_key) }
-      tmprpt = officer::slip_in_text(tmprpt, str = Caption_Label_Pre, style = "Default Paragraph Font", pos = "before") 
-
-    }
-    #------
-    if(content_type == "text"){
-      # defaulting to text format
-      Text_Format = "text"
-      # defaulting md_defaults to ubiquity Normal
-      md_defaults = cfg[["reporting"]][["meta_docx"]][["md_def"]][["Normal"]] 
-
-      if("format" %in% names(content)){
-        Text_Format = content[["format"]]
-      }
-
-      if(content[["style"]] == "normal"){
-        text_style = meta[["styles"]][["Normal"]]
-        # Setting the markdown default properties
-        if("Normal" %in% names(meta[["md_def"]])){
-          md_defaults = meta[["md_def"]][["Normal"]]
-        } else {
-          md_defaults = cfg[["reporting"]][["meta_docx"]][["md_def"]][["Normal"]] 
-        }
-      }
-      if(content[["style"]] == "code"){
-        text_style = meta[["styles"]][["Code"]]
-        # Setting the markdown default properties
-        if("Code" %in% names(meta[["md_def"]])){
-          md_defaults = meta[["md_def"]][["Code"]]
-        } else {
-          md_defaults = cfg[["reporting"]][["meta_docx"]][["md_def"]][["Code"]] 
-        }
-      }
-      if(content[["style"]] == "h1"){
-        text_style = meta[["styles"]][["Heading_1"]]
-        # Setting the markdown default properties
-        if("Heading_1" %in% names(meta[["md_def"]])){
-          md_defaults = meta[["md_def"]][["Heading_1"]]
-        } else {
-          md_defaults = cfg[["reporting"]][["meta_docx"]][["md_def"]][["Heading_1"]] 
-        }
-        depth = 1
-      }
-      if(content[["style"]] == "h2"){
-        text_style = meta[["styles"]][["Heading_2"]]
-        # Setting the markdown default properties
-        if("Heading_2" %in% names(meta[["md_def"]])){
-          md_defaults = meta[["md_def"]][["Heading_2"]]
-        } else {
-          md_defaults = cfg[["reporting"]][["meta_docx"]][["md_def"]][["Heading_2"]] 
-        }
-        depth = 2
-      }
-      if(content[["style"]] == "h3"){
-        text_style = meta[["styles"]][["Heading_3"]]
-        # Setting the markdown default properties
-        if("Heading_3" %in% names(meta[["md_def"]])){
-          md_defaults = meta[["md_def"]][["Heading_3"]]
-        } else {
-          md_defaults = cfg[["reporting"]][["meta_docx"]][["md_def"]][["Heading_3"]] 
-        }
-        depth = 3
-      }
-
-      if(Text_Format == "text"){
-        tmprpt =  officer::body_add_par(tmprpt, value=content[["text"]], style=text_style)
-      } else if(Text_Format == "fpar"){
-        tmprpt = officer::body_add_fpar(tmprpt, value=content[["text"]], style=text_style)
-      } else if(Text_Format == "md"){
-        mdout = md_to_officer(str=content[["text"]], default_format = md_defaults)
-        for(pgraph in mdout){
-          tmprpt = officer::body_add_fpar(tmprpt, value=eval(parse(text=pgraph[["fpar_cmd"]])), style=text_style)
-        }
-      }
-    }
-
-    if(content_type == "toc"){
-      if("level" %in% content){
-        level = content[["level"]]
-      } else {
-        level = 3
-      }
-      tmprpt = officer::body_add_toc(tmprpt, style=meta[["styles"]][["TOC"]], level=level)
-    }
-
-    if(content_type == "break"){
-      tmprpt = officer::body_add_break(tmprpt)
-    }
-
-    # Putting the report back into cfg
-    cfg[["reporting"]][["reports"]][[rptname]][["report"]] = tmprpt
-    
-    # saving the depth
-    cfg[["reporting"]][["reports"]][[rptname]][["depth"]] = depth
-  
-  }
-  
-
-  if(!isgood){
-    vp(cfg, "system_report_doc_add_content() ")
-    vp(cfg, "Unable to add content to document, see above for details")
-  }
-  
-cfg}
-# /system_report_doc_add_content
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
-# system_report_doc_format_section
-#'@export
-#'@title Formats the Current Document Section  
-#'@description Sets the section format for the content added since the last section content type was defined.  This is a wrapper for the body_end_section* functions in officer.
-#'@param cfg ubiquity system object    
-#'@param rptname        report name initialized with \code{system_report_init}
-#'@param section_type   type of section to apply, either \code{"columns"},  \code{"continuous"}, \code{"landscape"}, \code{"portrait"}, \code{"columns"},  or  \code{"columns_landscape"}
-#'@param w              width  in inches of the section of the page (\code{NULL})
-#'@param h              height in inches of the section of the page (\code{NULL})
-#'@param widths         column widths in inches, number of columns set by number of values (\code{NULL})   
-#'@param space          space in inches between columns (\code{NULL})    
-#'@param sep            Boolean value controlling line separating columns (\code{FALSE})
-#'@return cfg ubiquity system object with the section added to the body
-system_report_doc_format_section = function(cfg, rptname="default", 
-  section_type = NULL,  w      = NULL, h     = NULL,
-  sep          = FALSE, widths = NULL, space = NULL){
-  isgood = TRUE
-
-  allowed_sections = c("columns",  "continuous", "landscape", 
-                       "portrait", "columns",    "columns_landscape")
-
-  allowed_args = list(
-     continuous           = c(),
-     landscape            = c("w",      "h"),
-     portrait             = c("w",      "h"),
-     columns              = c("widths", "space", "sep"),
-     columns_landscape    = c("widths", "space", "sep", "w", "h")
-  )
-
-  if(cfg[["reporting"]][["enabled"]]){
-    if(rptname %in% names(cfg$reporting$reports)){
-      if( "Word" != cfg$reporting$reports[[rptname]]$rpttype){
-        isgood = FALSE
-        vp(cfg, paste("Error: Trying to add Word content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
-      }
-    } else {
-      isgood = FALSE
-      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
-    }
-  } else {
-    isgood = FALSE
-    vp(cfg, "Error: Reporting not enabled")
-  }
-
-  if(is.null(section_type)){
-    isgood = FALSE
-    vp(cfg, paste('Error; you myst specify a section_type of either: "',  paste(allowed_sections, collapse = '", "'), '"', sep=""))
-  }
-
-
-
-  if(isgood){
-    # Pulling out the meta data for the report template
-    meta = cfg$reporting$reports[[rptname]]$meta 
-    # Pulling out the report to make it easier to deal with
-    tmprpt  = cfg$reporting$reports[[rptname]]$report
-
-    # Creating function arguments
-    fcnargs = c("x=tmprpt")
-
-    if("sep" %in% allowed_args[[section_type]]){
-      if(!is.null(sep)){
-         fcnargs = c(fcnargs, paste("sep=",sep, sep="")) }
-    }
-    if("w" %in% allowed_args[[section_type]]){
-     if(!is.null(w)){
-        fcnargs = c(fcnargs, paste("w=",w, sep="")) }
-    }
-    if("h" %in% allowed_args[[section_type]]){
-      if(!is.null(h)){
-         fcnargs = c(fcnargs, paste("h=",h, sep="")) }
-    }
-    if("widths" %in% allowed_args[[section_type]]){
-      if(!is.null(widths)){
-         fcnargs = c(fcnargs, paste("widths=c(",toString(widths), ")", sep="")) }
-    }
-
-    fcn = paste("officer::body_end_section_", section_type, sep="")
-
-    fcncall = paste("tmprpt = ", fcn, "(", paste(fcnargs, collapse = ", "), ")", sep="")
-
-    eval(parse(text=fcncall))
-
-    # Putting the report back into cfg
-    cfg$reporting$reports[[rptname]]$report = tmprpt
-  }
-cfg}
-# /system_report_doc_format
-# -------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------
-# md_to_oo    
-#'@export
-#'@title Parse Markdown into Officer as_paragraph Result
-#'@description Used to take small markdown chunks and return the as_paragraph
-#' results. This function will take the markdown specified in str, calls
-#' md_to_officer, evals the as_paragraph field from the first paragraph
-#' returned, evals that result and returns the object from the as_paragraph
-#' command.
-#'@param strs    vector of strings containing Markdown can contain the following elements:
-#'@param default_format  list containing the default format for elements not defined with markdown default values (format the same as \code{\link{md_to_officer}}, default is \code{NULL})
-#'@return list with the following elements
-#' \itemize{
-#'  \item \code{isgood}     Boolean value indicating the result of the function call
-#'  \item \code{msgs}       sequence of strings contianing a description of any problems 
-#'  \item \code{as_par_cmd} as_paragraph generated code from md_to_officer
-#'  \item \code{oo}         as_paragraph officer object resulting from running the as_par_cmd code
-#'}
-md_to_oo     = function(strs,default_format=NULL){
-
-  isgood     = TRUE
-  as_par_cmd = NULL
-  oo         = NULL
-  msgs       = c()
-
-
-  str = strs
-  for(str in strs){
-    # IFf str is empty we need something to hold it's place this way the
-    # length and order of oo will match strs
-    if(str == ""){
-      str = " " 
-    }
-
-
-    if(is.null(default_format)){
-      mdres = md_to_officer(str)
-    } else {
-      mdres = md_to_officer(str, default_format)
-    }
-    
-    
-    
-    
-    # Checking to make sure we got what we needed from the md_to_officer command
-    # above
-    isgood_mdres = FALSE
-    tmpoo = NULL
-    if("pgraph_1" %in% names(mdres)){
-      if("as_paragraph_cmd" %in% names(mdres[["pgraph_1"]])){
-        isgood_mdres = TRUE
-        as_par_cmd =  paste("tmpoo =", mdres[["pgraph_1"]][["as_paragraph_cmd"]])
-        eval(parse(text=as_par_cmd))
-      }
-    }
-    
-    # If either of the fields above are missing then something failed
-    if(!isgood_mdres){
-      isgood = FALSE
-      msgs = c(msgs, "md_to_officer call failed")
-    }
-    
-    if(!isgood){
-       msgs = c(msgs, "md_to_oo()", "Unable to evaluate markdown, see above for details")
-    }
-     
-    # Appending the temp officer object to the vector of officer objects
-    oo = c(oo, tmpoo)
-  }
-
-
-  res = list(isgood     = isgood,
-             msgs       = msgs,
-             as_par_cmd = as_par_cmd, 
-             oo         = oo)
-
-
-res}
-# md_to_oo     
-# -------------------------------------------------------------------------
-
-
-
-
-# md_to_officer
-#'@export
-#'@title Parse Markdown for Officer
-#'@description Parses text in Markdown format and returns fpar and as_paragraph command strings to be used with Officer
-#'@param str     string containing Markdown can contain the following elements:
-#' \itemize{
-#'  \item paragraph:   two or more new lines creates a paragraph
-#'  \item bold:        can be either \code{"*text in bold*"} or \code{"_text in bold_"}
-#'  \item italics:     can be either \code{"**text in italics**"} or \code{"__text in italics__"}
-#'  \item subscript:   \code{"Normal~subscript~"} 
-#'  \item superscript: \code{"Normal^superscript^"} 
-#'  \item color:       \code{"<color:red>red text</color>"} 
-#'  \item shade:       \code{"<shade:#33ff33>shading</shade>"} 
-#'  \item font family: \code{"<ff:symbol>symbol</ff>"} 
-#'}
-#'@param default_format  list containing the default format for elements not defined with markdown default values. 
-#' \preformatted{
-#'    default_format = list( 
-#'       color          = "black",
-#'       font.size      = 12,
-#'       bold           = FALSE,
-#'       italic         = FALSE,
-#'       underlined     = FALSE,
-#'       font.family    = "Cambria (Body)",
-#'       vertical.align = "baseline",
-#'       shading.color  = "transparent")
-#' }
-#'@return list with parsed paragraph elements ubiquity system object with the
-#' content added to the body, each paragraph can be found in a numbered list
-#' element (e.g. \code{pgraph_1}, \code{pgraph_2}, etc) each with the following
-#' elements:
-#' \itemize{
-#'  \item \code{locs} Dataframe showing the locations of markdown elements in the current paragraph
-#'  \item \code{pele} These are the individual parsed paragraph elements
-#'  \item \code{fpar_cmd} String containing the fpar_cmd that can be run using
-#'  \code{eval} to return the output of \code{fpar}. For example: 
-#' \preformatted{
-#'   myfpar = eval(parse(text=pgparse$pgraph_1$fpar_cmd))
-#'  }
-#'  \item \code{as_paragraph_cmd} String containing the as_paragraph_cmd that can be run using
-#' \preformatted{
-#'   myas_para = eval(parse(text=pgparse$pgraph_1$as_paragraph_cmd))
-#'  }
-#'}
-md_to_officer = function(str,
-     default_format = list( 
-        color          = "black",
-        font.size      = 12,
-        bold           = FALSE,
-        italic         = FALSE,
-        underlined     = FALSE,
-        font.family    = "Cambria (Body)",
-        vertical.align = "baseline",
-        shading.color  = "transparent")){
-
-
-
-# First we find paragraphs:
-pgraphs = unlist(base::strsplit(str, split="(\r\n|\r|\n){2,}"))
-
-
-md_info = data.frame(
-  md_name = c( "subscript",         "superscript",     "bold_us",  "bold_st",     "italic",            "color",                     "shading_color",                     "font_family"             ),
-  pattern = c( "~.+?~",             "\\^.+?\\^",       "_.+?_",    "\\*.+?\\*",   "\\%\\%.+?\\%\\%",   "<color:\\S+?>.+?</color>",  "<shade:\\S+?>.+?</shade>",          "<ff:\\S+?>.+?</ff>"      ), 
-  start   = c( "~",                 "\\^",             "_",        "\\*",         "\\%\\%",            "<color:\\S+?>",             "<shade:\\S+?>",                     "<ff:\\S+?>"              ),
-  end     = c( "~",                 "\\^",             "_",        "\\*",         "\\%\\%",            "</color>",                  "</shade>",                          "</ff>"                   ),
-  prop    = c( "vertical.align",    "vertical.align",  "bold",     "bold",        "italic",            "color",                     "shading_color",                     "font.family"             ))
-
-
-pos_start = c()
-pos_stop  = c()
-
-# This is for chunks of text with no formatting. 
-no_props_str = paste('officer::fp_text(bold = ', default_format[["bold"]],',',
-                         'font.size = ',         default_format[["font.size"]], ',', 
-                         'italic = ',            default_format[["italic"]], ',', 
-                         'underlined = ',        default_format[["underlined"]], ',', 
-                         'color = "',            default_format[["color"]], '",', 
-                         'shading.color = "',    default_format[["shading.color"]], '",', 
-                         'vertical.align = "',   default_format[["vertical.align"]], '",', 
-                         'font.family = "',      default_format[["font.family"]],'")', sep = "")
-
-no_props     = officer::fp_text(
-        color          = default_format[["color"]], 
-        font.size      = default_format[["font.size"]], 
-        bold           = default_format[["bold"]], 
-        italic         = default_format[["italic"]], 
-        underlined     = default_format[["underlined"]], 
-        font.family    = default_format[["font.family"]], 
-        vertical.align = default_format[["vertical.align"]],
-        shading.color  = default_format[["shading.color"]]) 
-
-
-# Saving the parsed paragraphs
-pgraphs_parse = list()
-
-  # Now we walk through each paragraph
-  pgraph_idx = 1
-  for(pgraph_raw in pgraphs){
-
-    # Removing all of the carriage returns in the paragraph:
-    pgraph = gsub(pattern="(\r\n|\r|\n)", replacement=" ", pgraph_raw)
-  
-    # Storing the locations of the markdown in the string
-    locs      = NULL
-
-    # Visual id of md elements to debug finding stuff 
-    md_visual = c()
-
-    # Converting the ** to %% to make it easier to distinguish between bold and
-    # italics
-    pgraph = gsub(pgraph, pattern="\\*\\*", replacement="%%")
-    pgraph = gsub(pgraph, pattern="__", replacement="%%")
-
-    # Finding the locations of the markdown elements
-    for(md_idx  in 1:nrow(md_info)){
-      pattern = as.character(md_info[md_idx, ]$pattern)
-      md_name = as.character(md_info[md_idx, ]$md_name)
-      tmplocs = stringr::str_locate_all(pgraph, pattern)[[1]]
-      if(nrow(tmplocs) > 0){
-        tmplocs = as.data.frame(tmplocs)
-        tmplocs$md_name = md_name
-        locs = rbind(locs, tmplocs)
-      }
-    }
-
-    
-    # if locs is NULL then no markdown elements were found in the current 
-    # current paragraph so we just raap that up
-    if(is.null(locs)){
-      pele     = list()
-      pele$p_1 = list(text      = pgraph,
-                      props     = c(no_props_str),
-                      props_cmd = paste("prop=", no_props_str, sep=""))
-    } else {
-      # If locs isn't NULL we start working trough the markdown elements:
-
-      # We begin by grouping nested markdown elements
-      locs =locs[order(locs$start), ]
-      locs$group = 1
-      if(nrow(locs) > 1){
-        for(loc_idx in 2:nrow(locs)){
-          # If the current md element starts before the last one stops
-          # they are grouped together, otherwise they become part of a new group
-          if(locs[loc_idx,]$start < locs[loc_idx-1,]$end){
-            locs[loc_idx,]$group = locs[loc_idx-1,]$group
-          } else {
-            locs[loc_idx,]$group = locs[loc_idx-1,]$group + 1
-          }
-        }
-      }
-      
-      # Pulling out the separate paragraph elements
-      pele     = list()
-      pele_idx = 1
-      # Processing each group
-      for(group in unique(locs$group)){
-        # pulling out the markdown elements for that group
-        gr_md   = locs[locs$group == group, ]
-      
-        #----------
-        # if we're dealing with the first group and it starts after the first
-        # character then we add that first chunk of text
-        if(group == 1 & gr_md[1, ]$start > 1){
-          #pele_tmp = list(text = pgraph)
-          pele[[paste('p_', pele_idx, sep="")]] = 
-               list(text      = substr(pgraph, start=1, stop=(gr_md$start-1)),
-                    props     = c(no_props_str),
-                    props_cmd = paste("prop=", no_props_str, sep=""))
-          pele_idx = pele_idx + 1
-        }
-        #----------
-        # If we're dealing with a group after the first we need to pull out any
-        # text between groups
-        if(group > 1){
-          # Previous group:
-          gr_md_prev   = locs[locs$group == group-1, ]
-      
-          # If there is more than 1 character difference between the last md
-          # element from the previous group and the first of the current group
-          # then we need to add that text
-          if(gr_md[1, ]$start-gr_md_prev[1, ]$end > 1){
-            pele[[paste('p_', pele_idx, sep="")]] = 
-                       list(text      = substr(pgraph, 
-                                               start =(gr_md_prev[1, ]$end + 1),
-                                               stop  =(gr_md[1, ]$start - 1)),
-                            props     = c(no_props_str),
-                            props_cmd = paste("prop=", no_props_str, sep=""))
-            pele_idx = pele_idx + 1
-          }
-        }
-        #----------
-        # Processing the markdown for a group
-        # First we pull out the text from the inner most markdown element
-        md_text = substr(pgraph, 
-                         start =gr_md[nrow(gr_md), ]$start,
-                         stop  =gr_md[nrow(gr_md), ]$end)
-
-        # now we strip off the beginning and ending of the markdown 
-        md_name  = gr_md[nrow(gr_md), ]$md_name
-      
-        # patterns to strip off the beginning and end
-        md_start = paste("^", as.character(md_info[md_info$md_name == md_name, ]$start), sep="")
-        md_end   = paste(as.character(md_info[md_info$md_name == md_name, ]$end), "$", sep="")
-      
-        # Stripping those patterns off
-        md_text = sub(md_text, pattern=md_start, replacement="")
-        md_text = sub(md_text, pattern=md_end, replacement="")
-
-        if(group == 4){
-        }
-      
-        # Now we save the text:
-        pele[[paste('p_', pele_idx, sep="")]] = 
-                   list(text      = md_text,
-                        props     = no_props,
-                        props_cmd = no_props)
-        
-        # Making a copy of the format, these will be subtracted below as the
-        # user defined formats are found:
-        tmp_def_props = default_format
-      
-        tmp_props = c()
-        # Next we add the properties associated with the markdown
-        for(md_name in (gr_md$md_name)){
-          md_start = as.character(md_info[md_info$md_name == md_name, ]$start)
-          md_end   = as.character(md_info[md_info$md_name == md_name, ]$end)
-          md_prop  = as.character(md_info[md_info$md_name == md_name, ]$prop)
-      
-          # Setting properties based on the type of markdown selected
-          if(md_name == "bold_st" | md_name == "bold_us"){
-            tmp_props = c(tmp_props, "bold = TRUE")
-            # subtracting the default value
-            tmp_def_props[["bold"]] = NULL
-          }
-      
-          if(md_name == "italic"){
-            tmp_props = c(tmp_props, "italic = TRUE")
-            # subtracting the default value
-            tmp_def_props[["italic"]] = NULL
-          }
-      
-          if(md_name == "superscript"){
-            tmp_props = c(tmp_props, 'vertical.align = "superscript"')
-            # subtracting the default value
-            tmp_def_props[["vertical.align"]] = NULL
-          }
-      
-          if(md_name == "subscript"){
-            tmp_props = c(tmp_props, 'vertical.align = "subscript"')
-            # subtracting the default value
-            tmp_def_props[["vertical.align"]] = NULL
-          }
-      
-          if(md_name == "color"){
-            # pulling out the color markdown text. It uses the first entry so
-            # the outer most. There shouldn't be more than one. 
-            md_text = substr(pgraph, 
-                             start = gr_md[gr_md$md_name == "color", ]$start[1],
-                             stop  = gr_md[gr_md$md_name == "color", ]$end[1])
-
-            #extracting the color
-            color = stringr::str_extract(md_text, md_start)
-            color= gsub(color, pattern="<color:", replacement="") 
-            color= gsub(color, pattern=">", replacement="") 
-
-            tmp_props = c(tmp_props, paste('color = "', color, '"', sep=""))
-            # subtracting the default value
-            tmp_def_props[["color"]] = NULL
-          }
-          if(md_name == "shading_color"){
-            # pulling out the color markdown text. It uses the first entry so
-            # the outer most. There shouldn't be more than one. 
-            md_text = substr(pgraph, 
-                             start = gr_md[gr_md$md_name == "shading_color", ]$start[1],
-                             stop  = gr_md[gr_md$md_name == "shading_color", ]$end[1])
-
-            #extracting the color
-            color = stringr::str_extract(md_text, md_start)
-            color= gsub(color, pattern="<shade:", replacement="") 
-            color= gsub(color, pattern=">", replacement="") 
-
-            tmp_props = c(tmp_props, paste('shading.color = "', color, '"', sep=""))
-            # subtracting the default value
-            tmp_def_props[["shading.color"]] = NULL
-          }
-
-          if(md_name == "font_family"){
-            md_text = substr(pgraph, 
-                             start = gr_md[gr_md$md_name == "font_family", ]$start[1],
-                             stop  = gr_md[gr_md$md_name == "font_family", ]$end[1])
-
-            #extracting the font family
-            ff = stringr::str_extract(md_text, md_start)
-            ff = gsub(ff, pattern="<ff:", replacement="") 
-            ff = gsub(ff, pattern=">", replacement="") 
-            tmp_props = c(tmp_props, paste('font.family = "', ff, '"', sep=""))
-            # subtracting the default value
-            tmp_def_props[["font.family"]] = NULL
-          }
-        }
-
-        # Now we add in the default properties that are left over
-        if("color"            %in% names(tmp_def_props)){ tmp_props = c(tmp_props, paste( 'color = "',          tmp_def_props[["color"]],         '"',  sep=""))}
-        if("font.size"        %in% names(tmp_def_props)){ tmp_props = c(tmp_props, paste( 'font.size = ',       tmp_def_props[["font.size"]],           sep=""))}
-        if("bold"             %in% names(tmp_def_props)){ tmp_props = c(tmp_props, paste( 'bold = ',            tmp_def_props[["bold"]],                sep=""))}
-        if("italic"           %in% names(tmp_def_props)){ tmp_props = c(tmp_props, paste( 'italic = ',          tmp_def_props[["talic"]],               sep=""))}
-        if("underlined"       %in% names(tmp_def_props)){ tmp_props = c(tmp_props, paste( 'underlined = ',      tmp_def_props[["underlined"]],          sep=""))}
-        if("font.family"      %in% names(tmp_def_props)){ tmp_props = c(tmp_props, paste( 'font.family = "',    tmp_def_props[["font.family"]],   '"',  sep=""))}
-        if("vertical.align"   %in% names(tmp_def_props)){ tmp_props = c(tmp_props, paste( 'vertical.align = "', tmp_def_props[["vertical.align"]], '"', sep=""))}
-        if("shading.color"    %in% names(tmp_def_props)){ tmp_props = c(tmp_props, paste( 'shading.color = "',  tmp_def_props[["shading.color"]], '"',  sep=""))}
-      
-        pele[[paste('p_', pele_idx, sep="")]]$props     = tmp_props
-        pele[[paste('p_', pele_idx, sep="")]]$props_cmd = paste("prop=officer::fp_text(", paste(tmp_props, collapse=", "), ")", sep="")
-      
-        pele_idx = pele_idx + 1
-      
-        #----------
-        # If we're at the last group and it doesn't go to the end we add the
-        # last part as well
-        if(group == max(unique(locs$group))){
-          # First we get the last piece of text:
-          text_end = substr(pgraph, start=(gr_md[1, ]$end+1), stop=nchar(pgraph))
-          # If that string isn't empty we add a paragraph element for it
-          if(text_end != ""){
-            pele[[paste('p_', pele_idx, sep="")]] = 
-                       list(text      = text_end,
-                            props     = c(no_props_str),
-                            props_cmd = paste("prop=", no_props_str, sep=""))
-            pele_idx = pele_idx + 1
-          }
-        }
-        #----------
-      }
-      
-      for(loc_idx in 1:nrow(locs)){
-        tmpstr = paste(rep(" ", nchar(pgraph)), collapse="")
-        tmpstr = paste(tmpstr, ":",  locs[loc_idx, ]$md_name, sep="")
-        substr(tmpstr, locs[loc_idx, ]$start, locs[loc_idx, ]$start)  = "|"
-        substr(tmpstr, locs[loc_idx, ]$end  , locs[loc_idx, ]$end  )  = "|"
-        md_visual = c(md_visual, pgraph, tmpstr)
-      }
-    }
-
-
-  fpar_cmd = ""
-  for(tmpele in pele){
-    if(fpar_cmd != ""){
-     fpar_cmd = paste(fpar_cmd, ',\n') }
-    fpar_cmd = paste(fpar_cmd, 'ftext("', tmpele$text, '", ', tmpele$props_cmd, ')', sep="")
-  }
-  fpar_cmd = paste("fpar(", fpar_cmd, ")", sep="")
-
-  as_paragraph_cmd = ""
-  for(tmpele in pele){
-    if(as_paragraph_cmd != ""){
-     as_paragraph_cmd = paste(as_paragraph_cmd, ',\n') }
-    as_paragraph_cmd = paste(as_paragraph_cmd, 'flextable::as_chunk("', tmpele$text, '", ', tmpele$props_cmd, ')', sep="")
-  }
-  as_paragraph_cmd = paste("flextable::as_paragraph(", as_paragraph_cmd, ")", sep="")
-
-
-
-  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$pele              = pele
-  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$locs              = locs
-  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$md_visual         = md_visual
-  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$fpar_cmd          = fpar_cmd
-  pgraphs_parse[[paste("pgraph_", pgraph_idx, sep="")]]$as_paragraph_cmd  = as_paragraph_cmd
-
-  pgraph_idx = pgraph_idx + 1
-  }
-pgraphs_parse}
-# /md_to_officer
-# -------------------------------------------------------------------------
-# system_report_doc_set_ph
-#'@export
-#'@title Sets Placeholder Content for Word Document Report
-#'@description Adds or updates content to be substituted for placeholders in the specified report.  
-#'
-#' For example if you have ===HEADERLEFT=== in the header of your document and you wanted to
-#' replace it with the text "Upper left" you would do the following:
-#'
-#' \code{
-#'   cfg = system_report_doc_set_ph(cfg, 
-#'         ph_content  = "Upper Left" ,
-#'         ph_name     = "HEADERLEFT", 
-#'         ph_location = "header")}
-#'
-#' Notice the \code{ph_name} just has \code{HEADERLEFT} and leaves off the \code{===} at the beginning and end of the string.
-#'
-#'@param cfg ubiquity system object    
-#'@param rptname   report name initialized with \code{system_report_init}
-#'@param ph_name   name of the placeholder
-#'@param ph_content content to be replaced
-#'@param ph_location location of the placeholder: \code{"body"} (default), \code{"header"}, or \code{"footer"}
-#'
-#'@return cfg ubiquity system object with the placeholder content set
-system_report_doc_set_ph = function(cfg, rptname="default", ph_name=NULL, ph_content=NULL, ph_location="body"){
-
-  #Checking user input:
-  isgood = TRUE
-  # allowed locations
-
-  locations = c("body", "header", "footer")
-  if(cfg$reporting$enabled){
-    if(rptname %in% names(cfg$reporting$reports)){
-      if( "Word" != cfg$reporting$reports[[rptname]]$rpttype){
-        isgood = FALSE
-        vp(cfg, paste("Error: Trying to add Word content to >", cfg$reporting$reports[[rptname]]$rpttype,"< report", sep=""))
-      }
-    } else {
-      isgood = FALSE
-      vp(cfg, paste("Error: The report name >", rptname,"< not found", sep=""))
-    }
-  } else {
-    isgood = FALSE
-    vp(cfg, "Error: Reporting not enabled")
-  }
-
-  if(is.null(ph_name)){
-    isgood = FALSE
-    vp(cfg, "Error: The ph_name must be specified")
-  }
-  if(is.null(ph_content)){
-    isgood = FALSE
-    vp(cfg, "Error: The phtext must be specified")
-  }
-
-  if(!(ph_location %in% locations)){
-    isgood = FALSE
-    vp(cfg, paste("Error: The ph_location must be one of: ", paste(locations, collapse=", "), sep=""))
-  }
-
-  if(isgood){
-     cfg$reporting$reports[[rptname]]$meta$ph_content[[ph_name]]$location = ph_location
-     cfg$reporting$reports[[rptname]]$meta$ph_content[[ph_name]]$content  = ph_content
-  } 
-  
-  if(!isgood){
-    vp(cfg, "system_report_doc_set_ph() ")
-    vp(cfg, "Unable to add slide, see above for details")
-  }
-
-cfg}
-# /system_report_doc_set_ph
-# -------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------
-# system_report_estimation
+# system_rpt_estimation
 #'@export
 #'@title Generate a Report from Parameter Estimation
 #'@description This will take the output generated during a parameter estimation and append those results to a specified report.
 #'
 #'@param cfg ubiquity system object    
-#'@param rptname report name (either PowerPoint or Word) 
+#'@param rptname report name (\code{"default"})
 #'@param analysis_name string containing the name of the estimation analysis and used as a prefix to store the results
 #'
 #'@return ubiquity system object with estimation report appended
 #'
-#'@seealso \code{\link{system_report_init}}, the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
+#'@seealso \code{\link{system_rpt_read_template}}, the reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
 #'and the estimation vignette (\code{vignette("Estimation", package = "ubiquity")})
-system_report_estimation = function (cfg,
+system_rpt_estimation = function (cfg,
                                rptname        = "default",
                                analysis_name  = NULL){
-  # Pulling the output directory from the ubiquity object
-  output_directory = cfg$options$misc$output_directory 
+# Pulling the output directory from the ubiquity object
+output_directory = cfg[["options"]][["misc"]][["output_directory"]]
 
-  isgood = TRUE
-  rpttypes = c("PowerPoint", "Word")
+isgood = TRUE
 
-  if(is.null(analysis_name)){
-   isgood = FALSE
-   vp(" No analysis_name was specified")
-  }
+if(is.null(analysis_name)){
+ isgood = FALSE
+ vp(cfg, " No analysis_name was specified")
+}
 
-  if(rptname %in% names(cfg$reporting$reports)){
-    rpttype = cfg$reporting$reports[[rptname]]$rpttype
-    if(!(rpttype %in% rpttypes)){
-      isgood = FALSE
-      vp(cfg, paste("Estimation reporting does not support this format >", rpttype, "<", sep=""))
-    }
-  } else {
+# pulling out the onbrand object
+obnd = system_fetch_rpt_onbrand_object(cfg=cfg, rptname=rptname)
+
+if(is.null(obnd)){
+  isgood = FALSE
+  vp(cfg, "onbrand::system_fetch_rpt_onbrand_object returned NULL")
+} else{
+  if(obnd[["isgood"]]){
+    # If the onbrand object is good we pull out the report type:
+    rpttype = obnd[["rpttype"]]
+  } else{
+    # If there is something wrong with the onbrand object we set isgood to
+    # false, dump an error and try to attach any messages we can
     isgood = FALSE
-    vp(cfg, sprintf("Error: The report name >%s< not found", rptname))
-    vp(cfg, sprintf("       Estimation report not generated"))
+    vp(cfg, "Bad onbrand object:")
+    if(!is.null(obnd[["msgs"]])){
+      vp(cfg, obnd[["msgs"]])
+    }
+  }
+}
+
+if(isgood){
+  # File names where the estimation results should be stored:
+  fname_estimate = file.path(output_directory, paste(analysis_name, ".RData",          sep=""))
+  fname_grobs    = file.path(output_directory, paste(analysis_name, "_pr.RData",       sep=""))
+  fname_SI_text  = file.path(output_directory, paste(analysis_name, "-sessionInfo.txt", sep=""))
+  vp(cfg, "")
+  vp(cfg, paste("Appending estimation results to report"))
+  vp(cfg, paste("  Report:   ", rptname,            sep=""))
+  vp(cfg, paste("  Type:     ", rpttype,            sep=""))
+  vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
+  #---------------------------
+  pe      = NULL
+  pest    = NULL
+  grobs   = NULL
+  SI_text = NULL
+  if(file.exists(fname_estimate)){
+    vp(cfg, paste("Loading estimation results from file:", fname_estimate))
+    # Loads the variable pe and pest
+    load(fname_estimate)
+  } else {
+    vp(cfg, paste("Unable to load the estimate results from file:", fname_estimate))
+  }
+  if(file.exists(fname_grobs)){
+    vp(cfg, paste("Loading the figures from file:", fname_grobs))
+    # Loads the variablegrobs 
+    load(fname_grobs)
+  } else {
+    vp(cfg, paste("Unable to load the figures from file:", fname_grobs))
+  }
+  if(file.exists(fname_SI_text)){
+    vp(cfg, paste("Loading the session information from file:", fname_SI_text))
+    SI_text = readLines(fname_SI_text)
+  } else {
+    vp(cfg, paste("Unable to load the session information from file:", fname_SI_text))
   }
 
-  if(isgood){
-
-    # File names where the estimation results should be stored:
-    fname_estimate = file.path(output_directory, paste(analysis_name, ".RData",          sep=""))
-    fname_grobs    = file.path(output_directory, paste(analysis_name, "_pr.RData",       sep=""))
-    fname_SI_text  = file.path(output_directory, paste(analysis_name, "-sessionInfo.txt", sep=""))
-    vp(cfg, "")
-    vp(cfg, paste("Appending estimation results to report"))
-    vp(cfg, paste("  Report:   ", rptname,            sep=""))
-    vp(cfg, paste("  Type:     ", rpttype,            sep=""))
-    vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
-    #---------------------------
-    pe      = NULL
-    pest    = NULL
-    grobs   = NULL
-    SI_text = NULL
+  #---------------------------
+  # Parameter estimate table
+  petab = NULL
+  if(!is.null(pe[["report"]][["parameters_est"]])){
+    # pulling out the parameters table
+    petab = as.data.frame(pe[["report"]][["parameters_est"]])
+    # Trimming off the last row and last column
+    petab = petab[1:(nrow(petab)-1),1:(ncol(petab)-1)]
+    # Removing the guess column
+    petab = petab[,c(1,3:ncol(petab))]
+  
+    ptab       = list()
+    ptab$table = petab
+    ptab$header_top = list(pname    = "Parameter", 
+                           estimate = "Estimate",
+                           cvpct    = "CV Percent", 
+                           cilb     = "Lower Bound", 
+                           ciub     = "Upper Bound", 
+                           units    = "Units")
+  }
+  #---------------------------
+  if("PowerPoint" == rpttype){
     if(file.exists(fname_estimate)){
-      vp(cfg, paste("Loading estimation results from file:", fname_estimate))
-      # Loads the variable pe and pest
-      load(fname_estimate)
-    } else {
-      vp(cfg, paste("Unable to load the estimate results from file:", fname_estimate))
+      #
+      # Adding a slide with the parameter estimates:
+      #  this is triggered when confidence intervals were able to be
+      #  calculated 
+      if(!is.null(pe$report$parameters_est)){
+        cfg = system_rpt_add_slide(cfg, 
+          rptname  = rptname,
+          template = "content_text",
+          elements = list(
+             title=
+               list(content = "Parameter Estimates",
+                    type    = "text"),
+             content_body=
+               list(content = ptab,
+                    type    = "flextable")))
+      }
     }
     if(file.exists(fname_grobs)){
-      vp(cfg, paste("Loading the figures from file:", fname_grobs))
-      # Loads the variablegrobs 
-      load(fname_grobs)
-    } else {
-      vp(cfg, paste("Unable to load the figures from file:", fname_grobs))
-    }
-    if(file.exists(fname_SI_text)){
-      vp(cfg, paste("Loading the session information from file:", fname_SI_text))
-      SI_text = readLines(fname_SI_text)
-    } else {
-      vp(cfg, paste("Unable to load the session information from file:", fname_SI_text))
-    }
-
-    #---------------------------
-    # Parameter estimate table
-    petab = NULL
-    if(!is.null(pe$report$parameters_est)){
-      # pulling out the parameters table
-      petab = as.data.frame(pe$report$parameters_est)
-      # Trimming off the last row and last column
-      petab = petab[1:(nrow(petab)-1),1:(ncol(petab)-1)]
-      # Removing the guess column
-      petab = petab[,c(1,3:ncol(petab))]
-    
-      ptab       = list()
-      ptab$table = petab
-      ptab$header_top = list(pname    = "Parameter", 
-                             estimate = "Estimate",
-                             cvpct    = "CV Percent", 
-                             cilb     = "Lower Bound", 
-                             ciub     = "Upper Bound", 
-                             units    = "Units")
-    }
-    #---------------------------
-    if("PowerPoint" == rpttype){
-      if(file.exists(fname_estimate)){
-        #
-        # Adding a slide with the parameter estimates:
-        #  this is triggered when confidence intervals were able to be
-        #  calculated 
-        if(!is.null(pe$report$parameters_est)){
-          cfg = system_report_slide_content(cfg, 
-                title        = "Parameter Estimates",
-                rptname      = rptname,
-                content_type = "flextable",
-                content      = ptab)
-        }
-      }
-      if(file.exists(fname_grobs)){
-        # Looping through each output and creating a slide for the timecourse
-        # and the obs vs pred figures
-        for(output in grobs$outputs){
-          if(is.ggplot(grobs$timecourse[[output]]) & is.ggplot(grobs$obs_pred[[output]])){
-            cfg = system_report_slide_two_col(cfg, 
-                  title              = paste(output),
-                  rptname            = rptname,
-                  left_content_type  = "ggplot",
-                  left_content       = grobs$timecourse[[output]],
-                  right_content_type = "ggplot",
-                  right_content      = grobs$obs_pred[[output]])
-          }
+      # Looping through each output and creating a slide for the timecourse
+      # and the obs vs pred figures
+      for(output in grobs$outputs){
+        if(is.ggplot(grobs$timecourse[[output]]) & is.ggplot(grobs$obs_pred[[output]])){
+          cfg = system_rpt_add_slide(cfg, 
+            rptname  = rptname,
+            template = "two_content_text",
+            elements = list(
+               title=
+                 list(content = paste(output),
+                      type    = "text"),
+               content_left=
+                 list(content = grobs[["timecourse"]][[output]],
+                      type    = "ggplot"),
+               content_right=
+                 list(content = grobs[["obs_pred"]][[output]],
+                      type    = "ggplot")))
         }
       }
     }
+  }
+  #---------------------------
+  if("Word" == rpttype){
     #---------------------------
-    if("Word" == rpttype){
-      #---------------------------
-      # Parameter estiamtes
-      if(file.exists(fname_estimate)){
-        # Adding a table with the parameter estimates:
-        if(!is.null(pe$report$parameters_est)){
-          cfg = system_report_doc_add_content(cfg, 
-            content_type  = "text",
-            content       = list(style   = "normal",
-                                 text    = "Parameter Estimates"))
-          cfg = system_report_doc_add_content(cfg=cfg, 
-            rptname       = rptname,
-            content_type  = "flextable",
-            content       = ptab)
-          cfg = system_report_doc_add_content(cfg=cfg, 
-              rptname       = rptname,  
-              content_type  = "break")
-        }
+    # Parameter estiamtes
+    if(file.exists(fname_estimate)){
+      # Adding a table with the parameter estimates:
+      if(!is.null(pe$report$parameters_est)){
+        cfg = system_rpt_add_doc_content(cfg=cfg,
+          rptname       = rptname,
+          type          = "text",
+          content       = list(style   = "Normal",
+                               text    = "Parameter Estimates"))
+
+        cfg = system_rpt_add_doc_content(cfg=cfg,
+          rptname       = rptname,
+          type          = "flextable",
+          content       = ptab)
+
+        cfg = system_rpt_add_doc_content(cfg=cfg,
+            rptname     = rptname,  
+            type        = "break")
       }
+    }
 
-      #---------------------------
-      # VPCs
-      if(file.exists(fname_grobs)){
-        # Looping through each output and creating a slide for the timecourse
-        # and the obs vs pred figures
-        for(output in grobs$outputs){
-          if(is.ggplot(grobs$timecourse[[output]]) & is.ggplot(grobs$obs_pred[[output]])){
-            cfg = system_report_doc_add_content(cfg, 
-              rptname       = rptname,  
-              content_type  = "ggplot",
-              content       = list(image   = grobs$timecourse[[output]],
-                                   height  = 4.7))
 
-            cfg = system_report_doc_add_content(cfg, 
-              rptname       = rptname,  
-              content_type  = "ggplot",
-              content       = list(image   = grobs$obs_pred[[output]], 
-                                   height  = 4.7))
-          }
-        }
-        cfg = system_report_doc_add_content(cfg=cfg, 
+    #---------------------------
+    # VPCs
+    if(file.exists(fname_grobs)){
+      # Looping through each output and creating a slide for the timecourse
+      # and the obs vs pred figures
+      for(output in grobs$outputs){
+        if(is.ggplot(grobs$timecourse[[output]]) & is.ggplot(grobs$obs_pred[[output]])){
+          cfg = system_rpt_add_doc_content(cfg=cfg, 
             rptname       = rptname,  
-            content_type  = "break")
-      }
-
-      #---------------------------
-      # variance/covariance matrix 
-      if(!is.null(pe$statistics_est$covariance)){
-        # If the column headers get too big we switch to landscape:
-        if(stringr::str_length(paste(names(pe$estimate), collapse=" ")) > 40){
-          cfg = system_report_doc_format_section(cfg, section_type="continuous")
-        }
-
-        vcv =  signif(pe$statistics_est$covariance, digits=3)
-        colnames(vcv) <- names(pe$estimate)
-        rownames(vcv) <- names(pe$estimate)
-        vcv = as.data.frame(vcv)
-
-        tcontent = list()
-        tcontent$table     =  vcv
-        tcontent$header    = TRUE 
-        tcontent$first_row = TRUE 
-        tcontent$caption   = "Variance/Covariance Matrix"
-        
-        cfg = system_report_doc_add_content(cfg, 
-          content_type  = "table",
-          content       = tcontent)        
-
-        # If the column headers get too big we switch to landscape:
-        if(stringr::str_length(paste(names(pe$estimate), collapse=" ")) > 40){
-          cfg = system_report_doc_format_section(cfg, section_type="landscape", h=8, w=10)
-        } else {
-          cfg = system_report_doc_add_content(cfg=cfg, 
-              rptname       = rptname,  
-              content_type  = "break")
+            type          = "ggplot",
+            content       = list(image   = grobs[["timecourse"]][[output]],
+                                 height  = 4.7))
+ 
+          cfg = system_rpt_add_doc_content(cfg=cfg, 
+            rptname       = rptname,  
+            type          = "ggplot",
+            content       = list(image   = grobs[["obs_pred"]][[output]], 
+                                 height  = 4.7))
         }
       }
-
-      #---------------------------
-      # Estimation metadata
-        cfg = system_report_doc_add_content(cfg, 
-          content_type  = "text",
-          content       = list(style   = "h1",
-                               text    = "Estimation Details"))
-        cfg = system_report_doc_add_content(cfg, 
-          content_type  = "text",
-          content       = list(style   = "normal",
-                               text    = "Loaded from files:"))
-
-        cfg = system_report_doc_add_content(cfg, 
-          content_type  = "text",
-          content       = list(style   = "code",
-                               text    = fname_estimate))
-
-        cfg = system_report_doc_add_content(cfg, 
-          content_type  = "text",
-          content       = list(style   = "code",
-                               text    = fname_grobs))
-
-      # Appending cohort details
-      cfg = system_report_doc_add_content(cfg, 
-        content_type  = "text",
-        content       = list(style   = "h2",
-                             text    = "Cohort Overview:"))
-      for(line in pe$cohort_view){
-        cfg = system_report_doc_add_content(cfg, 
-          content_type  = "text",
-          content       = list(style   = "code",
-                               text    = line))
+      cfg = system_rpt_add_doc_content(cfg=cfg, 
+          rptname       = rptname,  
+          type          = "break")
+    }
+ 
+    #---------------------------
+    # variance/covariance matrix 
+    if(!is.null(pe$statistics_est$covariance)){
+      # If the column headers get too big we switch to landscape:
+      if(stringr::str_length(paste(names(pe$estimate), collapse=" ")) > 40){
+        cfg = system_rpt_add_doc_content(cfg=cfg, 
+            rptname  = rptname,  
+            type     = "section",
+            content  = list(section_type  ="portrait"))
       }
+ 
+      vcv =  signif(pe$statistics_est$covariance, digits=3)
+      colnames(vcv) <- names(pe$estimate)
+      rownames(vcv) <- names(pe$estimate)
+      vcv = as.data.frame(vcv)
+ 
+      tcontent = list()
+      tcontent$table     =  vcv
+      tcontent$header    = TRUE 
+      tcontent$first_row = TRUE 
+      tcontent$caption   = "Variance/Covariance Matrix"
+      
+      cfg = system_rpt_add_doc_content(cfg=cfg, 
+        type          = "table",
+        content       = tcontent)        
+ 
+      # If the column headers get too big we switch to landscape:
+      if(stringr::str_length(paste(names(pe$estimate), collapse=" ")) > 40){
+        cfg = system_rpt_add_doc_content(cfg=cfg, 
+            rptname  = rptname,  
+            type     = "section",
+            content  = list(section_type  ="landscape",
+                            height        = 8,
+                            width         = 10))
 
-      # Appending contents of system file
-      cfg = system_report_doc_add_content(cfg, 
-        content_type  = "text",
-        content       = list(style   = "h2",
-                             text    = "System File:"))
-      for(line in pe$system_file){
-        cfg = system_report_doc_add_content(cfg, 
-          content_type  = "text",
-          content       = list(style   = "code",
-                               text    = line))
-      }
-      # Appending the sessionInfo()
-      if(!is.null(SI_text)){
-        cfg = system_report_doc_add_content(cfg, 
-          content_type  = "text",
-          content       = list(style   = "h2",
-                               text    = "sessionInfo()"))
-         for(line in SI_text){
-           cfg = system_report_doc_add_content(cfg, 
-             content_type  = "text",
-             content       = list(style   = "code",
-                                  text    = line))
-         }
+      } else {
+        cfg = system_rpt_add_doc_content(cfg=cfg, 
+            rptname       = rptname,  
+            type          = "break")
       }
     }
+ 
     #---------------------------
+    # Estimation metadata
+      cfg = system_rpt_add_doc_content(cfg=cfg, 
+        type          = "text",
+        content       = list(style   = "Heading_1",
+                             text    = "Estimation Details"))
+
+      cfg = system_rpt_add_doc_content(cfg=cfg, 
+        type          = "text",
+        content       = list(style   = "Normal",
+                             text    = "Loaded from files:"))
+ 
+      cfg = system_rpt_add_doc_content(cfg=cfg, 
+        type          = "text",
+        content       = list(style   = "Code",
+                             text    = fname_estimate))
+ 
+      cfg = system_rpt_add_doc_content(cfg=cfg, 
+        type          = "text",
+        content       = list(style   = "Code",
+                             text    = fname_grobs))
+ 
+    # Appending cohort details
+    cfg = system_rpt_add_doc_content(cfg=cfg, 
+      type          = "text",
+      content       = list(style   = "Heading_2",
+                           text    = "Cohort Overview:"))
+    for(line in pe[["cohort_view"]]){
+      cfg = system_rpt_add_doc_content(cfg=cfg, 
+        type          = "text",
+        content       = list(style   = "Code",
+                             text    = line))
+    }
+ 
+    # Appending contents of system file
+    cfg = system_rpt_add_doc_content(cfg=cfg, 
+      type          = "text",
+      content       = list(style   = "Heading_2",
+                           text    = "System File:"))
+    for(line in pe$system_file){
+      cfg = system_rpt_add_doc_content(cfg=cfg, 
+        type          = "text",
+        content       = list(style   = "Code",
+                             text    = line))
+    }
+    # Appending the sessionInfo()
+    if(!is.null(SI_text)){
+      cfg = system_rpt_add_doc_content(cfg=cfg, 
+        type          = "text",
+        content       = list(style   = "Heading_2",
+                             text    = "sessionInfo()"))
+       for(line in SI_text){
+         cfg = system_rpt_add_doc_content(cfg=cfg, 
+           type          = "text",
+           content       = list(style   = "Code",
+                                text    = line))
+       }
+    }
+  }
+  #---------------------------
+}
+
+if(!isgood){
+  vp(cfg, "ubiquity::system_rpt_estimation()")
+  vp(cfg, "Unable to generate estimation report, see above for details") 
+  stop()
   }
 
-  if(!isgood){
-    vp(cfg, "system_report_estimation()")
-    vp(cfg, "Unable to generate estimation report, see above for details") }
-
 cfg}
-#/system_report_estimation
+#/system_rpt_estimation
 # -------------------------------------------------------------------------
 
 #'@export 
@@ -11930,9 +9573,9 @@ void derivs (int *neq, double *t, double *y, double *ydot,
 res}
 
 #-------------------------------------------------------------------------
-#'@title AUC for sparse data 
+#'@title Calculate AUC for Sparse Data 
 #'@keywords internal
-#'@description Calculates AUCs with with sparse data using Bailers Method
+#'@description 
 #' This is an implementation of Bailors method for calculating AUCs with
 #' sparse sampling. It is taken from the following publication:
 #'
@@ -12032,13 +9675,10 @@ if(isgood){
     }
   }
 
-
   # calculating the weight vector
-  # 
   #   w1 = (t(2)   -   t(1)  )/2 
   #   wk = (t(k+1) -   t(k-1))/2    k = [2,K-1];
   #   wk = (t(K)   -   t(K-1))/2 
-
   
   w   = rep(0, K)
   r   = rep(0, K)
@@ -12074,7 +9714,7 @@ if(isgood){
 }
 
 if(!isgood){
-  msgs = c(msgs, "AUC_Bailers_method()")
+  msgs = c(msgs, "ubiquity::AUC_Bailers_method()")
 }
 
 res$AUC     = AUC
@@ -12795,7 +10435,7 @@ system_nca_run = function(cfg,
       vp(cfg, paste("  PKNCA raw output: ", pkncaraw_file, sep=""))
     }
   } else {
-     vp(cfg, "system_nca_run()")
+     vp(cfg, "ubiquity::system_nca_run()")
      vp(cfg, "Errors were found see messages above for more information")
   }
 
@@ -13132,15 +10772,17 @@ if(isgood){
   #------------------------------------------
   # Applying markdown formatting
   if(label_format == "md"){
-     # Pulling out the default format for the Table element
-     default_format_table = system_fetch_report_format(cfg, rptname=rptname, element="Table_Labels")$default_format
+     # Pulling out the default format for the Table element. 
+     # First we get the onbrand object:
+     obnd = system_fetch_rpt_onbrand_object(cfg=cfg, rptname=rptname)
+     default_format_table = onbrand::fetch_md_def(obnd, 'Table_Labels')$md_def
      # Applying markdown to headers
      if(!is.null(rows_header)){
        for(pname in names(rows_header)){
           sum_table_ft = flextable::compose(sum_table_ft,
                             j     = pname,                                                    
                             part  = "header",                                                          
-                            value = md_to_oo(strs= rows_header[[pname]], default_format=default_format_table)$oo)
+                            value = onbrand::md_to_oo(strs= rows_header[[pname]], default_format=default_format_table)$oo)
        }
      }
 
@@ -13150,21 +10792,13 @@ if(isgood){
           sum_table_ft = flextable::compose(sum_table_ft,
                             j     = pname,                                                    
                             part  = "footer",                                                          
-                            value = md_to_oo(strs= rows_summary[[pname]], default_format=default_format_table)$oo)
+                            value = onbrand::md_to_oo(strs= rows_summary[[pname]], default_format=default_format_table)$oo)
        }
      }
-    # JMH 
-    # Create format Table_Labels in r_components
-    #   - Word
-    #   - PowerPoint
-    # Add defaults in org_functions.R
-
-
-    # Update documentation on org_functoins
-
   }
+
+  sum_table_ft = flextable::autofit(sum_table_ft)
   #------------------------------------------
-  
 }
 
 
@@ -13172,9 +10806,9 @@ if(isgood){
 if(!isgood){
   if(echo_nca_cols){
     vp(cfg, paste("To view the available NCA outputs for different analyses you can run the following:"))
-    vp(cfg, paste('system_view(cfg, "nca", verbose=TRUE)'))
+    vp(cfg, paste('ubiquity::system_view(cfg, "nca", verbose=TRUE)'))
   }
-  vp(cfg, "system_nca_summary()")
+  vp(cfg, "ubiquity::system_nca_summary()")
   vp(cfg, "Errors were found see messages above for more information")
 }
 res = list(isgood         = isgood,
@@ -13366,7 +11000,7 @@ res_ubiquity = list(
 
 
 if(!isgood){
-  vp(cfg, "system_nca_parameters_meta()")
+  vp(cfg, "ubiquity::system_nca_parameters_meta()")
   vp(cfg, "Errors were found see messages above for more information")
 }
 
@@ -13404,7 +11038,7 @@ system_fetch_nca = function(cfg,
   } else {
     isgood = FALSE
     vp(cfg, paste("The NCA analysis >", analysis_name, "< was not found", sep=""))
-    vp(cfg, "system_fetch_nca()")
+    vp(cfg, "ubiquity::system_fetch_nca()")
     vp(cfg, "Errors were found see messages above for more information")
   }
 
@@ -13488,7 +11122,7 @@ if(isgood){
 
 # If we fil we drop an error indicating the function we died in:
 if(!isgood){
-  vp(cfg, "system_nca_view_columns()")
+  vp(cfg, "ubiquity::system_nca_view_columns()")
   vp(cfg, "Errors were found see messages above for more information")
 }
 
@@ -13513,152 +11147,193 @@ res}
 #'@param table_headers Boolean variable to add descriptive headers to output tables (default \code{TRUE})
 #'@return cfg ubiquity system object with the NCA results appended to the specified report and if the analysis name is specified:
 #'@seealso Vignette on NCA (\code{vignette("NCA", package = "ubiquity")}) 
-system_report_nca = function(cfg, 
+system_rpt_nca = function(cfg, 
                           rptname       = "default",
                           analysis_name = "analysis",
                           rows_max      = 10,
                           table_headers = TRUE){
-  # Supported report types
-  rpttypes = c("PowerPoint", "Word")
-  isgood = TRUE
 
-  if(rptname %in% names(cfg$reporting$reports)){
-    rpttype = cfg$reporting$reports[[rptname]]$rpttype
-    if(!(rpttype %in% rpttypes)){
-      isgood = FALSE
-      vp(cfg, paste("NCA reporting does not support this format >", rpttype, "<", sep=""))
+isgood = TRUE
+
+if(is.null(analysis_name)){
+ isgood = FALSE
+ vp(cfg, " No analysis_name was specified")
+}
+
+# pulling out the onbrand object
+obnd = system_fetch_rpt_onbrand_object(cfg=cfg, rptname=rptname)
+
+if(is.null(obnd)){
+  isgood = FALSE
+  vp(cfg, "onbrand::system_fetch_rpt_onbrand_object returned NULL")
+} else{
+  if(obnd[["isgood"]]){
+    # If the onbrand object is good we pull out the report type:
+    rpttype = obnd[["rpttype"]]
+  } else{
+    # If there is something wrong with the onbrand object we set isgood to
+    # false, dump an error and try to attach any messages we can
+    isgood = FALSE
+    vp(cfg, "Bad onbrand object:")
+    if(!is.null(obnd[["msgs"]])){
+      vp(cfg, obnd[["msgs"]])
     }
+  }
+}
+
+
+
+if(isgood){
+  if((analysis_name %in% names(cfg$nca))){
+    vp(cfg, "")
+    vp(cfg, "Appending NCA results to report")
+    vp(cfg, paste("  Report:   ", rptname,            sep=""))
+    vp(cfg, paste("  Type:     ", rpttype,            sep=""))
+    vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
   } else {
     isgood = FALSE
-    vp(cfg, paste("The report >", rptname, "< has not been defined.", sep=""))
-    vp(cfg, paste("Initialize the report to use report generation: ", sep=""))
-    vp(cfg, paste("cfg = system_report_init(cfg, rptname='", rptname, "')", sep=""))
+    vp(cfg, paste("The NCA analysis >", analysis_name, "< was not found", sep=""))
+  }
+}
+
+
+if(isgood){
+  # Defining the elements to be used locally
+  rptobjs   =  cfg$nca[[analysis_name]]$rptobjs
+  grobs_sum =  cfg$nca[[analysis_name]]$grobs_sum
+  NCA_sum   =  cfg$nca[[analysis_name]]$NCA_sum
+  ID_label  =  cfg$nca[[analysis_name]]$text$ID_label
+  ana_opts  =  cfg$nca[[analysis_name]]$ana_opts
+
+  if(ana_opts$sparse){
+    ana_type = "Naive-pooled NCA"      
+  } else {
+    ana_type = "NCA of individual data"
   }
 
-  if(isgood){
-    if((analysis_name %in% names(cfg$nca))){
-      vp(cfg, "")
-      vp(cfg, "Appending NCA results to report")
-      vp(cfg, paste("  Report:   ", rptname,            sep=""))
-      vp(cfg, paste("  Type:     ", rpttype,            sep=""))
-      vp(cfg, paste("  Analysis: ", analysis_name,      sep=""))
-    } else {
-      isgood = FALSE
-      vp(cfg, paste("The NCA analysis >", analysis_name, "< was not found", sep=""))
-    }
+  overview = paste(ana_type, " from ", ana_opts$dsname, " (", 
+  cfg$data[[ana_opts$dsname]]$data_file$name, "). For each ", tolower(ID_label),
+  " and dose the NCA parameters will be summarized. For each  ", tolower(ID_label), 
+  " the full time-course will be shown in grey, the data used for each analysis will be shown in green, the observed AUC will be shown by a green shaded region, and extrapolated values and data used for extrapolation will be shown in orange",
+  sep="")
+
+  if(rpttype == "PowerPoint"){
+    cfg = system_rpt_add_slide(cfg, 
+      rptname  = rptname,
+      template = "content_text",
+      elements = list(
+         title=
+           list(content = "NCA Overview",
+                type    = "text"),
+         content_body=
+           list(content = overview,
+                type    = "text")))
+  } else if(rpttype == "Word"){
+
+    cfg = system_rpt_add_doc_content(cfg=cfg,
+      rptname       = rptname,
+      type          = "text",
+      content       = list(style   = "Normal",
+                           text    = overview))
+
+    cfg = system_rpt_add_doc_content(cfg=cfg,
+      rptname       = rptname,
+      type          = "text",
+      content       = list(style   = "Heading_1",
+                           text    = paste("NCA broken down by", ID_label, "and dose")))
   }
-
-
-  if(isgood){
-    # Defining the elements to be used locally
-    rptobjs   =  cfg$nca[[analysis_name]]$rptobjs
-    grobs_sum =  cfg$nca[[analysis_name]]$grobs_sum
-    NCA_sum   =  cfg$nca[[analysis_name]]$NCA_sum
-    ID_label  =  cfg$nca[[analysis_name]]$text$ID_label
-    ana_opts  =  cfg$nca[[analysis_name]]$ana_opts
-
-    if(ana_opts$sparse){
-      ana_type = "Naive-pooled NCA"      
-    } else {
-      ana_type = "NCA of individual data"
-    }
-
-    overview = paste(ana_type, " from ", ana_opts$dsname, " (", 
-    cfg$data[[ana_opts$dsname]]$data_file$name, "). For each ", tolower(ID_label),
-    " and dose the NCA parameters will be summarized. For each  ", tolower(ID_label), 
-    " the full time-course will be shown in grey, the data used for each analysis will be shown in green, the observed AUC will be shown by a green shaded region, and extrapolated values and data used for extrapolation will be shown in orange",
-    sep="")
-
-    if(rpttype == "PowerPoint"){
-      cfg = system_report_slide_content(cfg, rptname=rptname,
-                title         = "NCA Overview",
-                content_type  = "text",
-                content        = overview)
-    } else if(rpttype == "Word"){
-      cfg = system_report_doc_add_content(cfg, 
-        content_type  = "text",
-        content       = list(style   = "normal",
-                             text    = overview))
-
-      cfg = system_report_doc_add_content(cfg, 
-        content_type  = "text",
-        content       = list(style   = "h1",
-                             text    = paste("NCA broken down by", ID_label, "and dose")))
-    }
-    # Creating subject level slides for each dose and a summary plot
-    for(sub_str in names(rptobjs)){
-      #---------------------------------
-      # First we add the summary level information for the current dose
-      for(dosenum_str in names(rptobjs[[sub_str]])){
-        dosenum = rptobjs[[sub_str]][[dosenum_str]]$dosenum
-        sub     = rptobjs[[sub_str]][[dosenum_str]]$sub
-        if(rpttype == "PowerPoint"){
-          cfg = system_report_slide_two_col(cfg, rptname=rptname,
-                    title         = paste(ID_label,": ", sub, ",  Dose: ", dosenum, sep=""),
-                    content_type  = "list",
-                    left_content  = rptobjs[[sub_str]][[dosenum_str]]$lc,
-                    right_content = rptobjs[[sub_str]][[dosenum_str]]$rc)
-        } else if(rpttype == "Word"){
-          tcontent = list()
-          tcontent$table     = rptobjs[[sub_str]][[dosenum_str]]$all 
-          tcontent$header    = FALSE
-          tcontent$first_row = FALSE
-          tcontent$caption   = paste(ID_label,": ", sub, ",  Dose: ", dosenum, sep="")
-          cfg = system_report_doc_add_content(cfg, 
-            content_type  = "table",
-            content       = tcontent)
-        }
+  # Creating subject level slides for each dose and a summary plot
+  for(sub_str in names(rptobjs)){
+    #---------------------------------
+    # First we add the summary level information for the current dose
+    for(dosenum_str in names(rptobjs[[sub_str]])){
+      dosenum = rptobjs[[sub_str]][[dosenum_str]]$dosenum
+      sub     = rptobjs[[sub_str]][[dosenum_str]]$sub
+      if(rpttype == "PowerPoint"){
+        cfg = system_rpt_add_slide(cfg, 
+          rptname  = rptname,
+          template = "two_content_list",
+          elements = list(
+             title=
+               list(content = paste(ID_label,": ", sub, ",  Dose: ", dosenum, sep=""),
+                    type    = "text"),
+             content_left=
+               list(content = rptobjs[[sub_str]][[dosenum_str]]$lc,
+                    type    = "list"),
+             content_right=
+               list(content = rptobjs[[sub_str]][[dosenum_str]]$rc,
+                    type    = "list")))
+      } else if(rpttype == "Word"){
+        tcontent = list()
+        tcontent$table     = rptobjs[[sub_str]][[dosenum_str]]$all 
+        tcontent$header    = FALSE
+        tcontent$first_row = FALSE
+        tcontent$caption   = paste(ID_label,": ", sub, ",  Dose: ", dosenum, sep="")
+        cfg = system_rpt_add_doc_content(cfg=cfg,
+          rptname       = rptname,
+          type          = "table",
+          content       = tcontent)
       }
-      #---------------------------------
-      # Now we plot the timecourse for visual confirmation
-        if(rpttype == "PowerPoint"){
-          cfg = system_report_slide_content(cfg, rptname=rptname,
-                    title         = paste(ID_label,": ", sub, sep=""),
-                    content_type  = "ggplot",
-                    content       = grobs_sum[[sub_str]])
-        } else if(rpttype == "Word"){
-          cfg = system_report_doc_add_content(cfg, 
-            content_type  = "ggplot",
-            content       = list(image   = grobs_sum[[sub_str]],
-                                 height  = 4.0,
-                                 width   = 6,
-                                 caption = paste(ID_label,": ", sub, sep="")))
-             
-          cfg = system_report_doc_add_content(cfg=cfg, 
-              rptname       = rptname,  
-              content_type  = "break")
-        }
-      #---------------------------------
     }
+    #---------------------------------
+    # Now we plot the timecourse for visual confirmation
+      if(rpttype == "PowerPoint"){
 
-    # Cleaning up the summary level information
-    NCA_sum$Dose_Number =  as.factor(NCA_sum$Dose_Number)
-    NCA_sum$Dose_CU     = var2string(NCA_sum$Dose_CU    , nsig_e=2, nsig_f=2)
-    NCA_sum$cmax        = var2string(NCA_sum$cmax       , nsig_e=2, nsig_f=2)
-    NCA_sum$half.life   = var2string(NCA_sum$half.life  , nsig_e=2, nsig_f=2)
-    NCA_sum$Vp_obs      = var2string(NCA_sum$Vp_obs     , nsig_e=2, nsig_f=2)
-    NCA_sum$vss.obs     = var2string(NCA_sum$vss.obs    , nsig_e=2, nsig_f=2)
-    NCA_sum$vss.pred    = var2string(NCA_sum$vss.pred   , nsig_e=2, nsig_f=2)
-    NCA_sum$cl.obs      = var2string(NCA_sum$cl.obs     , nsig_e=2, nsig_f=2)
-    NCA_sum$cl.pred     = var2string(NCA_sum$cl.pred    , nsig_e=2, nsig_f=2)
-    NCA_sum$auclast     = var2string(NCA_sum$auclast    , nsig_e=2, nsig_f=2)
-    NCA_sum$aucinf.pred = var2string(NCA_sum$aucinf.pred, nsig_e=2, nsig_f=2)
-    NCA_sum$aucinf.obs  = var2string(NCA_sum$aucinf.obs , nsig_e=2, nsig_f=2)
+        cfg = system_rpt_add_slide(cfg, 
+          rptname  = rptname,
+          template = "content_text",
+          elements = list(
+            title =
+              list(content = paste(ID_label,": ", sub, sep=""),
+                   type    = "text"),
+            content_body =
+              list(content = grobs_sum[[sub_str]],
+                   type    = "ggplot")))
+      } else if(rpttype == "Word"){
+        cfg = system_rpt_add_doc_content(cfg=cfg,
+          rptname       = rptname,
+          type          = "ggplot",
+          content       = list(image   = grobs_sum[[sub_str]],
+                               height  = 4.0,
+                               width   = 6,
+                               caption = paste(ID_label,": ", sub, sep="")))
+           
+        cfg = system_rpt_add_doc_content(cfg=cfg,
+          rptname       = rptname,
+          type          = "break")
+      }
+    #---------------------------------
+  }
 
-    #-----------------------------------
-    # Tabular results in PowerPoint
-    # Stepping through the results 
-    offset = 0
+  # Cleaning up the summary level information
+  NCA_sum$Dose_Number =  as.factor(NCA_sum$Dose_Number)
+  NCA_sum$Dose_CU     = var2string(NCA_sum$Dose_CU    , nsig_e=2, nsig_f=2)
+  NCA_sum$cmax        = var2string(NCA_sum$cmax       , nsig_e=2, nsig_f=2)
+  NCA_sum$half.life   = var2string(NCA_sum$half.life  , nsig_e=2, nsig_f=2)
+  NCA_sum$Vp_obs      = var2string(NCA_sum$Vp_obs     , nsig_e=2, nsig_f=2)
+  NCA_sum$vss.obs     = var2string(NCA_sum$vss.obs    , nsig_e=2, nsig_f=2)
+  NCA_sum$vss.pred    = var2string(NCA_sum$vss.pred   , nsig_e=2, nsig_f=2)
+  NCA_sum$cl.obs      = var2string(NCA_sum$cl.obs     , nsig_e=2, nsig_f=2)
+  NCA_sum$cl.pred     = var2string(NCA_sum$cl.pred    , nsig_e=2, nsig_f=2)
+  NCA_sum$auclast     = var2string(NCA_sum$auclast    , nsig_e=2, nsig_f=2)
+  NCA_sum$aucinf.pred = var2string(NCA_sum$aucinf.pred, nsig_e=2, nsig_f=2)
+  NCA_sum$aucinf.obs  = var2string(NCA_sum$aucinf.obs , nsig_e=2, nsig_f=2)
+
+  #-----------------------------------
+  # Tabular results in PowerPoint
+  # Stepping through the results 
+  offset = 0
+  if(rpttype == "PowerPoint"){
     while(offset < nrow(NCA_sum)){
       # Determing the rows to report in this iteration
       rstop = offset+rows_max
       if(nrow(NCA_sum) < rstop){
         rstop = nrow(NCA_sum) }
       row_report = c((offset+1):rstop)
-
+     
       # Stepping the offset:
       offset = offset+rows_max
-
+     
       # Summary tables
       tab1 = list()
       tab1$table = NCA_sum[row_report,c(1:5, 6:11) ]
@@ -13721,93 +11396,111 @@ system_report_nca = function(cfg,
                   aucinf.pred = "Inf(Pred)" ,
                   aucinf.obs  = "Inf(Obs)" )
       }
+  
+  
+    
+    # Splitting the table across two slides
+      cfg = system_rpt_add_slide(cfg, 
+        rptname  = rptname,
+        template = "content_text",
+        elements = list(
+           title=
+             list(content = "NCA Summary",
+                  type    = "text"),
+           content_body=
+             list(content = tab1,
+                  type    = "flextable")))
 
-
-      
-      # Splitting the table across two slides
-      if(rpttype == "PowerPoint"){
-        cfg = system_report_slide_content(cfg, rptname=rptname,
-                   title         = paste("NCA Summary"),
-                   content_type  = "flextable",
-                   content       = tab1)
-        
-        cfg = system_report_slide_content(cfg, rptname=rptname,
-                   title         = paste("NCA Summary"),
-                   content_type  = "flextable",
-                   content       = tab2)
-
-      }
-
+      cfg = system_rpt_add_slide(cfg, 
+        rptname  = rptname,
+        template = "content_text",
+        elements = list(
+           title=
+             list(content = "NCA Summary",
+                  type    = "text"),
+           content_body=
+             list(content = tab2,
+                  type    = "flextable")))
     }
-    #-----------------------------------
-    # Tabular results in Word
-    if(rpttype == "Word"){
-      taball = list()
-      taball$table = NCA_sum[,c(1:4,6:17) ]
-      if(table_headers){
-        taball$merge_header  = FALSE
-        taball$table_autofit = TRUE
-        taball$table_theme   ='theme_zebra'
-        taball$caption = "NCA Summary"
-        taball$header_top = list(
-                  ID          = ID_label    , 
-                  Nobs        = "N"         ,
-                  Dose_Number = "Dose"      ,
-                  Dose        = "Dose"      ,
-              #   Dose_CU     = "Dose"      ,
-                  cmax        = "Cmax"      ,
-                  tmax        = "Tmax"      , 
-                  half.life   = "Halflife"  ,
-                  Vp_obs      = "Vp"        ,
-                  vss.obs     = "Vss"       ,
-                  vss.pred    = "Vss"       ,
-                  C0          = "C0"        ,
-                  cl.obs      = "CL"        ,
-                  cl.pred     = "CL"        ,
-                  auclast     = "AUC"       ,
-                  aucinf.pred = "AUC"       ,
-                  aucinf.obs  = "AUC"       )
-
-        
-        taball$header_middle = list(
-                  ID          = ""          ,
-                  Nobs        = "Obs"       ,
-                  Dose_Number = "Number"    ,
-                  Dose        = ""          ,
-               #  Dose_CU     = "CU"        ,
-                  cmax        = ""          ,
-                  tmax        = ""          , 
-                  half.life   = ""          ,
-                  Vp_obs      = "Obs"       ,
-                  vss.obs     = "Obs"       ,
-                  vss.pred    = "Pred"      ,
-                  C0          = "Extrap"    , 
-                  cl.obs      = "Obs"       ,
-                  cl.pred     = "Pred"      ,
-                  auclast     = "Last"      ,
-                  aucinf.pred = "Inf(Pred)" ,
-                  aucinf.obs  = "Inf(Obs)" )
-      }
-
-     # Flipping to landscape because this will be a pretty wide table.
-     cfg = system_report_doc_format_section(cfg, section_type="continuous")
-     cfg = system_report_doc_add_content(cfg, 
-       content_type  = "text",
-       content       = list(style   = "h1",
-                            text    = paste("Summarized results for each", ID_label)))
-     cfg = system_report_doc_add_content(cfg, 
-       content_type  = "flextable",
-       content       = taball)
-     cfg = system_report_doc_format_section(cfg, section_type="landscape")
-    }
-    #-----------------------------------
-
-
- 
-  } else {
-     vp(cfg, "system_report_nca()")
-     vp(cfg, "Errors were found see messages above for more information")
+  
   }
+  #-----------------------------------
+  # Tabular results in Word
+  if(rpttype == "Word"){
+    taball = list()
+    taball$table = NCA_sum[,c(1:4,6:17) ]
+    if(table_headers){
+      taball$merge_header  = FALSE
+      taball$table_autofit = TRUE
+      taball$table_theme   ='theme_zebra'
+      taball$caption = "NCA Summary"
+      taball$header_top = list(
+                ID          = ID_label    , 
+                Nobs        = "N"         ,
+                Dose_Number = "Dose"      ,
+                Dose        = "Dose"      ,
+            #   Dose_CU     = "Dose"      ,
+                cmax        = "Cmax"      ,
+                tmax        = "Tmax"      , 
+                half.life   = "Halflife"  ,
+                Vp_obs      = "Vp"        ,
+                vss.obs     = "Vss"       ,
+                vss.pred    = "Vss"       ,
+                C0          = "C0"        ,
+                cl.obs      = "CL"        ,
+                cl.pred     = "CL"        ,
+                auclast     = "AUC"       ,
+                aucinf.pred = "AUC"       ,
+                aucinf.obs  = "AUC"       )
+ 
+      
+      taball$header_middle = list(
+                ID          = ""          ,
+                Nobs        = "Obs"       ,
+                Dose_Number = "Number"    ,
+                Dose        = ""          ,
+             #  Dose_CU     = "CU"        ,
+                cmax        = ""          ,
+                tmax        = ""          , 
+                half.life   = ""          ,
+                Vp_obs      = "Obs"       ,
+                vss.obs     = "Obs"       ,
+                vss.pred    = "Pred"      ,
+                C0          = "Extrap"    , 
+                cl.obs      = "Obs"       ,
+                cl.pred     = "Pred"      ,
+                auclast     = "Last"      ,
+                aucinf.pred = "Inf(Pred)" ,
+                aucinf.obs  = "Inf(Obs)" )
+    }
+ 
+   # Flipping to landscape because this will be a pretty wide table.
+
+   cfg = system_rpt_add_doc_content(cfg=cfg,
+     rptname       = rptname,
+     type          = "section",
+     content       = list(section_type="continuous"))
+   cfg = system_rpt_add_doc_content(cfg=cfg,
+     rptname       = rptname,
+     type          = "text",
+     content       = list(style   = "Heading_1",
+                          text    = paste("Summarized results for each", ID_label)))
+   cfg = system_rpt_add_doc_content(cfg=cfg,
+     rptname       = rptname,
+     type          = "flextable",
+     content       = taball)
+   cfg = system_rpt_add_doc_content(cfg=cfg,
+     rptname       = rptname,
+     type          = "section",
+     content       = list(section_type="landscape"))
+
+  }
+  #-----------------------------------
+} else {
+   vp(cfg, "ubiquity::system_report_nca()")
+   vp(cfg, "Errors were found see messages above for more information")
+   stop()
+}
   
 cfg}
 
@@ -13832,155 +11525,642 @@ system_glp_init   = function(cfg, study_title = 'Study Title', study_name='defau
    } else {
      vp(cfg, "An invalid study name has been specified")
      vp(cfg, ubiquity_name_check(study_name)$msg)
-     vp(cfg, "system_glp_init()")
+     vp(cfg, "ubiquity::system_glp_init()")
      vp(cfg, "Errors were found see messages above for more information")
    }
 
 cfg}
 
+# #-------------------------------------------------------------------------
+# #'@export 
+# #'@title Report GLP Study  
+# #'@description Append GLP study design a report
+# #'
+# #'@param cfg ubiquity system object
+# #'@param study_title  String containing descriptive information about the study
+# #'@param study_name   short name used to identify the study in other functions  (\code{"default"})
+# #'@param rptname      short name used to identify the report to attach results to the study in other functions (\code{"default"})
+# #'@return cfg ubiquity system object with the study report information added
+# system_report_glp   = function(cfg, study_title = 'Study Title', study_name='default', rptname  = 'default'){
+# 
+# 
+#   isgood = TRUE 
+# 
+#   # Supported report types
+#   rpttypes = c("PowerPoint")
+#   rpttype = NULL
+# 
+#   if((rptname %in% names( cfg$reporting$reports))){
+#     rpttype = cfg$reporting$reports[[rptname]]$rpttype
+#     if(!(rpttype %in% rpttypes)){
+#       isgood = FALSE
+#       vp(cfg, paste("GLP Study Design reporting does not support this format >", rpttype, ">", sep=""))
+#     }
+#   }else{
+#     isgood = FALSE
+#     vp(cfg, paste("The report >", rptname, "< has not been defined.", sep=""))
+#     vp(cfg, paste("Initialize the report to use report generation: ", sep=""))
+#     vp(cfg, paste("cfg = system_rpt_read_template(cfg, rptname='", rptname, "')", sep=""))
+#   }
+# 
+#   if(!(study_name %in% names(cfg$glp))){
+#     isgood = FALSE
+#     vp(cfg, paste("The glp study >", study_name, "< has not been defined.", sep=""))
+#     vp(cfg, paste("You need to first Initialize the study: ", sep=""))
+#     vp(cfg, paste("cfg = system_glp_init(cfg, study_name='", study_name, "')", sep=""))
+#     vp(cfg, paste("Then you must add a scenario using ubiquity::system_glp_scenario().", sep=""))
+#   }
+# 
+#   if(isgood){
+#     # Appending to PowerPoint reports
+#     if("PowerPoint" == rpttype){
+#       vp(cfg, "")
+#       vp(cfg, "Appending GLP Tox design to report")
+#       vp(cfg, paste("  Report:   ", rptname,      sep=""))
+#       vp(cfg, paste("  Study:    ", study_name,   sep=""))
+#       # We loop through each scenario and process them:
+#       for(scenario in names(cfg$glp[[study_name]]$scenarios)){
+#         vp(cfg, paste("  Scenario: ", scenario,   sep=""))
+# 
+#         # Pulling out the current scenario:
+#         SCEN = cfg$glp[[study_name]]$scenarios[[scenario]]
+#       
+#         # Adding a section for the current scenario:
+#         cfg = system_report_slide_section(cfg, rptname=rptname, title=scenario)
+#       
+#         # Summary slide for the scenario
+#         cfg = system_report_slide_content(cfg,
+#                 rptname            = rptname,
+#                 title              = paste("GLP", SCEN$elements$tox_species, "Study Design"),
+#                 content_type       = "list",   
+#                 content            = SCEN$hdpsum)
+# 
+# 
+#         #-------------------------------------------
+#         # Human PK and AUC slides for the top dose:
+#         cfg = system_report_slide_two_col(cfg,
+#                 rptname            = rptname,
+#                 title              = paste("Human Projections:", SCEN$elements$pres_human_max_dose_str),
+#                 left_content_type  = "ggplot",
+#                 left_content       = SCEN$human_PK$figure,
+#                 right_content_type = "ggplot",
+#                 right_content      = SCEN$human_AUC$figure)
+#         if(!is.null(SCEN$human_PK$figure_annotated)){
+#           cfg = system_report_slide_two_col(cfg,
+#                   rptname            = rptname,
+#                   title              = paste("Human Projections:", SCEN$elements$pres_human_max_dose_str),
+#                   left_content_type  = "ggplot",
+#                   left_content       = SCEN$human_PK$figure_annotated,
+#                   right_content_type = "ggplot",
+#                   right_content      = SCEN$human_AUC$figure_annotated)
+#         }
+#         #-------------------------------------------
+# 
+#         #-------------------------------------------
+#         # Tox PK and AUC slides to cover top dose with margins
+#         cfg = system_report_slide_two_col(cfg,
+#                 rptname            = rptname,
+#                 title              = paste(SCEN$elements$tox_species, "Projections:", SCEN$elements$pres_tox_dose_str),
+#                 left_content_type  = "ggplot",
+#                 left_content       = SCEN$tox_PK$figure,
+#                 right_content_type = "ggplot",
+#                 right_content      = SCEN$tox_AUC$figure)
+#      
+#         if(!is.null(SCEN$tox_PK$figure_annotated)){
+#           cfg = system_report_slide_two_col(cfg,
+#                   rptname            = rptname,
+#                   title              = paste(SCEN$elements$tox_species, "Projections:", SCEN$elements$pres_tox_dose_str),
+#                   left_content_type  = "ggplot",
+#                   left_content       = SCEN$tox_PK$figure_annotated,
+#                   right_content_type = "ggplot",
+#                   right_content      = SCEN$tox_AUC$figure_annotated)
+#         }
+#         #-------------------------------------------
+# 
+#       
+#         #-------------------------------------------
+#         # Lastly we append the simulations to the report:
+#         # Looping through each species
+#         for(species in names(SCEN$sims)){
+#           # All of the doses on the same plot
+#           if(!is.null(SCEN$sims[[species]]$all_doses)){
+#             cfg = system_report_slide_content(cfg,
+#                     rptname            = rptname,
+#                     title              = paste(species, "dosing every",  SCEN$sims[[species]]$all_doses$elements$glp_dose_interval_str),
+#                     content_type       = "ggplot",   
+#                     content            = SCEN$sims[[species]]$all_doses$figure)
+#           }
+#     
+#           # Adding plots for individual doses
+#           for(glp_dose_str in names(SCEN$sims[[species]]$individual)){
+#             if(!is.null(SCEN$sims[[species]]$individual[[glp_dose_str]]$figure)){
+#              cfg = system_report_slide_content(cfg,
+#                      rptname            = rptname,
+#                      title              = paste(species, "dosing", glp_dose_str, "every", SCEN$sims[[species]]$all_doses$elements$glp_dose_interval_str),
+#                      content_type       = "ggplot",   
+#                      content            = SCEN$sims[[species]]$individual[[glp_dose_str]]$figure)
+#             }
+#           }
+#         }
+#       }
+#     }
+#   }
+# 
+#   if(!isgood){
+#     vp(cfg, ubiquity_name_check(study_name)$msg)
+#     vp(cfg, "ubiquity::system_report_glp()")
+#     vp(cfg, "Errors were found see messages above for more information")
+#   }
+#   
+# 
+# cfg}
 #-------------------------------------------------------------------------
-#'@export 
-#'@title Report GLP Study  
-#'@description Append GLP study design a report
+# JMH updated reporting functions
+# Update these:
+# system_report_nca        --> system_rpt_nca
+
+# -------------------------------------------------------------------------
+# system_rpt_add_template_details
+#'@export
+#'@title Generate Details about Report Template
+#'@description Wrapper for the onbrand::template_details function, see the
+#'help for that function for more information
 #'
-#'@param cfg ubiquity system object
-#'@param study_title  String containing descriptive information about the study
-#'@param study_name   short name used to identify the study in other functions  (\code{"default"})
-#'@param rptname      short name used to identify the report to attach results to the study in other functions (\code{"default"})
-#'@return cfg ubiquity system object with the study report information added
-system_report_glp   = function(cfg, study_title = 'Study Title', study_name='default', rptname  = 'default'){
+#'@param cfg ubiquity system object    
+#'@param rptname Report name 
+#'
+#'@return list with template information, see
+#'\code{\link[onbrand]{template_details}} for information on the structure of
+#'this list.
+#'
+#'@seealso \code{\link[onbrand]{template_details}} and
+#' Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
+system_rpt_template_details = function (cfg,
+                        rptname  = "default"){
+
+details = NULL
+
+# pulling out the onbrand object
+obnd = system_fetch_rpt_onbrand_object(cfg=cfg, rptname=rptname)
+
+details = onbrand::template_details(obnd, verbose=FALSE)
 
 
-  isgood = TRUE 
+# This will display the details to the console
+if(!is.null(details[["txt"]])){
+  vp(cfg, details[["txt"]])
+}
 
-  # Supported report types
-  rpttypes = c("PowerPoint")
-  rpttype = NULL
+# We add any messages that might have been generated
+if(!is.null(details[["msgs"]])){
+  vp(cfg, details[["msgs"]])
+}
 
-  if((rptname %in% names( cfg$reporting$reports))){
-    rpttype = cfg$reporting$reports[[rptname]]$rpttype
-    if(!(rpttype %in% rpttypes)){
-      isgood = FALSE
-      vp(cfg, paste("GLP Study Design reporting does not support this format >", rpttype, ">", sep=""))
+# If there were any issues we just 
+if(!details[["isgood"]]){
+  vp(cfg, "ubiquity::system_rpt_template_details")
+  stop()
+}
+
+return(details)}
+# -------------------------------------------------------------------------
+# system_rpt_add_doc_content
+#'@export
+#'@title Adds Content to a Word Report
+#'@description Appends content to an open ubiquity Word report.
+#'
+#'@param cfg ubiquity system object    
+#'@param type Type of content to add. See the
+#'  onbrand function \code{\link[onbrand]{report_add_doc_content}} 
+#'  for the allowed content types.
+#'@param content List with content to add to the report.  See the
+#'  onbrand function \code{\link[onbrand]{report_add_doc_content}} 
+#'  format of this list. 
+#'@param rptname Report name 
+#'
+#'@return ubiquity system object with the content added to the specified
+#'report
+#'
+#'@seealso \code{\link[onbrand]{report_add_doc_content}} and
+#' Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
+system_rpt_add_doc_content = function (cfg,
+                        type     = NULL,
+                        content  = NULL,
+                        rptname  = "default"){
+
+
+isgood = TRUE
+
+# pulling out the onbrand object
+obnd = system_fetch_rpt_onbrand_object(cfg=cfg, rptname=rptname)
+
+if(is.null(obnd)){
+  isgood = FALSE
+} else {
+
+  # Adding the content
+  obnd = onbrand::report_add_doc_content(obnd, type=type, content=content, verbose=FALSE)
+
+  # checking for success
+  if(obnd[["isgood"]]){
+    # Now we return the onbrand object to the cfg 
+    cfg = system_set_rpt_onbrand_object(cfg=cfg, obnd=obnd, rptname=rptname)
+  } else {
+    isgood = FALSE
+    vp(cfg, obnd[["msgs"]])
+  }
+}
+
+if(!isgood){
+  vp(cfg, "ubiquity::system_rpt_add_doc_content()")
+  stop()
+}
+
+
+
+return(cfg)}
+# -------------------------------------------------------------------------
+# system_rpt_add_slide
+#'@export
+#'@title Add Slide to a Powerpoint Report
+#'@description Adds a slide to a ubiquity report.
+#'
+#'@param cfg ubiquity system object    
+#'@param template Name of slide template to use 
+#'@param elements List with content to populate placeholders in the slide. See the
+#'  onbrand functions \code{\link[onbrand]{report_add_slide}} and
+#'  \code{\link[onbrand]{add_pptx_ph_content}} for details on the expected
+#'  format of this list. 
+#'@param rptname Report name 
+#'
+#'@return ubiquity system object with the slide added to the specified
+#'report
+#'
+#'@seealso \code{\link[onbrand]{report_add_slide}}, 
+#'\code{\link[onbrand]{add_pptx_ph_content}}, and 
+#' Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
+system_rpt_add_slide  = function (cfg,
+                        template = NULL,
+                        elements = NULL,
+                        rptname  = "default"){
+isgood = TRUE
+
+# pulling out the onbrand object
+obnd = system_fetch_rpt_onbrand_object(cfg=cfg, rptname=rptname)
+
+
+if(is.null(obnd)){
+  isgood = FALSE
+} else {
+
+  # Adding the slide
+  obnd = onbrand::report_add_slide(obnd, template=template, elements=elements, verbose=FALSE)
+
+  # checking for success
+  if(obnd[["isgood"]]){
+    # Now we return the onbrand object to the cfg 
+    cfg = system_set_rpt_onbrand_object(cfg=cfg, obnd=obnd, rptname=rptname)
+  } else {
+    isgood = FALSE
+    vp(cfg, obnd[["msgs"]])
+  }
+}
+
+if(!isgood){
+  vp(cfg, "ubiquity::system_rpt_add_slide()")
+  stop()
+}
+
+
+return(cfg)}
+
+
+# -------------------------------------------------------------------------
+# system_fetch_rpt_officer_object
+#'@export
+#'@title Extracts the officer Object From the Specified ubiquity Report 
+#'@description This will extract an officer object from the ubiqiuty system
+#'object for the specified report name.
+#'
+#'@param cfg ubiquity system object    
+#'@param rptname ubiquity report name 
+#'
+#'@return officer report object
+#'
+#'@seealso \code{\link{system_set_rpt_officer_object}}
+system_fetch_rpt_officer_object = function (cfg,
+                               rptname  = "default"){
+isgood = TRUE
+rpt    = NULL
+
+obnd = system_fetch_rpt_onbrand_object(cfg=cfg, rptname=rptname)
+
+if(is.null(obnd)){
+  isgood = FALSE
+} else {
+  fres = onbrand::fetch_officer_object(obnd, verbose=FALSE)
+  if(fres[[isgood]]){
+    rpt = fres[["rpt"]]
+  } else {
+    isgood = FALSE
+    vp(cfg, fres[["msgs"]])
+  }
+}
+
+
+
+if(!isgood){
+  vp(cfg, "ubiquity::system_fetch_rpt_officer_object()")
+  stop()
+}
+
+return(rpt)}
+# -------------------------------------------------------------------------
+# system_set_rpt_officer_object
+#'@export
+#'@title Sets the officer Object for the Specified ubiquity Report 
+#'@description This will replace the officer object in the ubiqiuty system
+#'object for the specified report name with the value supplied.
+#'
+#'@param cfg ubiquity system object    
+#'@param rpt officer report object
+#'@param rptname ubiquity report name 
+#'
+#'@return ubiquity system object with the replaced officer object
+#'
+#'@seealso \code{\link{system_fetch_rpt_officer_object}}
+system_set_rpt_officer_object = function (cfg,
+                                rpt  = NULL,
+                                rptname  = "default"){
+isgood = TRUE
+
+
+# Pulling out the onbrand object for the current report
+obnd = system_fetch_rpt_onbrand_object(cfg, rptname)
+
+if(is.null(obnd)){
+  isgood = FALSE
+} 
+
+
+if(isgood){
+  # If everything checks out we attach the rpt  object to the report:
+
+  # First we attach the rpt to the onbrand object
+  obnd = onbrand::set_officer_object(obnd, rpt=rpt, verbose=FALSE)
+  if(obnd[["isgood"]]){
+    # Now we return the onbrand object to the cfg 
+    cfg = system_set_rpt_onbrand_object(cfg=cfg, obnd=obnd, rptname=rptname)
+  } else {
+    isgood = FALSE
+    vp(cfg, obnd[["msgs"]])
+  }
+} 
+
+
+if(!isgood){
+  vp(cfg, "ubiquity::system_set_rpt_officer_object()")
+  stop()
+}
+
+return(cfg)}
+# -------------------------------------------------------------------------
+# system_fetch_rpt_onbrand_object
+#'@export
+#'@title Extracts the onbrand Object From the Specified ubiquity Report 
+#'@description This will extract an onbrand object from the ubiqiuty system
+#'object for the specified report name.
+#'
+#'@param cfg ubiquity system object    
+#'@param rptname ubiquity report name 
+#'
+#'@return onbrand report object
+#'
+#'@seealso \code{\link{system_set_rpt_onbrand_object}}
+system_fetch_rpt_onbrand_object = function (cfg,
+                               rptname  = "default"){
+isgood = TRUE
+obnd = NULL
+
+if(rptname %in% names(cfg[["reporting"]][["reports"]])){
+  if("obnd" %in% names(cfg[["reporting"]][["reports"]][[rptname]])){
+    obnd =cfg[["reporting"]][["reports"]][[rptname]][["obnd"]]
+  } else {
+    vp(cfg, paste0("Unable to find the onbrand object in the report >", rptname, "<"))
+    isgood = FALSE
+  }
+
+} else {
+  vp(cfg, paste0("Unable to find the report >", rptname, "<"))
+  isgood = FALSE
+}
+
+if(!isgood){
+  vp(cfg, "ubiquity::system_fetch_rpt_onbrand_object()")
+  stop()
+}
+
+return(obnd)}
+# -------------------------------------------------------------------------
+# system_set_rpt_onbrand_object
+#'@export
+#'@title Sets the onbrand Object for the Specified ubiquity Report 
+#'@description This will reset the onbrand object in the ubiqiuty system
+#'object for the specified report name.
+#'
+#'@param cfg ubiquity system object    
+#'@param obnd onbrand report object
+#'@param rptname ubiquity report name 
+#'
+#'@return ubiquity system object with onbrand report set
+#'
+#'@seealso \code{\link{system_fetch_rpt_onbrand_object}}
+system_set_rpt_onbrand_object = function (cfg,
+                                obnd = NULL,
+                                rptname  = "default"){
+isgood = TRUE
+
+if(!(rptname %in% names(cfg[["reporting"]][["reports"]]))){
+  vp(cfg, paste0("Unable to find the report >", rptname, "<"))
+  isgood = FALSE
+}
+
+if(is.null(obnd)){
+  vp(cfg, paste0("The obnd object was not specified."))
+  isgood = FALSE
+}
+
+
+if(isgood){
+  # If everything checks out we attach the obnd object to the report
+  cfg[["reporting"]][["reports"]][[rptname]][["obnd"]] = obnd
+} else {
+  vp(cfg, "ubiquity::system_set_rpt_onbrand_object()")
+  stop()
+}
+
+return(cfg)}
+# -------------------------------------------------------------------------
+# system_rpt_save_report   
+#'@export
+#'@title Save Report to a File
+#'@description Saves a ubiquity report to the specified file.
+#'
+#'@param cfg ubiquity system object    
+#'@param output_file File to save the report to (must be either .pptx or .docx
+#'depending on the type of report)
+#'@param rptname ubiquity report name 
+#'
+#' @return list with the follwoing elements 
+#' \itemize{
+#' \item{isgood} Boolean variable indicating success or failure
+#' \item{msgs}   Verbose description of the save results
+#'}
+#'
+#'@seealso Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
+system_rpt_save_report = function (cfg,
+                        output_file = NULL,
+                        rptname     = "default"){
+
+isgood = TRUE
+
+obnd = system_fetch_rpt_onbrand_object(cfg, rptname=rptname)
+if(is.null(obnd)){
+  isgood = FALSE
+}
+
+
+# Attempting to save the report:
+if(isgood){
+  res =  onbrand::save_report(obnd, output_file=output_file, verbose=FALSE)
+
+  # setting the function status to the save status
+  isgood = res[["isgood"]]
+}
+
+# Printing any messages here
+vp(cfg, res[["msgs"]])
+
+if(!isgood){
+  vp(cfg, "ubiquity::system_rpt_save_report()")
+  stop()
+}
+
+return(res)}
+
+# -------------------------------------------------------------------------
+# system_rpt_read_template
+#'@export
+#'@title Initialize a New Report
+#'@description Creates a new officer report based either on the ubiquity
+#' template or one specified by the user. Once created, content can then be
+#' added. 
+#'
+#'@param cfg ubiquity system object    
+#'@param template Type of internal template to use ("PowerPoint" or "Word") or path to template file. 
+#'@param mapping Path to an onbrand yaml mapping file: If an internal ubiquity
+#'template has been supplied, this argument will be ignored and the yaml file
+#'from ubiquity will be used.
+#'@param rptname report name 
+#'
+#'@return ubiquity system object with and empty report initialized
+#'
+#'@details 
+#'   The `template` and `mapping` inputs can specify either the internal
+#'   ubiquity templates or user-defined templates  If you specify `template`
+#'   values of 'PowerPoint` or `Word` then the internal
+#'   ubiquity templates for PowerPoint or Word will be used and the mapping
+#'   information will be ignored.
+#'
+#'   If templates other than the values above are specified you will need also
+#'   supply a yaml mapping file for an `onbrand` reporting template. The
+#'   vignette below highlights how to go about creating these files. 
+#'
+#'@seealso Reporting vignette (\code{vignette("Reporting", package = "ubiquity")})
+#'@seealso Custom Office Template vignette (\code{vignette("Custom_Office_Templates", package="onbrand")})
+system_rpt_read_template = function (cfg,
+                               template = "PowerPoint",
+                               mapping  = NULL,
+                               rptname  = "default"){
+
+isgood = TRUE
+
+
+# Figuring out which template and mapping files
+# This will use the internal ubiquity values
+if(template %in% c("PowerPoint", "Word")){
+  # This works out if we're using stand alone scripts or the ubiquity package
+  # and then works out the file location details from there
+  if( cfg$options$misc$distribution == "package"){
+    mapping_file  = system.file("ubinc", "templates", "report.yaml", package="ubiquity")
+    if(template == "PowerPoint"){
+      template_file = system.file("ubinc", "templates", "report.pptx", package="ubiquity")
+    } else {
+      template_file = system.file("ubinc", "templates", "report.docx", package="ubiquity")
     }
-  }else{
-    isgood = FALSE
-    vp(cfg, paste("The report >", rptname, "< has not been defined.", sep=""))
-    vp(cfg, paste("Initialize the report to use report generation: ", sep=""))
-    vp(cfg, paste("cfg = system_report_init(cfg, rptname='", rptname, "')", sep=""))
+  } else {
+    mapping_file  = file.path("library", "templates", "report.yaml") 
+    if(template == "PowerPoint"){
+      template_file = file.path("library", "templates", "report.pptx") 
+    } else {
+      template_file = file.path("library", "templates", "report.docx") 
+    }
   }
 
-  if(!(study_name %in% names(cfg$glp))){
-    isgood = FALSE
-    vp(cfg, paste("The glp study >", study_name, "< has not been defined.", sep=""))
-    vp(cfg, paste("You need to first Initialize the study: ", sep=""))
-    vp(cfg, paste("cfg = system_glp_init(cfg, study_name='", study_name, "')", sep=""))
-    vp(cfg, paste("Then you must add a scenario using system_glp_scenario().", sep=""))
-  }
+} else {
+  # This will just pass the user input directly through
+  template_file = template
+  mapping_file  = mapping
 
+  # Making sure the user has specified both files
+  if(is.null(template_file) | is.null(mapping_file)){
+    vp(cfg, "To use user-defined reporting templates you must supply both")
+    vp(cfg, "a template file (.pptx or .docx) and a mapping file (.yaml).")
+    isgood = FALSE
+  }
   if(isgood){
-    # Appending to PowerPoint reports
-    if("PowerPoint" == rpttype){
-      vp(cfg, "")
-      vp(cfg, "Appending GLP Tox design to report")
-      vp(cfg, paste("  Report:   ", rptname,      sep=""))
-      vp(cfg, paste("  Study:    ", study_name,   sep=""))
-      # We loop through each scenario and process them:
-      for(scenario in names(cfg$glp[[study_name]]$scenarios)){
-        vp(cfg, paste("  Scenario: ", scenario,   sep=""))
-
-        # Pulling out the current scenario:
-        SCEN = cfg$glp[[study_name]]$scenarios[[scenario]]
-      
-        # Adding a section for the current scenario:
-        cfg = system_report_slide_section(cfg, rptname=rptname, title=scenario)
-      
-        # Summary slide for the scenario
-        cfg = system_report_slide_content(cfg,
-                rptname            = rptname,
-                title              = paste("GLP", SCEN$elements$tox_species, "Study Design"),
-                content_type       = "list",   
-                content            = SCEN$hdpsum)
-
-
-        #-------------------------------------------
-        # Human PK and AUC slides for the top dose:
-        cfg = system_report_slide_two_col(cfg,
-                rptname            = rptname,
-                title              = paste("Human Projections:", SCEN$elements$pres_human_max_dose_str),
-                left_content_type  = "ggplot",
-                left_content       = SCEN$human_PK$figure,
-                right_content_type = "ggplot",
-                right_content      = SCEN$human_AUC$figure)
-        if(!is.null(SCEN$human_PK$figure_annotated)){
-          cfg = system_report_slide_two_col(cfg,
-                  rptname            = rptname,
-                  title              = paste("Human Projections:", SCEN$elements$pres_human_max_dose_str),
-                  left_content_type  = "ggplot",
-                  left_content       = SCEN$human_PK$figure_annotated,
-                  right_content_type = "ggplot",
-                  right_content      = SCEN$human_AUC$figure_annotated)
-        }
-        #-------------------------------------------
-
-        #-------------------------------------------
-        # Tox PK and AUC slides to cover top dose with margins
-        cfg = system_report_slide_two_col(cfg,
-                rptname            = rptname,
-                title              = paste(SCEN$elements$tox_species, "Projections:", SCEN$elements$pres_tox_dose_str),
-                left_content_type  = "ggplot",
-                left_content       = SCEN$tox_PK$figure,
-                right_content_type = "ggplot",
-                right_content      = SCEN$tox_AUC$figure)
-     
-        if(!is.null(SCEN$tox_PK$figure_annotated)){
-          cfg = system_report_slide_two_col(cfg,
-                  rptname            = rptname,
-                  title              = paste(SCEN$elements$tox_species, "Projections:", SCEN$elements$pres_tox_dose_str),
-                  left_content_type  = "ggplot",
-                  left_content       = SCEN$tox_PK$figure_annotated,
-                  right_content_type = "ggplot",
-                  right_content      = SCEN$tox_AUC$figure_annotated)
-        }
-        #-------------------------------------------
-
-      
-        #-------------------------------------------
-        # Lastly we append the simulations to the report:
-        # Looping through each species
-        for(species in names(SCEN$sims)){
-          # All of the doses on the same plot
-          if(!is.null(SCEN$sims[[species]]$all_doses)){
-            cfg = system_report_slide_content(cfg,
-                    rptname            = rptname,
-                    title              = paste(species, "dosing every",  SCEN$sims[[species]]$all_doses$elements$glp_dose_interval_str),
-                    content_type       = "ggplot",   
-                    content            = SCEN$sims[[species]]$all_doses$figure)
-          }
-    
-          # Adding plots for individual doses
-          for(glp_dose_str in names(SCEN$sims[[species]]$individual)){
-            if(!is.null(SCEN$sims[[species]]$individual[[glp_dose_str]]$figure)){
-             cfg = system_report_slide_content(cfg,
-                     rptname            = rptname,
-                     title              = paste(species, "dosing", glp_dose_str, "every", SCEN$sims[[species]]$all_doses$elements$glp_dose_interval_str),
-                     content_type       = "ggplot",   
-                     content            = SCEN$sims[[species]]$individual[[glp_dose_str]]$figure)
-            }
-          }
-        }
-      }
-    }
+    # JMH TODO compare yaml in user defined file to the yaml for the ubiquity
+    # templates to make sure they have the same elements
   }
+}
 
-  if(!isgood){
-    vp(cfg, ubiquity_name_check(study_name)$msg)
-    vp(cfg, "system_report_glp()")
-    vp(cfg, "Errors were found see messages above for more information")
-  }
+
+if(isgood){
+  # Attempting to initialize the report
+  obnd = onbrand::read_template(
+        template = template_file,
+        mapping  = mapping_file,
+        verbose  = FALSE)
   
+  # assigning the state of the obnd object to the state of the function
+  isgood = obnd[["isgood"]]
+}
 
-cfg}
+
+if(isgood){
+  # If everything loaded well then we save the object
+  cfg[["reporting"]][["reports"]][[rptname]][["obnd"]] = obnd
+
+  vp(cfg, "")
+  vp(cfg, paste0("Report initialized..."))
+  vp(cfg, paste0("  Name:     ", rptname))
+  vp(cfg, paste0("  Type:     ", obnd[["rpttype"]]))
+  vp(cfg, paste0("  Template: ", template_file))
+  vp(cfg, paste0("  Mapping:  ", mapping_file))
+
+} else {
+  vp(cfg, obnd[["msgs"]])
+  vp(cfg, "ubiquity::system_rpt_read_template()")
+  vp(cfg, sprintf("Report >%s< initialization failed.", rptname)) 
+  stop()
+}
+
+
+return(cfg)
+}
+# -------------------------------------------------------------------------
+
+
 
 
 #-------------------------------------------------------------------------
@@ -14064,94 +12244,94 @@ calculate_halflife = function(times = NULL,
 res}
 #-------------------------------------------------------------------------
 
-#-------------------------------------------------------------------------
-#'@export 
-#'@title Save results from a GLP Study design
-#'@description Saves files associated with a GLP study. 
-#'
-#'@param cfg ubiquity system object
-#'@param study_name name of the study to save (\code{"default"})
-#'@param rptname      short name used to identify the report to attach results to the study in other functions (\code{default})
-#'@param output_directory optional location to save results (default value of \code{NULL} will use the output folder specified at build time)
-#'@param prefix optional string to prepend to files generated (default value of \code{NULL} will use \code{study_name})
-#'@seealso \code{\link{system_glp_init}}, \code{\link{system_glp_scenario}}
-#'@return List with the following names
-#' \itemize{
-#'   \item{isgood} Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
-#'   \item{files} List with names of the files exported and values containing the paths to the files
-#' }
-system_glp_save = function(cfg, 
-                     study_name       = "default",
-                     rptname          = "default",
-                     output_directory = NULL,
-                     prefix           = NULL){
-
-  # Pulling the output directory from the ubiquity object
-  if(is.null(output_directory)){
-  output_directory = cfg$options$misc$output_directory 
-  }
-
-  isgood = TRUE
-  res = list()
-
-  if(is.null(study_name)){
-    isgood = FALSE
-    vp(cfg, "No study_name specified")
-  } else if(is.null(cfg$glp[[study_name]])){
-    isgood = FALSE
-    vp(cfg, paste("The specified study_name '", study_name, "' does not exist"))
-  }
-
-  if(isgood){
-    # If no prefix has been specified then we use study_name
-    if(is.null(prefix)){
-      prefix=study_name 
-    }
-
-    # file names
-    ppt_file      = paste(prefix, "_report.pptx",    sep="")
-    sim_file      = paste(prefix, "_simulation.csv", sep="")
-    sum_file      = paste(prefix, "_summary.csv",    sep="")
-
-    ppt_file_full = file.path(output_directory, ppt_file)
-    sim_file_full = file.path(output_directory, sim_file)
-    sum_file_full = file.path(output_directory, sum_file)
-
-    vp(cfg, "")
-    vp(cfg, "Exporting GLP study")
-    vp(cfg, paste("  Study:            ", cfg$glp[[study_name]]$study_title))
-    vp(cfg, paste("  Output directory: ", output_directory))
-
-    # Saving the report:
-    system_report_save(cfg, 
-       output_file = ppt_file_full,
-       rptname     = rptname)
-    res$files[[ppt_file]] = ppt_file_full
-
-    # Saving the simulation timecourse 
-    if(!is.null(cfg$glp[[study_name]]$simall)){
-      write.csv(file         = sim_file_full, 
-                quote        = FALSE, 
-                row.names    = FALSE,
-                cfg$glp[[study_name]]$simall)
-    res$files[[sim_file]] = sim_file_full
-    }
-
-    # Saving the simulation summary information 
-    if(!is.null(cfg$glp[[study_name]]$simsum)){
-      write.csv(file         = sum_file_full, 
-                quote        = FALSE, 
-                row.names    = FALSE,
-                cfg$glp[[study_name]]$simsum)
-    res$files[[sum_file]] = sum_file_full
-    }
-
-    
-  }
-
-  res$isgood = isgood
-
-res}
+#  #-------------------------------------------------------------------------
+#  #'@export 
+#  #'@title Save results from a GLP Study design
+#  #'@description Saves files associated with a GLP study. 
+#  #'
+#  #'@param cfg ubiquity system object
+#  #'@param study_name name of the study to save (\code{"default"})
+#  #'@param rptname      short name used to identify the report to attach results to the study in other functions (\code{default})
+#  #'@param output_directory optional location to save results (default value of \code{NULL} will use the output folder specified at build time)
+#  #'@param prefix optional string to prepend to files generated (default value of \code{NULL} will use \code{study_name})
+#  #'@seealso \code{\link{system_glp_init}}, \code{\link{system_glp_scenario}}
+#  #'@return List with the following names
+#  #' \itemize{
+#  #'   \item{isgood} Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
+#  #'   \item{files} List with names of the files exported and values containing the paths to the files
+#  #' }
+#  system_glp_save = function(cfg, 
+#                       study_name       = "default",
+#                       rptname          = "default",
+#                       output_directory = NULL,
+#                       prefix           = NULL){
+#  
+#    # Pulling the output directory from the ubiquity object
+#    if(is.null(output_directory)){
+#    output_directory = cfg$options$misc$output_directory 
+#    }
+#  
+#    isgood = TRUE
+#    res = list()
+#  
+#    if(is.null(study_name)){
+#      isgood = FALSE
+#      vp(cfg, "No study_name specified")
+#    } else if(is.null(cfg$glp[[study_name]])){
+#      isgood = FALSE
+#      vp(cfg, paste("The specified study_name '", study_name, "' does not exist"))
+#    }
+#  
+#    if(isgood){
+#      # If no prefix has been specified then we use study_name
+#      if(is.null(prefix)){
+#        prefix=study_name 
+#      }
+#  
+#      # file names
+#      ppt_file      = paste(prefix, "_report.pptx",    sep="")
+#      sim_file      = paste(prefix, "_simulation.csv", sep="")
+#      sum_file      = paste(prefix, "_summary.csv",    sep="")
+#  
+#      ppt_file_full = file.path(output_directory, ppt_file)
+#      sim_file_full = file.path(output_directory, sim_file)
+#      sum_file_full = file.path(output_directory, sum_file)
+#  
+#      vp(cfg, "")
+#      vp(cfg, "Exporting GLP study")
+#      vp(cfg, paste("  Study:            ", cfg$glp[[study_name]]$study_title))
+#      vp(cfg, paste("  Output directory: ", output_directory))
+#  
+#      # Saving the report:
+#      system_report_save(cfg, 
+#         output_file = ppt_file_full,
+#         rptname     = rptname)
+#      res$files[[ppt_file]] = ppt_file_full
+#  
+#      # Saving the simulation timecourse 
+#      if(!is.null(cfg$glp[[study_name]]$simall)){
+#        write.csv(file         = sim_file_full, 
+#                  quote        = FALSE, 
+#                  row.names    = FALSE,
+#                  cfg$glp[[study_name]]$simall)
+#      res$files[[sim_file]] = sim_file_full
+#      }
+#  
+#      # Saving the simulation summary information 
+#      if(!is.null(cfg$glp[[study_name]]$simsum)){
+#        write.csv(file         = sum_file_full, 
+#                  quote        = FALSE, 
+#                  row.names    = FALSE,
+#                  cfg$glp[[study_name]]$simsum)
+#      res$files[[sum_file]] = sum_file_full
+#      }
+#  
+#      
+#    }
+#  
+#    res$isgood = isgood
+#  
+#  res}
 #-------------------------------------------------------------------------
 
 #'@export 
@@ -14179,7 +12359,7 @@ res}
 #'@param study_scenario  string containing a descriptive name for the tox study
 #'@param human_sim_times user-specified simulation output times for humans (same timescale as the system)
 #'@param study_name name of the study to append the scenario to set with \code{'system_glp_init()'} (\code{'default'}):
-#'  When a report is initialized using \code{\link{system_report_init}} the report name is 'default' unless otherwise specified. To disable reporting set this to  \code{NULL}, and to use a different report specify the name here.
+#'  When a report is initialized using \code{\link{system_rpt_read_template}} the report name is 'default' unless otherwise specified. To disable reporting set this to  \code{NULL}, and to use a different report specify the name here.
 #'@param human_parameters list containing the human parameters 
 #'@param human_bolus string containing the dosing state for human doses (specified with \code{<B:?>}) 
 #'@param human_ndose number of human doses to simulate
@@ -15029,7 +13209,7 @@ system_glp_scenario = function(cfg,
     cfg$glp[[study_name]]$scenarios[[study_scenario]] = SCEN
 
   } else {
-    vp(cfg, "system_glp_scenario()")
+    vp(cfg, "ubiquity::system_glp_scenario()")
     vp(cfg, "Errors were found see messages above for more information")
   }
 

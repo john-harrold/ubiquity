@@ -66,22 +66,17 @@ NCA_summary = system_nca_summary(cfg,
                                SE               = "Std Err."),
        summary_location = "ID")
 
-# -------------------------------------------------------------------------
-# Writing output to PowerPoint
-# Creating an empty report
-cfg = system_report_init(cfg, rpttype="PowerPoint")
-# Giving the report a title slide
-cfg = system_report_slide_title(cfg, title = "NCA of Single Dose PK")
-# Appending the NCA results to the report
-cfg = system_report_nca(cfg, analysis_name = "pk_single_dose")
+#-------------------------------------------------------
 # Writing the results to a PowerPoint report
-system_report_save(cfg=cfg, output_file=file.path("output", "pk_single_dose-report.pptx"))
-# -------------------------------------------------------------------------
-# Writing output to Word
-# Creating an empty report
-cfg = system_report_init(cfg, rpttype="Word")
-# Appending the NCA results to the report
-cfg = system_report_nca(cfg, analysis_name = "pk_single_dose")
-# Writing the results to a Word report
-system_report_save(cfg=cfg, output_file=file.path("output", "pk_single_dose-report.docx"))
-# -------------------------------------------------------------------------
+  cfg = system_rpt_read_template(cfg, template="PowerPoint")
+  cfg = system_rpt_add_slide(cfg, 
+    template = "title_slide",
+    elements = list( title= list(content = "NCA Single Dose PK", type    = "text")))
+  cfg = system_rpt_nca(cfg=cfg, analysis_name="pk_single_dose")
+  system_rpt_save_report(cfg=cfg, output_file=file.path("output","pk_single_dose-report.pptx"))
+#-------------------------------------------------------
+# Writing the results to a Word report  
+  cfg = system_rpt_read_template(cfg, template="Word")
+  cfg = system_rpt_nca(cfg=cfg, analysis_name="pk_single_dose")
+  system_rpt_save_report(cfg=cfg, output_file=file.path("output","pk_single_dose-report.docx"))
+#-------------------------------------------------------

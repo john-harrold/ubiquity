@@ -72,7 +72,7 @@ NCA_results = system_fetch_nca(cfg, analysis_name = "pk_multiple_dose")
 # Writing output to PowerPoint
 # Creating an empty report (this needs to be created before the table
 # generation below)
-cfg = system_report_init(cfg, rpttype="PowerPoint")
+cfg = system_rpt_read_template(cfg, template="Word")
 
 # Here we can take the summary results table and calculate things like
 # Dose normalized Cmax and compare the first and last dose:
@@ -137,37 +137,35 @@ NCA_summary_wide = system_nca_summary(cfg,
        summary_location = "ID")
                           
 
+#-------------------------------------------------------
+# Writing the results to a PowerPoint report
+  cfg = system_rpt_read_template(cfg, template="PowerPoint")
+  cfg = system_rpt_add_slide(cfg, 
+    template = "content_text",
+    elements = list(
+       title =
+         list(content  = "NCA of Multiple Dose PK", 
+              type     = "text"),
+       content_body =
+         list(content  = NCA_summary[["nca_summary_ft"]],
+              type     = "flextable_object")))
+  cfg = system_rpt_nca(cfg=cfg, analysis_name="pk_multiple_dose")
+  system_rpt_save_report(cfg=cfg, output_file=file.path("output","pk_multiple_dose-report.pptx"))
+#-------------------------------------------------------
+# Writing the results to a Word report  
+  cfg = system_rpt_read_template(cfg, template="Word")
 
-
-cfg = system_report_slide_content(cfg,
-       title        = "Day 1 to Day 6 comparison",
-       sub_title    = "Accumulation Ratio",
-       content_type = "flextable_object", 
-       content      = NCA_summary_wide[["nca_summary_ft"]])
-
-
-# Giving the report a title slide
-cfg = system_report_slide_title(cfg, title = "NCA of Multiple Dose PK")
-# Appending the NCA results to the report
-cfg = system_report_nca(cfg, analysis_name = "pk_multiple_dose")
-# Writing the results to a PowerPoint file
-system_report_save(cfg=cfg, output_file=file.path("output", "pk_multiple_dose-report.pptx"))
-# -------------------------------------------------------------------------
-# Writing output to Word
-# Creating an empty report
-cfg = system_report_init(cfg, rpttype="Word")
 # Adding the summary tables above
-cfg = system_report_doc_add_content(cfg, 
-  content_type  = "flextable_object",
-  content       = list(caption = "Summary table of NCA outputs",
-                       ft      = NCA_summary[["nca_summary_ft"]]))
-cfg = system_report_doc_add_content(cfg, 
-  content_type  = "flextable_object",
-  content       = list(caption = "Transformed NCA output",
-                       ft      = NCA_summary_wide[["nca_summary_ft"]]))
+  cfg = system_rpt_add_doc_content(cfg=cfg,
+    type          = "flextable_object",
+    content       = list(caption = "Summary table of NCA outputs",
+                         ft      = NCA_summary[["nca_summary_ft"]]))
+    
+  cfg = system_rpt_add_doc_content(cfg=cfg,
+    type          = "flextable_object",
+    content       = list(caption = "Transformed NCA output",
+                         ft      = NCA_summary_wide[["nca_summary_ft"]]))
 
-# Appending the NCA results to the report
-cfg = system_report_nca(cfg, analysis_name = "pk_multiple_dose")
-# Writing the results to a Word file
-system_report_save(cfg=cfg, output_file=file.path("output", "pk_multiple_dose-report.docx"))
-# -------------------------------------------------------------------------
+  cfg = system_rpt_nca(cfg=cfg, analysis_name="pk_multiple_dose")
+  system_rpt_save_report(cfg=cfg, output_file=file.path("output","pk_multiple_dose-report.docx"))
+#-------------------------------------------------------

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ubiquity</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
       </span>
     </div>
 
@@ -102,6 +102,13 @@
     Functions
   </a>
 </li>
+<li>
+  <a href="../news/index.html">
+    <span class="fas fa-rss"></span>
+     
+    News
+  </a>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
@@ -126,7 +133,7 @@
       <h1 data-toc-skip>Modeling Language</h1>
                         <h4 data-toc-skip class="author">John Harrold &amp; Anson Abraham</h4>
             
-            <h4 data-toc-skip class="date">2021-07-30</h4>
+            <h4 data-toc-skip class="date">2021-08-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Language.Rmd" class="external-link"><code>vignettes/Language.Rmd</code></a></small>
       <div class="hidden name"><code>Language.Rmd</code></div>
@@ -137,7 +144,8 @@
     
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
-<a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction</h2>
+<a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px">
+</h2>
 <p>At its core, ubiquity is a modeling language and a set of scripts meant to facilitate model development and deployment. The focus of this document is on the model description language. This is a plain text file, referred to as a <strong>system file</strong>. Each line contains a descriptor (e.g. <code>&lt;P&gt;</code>) which defines an aspect of the model, and comments are made with the hash sign (<code>#</code>). What follows is an overview of the different components of the language that can be used to create a system file.</p>
 </div>
 <div id="parameters" class="section level2">
@@ -375,7 +383,7 @@ Cp + Tp &lt;=kon:koff=&gt; CpTp
 </h3>
 <p>The <code>&lt;B:?&gt;</code> descriptor is used to define bolus dosing. Dosing information is broken down into a list of <code>times</code> when bolus injections occur and a list of <code>events</code> containing the amount the specified compartment will receive.</p>
 <p>Each of these has a <code>scale</code> that is used to convert the bolus dosing information from proscribed units (mg daily) into the units in which the system is coded (nM and hours). So if dosing is done on days 0, 1, 2… but the simulation time is hours, then the scale for the dosing times is 24.</p>
-<p>The events contain the magnitude of the bolus at a given time. If you have multiple compartments receiving a bolus, the times must include all times in which a bolus may be applied to the system. If a state does not receive a bolus on a particular time, it’s magnitude at that time is 0.</p>
+<p>The events contain the magnitude of the bolus at a given time. If you have multiple compartments receiving a bolus, the times must include all times in which a bolus may be applied to the system. If a state does not receive a bolus on a particular time, its magnitude at that time is 0.</p>
 <p>To illustrate this consider the following dosing schedule:</p>
 <div class="figure">
 <img src="dosing_bolus.png" style="width:50.0%" alt=""><p class="caption">Dosing into two different states/compartments</p>
@@ -574,7 +582,7 @@ C_{free}=\frac{1}{2}
 <div id="aligning-sets" class="section level4">
 <h4 class="hasAnchor">
 <a href="#aligning-sets" class="anchor" aria-hidden="true"></a>Aligning Sets</h4>
-<p>By default sets will interpreted by evaulating every possible permutation as shown above. However, it may be desireable to pair or align sets. Take for example the transit compartments implemented by Lobo and Balthasar to delay the onset of drug effect on cancer cells [LB]. The traisnt compartment are implemented using a series of differential equations:</p>
+<p>By default sets will interpreted by evaluating every possible permutation as shown above. However, it may be desirable to pair or align sets. Take for example the transit compartments implemented by Lobo and Balthasar to delay the onset of drug effect on cancer cells [LB]. The transit compartment are implemented using a series of differential equations:</p>
 <p><span class="math display">\[
   \frac{dK1}{dt} = (K-K1)\frac{1}{\tau} \\
   \frac{dK2}{dt} = (K1-K2)\frac{1}{\tau} \\
@@ -584,9 +592,9 @@ C_{free}=\frac{1}{2}
 <p>It’s possible to code each of these individually, but it’s also possible to define these using mathematical set notation. We see that in the first equation K is paired or aligned with K1, and in the second it’s K1 and K2, etc. So first we define two sets of equal length whose elements are aligned:</p>
 <pre><code>&lt;SET:TRIN&gt;    K; K1; K2; K3
 &lt;SET:TROUT&gt;  K1; K2; K3; K4 </code></pre>
-<p>Next we write the <code>&lt;ODE:?&gt;?</code> statment in terms of these sets, but we use the <code>SIMINT_SET_ALIGN</code> function:</p>
+<p>Next we write the <code>&lt;ODE:?&gt;?</code> statement in terms of these sets, but we use the <code>SIMINT_SET_ALIGN</code> function:</p>
 <pre><code>SIMINT_SET_ALIGN[TRIN;TROUT][&lt;ODE:{TROUT}&gt; 1.0/tau*({TRIN}-{TROUT})]</code></pre>
-<p>The first argument is the names of sets to align separated by a simicolon <code>;</code> and the second argment is the system file descriptor written in terms of these sets. This will be expanded internally into:</p>
+<p>The first argument is the names of sets to align separated by a semicolon <code>;</code> and the second argument is the system file descriptor written in terms of these sets. This will be expanded internally into:</p>
 <pre><code>&lt;ODE:K1&gt; 1.0/tau*(K-K1)
 &lt;ODE:K2&gt; 1.0/tau*(K1-K2)
 &lt;ODE:K3&gt; 1.0/tau*(K2-K3)
@@ -604,7 +612,7 @@ C_{free}=\frac{1}{2}
 <code>SIMINT_SET_PRODUCT</code> is the mathematical equivalent of <span class="math inline">\(\prod_{SET}\)</span>
 </li>
 </ul>
-<p>These functions take two bracketed arguments. The first argument is the set name and the second argument is the mathematical relationship to be expanded. For example, consider a system that has been parameterized for several species. The variable <code>EN_Mouse</code> is 1 if the species is mouse and 0 otherwise. Similarly for <code>EN_Human</code>, <code>EN_Monkey</code>, etc. We have also defined the body weights as system parameters: <code>BW_Mouse</code> for the mouse, <code>BW_Human</code> for human, etc. Now we want to assign <code>BW</code> to the value of the currently seleted species (where <code>EN</code> for that species is 1). First we would define the species parameter set:</p>
+<p>These functions take two bracketed arguments. The first argument is the set name and the second argument is the mathematical relationship to be expanded. For example, consider a system that has been parameterized for several species. The variable <code>EN_Mouse</code> is 1 if the species is mouse and 0 otherwise. Similarly for <code>EN_Human</code>, <code>EN_Monkey</code>, etc. We have also defined the body weights as system parameters: <code>BW_Mouse</code> for the mouse, <code>BW_Human</code> for human, etc. Now we want to assign <code>BW</code> to the value of the currently selected species (where <code>EN</code> for that species is 1). First we would define the species parameter set:</p>
 <pre><code>&lt;SET:SP&gt; Mouse; Rat; Monkey; Human</code></pre>
 <p>Next we would define the secondary parameter <code>BW</code> by summing the product of the Boolean species parameter and the body weight for that species:</p>
 <pre><code>&lt;As&gt; BW = SIMINT_SET_SUM[SP][EN_{SP}*BW_{SP}]</code></pre>
@@ -612,11 +620,11 @@ C_{free}=\frac{1}{2}
 <div id="set-evaluation" class="section level4">
 <h4 class="hasAnchor">
 <a href="#set-evaluation" class="anchor" aria-hidden="true"></a>Set Evaluation</h4>
-<p>Sets are evaulated in the following order:</p>
+<p>Sets are evaluated in the following order:</p>
 <ul>
-<li>First set functions (<code>SIMINT_SET_SUM</code> and <code>SIMINT_SET_PRODUCT</code>) are evaulated.</li>
+<li>First set functions (<code>SIMINT_SET_SUM</code> and <code>SIMINT_SET_PRODUCT</code>) are evaluated.</li>
 <li>Next aligned sets are applied (<code>SIMINT_SET_ALIGN</code>)</li>
-<li>Lastly, remaining sets are evaulated for every permutation</li>
+<li>Lastly, remaining sets are evaluated for every permutation</li>
 </ul>
 </div>
 </div>
@@ -675,15 +683,15 @@ C_{free}=\frac{1}{2}
 <p>These example system files can be found in the examples directory of the stand-alone analysis template (<a href="https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_analysis_development.zip" class="external-link">ubiquity_template.zip</a>). Most can also be loaded form the R package (see the help for system_new).</p>
 <ul>
 <li>
-<code>system-adapt.txt</code> - Parent/metabolite structural model taken from the ADAPT5 Users Manual [ADAPT]. This sytem is used in the estmation examples of the ubiquity workshop.</li>
+<code>system-adapt.txt</code> - Parent/metabolite structural model taken from the ADAPT5 Users Manual [ADAPT]. This system is used in the estimation examples of the ubiquity workshop.</li>
 <li>
-<code>system-glp_study.txt</code> - PK model paramterized for humans and NHPs, used as an example for GLP tox study design.</li>
+<code>system-glp_study.txt</code> - PK model parameterized for humans and NHPs, used as an example for GLP tox study design.</li>
 <li>
 <code>system-mab_pk.txt</code> - Linear model of mAb PK for humans taken from [DM]. This model is used in the simulation examples of the ubiquity workshop.</li>
 <li>
 <code>system-one_cmt_cl.txt</code> - One compartment model parameterized in terms of clearances and volumes.</li>
 <li>
-<code>system-one_cmt_micro.txt</code> - One compartment model parameterizedf or micro constants (rates).</li>
+<code>system-one_cmt_micro.txt</code> - One compartment model parameterized for micro constants (rates).</li>
 <li>
 <code>system-pbpk.txt</code> - Implementation of large molecule PBPK model by Shah and Betts [SB]. This model provides good examples of how to use mathematical set notation.</li>
 <li>
@@ -691,7 +699,7 @@ C_{free}=\frac{1}{2}
 <li>
 <code>system-pwc.txt</code> - Example of how to construct piece-wise secondary parameters (i.e. using if/then/else statements).</li>
 <li>
-<code>system-sets.txt</code> - Example of how to parameterize systems with multiple parameter sets.</li>
+<code>system-sets.txt</code> - Example of how to parameterized systems with multiple parameter sets.</li>
 <li>
 <code>system-tmdd.txt</code> - Example of how to code a TMDD model using either ODEs or process descriptors.</li>
 <li>
@@ -706,7 +714,8 @@ C_{free}=\frac{1}{2}
 <h2 class="hasAnchor">
 <a href="#references" class="anchor" aria-hidden="true"></a>References</h2>
 <ul>
-<li>[ADAPT][<a href="https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf" class="external-link uri">https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf</a>](<a href="https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf" class="external-link uri">https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf</a>)</li>
+<li>[ADAPT] <a href="https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf" class="external-link">Adapt 5 Users Guide</a>
+</li>
 <li>[DM] <a href="https://doi.org/10.2165/11535960-000000000-00000" class="external-link">Dirks &amp; Meibohm Clin. PK (2010) Oct 1;49(10):633-59</a>
 </li>
 <li>[LB] <a href="https://doi.org/10.1208/ps040442" class="external-link">Lobo, E.D. &amp; Balthasar, J.P. AAPS J (2002) 4, 212-222</a>

@@ -8,9 +8,6 @@ options(show.error.locations = TRUE)
 # R -e "source('thisfile.r')"
 # setwd(dirname(sys.frame(tail(grep('source',sys.calls()),n=1))$ofile))
 graphics.off()
-
-library(ggplot2)
-library(officer)
 # If we cannot load the ubiquity package we try the stand alone distribution
 if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else 
 {source(file.path("library", "r_general", "ubiquity.R")) }
@@ -20,39 +17,41 @@ cfg = build_system(system_file="system.txt",
                    output_directory     = file.path(".", "output"),
                    temporary_directory  = file.path(".", "transient"))
 
-# Loading the system information
-cfg = system_fetch_cfg()
+# -------------------------------------------------------------------------
+# Here were creating some content for the reporting examples below:
+# This creates a ggplot object (p) and an image file (imgfile)
+library(ggplot2)
+p = ggplot() + annotate("text", x=0, y=0, label = "picture example")
+imgfile = tempfile(pattern="image", fileext=".png")
+ggsave(filename=imgfile, plot=p, height=5.15, width=9, units="in")
 
-#
-# Starting a report
-#
-cfg = system_report_init(cfg)
+# A dataframe with some tabular data:
+tdata =  data.frame(Parameters = c("Vp", "Cl", "Q", "Vt"),
+                    Values     = 1:4,
+                    Units      = c("L", "L/hr", "L/hr", "L") )
 
-#
-#  use system_report_view_layout to get the 
-#
-system_report_view_layout(cfg, 
-                          output_file   = "layout.pptx")
-#
-# use system_report_slide_content to create slides with title and a single
-# large body of information:
-#
+# This example can be used for a simple Office table:
+tco  = list(table     = tdata,    # This element contains the table data
+            header    = TRUE,     # These two lines control the header
+            first_row = FALSE)
 
-system_report_slide_title(cfg,
-                          title                  = "Presentation Title",      
-                          sub_title              = "Sub title")
+# This is an example of adding a flextable
+tcf = list(table       = tdata,             # This element contains the table data
+           header_top  = list(              # Defining the table heaaders
+             Parameters = "Name",  
+             Values     = "Value",
+             Units      = "Units"),
+           cwidth         = 0.8,            # Column width
+           table_autofit  = TRUE,           # Making the tables automatically fit
+           table_theme    = "theme_zebra",  # Selecting the table theme
+           first_row = FALSE)
 
+# This is a user-created flextable object
+tfo = flextable::flextable(tdata)
+tfo = flextable::autofit(tfo)
 
-# For displaying only text use the following:
-cfg = system_report_slide_content(cfg,
-                                  title        = "Title",
-                                  sub_title    = "Sub Title",
-                                  content_type = "text", 
-                                  content      = "Body Text")
-#
 # To display bulleted text make a vector with 
 # pairs of indent level and text:
-#
 lcontent = c(1, "First major item",
              2, "first sub bullet",
              2, "second sub bullet",
@@ -60,170 +59,213 @@ lcontent = c(1, "First major item",
              1, "Second major item",
              2, "first sub bullet",
              2, "second sub bullet")
+# -------------------------------------------------------------------------
+# This loads the default PowerPoint template for ubiquity. See the Reporting
+# vignette for details on how to create an obrand template for your
+# organziation
+cfg = system_rpt_read_template(cfg, "PowerPoint")
+# -------------------------------------------------------------------------
+# To access the underlying officer object you can do the following:
+# First extract the officerobject:
+rpt = system_fetch_rpt_officer_object(cfg)
 
-cfg = system_report_slide_content(cfg,
-                                  title        = "Title",
-                                  sub_title    = "Sub Title",
-                                  content_type = "list", 
-                                  content      = lcontent)
+# Now you can use any officer commands you'd want on the rpt object
 
+# Don't forget to stick it bac into the ubiquity object once you're done:
+cfg  = system_set_rpt_officer_object(cfg, rpt)
 
-tcontent = list()
-tcontent$table = data.frame(Parameters = c("Vp", "Cl", "Q", "Vt"),
-                            Values     = 1:4,
-                            Units      = c("L", "L/hr", "L/hr", "L") )
+# -------------------------------------------------------------------------
+# To access the underlying onbrand object you can do the following:
+# First extract the onbrand object:
+obnd = system_fetch_rpt_onbrand_object(cfg)
 
-# disabling the header here:
-tcontent$header    = FALSE
-tcontent$first_row = FALSE
-cfg = system_report_slide_content(cfg,
-                                  title        = "Title Example",
-                                  sub_title    = "Sub Title",
-                                  content_type = "table", 
-                                  content      = tcontent)
+# Now you can use any onbrand functions on the obnd object
 
-#
-# To add an image file the dimensions should be 
-#
-# units = inches, height = 5.09, width = 9.45
-p = ggplot() + annotate("text", x=0, y=0, label = "picture example")
-imgfile = tempfile(pattern="image", fileext=".png")
-ggsave(filename=imgfile, plot=p, height=5.15, width=9, units="in")
- 
-cfg = system_report_slide_content(cfg,
-                                  title        = "Image example",
-                                  sub_title    = "Image file",
-                                  content_type = "imagefile", 
-                                  content      = imgfile)
-# 
-# Or you can add a ggplot image
-# 
-cfg = system_report_slide_content(cfg,
-       title        = "Image example",
-       sub_title    = "ggplot",    
-       content_type = "ggplot", 
-       content      = p)
+# Don't forget to stick it back into the ubiquity object once you're done:
+cfg  = system_set_rpt_onbrand_object(cfg, obnd)
+# -------------------------------------------------------------------------
+# Adding content to the report
+cfg = system_rpt_add_slide(cfg, 
+   template = "title_slide",
+   elements = list(
+      title=list(content = "Reporting in ubiquity",
+                 type    = "text")))
+cfg = system_rpt_add_slide(cfg, 
+   template = "section_slide",
+   elements = list(
+      title=list(content = "Content Types",
+                 type    = "text")))
+# ---------
+# Figures from ggplot objects
+cfg = system_rpt_add_slide(cfg, 
+   template = "content_text",
+   elements = list(
+      title=
+        list(content = "Figures: ggplot object",
+             type    = "text"),
+      sub_title=
+        list(content = "Using ggplot objects directly",
+             type    = "text"),
+      content_body=
+        list(content = p,
+             type    = "ggplot")))
+# Figures from image files
+cfg = system_rpt_add_slide(cfg, 
+   template = "content_text",
+   elements = list(
+      title=
+        list(content = "Figures: image file",
+             type    = "text"),
+      sub_title=
+        list(content = "Inserting figures from files",
+             type    = "text"),
+      content_body=
+        list(content = imgfile,
+             type    = "imagefile")))
+# ---------
+# Lists
+cfg = system_rpt_add_slide(cfg, 
+   template = "content_list",
+   elements = list(
+      title=
+        list(content = "Lists",
+             type    = "text"),
+      sub_title=
+        list(content = "For placholders that contain lists.",
+             type    = "text"),
+      content_body=
+        list(content = lcontent,
+             type    = "list")))
 
-cfg = system_report_slide_section(cfg,
-       title     = "Information in Two Column",      
-       sub_title = "Text, pictures and bullets")
- 
-#
-# Two columns of content
-#
+# ---------
+# Office tables 
+cfg = system_rpt_add_slide(cfg, 
+   template = "content_text",
+   elements = list(
+      title=
+        list(content = "Tables: Office",
+             type    = "text"),
+      sub_title=
+        list(content = "Table in native Office format",
+             type    = "text"),
+      content_body=
+        list(content = tco,
+             type    = "table")))
 
+# Flextables usin the onbrand abstraction
+cfg = system_rpt_add_slide(cfg, 
+   template = "content_text",
+   elements = list(
+      title=
+        list(content = "Tables: flextable",
+             type    = "text"),
+      sub_title=
+        list(content = "Flextables using onbrand abstraction",
+             type    = "text"),
+      content_body=
+        list(content = tcf,
+             type    = "flextable")))
 
-cfg = system_report_slide_two_col(cfg,
-        title                  = "Two columns of plain text",      
-        sub_title              = "Subtitle", 
-        content_type           = "text", 
-        left_content           = "Left Side",
-        right_content          = "Right Side")
+# Flextables usin the onbrand abstraction
+cfg = system_rpt_add_slide(cfg, 
+   template = "content_text",
+   elements = list(
+      title=
+        list(content = "Tables: flextable object",
+             type    = "text"),
+      sub_title=
+        list(content = "Flextables using a user-created flextable object",
+             type    = "text"),
+      content_body=
+        list(content = tfo,
+             type    = "flextable_object")))
 
-cfg = system_report_slide_two_col(cfg,
-       title                  = "Two columns of lists",      
-       sub_title              = "Subtitle", 
-       content_type           = "list", 
-       left_content           = lcontent,
-       right_content          = lcontent)
-  
-cfg = system_report_slide_two_col(cfg,
-       title                  = "Two Col Text w/Headers",      
-       sub_title              = "Two columns of text with headers",
-       content_type           = "text", 
-       right_content          = "Right Text",
-       left_content_type      = "text",
-       left_content           = "Left Text",
-       left_content_header    = "Left Header",
-       right_content_header   = "Right Header")
+# ---------
+# Other available templates: 
+cfg = system_rpt_add_slide(cfg, 
+   template = "section_slide",
+   elements = list(
+      title=list(content = "Other Available Default Templates",
+                 type    = "text")))
+# ---------
+cfg = system_rpt_add_slide(cfg, 
+   template = "two_content_header_text",
+   elements = list(
+      title=
+        list(content = "Two Columns (Text) w/Headers",
+             type    = "text"),
+      sub_title=
+        list(content = "Two columns of text content with headers",
+             type    = "text"),
+      content_left_header=
+        list(content = "Left Header",
+             type    = "text"),
+      content_left=
+          list(content = "Left Text",
+             type    = "text"),
+      content_right_header=
+        list(content = "Right Header",
+             type    = "text"),
+      content_right=
+        list(content = "Right Text",
+             type    = "text")))
+# ---------
+cfg = system_rpt_add_slide(cfg, 
+   template = "two_content_text",
+   elements = list(
+      title=
+        list(content = "Two Columns (Text)",
+             type    = "text"),
+      sub_title=
+        list(content = "Two columns of text content",
+             type    = "text"),
+      content_left=
+          list(content = "Left Text",
+             type    = "text"),
+      content_right=
+        list(content = "Right Text",
+             type    = "text")))
+# ---------
+cfg = system_rpt_add_slide(cfg, 
+   template = "two_content_header_list",
+   elements = list(
+      title=
+        list(content = "Two Columns (List) w/Headers",
+             type    = "text"),
+      sub_title=
+        list(content = "Two columns of lists with headers",
+             type    = "text"),
+      content_left_header=
+        list(content = "Left Header",
+             type    = "text"),
+      content_left=
+          list(content = c(1, "Left Text"),
+             type    = "list"),
+      content_right_header=
+        list(content = "Right Header",
+             type    = "text"),
+      content_right=
+        list(content = c(1, "Right Text"),
+             type    = "list")))
+# ---------
+cfg = system_rpt_add_slide(cfg, 
+   template = "two_content_list",
+   elements = list(
+      title=
+        list(content = "Two Columns (List)",
+             type    = "text"),
+      sub_title=
+        list(content = "Two columns of lists",
+             type    = "text"),
+      content_left=
+          list(content = c(1, "Left Text"),
+             type    = "list"),
+      content_right=
+        list(content = c(1, "Right Text"),
+             type    = "list")))
 
-
-cfg = system_report_slide_two_col(cfg,
-       title                  = "Two Col Text w/Headers",      
-       sub_title              = "Two columns of text with headers",
-       content_type           = "list", 
-       right_content          = c(1, "Right Text"),
-       left_content_type      = "list",
-       left_content           = c(1, "Left Text"),
-       left_content_header    = "Left Header",
-       right_content_type     = "list",
-       right_content_header   = "Right Header")
-  
-cfg = system_report_slide_two_col(cfg,
-       title                  = "Two columns: image and table",      
-       sub_title              = "Subtitle", 
-       content_type           = "text", 
-       left_content_type      = "ggplot",
-       left_content           = p,
-       right_content_type     = "table", 
-       right_content          = tcontent)
-
-cfg = system_report_slide_two_col(cfg,
-       title                  = "Two columns: plain text and image with header",      
-       sub_title              = "With a header",
-       content_type           = "text", 
-       right_content          = "Right Side",
-       left_content_type      = "ggplot",
-       left_content           = p,
-       left_content_header    =  "Header text",  
-       right_content_header   =  NULL)
-
-
-
-# Example usingflex tables
-tcf = list()
-tcf$table = data.frame(Parameters = c("Vp", "Cl", "Q", "Vt"),
-                       Values     = 1:4,
-                       Units      = c("L", "L/hr", "L/hr", "L") )
-tcf$header_top   = 
-     list(Parameters     = "Name", 
-          Values         = "Value",
-          Units          = "Units")
-
-tcf$cwidth        = 0.8 
-tcf$table_autofit = TRUE
-tcf$table_theme   ='theme_zebra'
-
-cfg = system_report_slide_two_col(cfg,
-       title                       = "Two columns: flextable and image with header",      
-       sub_title                   = "With a header",
-       content_type                = "list",    
-       right_content_type          = "flextable",
-       right_content               = tcf,
-       left_content_type           = "ggplot",
-       left_content                = p,
-       left_content_header_type    = "text",  
-       left_content_header         = "Header text",  
-       right_content_header_type   = "ggplot",
-       right_content_header        =  p)
-
-# Example using flextables explicitly 
-library(magrittr)
-library(flextable)
-
-data = data.frame(property = c("mean",   "variance"),
-                  Cmax     = c(2,         0.1),
-                  AUCinf   = c(22,       0.21),
-                  AUClast  = c(22,       0.21))
-
-# This creates a flextable object:
-ft = flextable::flextable(data)                      
-
-cfg = system_report_slide_content(cfg,
-       title        = "Userdefined Flextable",
-       sub_title    = "flextable_object",    
-       content_type = "flextable_object", 
-       content      = ft)
-
-# Pulling the report
-rpt = system_fetch_report(cfg)
-
-# you can make changes to rpt directly using the 
-# functions from officer here
-
-# then you can reassociate it with the named report:
- cfg = system_report_set(cfg, 
-     rpt     = rpt)  
-
-# Lastly you can save reports to files:
-system_report_save(cfg, output_file = "example.pptx")
+# This will pull out template mapping details
+tmplt_deets = system_rpt_template_details(cfg)
+# -------------------------------------------------------------------------
+# Saving the report
+system_rpt_save_report(cfg, output_file = "example.pptx")

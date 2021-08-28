@@ -55,7 +55,7 @@ system_glp_scenario(
 \item{human_sim_times}{user-specified simulation output times for humans (same timescale as the system)}
 
 \item{study_name}{name of the study to append the scenario to set with \code{'system_glp_init()'} (\code{'default'}):
-When a report is initialized using \code{\link{system_report_init}} the report name is 'default' unless otherwise specified. To disable reporting set this to  \code{NULL}, and to use a different report specify the name here.}
+When a report is initialized using \code{\link{system_rpt_read_template}} the report name is 'default' unless otherwise specified. To disable reporting set this to  \code{NULL}, and to use a different report specify the name here.}
 
 \item{human_parameters}{list containing the human parameters}
 

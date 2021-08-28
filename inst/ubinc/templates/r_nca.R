@@ -55,23 +55,24 @@ cfg = build_system(system_file="system.txt",
 #                                           DOSENUM  = NULL),
 #                      digits        = 3)
 
-# -------------------------------------------------------------------------
-# Writing output to PowerPoint
+#-------------------------------------------------------
+# Writing the results to a PowerPoint report
 #  # Creating an empty report
-#  cfg = system_report_init(cfg, rpttype="PowerPoint")
+#  cfg = system_rpt_read_template(cfg, template="PowerPoint")
 #  # Giving the report a title slide
-#  cfg = system_report_slide_title(cfg, title = "NCA in ubiquity")
+#  cfg = system_rpt_add_slide(cfg, 
+#    template = "title_slide",
+#    elements = list( title= list(content = "NCA Single Dose PK", type    = "text")))
 #  # Appending the NCA results to the report
-#  cfg = system_report_nca(cfg, analysis_name = "analysis")
+#  cfg = system_rpt_nca(cfg=cfg, analysis_name="analysis")
 #  # Writing the results to a PowerPoint file
-#  system_report_save(cfg=cfg, output_file=file.path("output", "analysis-report.pptx"))
-# -------------------------------------------------------------------------
-# Writing output to Word
+#  system_rpt_save_report(cfg=cfg, output_file=file.path("output","analysis-report.pptx"))
+#-------------------------------------------------------
+# Writing the results to a Word report  
 #  # Creating an empty report
-#  cfg = system_report_init(cfg, rpttype="Word")
+#  cfg = system_rpt_read_template(cfg, template="Word")
 #  # Appending the NCA results to the report
-#  cfg = system_report_nca(cfg, analysis_name = "analysis")
+#  cfg = system_rpt_nca(cfg=cfg, analysis_name="analysis")
 #  # Writing the results to a Word file
-#  system_report_save(cfg=cfg, output_file=file.path("output", "analysis-report.docx"))
-# -------------------------------------------------------------------------
-
+#  system_rpt_save_report(cfg=cfg, output_file=file.path("output","analysis-report.docx"))
+#-------------------------------------------------------
