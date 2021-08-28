@@ -22,10 +22,30 @@ fr = system_new(file_name        = "system.txt",
 cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
       output_directory          = file.path(tempdir(), "output"),
       temporary_directory       = tempdir())
+```
 
+
+```{r results="hide", warning=FALSE, echo=FALSE}
 cfg_pptx = system_rpt_read_template(cfg, "PowerPoint")
 cfg_docx = system_rpt_read_template(cfg, "Word")
+fr_pptx = system_rpt_template_details(cfg_pptx)
+fr_docx = system_rpt_template_details(cfg_docx)
+
+tdeets = list()
+tdeets[["pptx"]][["txt"]] = fr_pptx[["txt"]]
+tdeets[["docx"]][["txt"]] = fr_docx[["txt"]]
+tdeets[["pptx"]][["ft"]]  = fr_pptx[["ft"]]
+tdeets[["docx"]][["ft"]]  = fr_docx[["ft"]]
+
+save(tdeets, file="Reporting.RData")
 ```
+
+
+```{r echo=FALSE, eval=TRUE}
+# This should create tdeets
+load("Reporting.RData")
+```
+
 
 ## Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px" />
 
@@ -162,9 +182,8 @@ fr = system_rpt_template_details(cfg)
 This will produce output in the console like the following:
 
 ```{r message=FALSE, warning=FALSE, eval=TRUE, echo=FALSE, message=FALSE}
-fr = system_rpt_template_details(cfg_pptx)
-trim_idx = min(c(18, length(fr$txt)))
-cat(paste(fr$txt[1:trim_idx], collapse="\n"))
+trim_idx = min(c(18, length(tdeets[["pptx"]][["txt"]])))
+cat(paste(tdeets[["pptx"]][["txt"]][1:trim_idx], collapse="\n"))
 ```
 
 #### Adding lists
@@ -401,8 +420,7 @@ fr = system_rpt_template_details(cfg)
 This will produce output in the console like the following:
 
 ```{r message=FALSE, warning=FALSE, eval=TRUE, echo=FALSE, message=FALSE}
-fr = system_rpt_template_details(cfg_docx)
-cat(paste(fr$txt, collapse="\n"))
+cat(paste(tdeets[["docx"]][["txt"]], collapse="\n"))
 ```
 
 Text can be added in three different formats: plain text, as Markdown, and using the `officer::fpar()` command from the `officer` package.
@@ -502,8 +520,7 @@ In PowerPoint you will need to have a document template with the following slide
 
 
 ```{r message=FALSE, warning=FALSE, eval=TRUE, echo=FALSE}
-tmplt_deets = system_rpt_template_details(cfg_pptx)
-tmplt_deets$ft
+tdeets[["pptx"]][["ft"]]
 ```
 
 ### Word
@@ -511,8 +528,7 @@ tmplt_deets$ft
 For Word reporting you will need to have a Word template with the following styles defined. When you create the `onbrand` mapping file you will need to use the onbrand Style name listed.
 
 ```{r message=FALSE, warning=FALSE, eval=TRUE, echo=FALSE}
-tmplt_deets = system_rpt_template_details(cfg_docx)
-tmplt_deets$ft
+tdeets[["docx"]][["ft"]]
 ```
 
 ### Using the custom templates
