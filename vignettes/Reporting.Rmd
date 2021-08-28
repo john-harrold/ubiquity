@@ -15,6 +15,10 @@ require(ubiquity)
 require(officer)
 require(onbrand)
 require(flextable)
+```
+
+
+```{r results="hide", warning=FALSE, echo=FALSE}
 fr = system_new(file_name        = "system.txt", 
                 system_file      = "mab_pk", 
                 overwrite        = TRUE, 
@@ -22,10 +26,6 @@ fr = system_new(file_name        = "system.txt",
 cfg = build_system(system_file  = file.path(tempdir(), "system.txt"),
       output_directory          = file.path(tempdir(), "output"),
       temporary_directory       = tempdir())
-```
-
-
-```{r results="hide", warning=FALSE, echo=FALSE}
 cfg_pptx = system_rpt_read_template(cfg, "PowerPoint")
 cfg_docx = system_rpt_read_template(cfg, "Word")
 fr_pptx = system_rpt_template_details(cfg_pptx)
