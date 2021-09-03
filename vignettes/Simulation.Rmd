@@ -43,6 +43,15 @@ system_new(file_name="system.txt", system_file="mab_pk", overwrite = TRUE)
 cfg = build_system(system_file = "system.txt")
 ```
 
+```{r results="hide", warning=FALSE, echo=FALSE}
+cfg_orig = cfg
+save(cfg_orig, file="Simulation_cfg_orig.RData")
+```
+
+```{r echo=FALSE, eval=TRUE}
+load(file="Simulation_cfg_orig.RData")
+```
+
 After building any system you can then create templates. To create a template script for running simulations use ``system_fetch_template`` and specify  ``"Simulation"`` as the template argument:
 
 ```{r results="hide"}
@@ -107,8 +116,8 @@ print(p)
 ## Simulating Population Response From IIV (``analysis_multiple.r``) 
 
 Next we want to simulate the response of multiple subjects. This system has IIV specified in the following manner:
-```{r warning=FALSE, comment='', message=TRUE}
-message(paste(system_view(cfg, 'iiv'), collapse="\n"))
+```{r warning=FALSE, comment='', message=TRUE, echo=FALSE, eval=TRUE}
+message(paste(system_view(cfg_orig, 'iiv'), collapse="\n"))
 ```
 
 Different aspects of the Monte Carlo simulations can be specified. For example the following states that we want to simulate 20 subjects and the simulation is run using ```simulate_subjects```:

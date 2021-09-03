@@ -301,7 +301,7 @@ The rest of the reporting script (`make_report_PowerPoint.R`) simply provides ex
 
 Once you're done you can then save the presentation to a file:
 
-```{r message=FALSE, warning=FALSE, eval=FALSE, echo=FALSE}
+```{r message=FALSE, warning=FALSE, eval=FALSE, echo=TRUE}
 system_rpt_save_report(cfg, output_file = "example.pptx")
 ```
 
@@ -508,7 +508,7 @@ system_rpt_save_report(cfg, output_file = "example.docx")
 
 Internally `ubiquity` uses the `onbrand` package for customizable templates. To create a template for your organization you should use the `onbrand` vignette for [Custom Templates]( http://onbrand.ubiquity.tools/articles/Custom_Office_Templates.html).  This will instruct you to create a yaml mapping file for your templates. You can use the built in organizational template as a starting point for that:
 
-```{r message=FALSE, warning=FALSE, eval=FALSE, echo=FALSE}
+```{r message=FALSE, warning=FALSE, eval=FALSE, echo=TRUE}
 tr = system_fetch_template(cfg, template="myOrg")
 ```
 

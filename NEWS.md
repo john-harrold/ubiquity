@@ -7,11 +7,7 @@
 ## Notes
 - Lots of small updates to function documentation and the vignettes
 
-- Completely replaced the reporting functionality. Now using the `onbrand`
-  package for templated reporting.  **Note:** This will break all reporting in 
-  version 1 of the R package. Old Word and PowerPoint templates will work, but
-  you will need to create a yaml mapping file. This is detailed in the Reporting
-  vignette.
+- Completely replaced the reporting functionality. Now using the `onbrand` package for templated reporting.  **Note:** This will break all reporting in  version 1 of the R package. Old Word and PowerPoint templates will work, but you will need to create a yaml mapping file. This is detailed in the Reporting vignette.
 
 - Reporting changes added the following functions
   - `system_rpt_add_slide()`

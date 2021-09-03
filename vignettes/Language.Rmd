@@ -693,9 +693,9 @@ It is important to include a default ``ELSE`` condition:
 
 ### Constructing a piece-wise continuous function/parameter
 
-To see an example use the following command (use ``?system_new`` to see a list of the available system file examples):
+To see an example use the following command (use `?system_new` to see a list of the available system file examples):
 
-``system_new(system_file="pwc", file_name="system-pwc.txt")``
+`system_new(system_file="pwc", file_name="system-pwc.txt")`
 
 In this example we specify fast (``kelf``) and slow (``kels``) rates of elimination. We want to have the fast rate be active when the drug concentration is above ``Cth`` and the time is below ``Tf``. The system parameters would look like:
 
@@ -745,7 +745,7 @@ To define the default output times for the ShinyApp and simulation scripts use t
 
 ## Example system files
 
-These example system files can be found in the examples directory of the stand-alone analysis template ([ubiquity_template.zip](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_analysis_development.zip)). Most can also be loaded form the R package (see the help for system_new).
+These example system files can be found in the examples directory of the stand-alone analysis template ([ubiquity_template.zip](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_analysis_development.zip)). Most can also be loaded form the R package (see the help for `?system_new`).
 
 
 * ``system-adapt.txt`` - Parent/metabolite structural model taken from the ADAPT5 Users Manual [ADAPT]. This system is used in the estimation examples of the ubiquity workshop.

@@ -23,15 +23,17 @@ Briefly, install the following:
 * [Perl (Windows)](<https://strawberryperl.com/>)
 * [Rtools (Windows)](<https://cran.r-project.org/bin/windows/Rtools/>)
 
-To install the development version from GitHub:
+Then you can install `ubiquity` from CRAN
 
 ```r
-install.packages("devtools") 
-devtools::install_github("john-harrold/ubiquity",                                       
-              force           = TRUE,
-              build           = TRUE, 
-              build_vignettes = TRUE,
-              build_opts      = c("--no-resave-data", "--no-manual"))
+install.packages("ubiquity") 
+```
+
+Or install the development version from GitHub:
+
+```r
+#install.packages("devtools") 
+devtools::install_github("john-harrold/ubiquity")
 ```
 
 ### Getting started
@@ -50,6 +52,5 @@ For more information on specific tasks see the following vignettes:
 Automated non-compartmental analysis with PKNCA
 
 ### Changes and Updates
-See the 
-[CHANGELOG.md](https://github.com/john-harrold/ubiquity-pkpd/blob/master/ubiquity_template/CHANGELOG.md) for details on differences between updates.
+See the [NEWS.md](https://github.com/john-harrold/ubiquity/blob/master/NEWS.md) for details on differences between updates.
 

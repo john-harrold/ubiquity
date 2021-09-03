@@ -183,7 +183,7 @@
 <div id="creating-some-content" class="section level3">
 <h3 class="hasAnchor">
 <a href="#creating-some-content" class="anchor" aria-hidden="true"></a>Creating some content</h3>
-<p>Before we get started we’ll create some content for the presentation. Since we’re wrapping around <code>onbrand</code> functions, the content is expected in a format consistent with those functions. For details on the format of different content types, see the help for <code><a href="https://john-harrold.github.io/onbrand/reference/add_pptx_ph_content.html" class="external-link">onbrand::add_pptx_ph_content()</a></code>.</p>
+<p>Before we get started we’ll create some content for the presentation. Since we’re wrapping around <code>onbrand</code> functions, the content is expected in a format consistent with those functions. For details on the format of different content types, see the help for <code><a href="https://onbrand.ubiquity.tools/reference/add_pptx_ph_content.html" class="external-link">onbrand::add_pptx_ph_content()</a></code>.</p>
 <p>First we’ll create some figures. First a ggplot object (<code>p</code>) and an image file (<code>imgfile</code>).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
@@ -195,7 +195,7 @@
 <code class="sourceCode R"><span class="va">tdata</span> <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Vp"</span>, <span class="st">"Cl"</span>, <span class="st">"Q"</span>, <span class="st">"Vt"</span><span class="op">)</span>,
                     Values     <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>,
                     Units      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"L"</span>, <span class="st">"L/hr"</span>, <span class="st">"L/hr"</span>, <span class="st">"L"</span><span class="op">)</span> <span class="op">)</span></code></pre></div>
-<p>Tables can be displayed in three different ways: as an Office table, an <code>onbrand</code> abstraction of a <code>flextable</code>, or a user defined <code>flextable</code> object. These are lists with specific elements. You should see the content specifications found in <code><a href="https://john-harrold.github.io/onbrand/reference/add_pptx_ph_content.html" class="external-link">onbrand::add_pptx_ph_content()</a></code> for details on how these lists should be formatted. The examples below should be able to get you started.</p>
+<p>Tables can be displayed in three different ways: as an Office table, an <code>onbrand</code> abstraction of a <code>flextable</code>, or a user defined <code>flextable</code> object. These are lists with specific elements. You should see the content specifications found in <code><a href="https://onbrand.ubiquity.tools/reference/add_pptx_ph_content.html" class="external-link">onbrand::add_pptx_ph_content()</a></code> for details on how these lists should be formatted. The examples below should be able to get you started.</p>
 <p><strong>Office table</strong></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">tco</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>table     <span class="op">=</span> <span class="va">tdata</span>,  
@@ -248,7 +248,7 @@
    elements <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
       title<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>content <span class="op">=</span> <span class="st">"Content Types"</span>,
                  type    <span class="op">=</span> <span class="st">"text"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>For each element there is a list element (e.g. <code>title</code>) that contains content and content type. The type specifies whether the content is a figure, table, etc. In this example we’re using text. There are two types of text content. One is plain text and the other is lists. This is determined by the placeholder type in PowerPoint. We’ll go through examples below for different types of content and available templates. For details on the format of the <code>template</code> and <code>elements</code> inputs see the documentation for <code><a href="https://john-harrold.github.io/onbrand/reference/report_add_slide.html" class="external-link">onbrand::report_add_slide()</a></code>. To show the available templates, placeholder element names in each template, and the type of text they can hold you can do the following:</p>
+<p>For each element there is a list element (e.g. <code>title</code>) that contains content and content type. The type specifies whether the content is a figure, table, etc. In this example we’re using text. There are two types of text content. One is plain text and the other is lists. This is determined by the placeholder type in PowerPoint. We’ll go through examples below for different types of content and available templates. For details on the format of the <code>template</code> and <code>elements</code> inputs see the documentation for <code><a href="https://onbrand.ubiquity.tools/reference/report_add_slide.html" class="external-link">onbrand::report_add_slide()</a></code>. To show the available templates, placeholder element names in each template, and the type of text they can hold you can do the following:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fr</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_template_details.html">system_rpt_template_details</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></code></pre></div>
 <p>This will produce output in the console like the following:</p>
@@ -371,6 +371,8 @@
 <h4 class="hasAnchor">
 <a href="#saving-the-report" class="anchor" aria-hidden="true"></a>Saving the report</h4>
 <p>Once you’re done you can then save the presentation to a file:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/system_rpt_save_report.html">system_rpt_save_report</a></span><span class="op">(</span><span class="va">cfg</span>, output_file <span class="op">=</span> <span class="st">"example.pptx"</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
 </div>
@@ -380,9 +382,9 @@
 <div id="creating-some-content-1" class="section level3">
 <h3 class="hasAnchor">
 <a href="#creating-some-content-1" class="anchor" aria-hidden="true"></a>Creating some content</h3>
-<p>Just like the PowerPoint example above, we need to create some content for Word reporting. We’re using wrappers here for <code>onbrand</code> functions so document content needs to be provided in a specific format documented in the help for <code><a href="https://john-harrold.github.io/onbrand/reference/report_add_doc_content.html" class="external-link">onbrand::report_add_doc_content()</a></code></p>
+<p>Just like the PowerPoint example above, we need to create some content for Word reporting. We’re using wrappers here for <code>onbrand</code> functions so document content needs to be provided in a specific format documented in the help for <code><a href="https://onbrand.ubiquity.tools/reference/report_add_doc_content.html" class="external-link">onbrand::report_add_doc_content()</a></code></p>
 <p>Text formatting can be plain text, formatted as Markdown, or formatted using the <code><a href="https://davidgohel.github.io/officer/reference/fpar.html" class="external-link">officer::fpar()</a></code> command.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plain_text_content</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"The quick brown fox jumped over the lazy dog."</span>, <span class="fl">70</span><span class="op">)</span>, collapse<span class="op">=</span> <span class="st">" "</span><span class="op">)</span>
 <span class="va">md_text_content</span>    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"The *quick* &lt;color:brown&gt;brown&lt;/color&gt; fox **jumped** over the ~lazy dog~."</span>, <span class="fl">70</span><span class="op">)</span>, collapse<span class="op">=</span><span class="st">" "</span><span class="op">)</span>
 <span class="va">fpar_text_content</span>  <span class="op">=</span> <span class="fu">officer</span><span class="fu">::</span><span class="fu"><a href="https://davidgohel.github.io/officer/reference/fpar.html" class="external-link">fpar</a></span><span class="op">(</span>
@@ -390,7 +392,7 @@
    <span class="fu">officer</span><span class="fu">::</span><span class="fu"><a href="https://davidgohel.github.io/officer/reference/ftext.html" class="external-link">ftext</a></span><span class="op">(</span><span class="st">"brown"</span>, prop<span class="op">=</span><span class="fu">officer</span><span class="fu">::</span><span class="fu"><a href="https://davidgohel.github.io/officer/reference/fp_text.html" class="external-link">fp_text</a></span><span class="op">(</span>color<span class="op">=</span><span class="st">"brown"</span><span class="op">)</span><span class="op">)</span>,
    <span class="fu">officer</span><span class="fu">::</span><span class="fu"><a href="https://davidgohel.github.io/officer/reference/ftext.html" class="external-link">ftext</a></span><span class="op">(</span><span class="st">" fox jumped over the lazy dog."</span>, prop<span class="op">=</span><span class="cn">NULL</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>For figures we can use two formats a ggplot object (<code>p</code>) or an image file (<code>imgfile</code>) these are packed into content lists <code>gpc</code> and <code>ifc</code>, respectively.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
 <span class="va">p</span> <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html" class="external-link">annotate</a></span><span class="op">(</span><span class="st">"text"</span>, x<span class="op">=</span><span class="fl">0</span>, y<span class="op">=</span><span class="fl">0</span>, label <span class="op">=</span> <span class="st">"picture example"</span><span class="op">)</span>
 <span class="va">imgfile</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>pattern<span class="op">=</span><span class="st">"image"</span>, fileext<span class="op">=</span><span class="st">".png"</span><span class="op">)</span>
@@ -402,20 +404,20 @@
 <span class="va">ifc</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>image   <span class="op">=</span> <span class="va">imgfile</span>,
             caption <span class="op">=</span> <span class="st">"This is an example of an image from a file."</span><span class="op">)</span></code></pre></div>
 <p>The same tabular data from before is used here as well:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">tdata</span> <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>Parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Vp"</span>, <span class="st">"Cl"</span>, <span class="st">"Q"</span>, <span class="st">"Vt"</span><span class="op">)</span>,
                     Values     <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>,
                     Units      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"L"</span>, <span class="st">"L/hr"</span>, <span class="st">"L/hr"</span>, <span class="st">"L"</span><span class="op">)</span> <span class="op">)</span></code></pre></div>
 <p><strong>Office table</strong></p>
 <p>The content for tables in Office format is similar but it has other elements as well such as a figure caption:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">tco</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>table     <span class="op">=</span> <span class="va">tdata</span>,    <span class="co"># This element contains the table data</span>
             header    <span class="op">=</span> <span class="cn">TRUE</span>,     <span class="co"># These two lines control the header</span>
             first_row <span class="op">=</span> <span class="cn">FALSE</span>,
             caption   <span class="op">=</span> <span class="st">"This creates a table using an Office theme/format."</span><span class="op">)</span></code></pre></div>
 <p><strong><code>flextable</code> using <code>onbrand</code> abstraction</strong></p>
 <p>Similarly we can create a <code>flextable</code> using the <code>onbrand</code> abstraction. In this case we’re supplying a caption and specifying the format of the caption is Markdown (<code>"md"</code>).</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">tcf</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>table       <span class="op">=</span> <span class="va">tdata</span>,             <span class="co"># This element contains the table data</span>
            caption_format <span class="op">=</span> <span class="st">"md"</span>,
            caption     <span class="op">=</span> <span class="st">"This creates a &lt;ff:courier&gt;flextable&lt;/ff&gt; using the &lt;ff:courier&gt;onbrand&lt;/ff&gt; abstraction"</span>,
@@ -428,7 +430,7 @@
            table_theme    <span class="op">=</span> <span class="st">"theme_zebra"</span>,  <span class="co"># Making the tables automatically fit</span>
            first_row <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p><strong>User-defined <code>flextable</code> object</strong></p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">tfo</span> <span class="op">=</span> <span class="fu">flextable</span><span class="fu">::</span><span class="fu"><a href="https://davidgohel.github.io/flextable/reference/flextable.html" class="external-link">flextable</a></span><span class="op">(</span><span class="va">tdata</span><span class="op">)</span>
 <span class="va">tfo</span> <span class="op">=</span> <span class="fu">flextable</span><span class="fu">::</span><span class="fu"><a href="https://davidgohel.github.io/flextable/reference/autofit.html" class="external-link">autofit</a></span><span class="op">(</span><span class="va">tfo</span><span class="op">)</span>
 
@@ -439,25 +441,25 @@
 <h3 class="hasAnchor">
 <a href="#creating-a-new-report-1" class="anchor" aria-hidden="true"></a>Creating a new report</h3>
 <p>We create a new Word report by defining the template option as <code>"Word"</code>.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_read_template.html">system_rpt_read_template</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="st">"Word"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="adding-content-to-the-report" class="section level3">
 <h3 class="hasAnchor">
 <a href="#adding-content-to-the-report" class="anchor" aria-hidden="true"></a>Adding content to the report</h3>
-<p>Content is added using <code><a href="../reference/system_rpt_add_doc_content.html">ubiquity::system_rpt_add_doc_content()</a></code> with the content and type of content specified. This wraps around the <code><a href="https://john-harrold.github.io/onbrand/reference/report_add_doc_content.html" class="external-link">onbrand::report_add_doc_content()</a></code> function. See the help for that function for allowed types and the expected format of the content. Below we will cover some examples of common content to be added.</p>
+<p>Content is added using <code><a href="../reference/system_rpt_add_doc_content.html">ubiquity::system_rpt_add_doc_content()</a></code> with the content and type of content specified. This wraps around the <code><a href="https://onbrand.ubiquity.tools/reference/report_add_doc_content.html" class="external-link">onbrand::report_add_doc_content()</a></code> function. See the help for that function for allowed types and the expected format of the content. Below we will cover some examples of common content to be added.</p>
 <div id="adding-text" class="section level4">
 <h4 class="hasAnchor">
 <a href="#adding-text" class="anchor" aria-hidden="true"></a>Adding text</h4>
 <p>Text content contains a <code>style</code> element where you can specify the <code>onbrand</code> style.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_add_doc_content.html">system_rpt_add_doc_content</a></span><span class="op">(</span><span class="va">cfg</span>, 
         type<span class="op">=</span><span class="st">"text"</span>,
         content <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
           style <span class="op">=</span> <span class="st">"Heading_1"</span>,
           text  <span class="op">=</span> <span class="st">"Formatting Text"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>To get a list of available styles for a given template you can use <code><a href="../reference/system_rpt_template_details.html">system_rpt_template_details()</a></code>:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">fr</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_template_details.html">system_rpt_template_details</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></code></pre></div>
 <p>This will produce output in the console like the following:</p>
 <pre><code>## Mapping:     /Library/Frameworks/R.framework/Versions/4.0/Resources/library/ubiquity/ubinc/templates/report.yaml
@@ -476,14 +478,14 @@
 <p>Text can be added in three different formats: plain text, as Markdown, and using the <code><a href="https://davidgohel.github.io/officer/reference/fpar.html" class="external-link">officer::fpar()</a></code> command from the <code>officer</code> package.</p>
 <p><strong>Plain text</strong></p>
 <p>If no <code>style</code> is specified a template default style will be used.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_add_doc_content.html">system_rpt_add_doc_content</a></span><span class="op">(</span><span class="va">cfg</span>, 
   type<span class="op">=</span><span class="st">"text"</span>,
   content <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
     text  <span class="op">=</span> <span class="va">plain_text_content</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><strong>Markdown</strong></p>
-<p>To add text content other than plain text you need to add a <code>format</code> element. For example you can supply text in Markdown format and then define the <code>format</code> as <code>"md"</code>. For details on Markdown supported see the help for the <code><a href="https://john-harrold.github.io/onbrand/reference/md_to_officer.html" class="external-link">onbrand::md_to_officer()</a></code> function.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<p>To add text content other than plain text you need to add a <code>format</code> element. For example you can supply text in Markdown format and then define the <code>format</code> as <code>"md"</code>. For details on Markdown supported see the help for the <code><a href="https://onbrand.ubiquity.tools/reference/md_to_officer.html" class="external-link">onbrand::md_to_officer()</a></code> function.</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_add_doc_content.html">system_rpt_add_doc_content</a></span><span class="op">(</span><span class="va">cfg</span>, 
         type<span class="op">=</span><span class="st">"text"</span>,
         content <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
@@ -492,7 +494,7 @@
           text   <span class="op">=</span> <span class="va">md_text_content</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><strong>Using <code><a href="https://davidgohel.github.io/officer/reference/fpar.html" class="external-link">officer::fpar()</a></code></strong></p>
 <p>Officer formats text using the <code><a href="https://davidgohel.github.io/officer/reference/fpar.html" class="external-link">officer::fpar()</a></code> command. If you have an <code>fpar</code> object you can use that as the <code>text</code> element for the content. You just need to specify the <code>format</code> as <code>"fpar"</code>.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_add_doc_content.html">system_rpt_add_doc_content</a></span><span class="op">(</span><span class="va">cfg</span>, 
         type<span class="op">=</span><span class="st">"text"</span>,
         content <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
@@ -504,7 +506,7 @@
 <h4 class="hasAnchor">
 <a href="#adding-figures-1" class="anchor" aria-hidden="true"></a>Adding figures</h4>
 <p>To add figures you can specify the type as either an <code>"imagefile"</code> or <code>"ggplot"</code>:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_add_doc_content.html">system_rpt_add_doc_content</a></span><span class="op">(</span><span class="va">cfg</span>,
   type     <span class="op">=</span> <span class="st">"imagefile"</span>,
   content  <span class="op">=</span> <span class="va">ifc</span><span class="op">)</span>
@@ -516,7 +518,7 @@
 <h4 class="hasAnchor">
 <a href="#adding-tables-1" class="anchor" aria-hidden="true"></a>Adding tables</h4>
 <p>Tables can be added in Office table, <code>onbrand</code> abstraction of flextables, and as flextable objects. This is done by using the type <code>"table"</code>, <code>"flextable"</code>, and <code>"flextable_object"</code> respectively:</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_add_doc_content.html">system_rpt_add_doc_content</a></span><span class="op">(</span><span class="va">cfg</span>, 
   type     <span class="op">=</span> <span class="st">"table"</span>,
   content  <span class="op">=</span> <span class="va">tco</span><span class="op">)</span>
@@ -530,13 +532,13 @@
 <div id="other-content-and-formatting" class="section level4">
 <h4 class="hasAnchor">
 <a href="#other-content-and-formatting" class="anchor" aria-hidden="true"></a>Other content and formatting</h4>
-<p>For information on adding other content (such as using placeholder text within a document) and formatting (number of columns, page orientation, etc) see the function <code><a href="https://john-harrold.github.io/onbrand/reference/report_add_doc_content.html" class="external-link">onbrand::report_add_doc_content()</a></code> for a list of allowed <code>type</code> values and the expected <code>content</code> format.</p>
+<p>For information on adding other content (such as using placeholder text within a document) and formatting (number of columns, page orientation, etc) see the function <code><a href="https://onbrand.ubiquity.tools/reference/report_add_doc_content.html" class="external-link">onbrand::report_add_doc_content()</a></code> for a list of allowed <code>type</code> values and the expected <code>content</code> format.</p>
 </div>
 <div id="saving-the-report-1" class="section level4">
 <h4 class="hasAnchor">
 <a href="#saving-the-report-1" class="anchor" aria-hidden="true"></a>Saving the report</h4>
 <p>Once you’re done you can then save the document to a file:</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/system_rpt_save_report.html">system_rpt_save_report</a></span><span class="op">(</span><span class="va">cfg</span>, output_file <span class="op">=</span> <span class="st">"example.docx"</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
@@ -545,12 +547,14 @@
 <h2 class="hasAnchor">
 <a href="#using-custom-organizational-templates" class="anchor" aria-hidden="true"></a>Using custom organizational templates</h2>
 <p>Internally <code>ubiquity</code> uses the <code>onbrand</code> package for customizable templates. To create a template for your organization you should use the <code>onbrand</code> vignette for <a href="http://onbrand.ubiquity.tools/articles/Custom_Office_Templates.html" class="external-link">Custom Templates</a>. This will instruct you to create a yaml mapping file for your templates. You can use the built in organizational template as a starting point for that:</p>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">tr</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_fetch_template.html">system_fetch_template</a></span><span class="op">(</span><span class="va">cfg</span>, template<span class="op">=</span><span class="st">"myOrg"</span><span class="op">)</span></code></pre></div>
 <p>In order to use the <code>ubiquity</code> workflows, you will need to have specific placeholders for PowerPoint and styles for Word. You can have others, but you will at least need those listed below. These should already be defined in the organizational template. You simply need to ensure that the placeholder names and content types from PowerPoint are correct and that the style names in Word you create are also assigned to the correct <code>onbrand</code> styles.</p>
 <div id="powerpoint" class="section level3">
 <h3 class="hasAnchor">
 <a href="#powerpoint" class="anchor" aria-hidden="true"></a>PowerPoint</h3>
 <p>In PowerPoint you will need to have a document template with the following slide masters/templates. You will need to name the slide Master the name shown in the table below. For each slide master you will need to create placeholders for the specified content. Make sure the content type matches that shown below. When you create the <code>onbrand</code> mapping file you will need to use the placeholder names shown below.</p>
-<template id="2a5893ac-eb45-4d96-a210-bb12dc566af2"><style>
+<template id="ec846159-d1fb-4492-9a37-58a50e3a47e8"><style>
 .tabwid table{
   border-collapse:collapse;
   line-height:1;
@@ -586,160 +590,160 @@ background-color: transparent;
 }
 </style>
 <div class="tabwid">
-<style>.cl-3e0df844{border-collapse:collapse;}.cl-3e05ecbc{font-family:'Helvetica';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-3e05ecda{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-3e061a0c{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-3e068a96{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e068aaa{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e068adc{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
-<table class="table cl-3e0df844">
+<style>.cl-df3a4ef2{border-collapse:collapse;}.cl-df33f476{font-family:'Helvetica';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-df33f4bc{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-df340e16{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-df3467da{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df3467ee{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df3467f8{width:54pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table class="table cl-df3a4ef2">
 <thead>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068adc"><p class="cl-3e061a0c"><span class="cl-3e05ecbc">Master/Template</span></p></td>
-<td class="cl-3e068adc"><p class="cl-3e061a0c"><span class="cl-3e05ecbc">onbrand</span></p></td>
-<td class="cl-3e068adc"><p class="cl-3e061a0c"><span class="cl-3e05ecbc">Content</span></p></td>
+<td class="cl-df3467f8"><p class="cl-df340e16"><span class="cl-df33f476">Master/Template</span></p></td>
+<td class="cl-df3467f8"><p class="cl-df340e16"><span class="cl-df33f476">onbrand</span></p></td>
+<td class="cl-df3467f8"><p class="cl-df340e16"><span class="cl-df33f476">Content</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068adc"><p class="cl-3e061a0c"><span class="cl-3e05ecbc">Name</span></p></td>
-<td class="cl-3e068adc"><p class="cl-3e061a0c"><span class="cl-3e05ecbc">Placeholder</span></p></td>
-<td class="cl-3e068adc"><p class="cl-3e061a0c"><span class="cl-3e05ecbc">Type</span></p></td>
+<td class="cl-df3467f8"><p class="cl-df340e16"><span class="cl-df33f476">Name</span></p></td>
+<td class="cl-df3467f8"><p class="cl-df340e16"><span class="cl-df33f476">Placeholder</span></p></td>
+<td class="cl-df3467f8"><p class="cl-df340e16"><span class="cl-df33f476">Type</span></p></td>
 </tr>
 </thead>
 <tbody>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="2" class="cl-3e068a96"><p class="cl-3e061a0c"><span class="cl-3e05ecda">title_slide</span></p></td>
-<td class="cl-3e068a96"><p class="cl-3e061a0c"><span class="cl-3e05ecda">title</span></p></td>
-<td class="cl-3e068a96"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td rowspan="2" class="cl-df3467da"><p class="cl-df340e16"><span class="cl-df33f4bc">title_slide</span></p></td>
+<td class="cl-df3467da"><p class="cl-df340e16"><span class="cl-df33f4bc">title</span></p></td>
+<td class="cl-df3467da"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">sub_title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">sub_title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="2" class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">section_slide</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td rowspan="2" class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">section_slide</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">sub_title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">sub_title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">title_only</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">title_only</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="3" class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_text</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td rowspan="3" class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">sub_title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">sub_title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_body</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_body</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="3" class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_list</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td rowspan="3" class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_list</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">sub_title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">sub_title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_body</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">list</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_body</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">list</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="6" class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">two_content_header_list</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td rowspan="6" class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">two_content_header_list</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">sub_title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">sub_title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_left_header</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_left_header</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_left</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">list</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_left</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">list</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_right_header</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_right_header</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_right</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">list</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_right</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">list</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="6" class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">two_content_header_text</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td rowspan="6" class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">two_content_header_text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">sub_title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">sub_title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_left_header</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_left_header</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_left</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_left</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_right_header</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_right_header</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_right</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_right</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="4" class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">two_content_list</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td rowspan="4" class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">two_content_list</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">sub_title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">sub_title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_left</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">list</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_left</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">list</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_right</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">list</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_right</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">list</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td rowspan="4" class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">two_content_text</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td rowspan="4" class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">two_content_text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">sub_title</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">sub_title</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_left</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_left</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">content_right</span></p></td>
-<td class="cl-3e068aaa"><p class="cl-3e061a0c"><span class="cl-3e05ecda">text</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">content_right</span></p></td>
+<td class="cl-df3467ee"><p class="cl-df340e16"><span class="cl-df33f4bc">text</span></p></td>
 </tr>
 </tbody>
 </table>
-</div></template><div class="flextable-shadow-host" id="eb745019-a40a-4ff2-a3d6-b040f81c7856"></div>
+</div></template><div class="flextable-shadow-host" id="46987b2b-832b-4e12-be8f-71062a6f93ad"></div>
 <script>
-var dest = document.getElementById("eb745019-a40a-4ff2-a3d6-b040f81c7856");
-var template = document.getElementById("2a5893ac-eb45-4d96-a210-bb12dc566af2");
+var dest = document.getElementById("46987b2b-832b-4e12-be8f-71062a6f93ad");
+var template = document.getElementById("ec846159-d1fb-4492-9a37-58a50e3a47e8");
 var caption = template.content.querySelector("caption");
 if(caption) {
   caption.style.cssText = "display:block;text-align:center;";
@@ -756,7 +760,7 @@ fantome.appendChild(templateContent);
 <h3 class="hasAnchor">
 <a href="#word" class="anchor" aria-hidden="true"></a>Word</h3>
 <p>For Word reporting you will need to have a Word template with the following styles defined. When you create the <code>onbrand</code> mapping file you will need to use the onbrand Style name listed.</p>
-<template id="037e257c-41ab-4e19-bcf8-6494c1d1ed74"><style>
+<template id="42fca703-16a8-4a9e-9924-eda21d9a4a16"><style>
 .tabwid table{
   border-collapse:collapse;
   line-height:1;
@@ -792,72 +796,72 @@ background-color: transparent;
 }
 </style>
 <div class="tabwid">
-<style>.cl-3e233be6{border-collapse:collapse;}.cl-3e1dc95e{font-family:'Helvetica';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-3e1dc972{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-3e1dd6a6{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-3e1dff1e{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff32{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff3c{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff46{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff50{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff51{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff5a{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff64{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff6e{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff6f{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff78{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff82{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff83{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff8c{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dff96{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dffa0{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dffa1{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-3e1dffaa{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
-<table class="table cl-3e233be6">
+<style>.cl-df4d5704{border-collapse:collapse;}.cl-df47dde2{font-family:'Helvetica';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-df47ddf6{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-df47ec24{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-df48174e{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df481762{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df48176c{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df481776{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df481780{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df48178a{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df48178b{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df481794{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df48179e{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df48179f{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df4817a8{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df4817b2{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df4817b3{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df4817bc{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df4817c6{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df4817d0{width:95.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df4817d1{width:76.8pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-df4817da{width:70.7pt;background-color:transparent;vertical-align: middle;border-bottom: 1pt solid rgba(102, 102, 102, 1.00);border-top: 1pt solid rgba(102, 102, 102, 1.00);border-left: 1pt solid rgba(102, 102, 102, 1.00);border-right: 1pt solid rgba(102, 102, 102, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table class="table cl-df4d5704">
 <thead>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e1dffa0"><p class="cl-3e1dd6a6"><span class="cl-3e1dc95e">onbrand</span></p></td>
-<td class="cl-3e1dffa1"><p class="cl-3e1dd6a6"><span class="cl-3e1dc95e">Word</span></p></td>
-<td class="cl-3e1dffaa"><p class="cl-3e1dd6a6"><span class="cl-3e1dc95e">Style</span></p></td>
+<td class="cl-df4817d0"><p class="cl-df47ec24"><span class="cl-df47dde2">onbrand</span></p></td>
+<td class="cl-df4817d1"><p class="cl-df47ec24"><span class="cl-df47dde2">Word</span></p></td>
+<td class="cl-df4817da"><p class="cl-df47ec24"><span class="cl-df47dde2">Style</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e1dffa0"><p class="cl-3e1dd6a6"><span class="cl-3e1dc95e">Style</span></p></td>
-<td class="cl-3e1dffa1"><p class="cl-3e1dd6a6"><span class="cl-3e1dc95e">Style</span></p></td>
-<td class="cl-3e1dffaa"><p class="cl-3e1dd6a6"><span class="cl-3e1dc95e">Type</span></p></td>
+<td class="cl-df4817d0"><p class="cl-df47ec24"><span class="cl-df47dde2">Style</span></p></td>
+<td class="cl-df4817d1"><p class="cl-df47ec24"><span class="cl-df47dde2">Style</span></p></td>
+<td class="cl-df4817da"><p class="cl-df47ec24"><span class="cl-df47dde2">Type</span></p></td>
 </tr>
 </thead>
 <tbody>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e1dff1e"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">Code</span></p></td>
-<td class="cl-3e1dff3c"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">Code</span></p></td>
-<td class="cl-3e1dff32"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">paragraph</span></p></td>
+<td class="cl-df48174e"><p class="cl-df47ec24"><span class="cl-df47ddf6">Code</span></p></td>
+<td class="cl-df48176c"><p class="cl-df47ec24"><span class="cl-df47ddf6">Code</span></p></td>
+<td class="cl-df481762"><p class="cl-df47ec24"><span class="cl-df47ddf6">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e1dff46"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">Figure_Caption</span></p></td>
-<td class="cl-3e1dff50"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">graphic title</span></p></td>
-<td class="cl-3e1dff51"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">paragraph</span></p></td>
+<td class="cl-df481776"><p class="cl-df47ec24"><span class="cl-df47ddf6">Figure_Caption</span></p></td>
+<td class="cl-df481780"><p class="cl-df47ec24"><span class="cl-df47ddf6">graphic title</span></p></td>
+<td class="cl-df48178a"><p class="cl-df47ec24"><span class="cl-df47ddf6">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e1dff5a"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">Heading_1</span></p></td>
-<td class="cl-3e1dff6e"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">heading 1</span></p></td>
-<td class="cl-3e1dff64"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">paragraph</span></p></td>
+<td class="cl-df48178b"><p class="cl-df47ec24"><span class="cl-df47ddf6">Heading_1</span></p></td>
+<td class="cl-df48179e"><p class="cl-df47ec24"><span class="cl-df47ddf6">heading 1</span></p></td>
+<td class="cl-df481794"><p class="cl-df47ec24"><span class="cl-df47ddf6">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e1dff5a"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">Heading_2</span></p></td>
-<td class="cl-3e1dff6e"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">heading 2</span></p></td>
-<td class="cl-3e1dff64"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">paragraph</span></p></td>
+<td class="cl-df48178b"><p class="cl-df47ec24"><span class="cl-df47ddf6">Heading_2</span></p></td>
+<td class="cl-df48179e"><p class="cl-df47ec24"><span class="cl-df47ddf6">heading 2</span></p></td>
+<td class="cl-df481794"><p class="cl-df47ec24"><span class="cl-df47ddf6">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e1dff5a"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">Heading_3</span></p></td>
-<td class="cl-3e1dff6e"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">heading 3</span></p></td>
-<td class="cl-3e1dff64"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">paragraph</span></p></td>
+<td class="cl-df48178b"><p class="cl-df47ec24"><span class="cl-df47ddf6">Heading_3</span></p></td>
+<td class="cl-df48179e"><p class="cl-df47ec24"><span class="cl-df47ddf6">heading 3</span></p></td>
+<td class="cl-df481794"><p class="cl-df47ec24"><span class="cl-df47ddf6">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e1dff5a"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">Normal</span></p></td>
-<td class="cl-3e1dff6e"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">Normal</span></p></td>
-<td class="cl-3e1dff64"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">paragraph</span></p></td>
+<td class="cl-df48178b"><p class="cl-df47ec24"><span class="cl-df47ddf6">Normal</span></p></td>
+<td class="cl-df48179e"><p class="cl-df47ec24"><span class="cl-df47ddf6">Normal</span></p></td>
+<td class="cl-df481794"><p class="cl-df47ec24"><span class="cl-df47ddf6">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e1dff6f"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">Table_Caption</span></p></td>
-<td class="cl-3e1dff82"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">table title</span></p></td>
-<td class="cl-3e1dff78"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">paragraph</span></p></td>
+<td class="cl-df48179f"><p class="cl-df47ec24"><span class="cl-df47ddf6">Table_Caption</span></p></td>
+<td class="cl-df4817b2"><p class="cl-df47ec24"><span class="cl-df47ddf6">table title</span></p></td>
+<td class="cl-df4817a8"><p class="cl-df47ec24"><span class="cl-df47ddf6">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e1dff5a"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">TOC</span></p></td>
-<td class="cl-3e1dff6e"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">toc 1</span></p></td>
-<td class="cl-3e1dff64"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">paragraph</span></p></td>
+<td class="cl-df48178b"><p class="cl-df47ec24"><span class="cl-df47ddf6">TOC</span></p></td>
+<td class="cl-df48179e"><p class="cl-df47ec24"><span class="cl-df47ddf6">toc 1</span></p></td>
+<td class="cl-df481794"><p class="cl-df47ec24"><span class="cl-df47ddf6">paragraph</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-3e1dff83"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">Table</span></p></td>
-<td class="cl-3e1dff96"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">Table Grid</span></p></td>
-<td class="cl-3e1dff8c"><p class="cl-3e1dd6a6"><span class="cl-3e1dc972">table</span></p></td>
+<td class="cl-df4817b3"><p class="cl-df47ec24"><span class="cl-df47ddf6">Table</span></p></td>
+<td class="cl-df4817c6"><p class="cl-df47ec24"><span class="cl-df47ddf6">Table Grid</span></p></td>
+<td class="cl-df4817bc"><p class="cl-df47ec24"><span class="cl-df47ddf6">table</span></p></td>
 </tr>
 </tbody>
 </table>
-</div></template><div class="flextable-shadow-host" id="7a191291-137a-4747-b7c1-e78bceebcb3c"></div>
+</div></template><div class="flextable-shadow-host" id="3987877a-c232-4668-8104-9faf1588acd0"></div>
 <script>
-var dest = document.getElementById("7a191291-137a-4747-b7c1-e78bceebcb3c");
-var template = document.getElementById("037e257c-41ab-4e19-bcf8-6494c1d1ed74");
+var dest = document.getElementById("3987877a-c232-4668-8104-9faf1588acd0");
+var template = document.getElementById("42fca703-16a8-4a9e-9924-eda21d9a4a16");
 var caption = template.content.querySelector("caption");
 if(caption) {
   caption.style.cssText = "display:block;text-align:center;";
@@ -874,7 +878,7 @@ fantome.appendChild(templateContent);
 <h3 class="hasAnchor">
 <a href="#using-the-custom-templates" class="anchor" aria-hidden="true"></a>Using the custom templates</h3>
 <p>To use the custom templates you would use <code><a href="../reference/system_rpt_read_template.html">system_rpt_read_template()</a></code> and specify the mapping file and the Office document containing your template. For example if you wanted to load a PowerPoint template called <code>myOrg.pptx</code> and your yaml mapping file was called <code>myOrg.yaml</code> you would use the following:</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_read_template.html">system_rpt_read_template</a></span><span class="op">(</span><span class="va">cfg</span>, 
                                mapping  <span class="op">=</span> <span class="st">"myOrg.yaml"</span>,
                                template <span class="op">=</span> <span class="st">"myOrg.pptx"</span><span class="op">)</span></code></pre></div>
@@ -888,14 +892,14 @@ fantome.appendChild(templateContent);
 <h3 class="hasAnchor">
 <a href="#parameter-estimation" class="anchor" aria-hidden="true"></a>Parameter estimation</h3>
 <p>After performing a parameter estimation and archiving the estimation with a specified analysis name, that analysis name can be used to retrieve the results and append them to an open report using <code><a href="../reference/system_rpt_estimation.html">system_rpt_estimation()</a></code>. This function supports both PowerPoint and Word reports.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_estimation.html">system_rpt_estimation</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, analysis_name<span class="op">=</span><span class="st">"analysis_name"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="non-compartmental-analysis-nca" class="section level3">
 <h3 class="hasAnchor">
 <a href="#non-compartmental-analysis-nca" class="anchor" aria-hidden="true"></a>Non-compartmental analysis (NCA)</h3>
 <p>The results of NCA can be appended to a report using the <code><a href="../reference/system_rpt_nca.html">system_rpt_nca()</a></code> function and supplying the NCA analysis name. This function supports both PowerPoint and Word reports.</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_rpt_nca.html">system_rpt_nca</a></span><span class="op">(</span>cfg<span class="op">=</span><span class="va">cfg</span>, analysis_name<span class="op">=</span><span class="st">"analysis_name"</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
@@ -904,10 +908,10 @@ fantome.appendChild(templateContent);
 <a href="#modifying-reports-directly-with-officer" class="anchor" aria-hidden="true"></a>Modifying reports directly with <code>officer</code>
 </h2>
 <p>Sometimes the functions provided above are not sufficient to get what you want done. It may be more convenient to directly use the <code>officer</code> functions to add content or modify your report. If you have report initialized, you can pull that report out of the ubiquity system object using <code><a href="../reference/system_fetch_rpt_officer_object.html">system_fetch_rpt_officer_object()</a></code>:</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">rpt</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_fetch_rpt_officer_object.html">system_fetch_rpt_officer_object</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></code></pre></div>
 <p>Now <code>rpt</code> is an <code>officer</code> object. If it contains a PowerPoint presentation you can use all of the <code>officer</code> functions for PowerPoint to modify that object. If it’s a Word document you can use the Word functions from <code>officer</code> to modify/add content. Once you’re done making changes you can put the object back using <code><a href="../reference/system_set_rpt_officer_object.html">system_set_rpt_officer_object()</a></code>:</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span>  <span class="op">=</span> <span class="fu"><a href="../reference/system_set_rpt_officer_object.html">system_set_rpt_officer_object</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">rpt</span><span class="op">)</span></code></pre></div>
 <p>Then you can continue using the ubiquity functions above or save the document.</p>
 </div>
@@ -922,35 +926,35 @@ fantome.appendChild(templateContent);
 <tbody>
 <tr class="odd">
 <td align="left"><code><a href="../reference/system_rpt_read_template.html">system_rpt_read_template()</a></code></td>
-<td align="left"><code><a href="https://john-harrold.github.io/onbrand/reference/read_template.html" class="external-link">onbrand::read_template()</a></code></td>
+<td align="left"><code><a href="https://onbrand.ubiquity.tools/reference/read_template.html" class="external-link">onbrand::read_template()</a></code></td>
 </tr>
 <tr class="even">
 <td align="left"><code><a href="../reference/system_rpt_read_template.html">system_rpt_read_template()</a></code></td>
-<td align="left"><code><a href="https://john-harrold.github.io/onbrand/reference/read_template.html" class="external-link">onbrand::read_template()</a></code></td>
+<td align="left"><code><a href="https://onbrand.ubiquity.tools/reference/read_template.html" class="external-link">onbrand::read_template()</a></code></td>
 </tr>
 <tr class="odd">
 <td align="left"><code><a href="../reference/system_rpt_add_slide.html">system_rpt_add_slide()</a></code></td>
-<td align="left"><code><a href="https://john-harrold.github.io/onbrand/reference/report_add_slide.html" class="external-link">onbrand::report_add_slide()</a></code></td>
+<td align="left"><code><a href="https://onbrand.ubiquity.tools/reference/report_add_slide.html" class="external-link">onbrand::report_add_slide()</a></code></td>
 </tr>
 <tr class="even">
 <td align="left"><code><a href="../reference/system_rpt_add_doc_content.html">system_rpt_add_doc_content()</a></code></td>
-<td align="left"><code><a href="https://john-harrold.github.io/onbrand/reference/report_add_doc_content.html" class="external-link">onbrand::report_add_doc_content()</a></code></td>
+<td align="left"><code><a href="https://onbrand.ubiquity.tools/reference/report_add_doc_content.html" class="external-link">onbrand::report_add_doc_content()</a></code></td>
 </tr>
 <tr class="odd">
 <td align="left"><code><a href="../reference/system_rpt_save_report.html">system_rpt_save_report()</a></code></td>
-<td align="left"><code><a href="https://john-harrold.github.io/onbrand/reference/save_report.html" class="external-link">onbrand::save_report()</a></code></td>
+<td align="left"><code><a href="https://onbrand.ubiquity.tools/reference/save_report.html" class="external-link">onbrand::save_report()</a></code></td>
 </tr>
 <tr class="even">
 <td align="left"><code><a href="../reference/system_rpt_template_details.html">system_rpt_template_details()</a></code></td>
-<td align="left"><code><a href="https://john-harrold.github.io/onbrand/reference/template_details.html" class="external-link">onbrand::template_details()</a></code></td>
+<td align="left"><code><a href="https://onbrand.ubiquity.tools/reference/template_details.html" class="external-link">onbrand::template_details()</a></code></td>
 </tr>
 <tr class="odd">
 <td align="left"><code><a href="../reference/system_fetch_rpt_officer_object.html">system_fetch_rpt_officer_object()</a></code></td>
-<td align="left"><code><a href="https://john-harrold.github.io/onbrand/reference/fetch_officer_object.html" class="external-link">onbrand::fetch_officer_object()</a></code></td>
+<td align="left"><code><a href="https://onbrand.ubiquity.tools/reference/fetch_officer_object.html" class="external-link">onbrand::fetch_officer_object()</a></code></td>
 </tr>
 <tr class="even">
 <td align="left"><code><a href="../reference/system_set_rpt_officer_object.html">system_set_rpt_officer_object()</a></code></td>
-<td align="left"><code><a href="https://john-harrold.github.io/onbrand/reference/set_officer_object.html" class="external-link">onbrand::set_officer_object()</a></code></td>
+<td align="left"><code><a href="https://onbrand.ubiquity.tools/reference/set_officer_object.html" class="external-link">onbrand::set_officer_object()</a></code></td>
 </tr>
 </tbody>
 </table>

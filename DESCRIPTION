@@ -25,7 +25,7 @@ Imports:
    knitr,
    magrittr,
    MASS,
-   onbrand,
+   onbrand (>= 1.0.1),
    optimx,
    PKNCA,
    pso,
