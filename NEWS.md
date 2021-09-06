@@ -1,8 +1,9 @@
-# ubiquity 2.0.0
+# ubiquity 2.0.1
 
-[//]: ## Notes
-[//]: ## New Features
-[//]: ## Bug Fixes
+## Notes
+- Removed internal files that were no longer being used
+
+# ubiquity 2.0.0
 
 ## Notes
 - Lots of small updates to function documentation and the vignettes
