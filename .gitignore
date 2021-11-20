@@ -6,9 +6,11 @@ inst/doc
 inst/ubinc/systems/R
 vignettes/transient/*
 vignettes/output/*
-vignettes/*.html
 vignettes/*.R
-vignettes/*.txt
+vignettes/*.html
 vignettes/*.pptx
 vignettes/*.docx
+vignettes/*.txt
 vignettes/*.csv
+tests/testthat/*.rds
+tests/testthat/*.txt

@@ -1,4 +1,5 @@
 rpptx:
+  post_processing: NULL
   master: Office Theme
   templates:
     title_slide:
@@ -123,8 +124,10 @@ rpptx:
       vertical.align:        baseline
       shading.color:         transparent
 rdocx:
+  post_processing: NULL
   styles:
     Normal:                    Normal
+    Notes:                     Notes
     Code:                      Code
     TOC:                       toc 1
     Heading_1:                 heading 1
@@ -135,18 +138,38 @@ rdocx:
     Figure_Caption:            graphic title
   doc_def:
     Text:                      Normal
+    Notes:                     Notes
     Table:                     Table
     Table_Caption:             Table_Caption
     Figure_Caption:            Figure_Caption
   formatting:
-    Table_Caption_Location:    top
     Table_Caption_Label_Pre:   "Table "
     Table_Caption_Label_Post:  ". "
-    Figure_Caption_Location:   bottom
     Figure_Caption_Label_Pre:  "Figure "
     Figure_Caption_Label_Post: ". "
     Figure_Width:              6.0
     Figure_Height:             5.0
+    separator:                 ","
+    Table_Order:
+      - table
+      - notes
+      - caption
+    Figure_Order:
+      - figure
+      - notes
+      - caption
+    Figure_Seq_Id:             "Figure"
+    Figure_Number: |-
+      list(officer::run_autonum(pre_label  = "", 
+                                seq_id     = Caption_Seq_Id, 
+                                post_label = "", 
+                                start_at   = Caption_Start_At))
+    Table_Seq_Id:              "Table"
+    Table_Number: |-
+      list(officer::run_autonum(pre_label  = "", 
+                                seq_id     = Caption_Seq_Id, 
+                                post_label = "", 
+                                start_at   = Caption_Start_At))
   md_def:
     # For each style above you need a default specification here. You will
     # also need the 'default' specification, generally just a copy of Normal
@@ -157,6 +180,15 @@ rdocx:
       italic:                 FALSE
       underlined:             FALSE
       font.family:            Cambria (Body)
+      vertical.align:         baseline
+      shading.color:          transparent
+    Notes:   
+      color:                  black
+      font.size:              10
+      bold:                   FALSE
+      italic:                 FALSE
+      underlined:             FALSE
+      font.family:            Ariel
       vertical.align:         baseline
       shading.color:          transparent
     Table_Labels:

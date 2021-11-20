@@ -12154,7 +12154,7 @@ if(isgood){
   obnd = onbrand::read_template(
         template = template_file,
         mapping  = mapping_file,
-        verbose  = FALSE)
+        verbose  = TRUE)
   
   # assigning the state of the obnd object to the state of the function
   isgood = obnd[["isgood"]]
