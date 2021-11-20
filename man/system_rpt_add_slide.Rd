@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_rpt_add_slide}
 \alias{system_rpt_add_slide}
-\title{Add Slide to Report}
+\title{Add Slide to a Powerpoint Report}
 \usage{
 system_rpt_add_slide(
   cfg,

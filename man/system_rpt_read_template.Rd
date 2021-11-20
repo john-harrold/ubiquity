@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{system_rpt_read_template}
 \alias{system_rpt_read_template}
-\title{Initialize a New Officer Report}
+\title{Initialize a New Report}
 \usage{
 system_rpt_read_template(
   cfg,
@@ -14,7 +14,7 @@ system_rpt_read_template(
 \arguments{
 \item{cfg}{ubiquity system object}
 
-\item{template}{Type of template to use or path to template file.}
+\item{template}{Type of internal template to use ("PowerPoint" or "Word") or path to template file.}
 
 \item{mapping}{Path to an onbrand yaml mapping file: If an internal ubiquity
 template has been supplied, this argument will be ignored and the yaml file

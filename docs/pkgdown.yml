@@ -1,6 +1,6 @@
-pandoc: 2.11.2
-pkgdown: 1.6.1.9001
-pkgdown_sha: d37e91c4390386233960ad7f424a9cde86a6d968
+pandoc: 2.14.0.3
+pkgdown: 1.6.1
+pkgdown_sha: ~
 articles:
   Deployment: Deployment.html
   Estimation: Estimation.html
@@ -9,5 +9,5 @@ articles:
   Reporting: Reporting.html
   Simulation: Simulation.html
   Titration: Titration.html
-last_built: 2021-09-06T02:15Z
+last_built: 2021-11-20T15:33Z
 

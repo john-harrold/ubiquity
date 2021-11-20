@@ -434,7 +434,7 @@ There are also global optimization libraries in R, and two of these can be readi
 
 To use the ``pso`` package set the following options:
 ```{r eval=FALSE}
-library("pso")
+library(pso)
 cfg = system_set_option(cfg, group  = "estimation",
                              option = "optimizer", 
                              value  = "pso")

@@ -19,8 +19,6 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -85,13 +83,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="https://vimeo.com/382859445" class="external-link">Individual and Population Simulations</a>
+      <a href="https://vimeo.com/382859445">Individual and Population Simulations</a>
     </li>
     <li>
-      <a href="https://vimeo.com/382860283" class="external-link">Model Deployment</a>
+      <a href="https://vimeo.com/382860283">Model Deployment</a>
     </li>
     <li>
-      <a href="https://vimeo.com/manage/videos/382829588" class="external-link">Naive-Pooled Parameter Estimation</a>
+      <a href="https://vimeo.com/manage/videos/382829588">Naive-Pooled Parameter Estimation</a>
     </li>
   </ul>
 </li>
@@ -112,7 +110,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/john-harrold/ubiquity/" class="external-link">
+  <a href="https://github.com/john-harrold/ubiquity/">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -127,13 +125,13 @@
 
       
 
-      </header><script src="Language_files/header-attrs-2.9/header-attrs.js"></script><div class="row">
+      </header><script src="Language_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Modeling Language</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Language.Rmd" class="external-link"><code>vignettes/Language.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/master/vignettes/Language.Rmd"><code>vignettes/Language.Rmd</code></a></small>
       <div class="hidden name"><code>Language.Rmd</code></div>
 
     </div>
@@ -142,16 +140,16 @@
     
 <div id="introduction" class="section level2">
 <h2 class="hasAnchor">
-<a href="#introduction" class="anchor" aria-hidden="true"></a>Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px">
+<a href="#introduction" class="anchor"></a>Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px">
 </h2>
 <p>At its core, ubiquity is a modeling language and a set of scripts meant to facilitate model development and deployment. The focus of this document is on the model description language. This is a plain text file, referred to as a <strong>system file</strong>. Each line contains a descriptor (e.g. <code>&lt;P&gt;</code>) which defines an aspect of the model, and comments are made with the hash sign (<code>#</code>). What follows is an overview of the different components of the language that can be used to create a system file.</p>
 </div>
 <div id="parameters" class="section level2">
 <h2 class="hasAnchor">
-<a href="#parameters" class="anchor" aria-hidden="true"></a>Parameters</h2>
+<a href="#parameters" class="anchor"></a>Parameters</h2>
 <div id="system-parameters-p" class="section level3">
 <h3 class="hasAnchor">
-<a href="#system-parameters-p" class="anchor" aria-hidden="true"></a>System parameters <code>&lt;P&gt;</code>
+<a href="#system-parameters-p" class="anchor"></a>System parameters <code>&lt;P&gt;</code>
 </h3>
 <p>Each system parameter is specified with a name, value, lower bound, upper bound, units, whether it should be editable in the ShinyApp and the ‘type’ of parameter (grouping in the ShinyApp). The values of eps (machine precision, smallest value that is not zero) and inf (infinity) can be used. For example to specify a parameter koffR with a value of .1 that is positive and a parameter KDR with a value of .04 that is also positive the following would be used:</p>
 <pre><code>#   name  value    lb     ub   units  editable type
@@ -160,7 +158,7 @@
 </div>
 <div id="parameter-sets" class="section level3">
 <h3 class="hasAnchor">
-<a href="#parameter-sets" class="anchor" aria-hidden="true"></a>Parameter sets</h3>
+<a href="#parameter-sets" class="anchor"></a>Parameter sets</h3>
 <p>Often a model will be developed to incorporate different situations or scenarios. For example, a model may be used to describe both healthy and diseased individuals. When these differences are simply parametric in nature, it can be cumbersome to code a model multiple times (once for each parameterization). This framework provides a mechanism for including multiple parameterizations withing the same system file. Consider the system below where we want to describe antibody disposition. For humans this is described by a two compartment model, but for mice a single compartment is needed.</p>
 <div class="figure">
 <img src="system-paper-parameter_sets.png" style="width:60.0%" alt=""><p class="caption">Model parameterizations</p>
@@ -188,7 +186,7 @@
 </div>
 <div id="secondary-parameters-as-and-ad" class="section level3">
 <h3 class="hasAnchor">
-<a href="#secondary-parameters-as-and-ad" class="anchor" aria-hidden="true"></a>Secondary parameters <code>&lt;As&gt;</code> and <code>&lt;Ad&gt;</code>
+<a href="#secondary-parameters-as-and-ad" class="anchor"></a>Secondary parameters <code>&lt;As&gt;</code> and <code>&lt;Ad&gt;</code>
 </h3>
 <p>A static secondary parameter refers to parameter does not change during a simulation. These are specified using the <code>&lt;As&gt;</code> descriptor and can be written in terms of system parameters or previously defined static secondary parameters. These can be used in differential equations, defining initial conditions, input scaling and model outputs. This is similar to secondary parameters defined in the <code>$PK</code> block in NONMEM. For example, if you wanted to define the rate of elimination in terms of the system parameters for clearance <code>CL</code> and volume of distribution <code>Vp</code> the following would be used:</p>
 <pre><code>&lt;As&gt; kel = CL/Vp</code></pre>
@@ -197,7 +195,7 @@
 </div>
 <div id="variance-parameters-vp" class="section level3">
 <h3 class="hasAnchor">
-<a href="#variance-parameters-vp" class="anchor" aria-hidden="true"></a>Variance parameters <code>&lt;VP&gt;</code>
+<a href="#variance-parameters-vp" class="anchor"></a>Variance parameters <code>&lt;VP&gt;</code>
 </h3>
 <p>Variance parameters are specified using the same format as system parameters (<code>&lt;P&gt;</code>) :</p>
 <pre><code>#    name    value lower_bound upper_bound units editable grouping
@@ -206,7 +204,7 @@
 </div>
 <div id="variability-defining-the-variancecovariance-matrix-iiv-iivcor" class="section level3">
 <h3 class="hasAnchor">
-<a href="#variability-defining-the-variancecovariance-matrix-iiv-iivcor" class="anchor" aria-hidden="true"></a>Variability: defining the variance/covariance Matrix <code>&lt;IIV:?&gt;?</code> &amp; <code>&lt;IIVCOR:?&gt;?</code>
+<a href="#variability-defining-the-variancecovariance-matrix-iiv-iivcor" class="anchor"></a>Variability: defining the variance/covariance Matrix <code>&lt;IIV:?&gt;?</code> &amp; <code>&lt;IIVCOR:?&gt;?</code>
 </h3>
 <p>Any variable name assigned to inter-individual variability (IIV) or correlation/covariance (IIVCOR) term that makes sense to the user may be used. The following sample codes have variable names (eg: ETACL) that most likely make sense to a population modeler or NONMEM user. To define an IIV term named <code>ETACL</code> with a variance of <code>0.15</code> use the following:</p>
 <pre><code>&lt;IIV:ETACL&gt; 0.15</code></pre>
@@ -222,7 +220,7 @@
 </div>
 <div id="iiv-and-parameter-sets-iivset-iivcorset" class="section level3">
 <h3 class="hasAnchor">
-<a href="#iiv-and-parameter-sets-iivset-iivcorset" class="anchor" aria-hidden="true"></a>IIV and parameter sets <code>&lt;IIVSET:?&gt;?</code> &amp; <code>&lt;IIVCORSET:?&gt;?</code>
+<a href="#iiv-and-parameter-sets-iivset-iivcorset" class="anchor"></a>IIV and parameter sets <code>&lt;IIVSET:?&gt;?</code> &amp; <code>&lt;IIVCORSET:?&gt;?</code>
 </h3>
 <p>By default all parameter sets will have inter individual variability specified using the <code>&lt;IIV&gt;</code> and <code>&lt;IIVCOR&gt;</code> descriptors. To associate a specific set of IIVs to a parameter set use the <code>&lt;IIVSET&gt;</code> and <code>&lt;IIVCORSET&gt;</code> descriptors. These set descriptors operate differently than the parameter set descriptors (<code>&lt;PSET&gt;</code>). The <code>&lt;PSET&gt;</code> just overwrites the default values and inherits the default variance/covariance information. If you alter the IIV information for a parameter set it will <em>reset</em> the IIV information for that parameter set. The entire variance covariance matrix will need to be specified for that parameter set.</p>
 <p>If the parameter set <code>MYPSET</code> has been defined then the following could be used to define the IIV for the parameters <code>Q</code> and <code>CL</code>:</p>
@@ -238,7 +236,7 @@
 </div>
 <div id="differential-equations" class="section level2">
 <h2 class="hasAnchor">
-<a href="#differential-equations" class="anchor" aria-hidden="true"></a>Differential equations</h2>
+<a href="#differential-equations" class="anchor"></a>Differential equations</h2>
 <p>The differential equations in the system can be defined by simply writing them out. Alternative they can ‘built’ by using the different descriptors provided below. Part of the flexibility of ubiquity lies in the ability to combine these different notations. To construct a model (see section below: Bringing it all together) any combination of the five following methods can be used:</p>
 <ol style="list-style-type: decimal">
 <li>Differential equations <code>&lt;ODE:?&gt;</code>
@@ -254,7 +252,7 @@
 </ol>
 <div id="writing-odes-ode" class="section level3">
 <h3 class="hasAnchor">
-<a href="#writing-odes-ode" class="anchor" aria-hidden="true"></a>Writing ODEs <code>&lt;ODE:?&gt;</code>
+<a href="#writing-odes-ode" class="anchor"></a>Writing ODEs <code>&lt;ODE:?&gt;</code>
 </h3>
 <p>Portions of differential equations can be specified here where ? is the state or compartment. To define <code>dA/dT</code> as <code>koffR*C - konR*A*B</code> we would write:</p>
 <pre><code>&lt;ODE:A&gt; koffR*C - konR*A*B </code></pre>
@@ -264,7 +262,7 @@
 </div>
 <div id="rate-equations" class="section level3">
 <h3 class="hasAnchor">
-<a href="#rate-equations" class="anchor" aria-hidden="true"></a>Rate equations <code>=?=&gt;</code>
+<a href="#rate-equations" class="anchor"></a>Rate equations <code>=?=&gt;</code>
 </h3>
 <p>It may be more convenient to write out chemical reactions rather than differential equations. This can be done using the general form:</p>
 <pre><code>[CR1]Reactant1 + [CR2]Reactant2 + ... =kf=&gt; [CP1]Product1 + [CP2]Product2 + ...</code></pre>
@@ -286,7 +284,7 @@
 </div>
 <div id="equilibrium-relationships-kforwardkreverse" class="section level3">
 <h3 class="hasAnchor">
-<a href="#equilibrium-relationships-kforwardkreverse" class="anchor" aria-hidden="true"></a>Equilibrium relationships <code>&lt;=kforward:kreverse=&gt;</code>
+<a href="#equilibrium-relationships-kforwardkreverse" class="anchor"></a>Equilibrium relationships <code>&lt;=kforward:kreverse=&gt;</code>
 </h3>
 <p>Forward and reverse reaction rates can be written separately:</p>
 <pre><code>A + B =konR=&gt;   C       
@@ -314,7 +312,7 @@ C     =koffR=&gt;  A + B</code></pre>
 </div>
 <div id="sources-and-sinks-s" class="section level3">
 <h3 class="hasAnchor">
-<a href="#sources-and-sinks-s" class="anchor" aria-hidden="true"></a>Sources and sinks <code>&lt;S:?&gt;</code>
+<a href="#sources-and-sinks-s" class="anchor"></a>Sources and sinks <code>&lt;S:?&gt;</code>
 </h3>
 <p>This method allows turnover to be described in terms of synthesis and degradation terms. If <code>A</code> is produced at a rate of <code>ksynA</code> (mass quantities), degraded at a rate of <code>kdegA</code>, and modeled in concentration units then the sources are specified on the left hand side of <code>&lt;S:?&gt;</code> and the sinks (elimination) are specified on the left hand side of <code>&lt;S:?&gt;</code>. Multiple sources and sinks can be separated by semicolons. In this example with a compartment volume <code>V</code></p>
 <pre><code>ksynA/V &lt;S:A&gt; kdeg*A</code></pre>
@@ -323,7 +321,7 @@ C     =koffR=&gt;  A + B</code></pre>
 </div>
 <div id="movement-between-compartments-c" class="section level3">
 <h3 class="hasAnchor">
-<a href="#movement-between-compartments-c" class="anchor" aria-hidden="true"></a>Movement between compartments <code>&lt;C&gt;</code>
+<a href="#movement-between-compartments-c" class="anchor"></a>Movement between compartments <code>&lt;C&gt;</code>
 </h3>
 <p>When mass moves between two physical spaces with different volumes we need to specify, for each compartment, the species, volume and rate of transport. The <code>&lt;C&gt;</code> descriptor allows us to just identify the compartment information separated by semicolons (order is important)</p>
 <pre><code>Species; Volume; Rate &lt;C&gt; Species; Volume; Rate</code></pre>
@@ -336,7 +334,7 @@ C     =koffR=&gt;  A + B</code></pre>
 </div>
 <div id="bringing-it-all-together" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bringing-it-all-together" class="anchor" aria-hidden="true"></a>Bringing it all together</h2>
+<a href="#bringing-it-all-together" class="anchor"></a>Bringing it all together</h2>
 <div class="figure">
 <img src="system-tmdd.png" style="width:60.0%" alt=""><p class="caption">ODEs vs. Model Descriptors</p>
 </div>
@@ -358,7 +356,7 @@ Cp + Tp &lt;=kon:koff=&gt; CpTp
          &lt;S:CpTp&gt; kint*CpTp</code></pre>
 <div id="initial-conditions-i" class="section level3">
 <h3 class="hasAnchor">
-<a href="#initial-conditions-i" class="anchor" aria-hidden="true"></a>Initial conditions <code>&lt;I&gt;</code>
+<a href="#initial-conditions-i" class="anchor"></a>Initial conditions <code>&lt;I&gt;</code>
 </h3>
 <p>By default all initial conditions are zero. You can specify a non-zero initial condition using the <code>&lt;I&gt;</code> string to set a ‘state’ to a ‘value’</p>
 <pre><code>&lt;I&gt; state = value</code></pre>
@@ -373,11 +371,11 @@ Cp + Tp &lt;=kon:koff=&gt; CpTp
 </div>
 <div id="model-inputs" class="section level2">
 <h2 class="hasAnchor">
-<a href="#model-inputs" class="anchor" aria-hidden="true"></a>Model inputs</h2>
+<a href="#model-inputs" class="anchor"></a>Model inputs</h2>
 <p>Inputs into the model include typical interventions such as bolus dosing or continuous infusions. However inputs here refers to mathematical inputs. Typically covariates may be attributes of the system (such as gender, or a specific genotype), but are treated here as inputs. When defining inputs it is necessary to provide typical/placeholder values. These provide default values for both the ShinyApp interface as well as the scripting level (Matlab and R) where they can be overwritten by the user.</p>
 <div id="bolus-dosing-btimes-bevents" class="section level3">
 <h3 class="hasAnchor">
-<a href="#bolus-dosing-btimes-bevents" class="anchor" aria-hidden="true"></a>Bolus dosing <code>&lt;B:times&gt;</code>, <code>&lt;B:events&gt;</code>
+<a href="#bolus-dosing-btimes-bevents" class="anchor"></a>Bolus dosing <code>&lt;B:times&gt;</code>, <code>&lt;B:events&gt;</code>
 </h3>
 <p>The <code>&lt;B:?&gt;</code> descriptor is used to define bolus dosing. Dosing information is broken down into a list of <code>times</code> when bolus injections occur and a list of <code>events</code> containing the amount the specified compartment will receive.</p>
 <p>Each of these has a <code>scale</code> that is used to convert the bolus dosing information from proscribed units (mg daily) into the units in which the system is coded (nM and hours). So if dosing is done on days 0, 1, 2… but the simulation time is hours, then the scale for the dosing times is 24.</p>
@@ -395,7 +393,7 @@ Cp + Tp &lt;=kon:koff=&gt; CpTp
 </div>
 <div id="continuous-infusions-r" class="section level3">
 <h3 class="hasAnchor">
-<a href="#continuous-infusions-r" class="anchor" aria-hidden="true"></a>Continuous infusions <code>&lt;R:?&gt;</code>
+<a href="#continuous-infusions-r" class="anchor"></a>Continuous infusions <code>&lt;R:?&gt;</code>
 </h3>
 <p>Rates of infusion are defined using the <code>&lt;R:?&gt;</code> descriptor. Like bolus values, infusion rates have two components. There is a component that specifies switching times (e.g. switching from 10 mg/hr to 0). And each switching time has a corresponding rate of infusion. This infusion rate will be held constant until the next time. Also like the bolus specification there is a <strong>scale</strong> associated with both infusion <code>times</code> and the <code>levels</code> that converts the proscriptive units into the units of the simulation. Consider the following example:</p>
 <pre><code># name      time/levels values    scale  units
@@ -405,12 +403,12 @@ Cp + Tp &lt;=kon:koff=&gt; CpTp
 </div>
 <div id="covariates-cv-cvset" class="section level3">
 <h3 class="hasAnchor">
-<a href="#covariates-cv-cvset" class="anchor" aria-hidden="true"></a>Covariates <code>&lt;CV:?&gt;</code>, <code>&lt;CVSET:?:?&gt;</code>
+<a href="#covariates-cv-cvset" class="anchor"></a>Covariates <code>&lt;CV:?&gt;</code>, <code>&lt;CVSET:?:?&gt;</code>
 </h3>
 </div>
 <div id="simple-covariates" class="section level3">
 <h3 class="hasAnchor">
-<a href="#simple-covariates" class="anchor" aria-hidden="true"></a>Simple covariates</h3>
+<a href="#simple-covariates" class="anchor"></a>Simple covariates</h3>
 <p>For simulation purposes covariates (normally found in a dataset) need to be defined. Covariates can be either constant or change with time. The times values <em>must be the same scale as the system</em>. The following defines the value for the covariate <code>RACE</code>:</p>
 <pre><code>&lt;CV:RACE&gt;; times;  [0];     hours
 &lt;CV:RACE&gt;; values; [1];     ethnicity</code></pre>
@@ -428,7 +426,7 @@ Cp + Tp &lt;=kon:koff=&gt; CpTp
 </div>
 <div id="complicated-covariates" class="section level3">
 <h3 class="hasAnchor">
-<a href="#complicated-covariates" class="anchor" aria-hidden="true"></a>Complicated covariates</h3>
+<a href="#complicated-covariates" class="anchor"></a>Complicated covariates</h3>
 <p>Detailed time course profiles can be created as well. For example, to create a covariate profile that is zero from time 0-1 and at time 1 it jumps to 8 and decreases at a rate of 1 per unit time until time 5 where it stays at the value 4 until time 12. It might have a profile like the following:</p>
 <div class="figure">
 <img src="covariates.png" style="width:50.0%" alt=""><p class="caption">Time-varying covariate input profile</p>
@@ -441,7 +439,7 @@ Cp + Tp &lt;=kon:koff=&gt; CpTp
 </div>
 <div id="model-outputs" class="section level2">
 <h2 class="hasAnchor">
-<a href="#model-outputs" class="anchor" aria-hidden="true"></a>Model outputs</h2>
+<a href="#model-outputs" class="anchor"></a>Model outputs</h2>
 <p>Outputs are defined here in terms of states, parameters, secondary parameters, input rates, and covariates listed above. The format used is:</p>
 <pre><code>&lt;O&gt; name = expression</code></pre>
 <p>For example:</p>
@@ -452,7 +450,7 @@ Cp + Tp &lt;=kon:koff=&gt; CpTp
 </div>
 <div id="functions-and-operators" class="section level2">
 <h2 class="hasAnchor">
-<a href="#functions-and-operators" class="anchor" aria-hidden="true"></a>Functions and operators</h2>
+<a href="#functions-and-operators" class="anchor"></a>Functions and operators</h2>
 <p>Most of the standard operators behave as expected (<code>+</code>, <code>-</code>, <code>*</code>, &amp; <code>/</code>) because most languages use these consistently. There are however certain operators and functions that differ between languages. For example, consider the power function (<span class="math inline">\(a^b\)</span>). In FORTRAN this would be <code>a**b</code>, in Matlab it is <code>a^b</code>, and in C it is <code>pow(a,b)</code>. Given the objectives here (write once and create multiple formats), this can be quite challenging. The solution used here is to convert language specific functions and operators into generic functions. So the power operator would be:</p>
 <pre><code>SIMINT_POWER[a][b]</code></pre>
 <p>This would then be converted to the appropriate output format depending on the output target. The following generic functions can be used:</p>
@@ -517,12 +515,12 @@ Cp + Tp &lt;=kon:koff=&gt; CpTp
 </table>
 <div id="current-simulation-time" class="section level3">
 <h3 class="hasAnchor">
-<a href="#current-simulation-time" class="anchor" aria-hidden="true"></a>Current simulation time</h3>
+<a href="#current-simulation-time" class="anchor"></a>Current simulation time</h3>
 <p>For some systems you will want to access the simulation time. To do this you can use the internal variable <code>SIMINT_TIME</code>.</p>
 </div>
 <div id="modeling-quasi-equilibrium-of-target-mediated-drugs" class="section level3">
 <h3 class="hasAnchor">
-<a href="#modeling-quasi-equilibrium-of-target-mediated-drugs" class="anchor" aria-hidden="true"></a>Modeling quasi-equilibrium of target-mediated drugs</h3>
+<a href="#modeling-quasi-equilibrium-of-target-mediated-drugs" class="anchor"></a>Modeling quasi-equilibrium of target-mediated drugs</h3>
 <p>The free amount of a drug <code>Cfree</code> which is binding to a receptor with an affinity of <code>KD</code> given total values <code>Ctot</code> and <code>Rtot</code> the following can be calculated using the following equation:</p>
 <p><span class="math display">\[
 C_{free}=\frac{1}{2}
@@ -539,7 +537,7 @@ C_{free}=\frac{1}{2}
 </div>
 <div id="timescales" class="section level2">
 <h2 class="hasAnchor">
-<a href="#timescales" class="anchor" aria-hidden="true"></a>Timescales</h2>
+<a href="#timescales" class="anchor"></a>Timescales</h2>
 <p>Each system has default units in which it is constructed, and should be indicated in the comments of the model. It can be useful (for generating figures for example) to show simulations in different time scales. Now this can be achieved by multiplying the time outputs by the correct scaling factor. However this requires the end user to (1) remember the original timescale and (2) correctly scale that value.</p>
 <p>Now while this is not particularly challenging from a mathematical perspective, it introduces a chance for error. It is possible, instead, to specify time scale information using the <code>&lt;TS:?&gt;</code> descriptor. If the system is coded in hours, the following will define timescales for the default (hours), days, weeks and months:</p>
 <pre><code>&lt;TS:hours&gt;  1.0
@@ -550,14 +548,14 @@ C_{free}=\frac{1}{2}
 </div>
 <div id="mathematical-sets" class="section level2">
 <h2 class="hasAnchor">
-<a href="#mathematical-sets" class="anchor" aria-hidden="true"></a>Mathematical sets</h2>
+<a href="#mathematical-sets" class="anchor"></a>Mathematical sets</h2>
 <p>Consider the following systems:</p>
 <p><strong>PBPK:</strong> Most of the organs in these systems are mathematically identical, with only variations in the parameters. However coding each of these organs or modifying an existing system (say to incorporate the presences of a target in each organ) can become tedious.</p>
 <p><strong>Anti-drug antibody generation:</strong> If we consider ADAs generated in response to therapeutic proteins, the response will consist of a distribution of ADAs in terms of their concentration and a separate distribution in terms of their affinity. Modeling this maturation process and the interactions between the ADAs, the therapeutic protein, and drug targets becomes unmanageable quickly.</p>
 <p>The question is: How can we make difficult problems easy and intractable problems possible? The solution implemented here allows the system to be defined in terms of <strong>mathematical sets</strong></p>
 <div id="set-notation-set" class="section level3">
 <h3 class="hasAnchor">
-<a href="#set-notation-set" class="anchor" aria-hidden="true"></a>Set notation <code>&lt;SET:?&gt;?</code>
+<a href="#set-notation-set" class="anchor"></a>Set notation <code>&lt;SET:?&gt;?</code>
 </h3>
 <p>Consider the interactions occurring in an assay designed to detect drug (<code>D</code>) present in serum. In this assay a biotinylated target (<code>TB</code>) is used to pull down the drug and a labeled target (<code>TL</code>) is the signaling molecule used. The assay will provide a signal when a complex containing both <code>TB</code> and <code>TL</code> are present (<code>TB:D:TL</code> or <code>TL:D:TB</code>). Samples can contain soluble target as well (<code>TS</code>) which can interfere with the assay. To model this assay, the following interactions should be considered:</p>
 <div class="figure">
@@ -566,7 +564,7 @@ C_{free}=\frac{1}{2}
 <p>Several options are available to construct this system. The ODEs could simply be typed out for every possible combination. It’s also possible to use the equilibrium <code>&lt;=kon:koff=&gt;</code> for all the interactions as well. However, there is another option that will handle the enumeration more easily. First we define the two mathematical sets <code>TSi</code> and <code>TSk</code>:</p>
 <pre><code>&lt;SET:TSi&gt; TL; TB; TS
 &lt;SET:TSk&gt; TL; TB; TS</code></pre>
-<p>With these defined we can then use the curly brace notation (<code><a href="https://rdrr.io/r/base/Paren.html" class="external-link">{ }</a></code>) with any of the descriptors used to construct a system. For example, the initial conditions for each of the target states are defined as parameters (<code>T0_TL</code>, <code>T0_TS</code>, <code>T0_TB</code>) in the model. These have to be identified as initial conditions using the <code>&lt;I&gt;</code> notation, and can be done with a single statement. This line:</p>
+<p>With these defined we can then use the curly brace notation (<code><a href="https://rdrr.io/r/base/Paren.html">{ }</a></code>) with any of the descriptors used to construct a system. For example, the initial conditions for each of the target states are defined as parameters (<code>T0_TL</code>, <code>T0_TS</code>, <code>T0_TB</code>) in the model. These have to be identified as initial conditions using the <code>&lt;I&gt;</code> notation, and can be done with a single statement. This line:</p>
 <pre><code>&lt;I&gt; {TSi} = T0_{TSi} </code></pre>
 <p>Expands to:</p>
 <pre><code>&lt;I&gt; TL = T0_TL
@@ -579,7 +577,7 @@ C_{free}=\frac{1}{2}
 <p>This statement contains two different sets (<code>TSi</code> and <code>TSk</code>). When multiple sets are encountered, every possible combination is evaluated</p>
 <div id="aligning-sets" class="section level4">
 <h4 class="hasAnchor">
-<a href="#aligning-sets" class="anchor" aria-hidden="true"></a>Aligning Sets</h4>
+<a href="#aligning-sets" class="anchor"></a>Aligning Sets</h4>
 <p>By default sets will interpreted by evaluating every possible permutation as shown above. However, it may be desirable to pair or align sets. Take for example the transit compartments implemented by Lobo and Balthasar to delay the onset of drug effect on cancer cells [LB]. The transit compartment are implemented using a series of differential equations:</p>
 <p><span class="math display">\[
   \frac{dK1}{dt} = (K-K1)\frac{1}{\tau} \\
@@ -600,7 +598,7 @@ C_{free}=\frac{1}{2}
 </div>
 <div id="set-functions" class="section level4">
 <h4 class="hasAnchor">
-<a href="#set-functions" class="anchor" aria-hidden="true"></a>Set Functions</h4>
+<a href="#set-functions" class="anchor"></a>Set Functions</h4>
 <p>It can be useful to perform operations over sets. To do this you can use the following functions:</p>
 <ul>
 <li>
@@ -617,7 +615,7 @@ C_{free}=\frac{1}{2}
 </div>
 <div id="set-evaluation" class="section level4">
 <h4 class="hasAnchor">
-<a href="#set-evaluation" class="anchor" aria-hidden="true"></a>Set Evaluation</h4>
+<a href="#set-evaluation" class="anchor"></a>Set Evaluation</h4>
 <p>Sets are evaluated in the following order:</p>
 <ul>
 <li>First set functions (<code>SIMINT_SET_SUM</code> and <code>SIMINT_SET_PRODUCT</code>) are evaluated.</li>
@@ -629,7 +627,7 @@ C_{free}=\frac{1}{2}
 </div>
 <div id="piecewise-continuous-functionsparameters-if" class="section level2">
 <h2 class="hasAnchor">
-<a href="#piecewise-continuous-functionsparameters-if" class="anchor" aria-hidden="true"></a>Piecewise-continuous functions/parameters <code>&lt;IF:?:?&gt;</code>
+<a href="#piecewise-continuous-functionsparameters-if" class="anchor"></a>Piecewise-continuous functions/parameters <code>&lt;IF:?:?&gt;</code>
 </h2>
 <p>To specify a conditional assignment use the statement:</p>
 <pre><code>&lt;IF:name:COND&gt; boolean; value</code></pre>
@@ -644,7 +642,7 @@ C_{free}=\frac{1}{2}
 <pre><code>&lt;IF:name:ELSE&gt; value</code></pre>
 <div id="constructing-a-piece-wise-continuous-functionparameter" class="section level3">
 <h3 class="hasAnchor">
-<a href="#constructing-a-piece-wise-continuous-functionparameter" class="anchor" aria-hidden="true"></a>Constructing a piece-wise continuous function/parameter</h3>
+<a href="#constructing-a-piece-wise-continuous-functionparameter" class="anchor"></a>Constructing a piece-wise continuous function/parameter</h3>
 <p>To see an example use the following command (use <code><a href="../reference/system_new.html">?system_new</a></code> to see a list of the available system file examples):</p>
 <p><code>system_new(system_file="pwc", file_name="system-pwc.txt")</code></p>
 <p>In this example we specify fast (<code>kelf</code>) and slow (<code>kels</code>) rates of elimination. We want to have the fast rate be active when the drug concentration is above <code>Cth</code> and the time is below <code>Tf</code>. The system parameters would look like:</p>
@@ -660,7 +658,7 @@ C_{free}=\frac{1}{2}
 </div>
 <div id="controlling-indices" class="section level2">
 <h2 class="hasAnchor">
-<a href="#controlling-indices" class="anchor" aria-hidden="true"></a>Controlling indices</h2>
+<a href="#controlling-indices" class="anchor"></a>Controlling indices</h2>
 <p>By default, the build script will construct odes, parameter sets, etc. automatically. This means that the order of states/compartments are going to be arbitrary. Sometimes it is necessary to specify the order of your states or outputs. For example when using NONMEM the order in the control stream must correlate with the values in the dataset. To specify that a state <code>Cp</code> should be compartment <code>3</code>, the following should be used:</p>
 <pre><code>&lt;INDEX:STATE:Cp&gt;  3</code></pre>
 <p>The general notation for an output or state <code>name</code> assigned to a <code>number</code> is:</p>
@@ -669,7 +667,7 @@ C_{free}=\frac{1}{2}
 </div>
 <div id="options" class="section level2">
 <h2 class="hasAnchor">
-<a href="#options" class="anchor" aria-hidden="true"></a>Options</h2>
+<a href="#options" class="anchor"></a>Options</h2>
 <p>Several options can be specified using the <code>&lt;OPT:?</code> delimiter. If you’ve defined the <code>days</code> timescale using <code>&lt;TS:?&gt;?</code> this can be used as the timescale for plotting in the ShinyApp by using:</p>
 <pre><code>&lt;OPT:TS&gt;  days</code></pre>
 <p>To define the default output times for the ShinyApp and simulation scripts use the following:</p>
@@ -677,8 +675,8 @@ C_{free}=\frac{1}{2}
 </div>
 <div id="example-system-files" class="section level2">
 <h2 class="hasAnchor">
-<a href="#example-system-files" class="anchor" aria-hidden="true"></a>Example system files</h2>
-<p>These example system files can be found in the examples directory of the stand-alone analysis template (<a href="https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_analysis_development.zip" class="external-link">ubiquity_template.zip</a>). Most can also be loaded form the R package (see the help for <code><a href="../reference/system_new.html">?system_new</a></code>).</p>
+<a href="#example-system-files" class="anchor"></a>Example system files</h2>
+<p>These example system files can be found in the examples directory of the stand-alone analysis template (<a href="https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_analysis_development.zip">ubiquity_template.zip</a>). Most can also be loaded form the R package (see the help for <code><a href="../reference/system_new.html">?system_new</a></code>).</p>
 <ul>
 <li>
 <code>system-adapt.txt</code> - Parent/metabolite structural model taken from the ADAPT5 Users Manual [ADAPT]. This system is used in the estimation examples of the ubiquity workshop.</li>
@@ -710,19 +708,19 @@ C_{free}=\frac{1}{2}
 </div>
 <div id="references" class="section level2">
 <h2 class="hasAnchor">
-<a href="#references" class="anchor" aria-hidden="true"></a>References</h2>
+<a href="#references" class="anchor"></a>References</h2>
 <ul>
-<li>[ADAPT] <a href="https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf" class="external-link">Adapt 5 Users Guide</a>
+<li>[ADAPT] <a href="https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf">Adapt 5 Users Guide</a>
 </li>
-<li>[DM] <a href="https://doi.org/10.2165/11535960-000000000-00000" class="external-link">Dirks &amp; Meibohm Clin. PK (2010) Oct 1;49(10):633-59</a>
+<li>[DM] <a href="https://doi.org/10.2165/11535960-000000000-00000">Dirks &amp; Meibohm Clin. PK (2010) Oct 1;49(10):633-59</a>
 </li>
-<li>[LB] <a href="https://doi.org/10.1208/ps040442" class="external-link">Lobo, E.D. &amp; Balthasar, J.P. AAPS J (2002) 4, 212-222</a>
+<li>[LB] <a href="https://doi.org/10.1208/ps040442">Lobo, E.D. &amp; Balthasar, J.P. AAPS J (2002) 4, 212-222</a>
 </li>
-<li>[MK] <a href="https://doi.org/10.1007/s11095-005-6650-0" class="external-link">Mager, D.E. &amp; Krzyzanski, W. Pharm Res (2005) 22: 1589.</a>
+<li>[MK] <a href="https://doi.org/10.1007/s11095-005-6650-0">Mager, D.E. &amp; Krzyzanski, W. Pharm Res (2005) 22: 1589.</a>
 </li>
-<li>[SB] <a href="https://doi.org/10.1007/s10928-011-9232-2" class="external-link">Shah, D.K. &amp; Betts, A.M. JPKPD (2012) 39 (1), 67-86</a>
+<li>[SB] <a href="https://doi.org/10.1007/s10928-011-9232-2">Shah, D.K. &amp; Betts, A.M. JPKPD (2012) 39 (1), 67-86</a>
 </li>
-<li>[VR] <a href="https://doi.org/10.1002/eji.1830180221" class="external-link">Vieira &amp; Rajewsky Eur J Immunol. (1988) Feb;18(2):313-6</a>
+<li>[VR] <a href="https://doi.org/10.1002/eji.1830180221">Vieira &amp; Rajewsky Eur J Immunol. (1988) Feb;18(2):313-6</a>
 </li>
 </ul>
 </div>
@@ -745,13 +743,11 @@ C_{free}=\frac{1}{2}
 
 
       <footer><div class="copyright">
-  <p></p>
-<p>Developed by John Harrold.</p>
+  <p>Developed by John Harrold.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -759,8 +755,6 @@ C_{free}=\frac{1}{2}
 
   
 
-
-  
 
   </body>
 </html>

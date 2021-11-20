@@ -45,8 +45,6 @@
 
 
 
-
-
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -57,18 +55,10 @@
 <![endif]-->
 
 
-<!-- dependencies from examples -->
-
-
-  
-
-  
 
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -188,7 +178,7 @@
     <p>Adds spaces to the beginning or end of strings until it reaches the maxlength. Used for aligning text.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>pad_string</span><span class='op'>(</span><span class='va'>str</span>, maxlength <span class='op'>=</span> <span class='fl'>1</span>, location <span class='op'>=</span> <span class='st'>"beginning"</span><span class='op'>)</span></code></pre></div>
+    <pre class="usage"><span class='fu'>pad_string</span><span class='op'>(</span><span class='va'>str</span>, maxlength <span class='op'>=</span> <span class='fl'>1</span>, location <span class='op'>=</span> <span class='st'>"beginning"</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -212,11 +202,11 @@
     <p>Padded string</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='fu'>pad_string</span><span class='op'>(</span><span class='st'>"bob"</span>, maxlength<span class='op'>=</span><span class='fl'>10</span><span class='op'>)</span></span>
+    <pre class="examples"><span class='r-in'><span class='fu'>pad_string</span><span class='op'>(</span><span class='st'>"bob"</span>, maxlength<span class='op'>=</span><span class='fl'>10</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> [1] "       bob"</span>
 <span class='r-in'><span class='fu'>pad_string</span><span class='op'>(</span><span class='st'>"bob"</span>, maxlength<span class='op'>=</span><span class='fl'>10</span>, location<span class='op'>=</span><span class='st'>"end"</span><span class='op'>)</span></span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> [1] "bob       "</span>
-</code></pre></div>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -228,11 +218,11 @@
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by John Harrold.</p></p>
+  <p>Developed by John Harrold.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -240,8 +230,6 @@
 
   
 
-
-  
 
   </body>
 </html>

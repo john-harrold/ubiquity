@@ -107,6 +107,23 @@ cfg = system_set_option(cfg,
 
 To alter initial guesses see: \code{\link{system_set_guess}}
 
+When performing parameter estimation, the internal function
+\code{system_od_general} is used. This is the function that simulates your
+system at the conditions defined for the different cohorts. This is pretty
+flexible but if you want to go beyond this you can set the
+\code{observation_function} option:
+
+\preformatted{
+cfg = system_set_option(cfg, 
+                       group  = "estimation",
+                       option = "observation_function",
+                       value  = "my_od")
+}
+
+That will instruct the optimziation routines to use the user defined
+function \code{my_od}. You will need to construct that function to have the
+same input/output format as \code{\link{system_od_general}}.
+
 \bold{\code{group=general}}
 
 \itemize{

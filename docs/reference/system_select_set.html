@@ -48,8 +48,6 @@ subset of parameters estimated when performing parameter estimation." />
 
 
 
-
-
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -60,18 +58,10 @@ subset of parameters estimated when performing parameter estimation." />
 <![endif]-->
 
 
-<!-- dependencies from examples -->
-
-
-  
-
-  
 
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -194,7 +184,7 @@ switching between these parameterizations, and (optionally) specifying a
 subset of parameters estimated when performing parameter estimation.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>system_select_set</span><span class='op'>(</span><span class='va'>cfg</span>, set_name <span class='op'>=</span> <span class='st'>"default"</span>, parameter_names <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></code></pre></div>
+    <pre class="usage"><span class='fu'>system_select_set</span><span class='op'>(</span><span class='va'>cfg</span>, set_name <span class='op'>=</span> <span class='st'>"default"</span>, parameter_names <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -218,7 +208,7 @@ subset of parameters estimated when performing parameter estimation.</p>
     <p>Ubiquity system object with the specified parameter set active</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># \donttest{</span></span>
+    <pre class="examples"><span class='r-in'><span class='co'># \donttest{</span></span>
 <span class='r-in'><span class='co'># Creating a system file from the mab_pk example</span></span>
 <span class='r-in'><span class='va'>fr</span> <span class='op'>=</span> <span class='fu'><a href='system_new.html'>system_new</a></span><span class='op'>(</span>file_name        <span class='op'>=</span> <span class='st'>"system.txt"</span>, </span>
 <span class='r-in'>                system_file      <span class='op'>=</span> <span class='st'>"mab_pk"</span>, </span>
@@ -231,7 +221,7 @@ subset of parameters estimated when performing parameter estimation.</p>
 <span class='r-in'>      temporary_directory       <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; ubiquity: (https://r.ubiquity.tools)</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Distribution:           package (2.0.1)</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Building the system:    /var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T//RtmpBoP5Zm/system.txt</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Building the system:    /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//RtmprX4NhY/system.txt</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Done </span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Compiling C version of system</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Loading the shared C library</span>
@@ -242,7 +232,7 @@ subset of parameters estimated when performing parameter estimation.</p>
 <span class='r-in'><span class='co'># Selecting the default parameter set</span></span>
 <span class='r-in'><span class='va'>cfg</span> <span class='op'>=</span> <span class='fu'>system_select_set</span><span class='op'>(</span><span class='va'>cfg</span>, <span class='st'>"default"</span><span class='op'>)</span></span>
 <span class='r-in'><span class='co'># }</span></span>
-</code></pre></div>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -254,11 +244,11 @@ subset of parameters estimated when performing parameter estimation.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by John Harrold.</p></p>
+  <p>Developed by John Harrold.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -266,8 +256,6 @@ subset of parameters estimated when performing parameter estimation.</p>
 
   
 
-
-  
 
   </body>
 </html>

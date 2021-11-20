@@ -140,8 +140,6 @@ cfg = system_define_cohort(cfg, cohort)
 #cat(system_view(cfg, field="simulation"))
 
 
-
-
 # cfg = system_set_option(cfg, group="estimation",
 #                              option="method",
 #                              value = "BFGS")

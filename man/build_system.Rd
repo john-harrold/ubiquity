@@ -2,7 +2,7 @@
 % Please edit documentation in R/ubiquity.R
 \name{build_system}
 \alias{build_system}
-\title{Building The System}
+\title{Build the System File}
 \usage{
 build_system(
   system_file = "system.txt",

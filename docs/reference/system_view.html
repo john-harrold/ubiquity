@@ -46,8 +46,6 @@ etc) about the system." />
 
 
 
-
-
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -58,18 +56,10 @@ etc) about the system." />
 <![endif]-->
 
 
-<!-- dependencies from examples -->
-
-
-  
-
-  
 
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -190,7 +180,7 @@ etc) about the system." />
 etc) about the system.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>system_view</span><span class='op'>(</span><span class='va'>cfg</span>, field <span class='op'>=</span> <span class='st'>"all"</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></code></pre></div>
+    <pre class="usage"><span class='fu'>system_view</span><span class='op'>(</span><span class='va'>cfg</span>, field <span class='op'>=</span> <span class='st'>"all"</span>, verbose <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -227,7 +217,7 @@ etc) about the system.</p>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># To log and display the current system information:</span></span>
+    <pre class="examples"><span class='r-in'><span class='co'># To log and display the current system information:</span></span>
 <span class='r-in'><span class='co'># \donttest{</span></span>
 <span class='r-in'><span class='co'># Creating a system file from the mab_pk example</span></span>
 <span class='r-in'><span class='va'>fr</span> <span class='op'>=</span> <span class='fu'><a href='system_new.html'>system_new</a></span><span class='op'>(</span>file_name        <span class='op'>=</span> <span class='st'>"system.txt"</span>, </span>
@@ -241,7 +231,7 @@ etc) about the system.</p>
 <span class='r-in'>      temporary_directory       <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; ubiquity: (https://r.ubiquity.tools)</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Distribution:           package (2.0.1)</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Building the system:    /var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T//RtmpBoP5Zm/system.txt</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Building the system:    /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//RtmprX4NhY/system.txt</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Done </span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Compiling C version of system</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Loading the shared C library</span>
@@ -250,6 +240,12 @@ etc) about the system.</p>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;   fr = system_fetch_template(cfg, template = "Estimation")</span>
 <span class='r-in'></span>
 <span class='r-in'>  <span class='va'>msgs</span> <span class='op'>=</span> <span class='fu'>system_view</span><span class='op'>(</span><span class='va'>cfg</span>, verbose<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span></span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' %s, %s(%s)'</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' %s, %s(%s)'</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' %s, %s(%s)'</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' %s, %s(%s)'</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' %s, %s(%s)'</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' '</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Parameter Information</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Parameter set selected:</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;    Short Name:  default</span>
@@ -270,8 +266,8 @@ etc) about the system.</p>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;      field |      values |    scaling |      units</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; --------------------------------------------------</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;      times |      0 7 14 |          1 |       days</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;         Cc |       0 0 0 |  1e3/MW/Vc |         mg</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;         At |     400 0 0 |     1e3/MW |         mg</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;         Cc |       0 0 0 |  1e3/MW/Vc |         mg</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; --------------------------------------------------</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  Infusion rate details </span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;      Rate  |      field |     values |    scaling |      units</span>
@@ -302,10 +298,10 @@ etc) about the system.</p>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;               ETAQ                 0                 0                 0                 0            0.6990</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  </span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  On parameters</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;          CL,      ETACL(LN)</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;          Vc,      ETAVc(LN)</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;           Q,       ETAQ(LN)</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;          Vp,      ETAVp(LN)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;          CL,      ETACL(LN)</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;          ka,      ETAka(LN)</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  </span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  integrate_with          c-file</span>
@@ -320,7 +316,7 @@ etc) about the system.</p>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt;  No cohort information found</span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; No NCA has been performed</span>
 <span class='r-in'><span class='co'># }</span></span>
-</code></pre></div>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -332,11 +328,11 @@ etc) about the system.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by John Harrold.</p></p>
+  <p>Developed by John Harrold.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -344,8 +340,6 @@ etc) about the system.</p>
 
   
 
-
-  
 
   </body>
 </html>

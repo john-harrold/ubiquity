@@ -2,6 +2,7 @@
 
 ## Notes
 - Removed internal files that were no longer being used
+- Added documentation for creating user defined observation functions when running parameter estimation
 
 # ubiquity 2.0.0
 

@@ -46,8 +46,6 @@ example files for different sections of the workshop." />
 
 
 
-
-
 <!-- mathjax -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script>
@@ -58,18 +56,10 @@ example files for different sections of the workshop." />
 <![endif]-->
 
 
-<!-- dependencies from examples -->
-
-
-  
-
-  
 
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -190,12 +180,12 @@ example files for different sections of the workshop." />
 example files for different sections of the workshop.</p>
     </div>
 
-    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>workshop_fetch</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>workshop_fetch</span><span class='op'>(</span>
   section <span class='op'>=</span> <span class='st'>"Simulation"</span>,
   overwrite <span class='op'>=</span> <span class='cn'>FALSE</span>,
   copy_files <span class='op'>=</span> <span class='cn'>TRUE</span>,
   output_directory <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/getwd.html'>getwd</a></span><span class='op'>(</span><span class='op'>)</span>
-<span class='op'>)</span></code></pre></div>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -226,23 +216,23 @@ example files for different sections of the workshop.</p>
     <p>Valid sections are "Simulation", "Estimation", "Titration" "Reporting", and "NCA"</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='co'># \donttest{</span></span>
+    <pre class="examples"><span class='r-in'><span class='co'># \donttest{</span></span>
 <span class='r-in'><span class='fu'>workshop_fetch</span><span class='op'>(</span><span class='st'>"Estimation"</span>, output_directory<span class='op'>=</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span>, overwrite<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span></span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T//RtmpBoP5Zm/analysis_parent.r</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T//RtmpBoP5Zm/analysis_parent_metabolite.r</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T//RtmpBoP5Zm/analysis_parent_metabolite_global.r</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T//RtmpBoP5Zm/analysis_parent_metabolite_nm_data.r</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T//RtmpBoP5Zm/system.txt</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T//RtmpBoP5Zm/pm_data.csv</span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T//RtmpBoP5Zm/nm_data.csv</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//RtmprX4NhY/analysis_parent.r</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//RtmprX4NhY/analysis_parent_metabolite.r</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//RtmprX4NhY/analysis_parent_metabolite_global.r</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//RtmprX4NhY/analysis_parent_metabolite_nm_data.r</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//RtmprX4NhY/system.txt</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//RtmprX4NhY/pm_data.csv</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> #&gt; Creating file: /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//RtmprX4NhY/nm_data.csv</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> $sources</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] "/private/var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T/RtmpZjwreu/temp_libpath164c36ed4527f/ubiquity/ubinc/scripts/analysis_parent.r"                   </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [2] "/private/var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T/RtmpZjwreu/temp_libpath164c36ed4527f/ubiquity/ubinc/scripts/analysis_parent_metabolite.r"        </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [3] "/private/var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T/RtmpZjwreu/temp_libpath164c36ed4527f/ubiquity/ubinc/scripts/analysis_parent_metabolite_global.r" </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [4] "/private/var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T/RtmpZjwreu/temp_libpath164c36ed4527f/ubiquity/ubinc/scripts/analysis_parent_metabolite_nm_data.r"</span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [5] "/private/var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T/RtmpZjwreu/temp_libpath164c36ed4527f/ubiquity/ubinc/systems/system-adapt.txt"                    </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [6] "/private/var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T/RtmpZjwreu/temp_libpath164c36ed4527f/ubiquity/ubinc/csv/pm_data.csv"                             </span>
-<span class='r-out co'><span class='r-pr'>#&gt;</span> [7] "/private/var/folders/9x/kwnn6qj93c122hwdlp5hrrnc0000gn/T/RtmpZjwreu/temp_libpath164c36ed4527f/ubiquity/ubinc/csv/nm_data.csv"                             </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] "/private/var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T/RtmpNNLPUC/temp_libpath68067e035ad/ubiquity/ubinc/scripts/analysis_parent.r"                   </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [2] "/private/var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T/RtmpNNLPUC/temp_libpath68067e035ad/ubiquity/ubinc/scripts/analysis_parent_metabolite.r"        </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [3] "/private/var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T/RtmpNNLPUC/temp_libpath68067e035ad/ubiquity/ubinc/scripts/analysis_parent_metabolite_global.r" </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [4] "/private/var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T/RtmpNNLPUC/temp_libpath68067e035ad/ubiquity/ubinc/scripts/analysis_parent_metabolite_nm_data.r"</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [5] "/private/var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T/RtmpNNLPUC/temp_libpath68067e035ad/ubiquity/ubinc/systems/system-adapt.txt"                    </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [6] "/private/var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T/RtmpNNLPUC/temp_libpath68067e035ad/ubiquity/ubinc/csv/pm_data.csv"                             </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [7] "/private/var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T/RtmpNNLPUC/temp_libpath68067e035ad/ubiquity/ubinc/csv/nm_data.csv"                             </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> $destinations</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> [1] "analysis_parent.r"                   </span>
@@ -260,7 +250,7 @@ example files for different sections of the workshop.</p>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> [1] TRUE</span>
 <span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
 <span class='r-in'><span class='co'># }</span></span>
-</code></pre></div>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -272,11 +262,11 @@ example files for different sections of the workshop.</p>
 
       <footer>
       <div class="copyright">
-  <p><p>Developed by John Harrold.</p></p>
+  <p>Developed by John Harrold.</p>
 </div>
 
 <div class="pkgdown">
-  <p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -284,8 +274,6 @@ example files for different sections of the workshop.</p>
 
   
 
-
-  
 
   </body>
 </html>

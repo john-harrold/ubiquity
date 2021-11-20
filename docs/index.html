@@ -19,8 +19,6 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -131,65 +129,65 @@
   <div class="contents col-md-9">
 <div id="ubiquity-r-workflow" class="section level2">
 <h2 class="hasAnchor">
-<a href="#ubiquity-r-workflow" class="anchor" aria-hidden="true"></a>ubiquity R Workflow</h2>
+<a href="#ubiquity-r-workflow" class="anchor"></a>ubiquity R Workflow</h2>
 
 <div id="overview" class="section level3">
 <h3 class="hasAnchor">
-<a href="#overview" class="anchor" aria-hidden="true"></a>Overview</h3>
-<p>Provides an interface to the R workflow for <a href="https://r.ubiquity.tools" class="external-link">ubiquity</a>: a set of modeling tools created to accelerate the development and deployment of models of drug disposition and efficacy within an organization or institution. It is designed to make model development easier, reduce the pain when moving between modeling software, and provide a simple but customizable interface to allow other scientists to interrogate models. It is provide free under a BSD license with source code available in GitHub (<a href="https://github.com/john-harrold/ubiquity" class="external-link">R-package</a>, <a href="https://github.com/john-harrold/ubiquity-pkpd" class="external-link">ubiquity project</a>).</p>
+<a href="#overview" class="anchor"></a>Overview</h3>
+<p>Provides an interface to the R workflow for <a href="https://r.ubiquity.tools">ubiquity</a>: a set of modeling tools created to accelerate the development and deployment of models of drug disposition and efficacy within an organization or institution. It is designed to make model development easier, reduce the pain when moving between modeling software, and provide a simple but customizable interface to allow other scientists to interrogate models. It is provide free under a BSD license with source code available in GitHub (<a href="https://github.com/john-harrold/ubiquity">R-package</a>, <a href="https://github.com/john-harrold/ubiquity-pkpd">ubiquity project</a>).</p>
 </div>
 <div id="installing-ubiquity" class="section level3">
 <h3 class="hasAnchor">
-<a href="#installing-ubiquity" class="anchor" aria-hidden="true"></a>Installing ubiquity</h3>
-<p>For detailed software requirements and installation instructions see this page: (<a href="https://ubiquity.tools/rworkflow" class="external-link uri">https://ubiquity.tools/rworkflow</a>)</p>
+<a href="#installing-ubiquity" class="anchor"></a>Installing ubiquity</h3>
+<p>For detailed software requirements and installation instructions see this page: (<a href="https://ubiquity.tools/rworkflow" class="uri">https://ubiquity.tools/rworkflow</a>)</p>
 <p>Briefly, install the following:</p>
 <ul>
-<li><a href="https://cran.r-project.org" class="external-link">R</a></li>
-<li><a href="https://www.rstudio.com/products/rstudio/" class="external-link">RStudio</a></li>
-<li><a href="https://strawberryperl.com/" class="external-link">Perl (Windows)</a></li>
-<li><a href="https://cran.r-project.org/bin/windows/Rtools/" class="external-link">Rtools (Windows)</a></li>
+<li><a href="https://cran.r-project.org">R</a></li>
+<li><a href="https://www.rstudio.com/products/rstudio/">RStudio</a></li>
+<li><a href="https://strawberryperl.com/">Perl (Windows)</a></li>
+<li><a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools (Windows)</a></li>
 </ul>
 <p>Then you can install <code>ubiquity</code> from CRAN</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ubiquity"</span><span class="op">)</span> </code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"ubiquity"</span><span class="op">)</span> </code></pre></div>
 <p>Or install the development version from GitHub:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#install.packages("devtools") </span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"john-harrold/ubiquity"</span><span class="op">)</span></code></pre></div>
+<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span><span class="op">(</span><span class="st">"john-harrold/ubiquity"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="getting-started" class="section level3">
 <h3 class="hasAnchor">
-<a href="#getting-started" class="anchor" aria-hidden="true"></a>Getting started</h3>
-<p>For full documentation the <a href="https://r.ubiquity.tools/" class="external-link">ubiquity vignettes and manuals</a> are available.</p>
+<a href="#getting-started" class="anchor"></a>Getting started</h3>
+<p>For full documentation the <a href="https://r.ubiquity.tools/">ubiquity vignettes and manuals</a> are available.</p>
 <p>For more information on specific tasks see the following vignettes:</p>
 <ul>
 <li>
-<a href="https://r.ubiquity.tools/articles/Language.html" class="external-link">Language</a>: Constructing ODE-based systems using the ubiquity language</li>
+<a href="https://r.ubiquity.tools/articles/Language.html">Language</a>: Constructing ODE-based systems using the ubiquity language</li>
 <li>
-<a href="https://r.ubiquity.tools/articles/Simulation.html" class="external-link">Simulation</a>: Running individual and population simulations</li>
+<a href="https://r.ubiquity.tools/articles/Simulation.html">Simulation</a>: Running individual and population simulations</li>
 <li>
-<a href="https://r.ubiquity.tools/articles/Estimation.html" class="external-link">Estimation</a>: Naive-pooled parameter estimation</li>
+<a href="https://r.ubiquity.tools/articles/Estimation.html">Estimation</a>: Naive-pooled parameter estimation</li>
 <li>
-<a href="https://r.ubiquity.tools/articles/Titration.html" class="external-link">Titration</a>: Rule-based/titration simulations</li>
+<a href="https://r.ubiquity.tools/articles/Titration.html">Titration</a>: Rule-based/titration simulations</li>
 <li>
-<a href="https://r.ubiquity.tools/articles/Deployment.html" class="external-link">Deployment</a>: ShinyApp for running and deploying models</li>
+<a href="https://r.ubiquity.tools/articles/Deployment.html">Deployment</a>: ShinyApp for running and deploying models</li>
 <li>
-<a href="https://r.ubiquity.tools/articles/Reporting.html" class="external-link">Reporting</a>: Inline generation of PowerPoint and Word reports</li>
+<a href="https://r.ubiquity.tools/articles/Reporting.html">Reporting</a>: Inline generation of PowerPoint and Word reports</li>
 <li>
-<a href="https://r.ubiquity.tools/articles/NCA.html" class="external-link">NCA</a>: Automated non-compartmental analysis with PKNCA</li>
+<a href="https://r.ubiquity.tools/articles/NCA.html">NCA</a>: Automated non-compartmental analysis with PKNCA</li>
 </ul>
 </div>
 <div id="changes-and-updates" class="section level3">
 <h3 class="hasAnchor">
-<a href="#changes-and-updates" class="anchor" aria-hidden="true"></a>Changes and Updates</h3>
-<p>See the <a href="https://github.com/john-harrold/ubiquity/blob/master/NEWS.md" class="external-link">NEWS.md</a> for details on differences between updates.</p>
+<a href="#changes-and-updates" class="anchor"></a>Changes and Updates</h3>
+<p>See the <a href="https://github.com/john-harrold/ubiquity/blob/master/NEWS.md">NEWS.md</a> for details on differences between updates.</p>
 </div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2 data-toc-skip>Links</h2>
+<h2>Links</h2>
 <ul class="list-unstyled">
 <li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=ubiquity">https://​cloud.r-project.org/​package=ubiquity</a>
 </li>
@@ -199,51 +197,44 @@
 </li>
 </ul>
 </div>
-
 <div class="license">
-<h2 data-toc-skip>License</h2>
+<h2>License</h2>
 <ul class="list-unstyled">
 <li>
 <a href="https://opensource.org/licenses/BSD-2-Clause">BSD_2_clause</a> + file <a href="LICENSE-text.html">LICENSE</a>
 </li>
 </ul>
 </div>
-
-
 <div class="citation">
-<h2 data-toc-skip>Citation</h2>
+<h2>Citation</h2>
 <ul class="list-unstyled">
 <li><a href="authors.html">Citing ubiquity</a></li>
 </ul>
 </div>
-
 <div class="developers">
-<h2 data-toc-skip>Developers</h2>
+<h2>Developers</h2>
 <ul class="list-unstyled">
 <li>John Harrold <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-2052-4373" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
+  <div class="dev-status">
+<h2>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://CRAN.R-project.org/package=ubiquity" class="external-link"><img src="https://www.r-pkg.org/badges/version/ubiquity" alt="version"></a></li>
-<li><a href="https://lifecycle.r-lib.org/articles/stages.html" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: Stable"></a></li>
+<li><a href="https://CRAN.R-project.org/package=ubiquity"><img src="https://www.r-pkg.org/badges/version/ubiquity" alt="version"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: Stable"></a></li>
 </ul>
 </div>
-
-  </div>
+</div>
 </div>
 
 
       <footer><div class="copyright">
-  <p></p>
-<p>Developed by John Harrold.</p>
+  <p>Developed by John Harrold.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -251,8 +242,6 @@
 
   
 
-
-  
 
   </body>
 </html>

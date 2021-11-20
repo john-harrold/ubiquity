@@ -1056,7 +1056,7 @@ system_fetch_set <- function(cfg, set_name=NULL){
     isgood = FALSE
     vp(cfg, paste("Error: mathematical set: >", set_name ,"< was not defined", sep=""))
     if(length(names(cfg$options$math_sets)) > 0){
-      vp(cfg, paste("The following sets are defined for this sytem")) 
+      vp(cfg, paste("The following sets are defined for this system")) 
       vp(cfg, paste(names(cfg$options$math_sets), collapse=", "))
     } else {
       vp(cfg, "There are no sets defined for this system") }
@@ -1376,6 +1376,23 @@ return(cfg)}
 #' 
 #' To alter initial guesses see: \code{\link{system_set_guess}}
 #'
+#' When performing parameter estimation, the internal function
+#' \code{system_od_general} is used. This is the function that simulates your
+#' system at the conditions defined for the different cohorts. This is pretty
+#' flexible but if you want to go beyond this you can set the
+#' \code{observation_function} option:
+#'
+#' \preformatted{
+#'cfg = system_set_option(cfg, 
+#'                        group  = "estimation",
+#'                        option = "observation_function",
+#'                        value  = "my_od")
+#' }
+#'
+#' That will instruct the optimziation routines to use the user defined
+#' function \code{my_od}. You will need to construct that function to have the
+#' same input/output format as \code{\link{system_od_general}}.
+#'
 #' \bold{\code{group=general}}
 #'
 #' \itemize{
@@ -1593,11 +1610,18 @@ system_set_option <- function(cfg, group, option, value){
       }
     }
 
+    if(group == "estimation" & option == "observation_function"){
+      if(!exists(value, mode="function")){
+        isgood = FALSE
+        errormsgs = c(errormsgs, "Unable to set the observation_function")
+        errormsgs = c(errormsgs, paste0('The user defined function >', value, '< ', "was not found."))
+        errormsgs = c(errormsgs, paste0("You must create this object before setting this option."))
+      }
+    }
 
     if(isgood){
       # setting stochastic options
       if(group == 'stochastic'){
-
         if((option == "states") | (option == "outputs")){
           for(val in value){
             if(!(val %in% names(cfg$options$mi[[option]]))){
@@ -2803,10 +2827,10 @@ system_view <- function(cfg,field="all", verbose=FALSE) {
   if(field == "all" | field== "estimation"){
      msgs = c(msgs, " ")
      msgs = c(msgs,         "Estimation details ")
-     msgs = c(msgs, sprintf(" Parameter set:          %s",  cfg$parameters$current_set))
-     msgs = c(msgs, sprintf(" Parameters estimated:   %s",  toString(names(cfg$estimation$mi))))
-     msgs = c(msgs, sprintf(" objective_type          %s",  cfg$estimation$objective_type))
-     msgs = c(msgs, sprintf(" observation_function    %s",  cfg$estimation$options$observation_function))
+     msgs = c(msgs, sprintf(" Parameter set:          %s",  cfg[["parameters"]][["current_set"]]))
+     msgs = c(msgs, sprintf(" Parameters estimated:   %s",  toString(names(cfg[["estimation"]][["mi"]]))))
+     msgs = c(msgs, sprintf(" objective_type          %s",  cfg[["estimation"]][["objective_type"]]))
+     msgs = c(msgs, sprintf(" observation_function    %s",  cfg[["estimation"]][["options"]][["observation_function"]]))
   }
 
 
@@ -5911,7 +5935,7 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
   tcres = list(od=NULL)
   tcres = tryCatch(
    { 
-      eval(parse(text=sprintf('od = %s(parameters, cfg)', cfg$estimation$options$observation_function)))
+      eval(parse(text=sprintf('od = %s(parameters, cfg)', cfg[["estimation"]][["options"]][["observation_function"]])))
 
     list(od=od, msg="success")},
     error = function(e) {

@@ -1,3 +1,7 @@
+# Regenerating the documentation:
+devtools::document(roclets = c('rd', 'collate', 'namespace', 'vignette'))
+
+
 # Rebuilding the pkgdown site
 pkgdown::build_site()
 
