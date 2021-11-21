@@ -5632,7 +5632,7 @@ if(SIMINT_dropfirst){
 SIMINT_ERR_tic = proc.time()
 SIMINT_simout  = eval(parse(text=paste0(
                             "add_observation_errors_", 
-                            cfg[["options"]][["misc"]][["c_libfile_base"]],
+                            SIMINT_cfg[["options"]][["misc"]][["c_libfile_base"]],
                             "(SIMINT_simout, SIMINT_parameters, SIMINT_cfg)")))
 SIMINT_ERR_toc = proc.time()
 
@@ -7635,7 +7635,7 @@ system_check_steady_state  <- function(cfg,
   # Calculating the derivatives
   if(!is.null(derivative_time)){
     # First we calculate the initial conditions
-    SIMINT_IC = eval(parse(text=paste0("system_IC", 
+    SIMINT_IC = eval(parse(text=paste0("system_IC_", 
                                         cfg[["options"]][["misc"]][["c_libfile_base"]],
                                        "(cfg, parameters)")))
 
