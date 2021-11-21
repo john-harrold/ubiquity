@@ -31,6 +31,8 @@ install.packages("ubiquity")
 
 Or install the development version from GitHub:
 
+**Note you may need to install the development version of `onbrand` from GitHub as well**
+
 ```r
 #install.packages("devtools") 
 devtools::install_github("john-harrold/ubiquity")

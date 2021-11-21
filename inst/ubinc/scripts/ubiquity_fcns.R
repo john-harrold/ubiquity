@@ -87,7 +87,8 @@ if(!file.exists(system_file)){
 if(ubiquity_app){
   system_checksum = "app_base"
 } else {
-  system_checksum = as.character(digest::digest(system_file, algo=c("md5")))
+  system_file_full = normalizePath(system_file)
+  system_checksum = as.character(digest::digest(system_file_full, algo=c("md5")))
 }
 
 c_libfile_base    =  paste("ubiquity_", system_checksum, sep="")
@@ -259,7 +260,7 @@ if(file.exists(system_file)){
   # Returning the ubiquity model object:
   if(file.exists(file.path(temp_directory, "auto_rcomponents.R"))){
     source(file.path(temp_directory, "auto_rcomponents.R"))
-    eval(parse(text="cfg = system_fetch_cfg()"))
+    eval(parse(text=paste0("cfg = system_fetch_cfg_", c_libfile_base, "()")))
 
     # storing the output directory
     cfg$options$misc$output_directory =  output_directory 
@@ -3134,7 +3135,7 @@ simulate_subjects = function (parameters, cfg, show_progress = TRUE, progress_me
 #
 # cfg - System configuration variable generated in the following manner:
 #
-# cfg = system_fetch_cfg()
+# cfg = build_system()
 # cfg = system_select_set(cfg, 'default')
 #
 # parameters - list of typical parameter values. This can be obtained from
@@ -5434,7 +5435,10 @@ SIMINT_cfg$parameters$values =  SIMINT_parameters
 # if the IC overide hasn't been specified then we set it using the system_IC
 # function:
 if(is.na(SIMINT_cfg$options$simulation_options$initial_conditions[1])){
-  SIMINT_IC = eval(parse(text="system_IC(SIMINT_cfg, SIMINT_parameters)")) }
+  SIMINT_IC = eval(parse(text=paste0(
+                               "system_IC_",
+                               SIMINT_cfg[["options"]][["misc"]][["c_libfile_base"]],
+                               "(SIMINT_cfg, SIMINT_parameters)"))) }
 else{
   # otherwise we use the IC override 
   SIMINT_IC = SIMINT_cfg$options$simulation_options$initial_conditions }
@@ -5514,7 +5518,10 @@ for(SIMINT_cv_name in names(SIMINT_cfg$options$inputs$covariates)){
 
 
 # creating the bolus inputs
-SIMINT_eventdata = eval(parse(text="system_prepare_inputs(SIMINT_cfg, SIMINT_parameters, SIMINT_force_times)"))
+SIMINT_eventdata = eval(parse(text=paste0(
+       "system_prepare_inputs_",
+       SIMINT_cfg[["options"]][["misc"]][["c_libfile_base"]],
+       "(SIMINT_cfg, SIMINT_parameters, SIMINT_force_times)")))
 
 # adding sample times around the bolus times to the important times
 SIMINT_important_times =   c(sample_around(SIMINT_eventdata$time, 
@@ -5543,11 +5550,13 @@ if(!SIMINT_isgood){
 
 if("r-file" == SIMINT_simulation_options$integrate_with){
 # simulating the system using R
-SIMINT_simcommand = 'SIMINT_simout = deSolve::ode(SIMINT_IC, 
-                                                  SIMINT_output_times_actual,
-                                                  system_DYDT, SIMINT_cfg, 
-                                                  method=SIMINT_simulation_options$solver, 
-                                                  events=list(data=SIMINT_eventdata)'
+SIMINT_simcommand = paste0('SIMINT_simout = deSolve::ode(SIMINT_IC, 
+                                                         SIMINT_output_times_actual,
+                                                         system_DYDT_',
+                                                         SIMINT_cfg[["options"]][["misc"]][["c_libfile_base"]],', 
+                                                         SIMINT_cfg, 
+                                                         method=SIMINT_simulation_options$solver, 
+                                                         events=list(data=SIMINT_eventdata)')
 SIMINT_simcommand = sprintf('%s %s)', SIMINT_simcommand, SIMINT_solver_opts)
 
 #   tryCatch(
@@ -5578,8 +5587,6 @@ SIMINT_simcommand = ' SIMINT_simout <- deSolve::ode(SIMINT_IC, SIMINT_output_tim
                                            events   = list(data=SIMINT_eventdata), 
                                            outnames = names(SIMINT_cfg$options$mi$odes)'
 SIMINT_simcommand = sprintf('%s %s)', SIMINT_simcommand, SIMINT_solver_opts)
-#eval(parse(text=SIMINT_simcommand))
-#SIMINT_simout_mapped = system_map_output(SIMINT_cfg, SIMINT_simout, SIMINT_parameters, "c", SIMINT_eventdata)
 }
 
 # simulating the system
@@ -5593,7 +5600,10 @@ SIMINT_simout_mapped = list()
 # outputs separately:
 if("r-file" == SIMINT_simulation_options$integrate_with){
   SIMINT_MAP_tic = proc.time()
-  SIMINT_simout  = eval(parse(text="system_map_output(SIMINT_cfg, SIMINT_simout, SIMINT_parameters, SIMINT_eventdata)"))
+  SIMINT_simout  = eval(parse(text=paste0(
+                              "system_map_output_", 
+                              cfg[["options"]][["misc"]][["c_libfile_base"]],
+                              "(SIMINT_cfg, SIMINT_simout, SIMINT_parameters, SIMINT_eventdata)")))
   SIMINT_MAP_toc = proc.time()
   # Adding the timing for the mapping
   SIMINT_simout_mapped$timing$output_mapping = SIMINT_MAP_toc - SIMINT_MAP_tic
@@ -5620,7 +5630,10 @@ if(SIMINT_dropfirst){
 
 # adding error to the output
 SIMINT_ERR_tic = proc.time()
-SIMINT_simout  = eval(parse(text="add_observation_errors(SIMINT_simout, SIMINT_parameters, SIMINT_cfg)"))
+SIMINT_simout  = eval(parse(text=paste0(
+                            "add_observation_errors_", 
+                            cfg[["options"]][["misc"]][["c_libfile_base"]],
+                            "(SIMINT_simout, SIMINT_parameters, SIMINT_cfg)")))
 SIMINT_ERR_toc = proc.time()
 
 SIMINT_simout_mapped$timing$adding_error   = SIMINT_ERR_toc - SIMINT_ERR_tic
@@ -7622,11 +7635,15 @@ system_check_steady_state  <- function(cfg,
   # Calculating the derivatives
   if(!is.null(derivative_time)){
     # First we calculate the initial conditions
-    SIMINT_IC = eval(parse(text="system_IC(cfg, parameters)")) 
+    SIMINT_IC = eval(parse(text=paste0("system_IC", 
+                                        cfg[["options"]][["misc"]][["c_libfile_base"]],
+                                       "(cfg, parameters)")))
 
     # Next we evaluate the derivative at that 
     # initial condition and the specified time
-    SIMINT_DER = eval(parse(text="system_DYDT(derivative_time, SIMINT_IC, cfg)"))
+    SIMINT_DER = eval(parse(text=paste0("system_DYDT_", 
+                                        cfg[["options"]][["misc"]][["c_libfile_base"]],
+                                        "(derivative_time, SIMINT_IC, cfg)")))
     vp(cfg, sprintf(' First we analyze the derivatives, values of the ODEs, at time %s',var2string(derivative_time) ))
     vp(cfg, sprintf(' with a derivative_tol = %.3e', derivative_tol))
     vp(cfg, sprintf(' '))
@@ -9292,7 +9309,9 @@ cfg}
 #'@return som
 #'@seealso \code{\link{system_new_tt_rule}}, \code{\link{system_set_tt_cond}} and the titration vignette (\code{vignette("Titration", package = "ubiquity")})
 run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=TRUE){
-  return(eval(parse(text="auto_run_simulation_titrate(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst)")))
+  return(eval(parse(text=paste0("auto_run_simulation_titrate_", 
+                    SIMINT_cfg[["options"]][["misc"]][["c_libfile_base"]], 
+                    "(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst)"))))
 }
 
 #-------------------------------------------------------------------------

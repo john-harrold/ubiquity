@@ -1,6 +1,6 @@
 <COMMENTS>
 
-system_fetch_cfg = function(){
+system_fetch_cfg_<MODEL_PREFIX> = function(){
 #
 # This function returns a list that stores all of the information about the
 # system including parameter values, system indices used, initial condition
@@ -504,7 +504,7 @@ cfg[["options"]][["nca_meta"]] = system_nca_parameters_meta()
 return(cfg);
 }
 
-system_prepare_inputs = function(SIMINT_cfg, SIMINT_p, SIMINT_force_times){
+system_prepare_inputs_<MODEL_PREFIX> = function(SIMINT_cfg, SIMINT_p, SIMINT_force_times){
 # System parameters
 <SYSTEM_PARAM>
 
@@ -593,13 +593,13 @@ else{
 return(SIMINT_events)
 }
 
-system_IC = function(SIMINT_cfg, SIMINT_p){
+system_IC_<MODEL_PREFIX> = function(SIMINT_cfg, SIMINT_p){
 #
 # Returns initial condition information based on information stored in the cfg
 # variable and an parameter vector. 
 #
 # Example usage:
-#  cfg = system_fetch_cfg()
+#  cfg = build_system()
 #  cfg = system_select_set(cfg, 'default')
 #  parameters = cfg$parameters$values
 #  IC = system_IC(cfg, parameters)
@@ -659,7 +659,7 @@ return(SIMINT_all_ICs);
 
 
 
-auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=TRUE){
+auto_run_simulation_titrate_<MODEL_PREFIX> <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=TRUE){
 #
 # This runs titration or rule based simulations 
 #
@@ -745,7 +745,7 @@ auto_run_simulation_titrate  <- function(SIMINT_p, SIMINT_cfg, SIMINT_dropfirst=
 
   # now we have all of the titration times, next we calculate the initial
   # conditions to start the first simulation
-  SIMINT_IC = system_IC(SIMINT_cfg, SIMINT_p)
+  SIMINT_IC = system_IC_<MODEL_PREFIX>(SIMINT_cfg, SIMINT_p)
 
   # Now we loop through each of the titration time points
 
@@ -944,7 +944,7 @@ return(SIMINT_som)
 }
 
 
-system_DYDT = function(SIMINT_TIME,SIMINT_x,SIMINT_cfg){
+system_DYDT_<MODEL_PREFIX> = function(SIMINT_TIME,SIMINT_x,SIMINT_cfg){
 #
 # Evalutates the derivatives of the ODEs at time SIMINT_TIME
 #
@@ -967,10 +967,10 @@ for(SIMINT_rate_name in names(SIMINT_cfg[["options"]][["inputs"]][["infusion_rat
 
   # getting the covariate value at the given time
   SIMINT_rate_value =
-  system_evaluate_input(SIMINT_my_rate[["times"]][["values"]],
-                                            SIMINT_my_rate[["levels"]][["values"]],
-                                            SIMINT_TIME, 
-                                            'step')
+  system_evaluate_input_<MODEL_PREFIX>(SIMINT_my_rate[["times"]][["values"]],
+                                       SIMINT_my_rate[["levels"]][["values"]],
+                                       SIMINT_TIME, 
+                                       'step')
   
   # creating the named value for the covariate
   # at the current time
@@ -986,10 +986,10 @@ for(SIMINT_cov_name in names(SIMINT_cfg[["options"]][["inputs"]][["covariates"]]
 
   # getting the covariate value at the given time
   SIMINT_cov_value =
-  system_evaluate_input(SIMINT_my_cov[["times"]][["values"]],
-                                           SIMINT_my_cov[["values"]][["values"]],
-                                           SIMINT_TIME, 
-                                           SIMINT_my_cov[["cv_type"]])
+  system_evaluate_input_<MODEL_PREFIX>(SIMINT_my_cov[["times"]][["values"]],
+                                       SIMINT_my_cov[["values"]][["values"]],
+                                       SIMINT_TIME, 
+                                       SIMINT_my_cov[["cv_type"]])
                                         
   # creating the named value for the covariate
   # at the current time
@@ -1020,7 +1020,7 @@ list(dy=SIMINT_DYDT,global=c())
 }
 
 
-system_map_output = function(SIMINT_cfg, SIMINT_simout, SIMINT_p,  SIMINT_eventdata){
+system_map_output_<MODEL_PREFIX> = function(SIMINT_cfg, SIMINT_simout, SIMINT_p,  SIMINT_eventdata){
 
 
 # Pulling out the time vector
@@ -1087,7 +1087,8 @@ for (SIMINT_tidx in seq(1,length(SIMINT_tts))){
     eval(parse(text=sprintf('SIMINT_my_rate[["times"]][["values"]] = SIMINT_my_rate[["times"]][["values"]]*%s',SIMINT_my_rate[["times"]][["scale"]])))
   
     # getting the covariate value at the given time
-    SIMINT_rate_value = system_evaluate_input(SIMINT_my_rate[["times"]][["values"]],
+    SIMINT_rate_value = system_evaluate_input_<MODEL_PREFIX>(
+                                              SIMINT_my_rate[["times"]][["values"]],
                                               SIMINT_my_rate[["levels"]][["values"]],
                                               SIMINT_TIME, 
                                               'step')
@@ -1105,7 +1106,8 @@ for (SIMINT_tidx in seq(1,length(SIMINT_tts))){
     SIMINT_my_cov = SIMINT_cfg[["options"]][["inputs"]][["covariates"]][[SIMINT_cov_name]]
   
     # getting the covariate value at the given time
-    SIMINT_cov_value = system_evaluate_input(SIMINT_my_cov[["times"]][["values"]],
+    SIMINT_cov_value = system_evaluate_input_<MODEL_PREFIX>(
+                                             SIMINT_my_cov[["times"]][["values"]],
                                              SIMINT_my_cov[["values"]][["values"]],
                                              SIMINT_TIME, 
                                              SIMINT_my_cov[["cv_type"]])
@@ -1128,7 +1130,7 @@ for (SIMINT_tidx in seq(1,length(SIMINT_tts))){
 return(SIMINT_simoutmat) }
 
 
-system_evaluate_input = function(tvals, lvals, etime, type){
+system_evaluate_input_<MODEL_PREFIX> = function(tvals, lvals, etime, type){
 #
 # system_evaluate_input --- used to evaluate infusion rates and 
 # covariates at etime
@@ -1188,14 +1190,14 @@ system_evaluate_input = function(tvals, lvals, etime, type){
 #-------------------------------------------------------------------------
 
 # Looping through each output to add the error
-add_observation_errors = function(simout, parameters, cfg){
+add_observation_errors_<MODEL_PREFIX> = function(simout, parameters, cfg){
 for(output in names(cfg[["ve"]])){
-   simout =  
-   output_add_error(SIMINT_simout     = simout,               # simulation output without error
-                    SIMINT_output     = output,               # output
-                    SIMINT_em         = cfg[["ve"]][[output]],# error model
-                    SIMINT_parameters = parameters,           # current parameter values
-                    SIMINT_cfg        = cfg) 
+   simout =  output_add_error_<MODEL_PREFIX>(
+      SIMINT_simout     = simout,               # simulation output without error
+      SIMINT_output     = output,               # output
+      SIMINT_em         = cfg[["ve"]][[output]],# error model
+      SIMINT_parameters = parameters,           # current parameter values
+      SIMINT_cfg        = cfg) 
 
 }
 
@@ -1203,7 +1205,7 @@ return(simout)}
 
 #-------------------------------------------------------------------------
 
-output_add_error = function(SIMINT_simout, SIMINT_output, SIMINT_em, SIMINT_parameters, SIMINT_cfg){
+output_add_error_<MODEL_PREFIX> = function(SIMINT_simout, SIMINT_output, SIMINT_em, SIMINT_parameters, SIMINT_cfg){
 
 
 # Defining the time
