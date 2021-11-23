@@ -10,10 +10,20 @@ estimate_parameters(cfg)
 \item{cfg}{ubiquity system object}
 }
 \value{
-list with elements: \code{estimate} - vector of parameter estimates,
-\code{raw} - raw output from the underlying optimization routine, 
-\code{obj} - objective function value,  \code{statistics_est} - solution
-statistics
+list with elements: 
+\itemize{
+\item \code{estimate} - vector of parameter estimates,
+\item \code{raw} - raw output from the underlying optimization routine, 
+\item \code{conv} - list of convergence criteria with keys \code{num} (numeric)  \code{text} (text description)
+\item \code{obj} - objective function value,  \code{statistics_est} - solution
+\item \code{sysup} - 
+\item \code{estimate} - 
+\item \code{statistics_est} - 
+\item \code{report} - 
+\item \code{cohorts} - 
+\item \code{cohort_view} - 
+\item \code{system_file} - 
+}
 }
 \description{
 Performs the actual parameter estimation

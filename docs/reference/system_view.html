@@ -230,11 +230,93 @@ etc) about the system.</p>
 <span class='r-in'>      output_directory          <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='st'>"output"</span><span class='op'>)</span>,</span>
 <span class='r-in'>      temporary_directory       <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></span>
 <span class='r-msg co'><span class='r-pr'>#&gt;</span> </span>
-<span class='r-msg co'><span class='r-pr'>#&gt;</span> <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Building the system: /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//RtmpWZ</span></span>
-<span class='r-err co'><span class='r-pr'>#&gt;</span> <span class='error'>Error in style_underline(style_bold("https://r.ubiquity.tools")):</span> could not find function "style_underline"</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>Building the system: /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//Rtmpsl</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → ubiquity:     <span style='color: #0000BB; font-weight: bold; text-decoration: underline;'>https://r.ubiquity.tools</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → Distribution: <span style='color: #0000BB; text-decoration: underline;'>package (2.0.1)</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → Compiling C version of system</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → Loading the shared C library</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> <span style='color: #00BB00;'>✓</span> System built</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> <span style='color: #00BBBB;'>ℹ</span> To fetch a new analysis template use <span style='color: #262626; background-color: #DADADA;'>`system_fetch_template`</span></span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> <span style='color: #00BBBB;'>ℹ</span> For example:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> <span style='color: #00BBBB;'>ℹ</span>   fr = system_fetch_template(cfg, template = "Simulation")</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> <span style='color: #00BBBB;'>ℹ</span>   fr = system_fetch_template(cfg, template = "Estimation")</span>
 <span class='r-in'></span>
 <span class='r-in'>  <span class='va'>msgs</span> <span class='op'>=</span> <span class='fu'>system_view</span><span class='op'>(</span><span class='va'>cfg</span>, verbose<span class='op'>=</span><span class='cn'>TRUE</span><span class='op'>)</span></span>
-<span class='r-err co'><span class='r-pr'>#&gt;</span> <span class='error'>Error in sprintf("   Short Name:  %s", cfg$parameters$current_set):</span> object 'cfg' not found</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' %s, %s(%s)'</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' %s, %s(%s)'</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' %s, %s(%s)'</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' %s, %s(%s)'</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' %s, %s(%s)'</span>
+<span class='r-wrn co'><span class='r-pr'>#&gt;</span> <span class='warning'>Warning: </span>one argument not used by format ' '</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  Parameter Information</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  Parameter set selected:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →    Short Name:  default</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →    Description: mAb in Humans</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  Default parameters for current set:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →               name |         value |           units</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → ----------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →                 F1 |        0.7440 |             ---</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →                 ka |        0.2820 |           1/day</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →                 CL |        0.2000 |           L/day</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →                 Vc |        3.6100 |               L</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →                 Vp |        2.7500 |               L</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →                  Q |        0.7470 |           L/day</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →                 MW |      140.0000 |              kD</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → ----------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  Bolus dosing details </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →      field |      values |    scaling |      units</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → --------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →      times |      0 7 14 |          1 |       days</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →         Cc |       0 0 0 |  1e3/MW/Vc |         mg</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →         At |     400 0 0 |     1e3/MW |         mg</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → --------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  Infusion rate details </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →      Rate  |      field |     values |    scaling |      units</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → -----------------------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →       Dinf |       time |       0 30 |    1/60/24 |        min</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →            |     levels |        0 0 | 60*24*1e3/MW |     mg/min</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → -----------------------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  Covariate details</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  Covariate |      field |     values |      units</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → --------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →       DOSE |       time |          0 |        day</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →     (step) |     levels |        400 |         mg</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →         WT |       time |          0 |        day</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →     (step) |     levels |         60 |         kg</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → --------------------------------------------------</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  IIV details</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  IIV/Parameter set:</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →    Short Name:  default </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  Variance/covariance matrix</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →                                ETAka             ETACL             ETAVc             ETAVp              ETAQ</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →              ETAka            0.4160                 0                 0                 0                 0</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →              ETACL                 0            0.0988            0.0786            0.0619                 0</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →              ETAVc                 0            0.0786            0.1160            0.0377                 0</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →              ETAVp                 0            0.0619            0.0377            0.0789                 0</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →               ETAQ                 0                 0                 0                 0            0.6990</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  On parameters</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →          CL,      ETACL(LN)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →          ka,      ETAka(LN)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →          Vc,      ETAVc(LN)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →          Vp,      ETAVp(LN)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →           Q,       ETAQ(LN)</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  integrate_with          c-file</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  output_times            min = 0; max = 10.0; length = 101  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  No datasets loaded</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → Estimation details </span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  Parameter set:          default</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  Parameters estimated:   F1, ka, CL, Vc, Vp, Q, MW</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  objective_type          wls</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  observation_function    system_od_general</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> →  No cohort information found</span>
+<span class='r-msg co'><span class='r-pr'>#&gt;</span> → No NCA has been performed</span>
 <span class='r-in'><span class='co'># }</span></span>
 </pre>
   </div>

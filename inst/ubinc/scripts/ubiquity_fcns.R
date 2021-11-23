@@ -1,4 +1,4 @@
-#'@import cui     
+#'@import cli     
 #'@import deSolve
 #'@import doParallel
 #'@import foreach
@@ -6163,10 +6163,20 @@ return(pest)}
 #'@keywords internal
 #'@param cfg ubiquity system object    
 #'
-#'@return list with elements: \code{estimate} - vector of parameter estimates,
-#' \code{raw} - raw output from the underlying optimization routine, 
-#' \code{obj} - objective function value,  \code{statistics_est} - solution
-#' statistics 
+#'@return list with elements: 
+#' \itemize{
+#' \item \code{estimate} - vector of parameter estimates,
+#' \item \code{raw} - raw output from the underlying optimization routine, 
+#' \item \code{conv} - list of convergence criteria with keys \code{num} (numeric)  \code{text} (text description)
+#' \item \code{obj} - objective function value,  \code{statistics_est} - solution
+#' \item \code{sysup} - 
+#' \item \code{estimate} - 
+#' \item \code{statistics_est} - 
+#' \item \code{report} - 
+#' \item \code{cohorts} - 
+#' \item \code{cohort_view} - 
+#' \item \code{system_file} - 
+#' }
 estimate_parameters <- function(cfg){
 
 # Pulling the output directory from the ubiquity object
@@ -6348,6 +6358,10 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
     vp(cfg, paste("Estimation Complete", sep=""), "h2")
     vp(cfg, paste("Duration: ", elapsed_time, " ", elapsed_units, sep=""))
     vp(cfg, paste("Termination status: ", conv_num, " - ", conv_crit, sep=""))
+
+    # Keeping the convergence informaation 
+    pest[["conv"]] = list(num  = conv_num,
+                          text = conv_crit)
 
     # because each optimizer returns solutions in a different format
     # we collect them here in a common structure
