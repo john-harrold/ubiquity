@@ -4,12 +4,16 @@
 \alias{vp}
 \title{Print and Log Messages}
 \usage{
-vp(cfg, str)
+vp(cfg, str, fmt = "alert")
 }
 \arguments{
 \item{cfg}{ubiquity system object}
 
 \item{str}{sequence of strings to print}
+
+\item{fmt}{string format should be one of the following: \code{"h1"},
+\code{"h2"}, \code{"h3"}, \code{"verbatim"}, \code{"alert"} (default), \code{"warning"},
+\code{"danger"}.}
 }
 \value{
 Boolean variable indicating success (\code{TRUE}) or failure (\code{FALSE})
