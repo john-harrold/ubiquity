@@ -12,17 +12,18 @@ estimate_parameters(cfg)
 \value{
 list with elements: 
 \itemize{
-\item \code{estimate} - vector of parameter estimates,
-\item \code{raw} - raw output from the underlying optimization routine, 
+\item \code{estimate} - vector of parameter estimates
+\item \code{raw} - raw output from the underlying optimization routine
 \item \code{conv} - list of convergence criteria with keys \code{num} (numeric)  \code{text} (text description)
-\item \code{obj} - objective function value,  \code{statistics_est} - solution
-\item \code{sysup} - 
-\item \code{estimate} - 
-\item \code{statistics_est} - 
-\item \code{report} - 
-\item \code{cohorts} - 
-\item \code{cohort_view} - 
-\item \code{system_file} - 
+\item \code{obj} - objective function value
+\item \code{statistics_est} - solution statistics
+\item \code{sysup} - Text to update the system file with the parameter estimates
+\item \code{estimate} - Names list of parameter estiamtes
+\item \code{report} - Named list with elements for reporting
+\item \code{cohorts} - Cohort elements from the \code{cfg} file
+\item \code{cohort_view} - Cohort view from \code{system_view()} 
+\item \code{system_file} - Contents of the system file when estimation was
+run
 }
 }
 \description{

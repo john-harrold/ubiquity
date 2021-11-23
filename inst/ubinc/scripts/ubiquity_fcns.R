@@ -6165,17 +6165,18 @@ return(pest)}
 #'
 #'@return list with elements: 
 #' \itemize{
-#' \item \code{estimate} - vector of parameter estimates,
-#' \item \code{raw} - raw output from the underlying optimization routine, 
+#' \item \code{estimate} - vector of parameter estimates
+#' \item \code{raw} - raw output from the underlying optimization routine
 #' \item \code{conv} - list of convergence criteria with keys \code{num} (numeric)  \code{text} (text description)
-#' \item \code{obj} - objective function value,  \code{statistics_est} - solution
-#' \item \code{sysup} - 
-#' \item \code{estimate} - 
-#' \item \code{statistics_est} - 
-#' \item \code{report} - 
-#' \item \code{cohorts} - 
-#' \item \code{cohort_view} - 
-#' \item \code{system_file} - 
+#' \item \code{obj} - objective function value
+#' \item \code{statistics_est} - solution statistics
+#' \item \code{sysup} - Text to update the system file with the parameter estimates
+#' \item \code{estimate} - Names list of parameter estiamtes
+#' \item \code{report} - Named list with elements for reporting
+#' \item \code{cohorts} - Cohort elements from the \code{cfg} file
+#' \item \code{cohort_view} - Cohort view from \code{system_view()} 
+#' \item \code{system_file} - Contents of the system file when estimation was
+#' run
 #' }
 estimate_parameters <- function(cfg){
 
@@ -6434,7 +6435,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
     "success"},
       error = function(e) {
         vp(cfg, "")
-        vp(cfg, "Solution statistics calculation failed. This can happen ",, fmt="warning" )
+        vp(cfg, "Solution statistics calculation failed. This can happen ", fmt="warning" )
         vp(cfg, "when you have a parameter set that makes the system stiff,", fmt="warning")
         vp(cfg, "or when the parameters are not uniquely identifiable.", fmt="warning")
         vp(cfg, "")
