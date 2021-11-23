@@ -71,7 +71,7 @@ myfig = ggplot(som$tcsummary, aes(x=ts.days, y=o.C_ng_ml.mean)) +
                geom_line(aes(x=ts.days, y=o.C_ng_ml.lb_ci), linetype="dashed", size=0.2, color="blue")  +
                xlab("Time (days)")+
                ylab("C (ng/ml) (units)")+
-               guides(fill=FALSE) 
+               guides(fill="none") 
 
 
 myfig = gg_log10_yaxis(myfig , ylim_min=1e3, ylim_max=3e5)

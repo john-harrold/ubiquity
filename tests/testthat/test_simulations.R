@@ -1,3 +1,17 @@
+context("Steady-state evaluation")
+test_that("Steady-state Check",{
+  setwd(tempdir())
+  sys_cmpt = file.path("system_cmpt.txt")
+  fr=system_new(
+    file_name   = sys_cmpt,
+    system_file = "mab_pk",
+    overwrite   = TRUE)
+  
+  cfg_cmpt = build_system(sys_cmpt)
+  ssres = system_check_steady_state(cfg_cmpt)
+  expect_true(ssres$steady_state)
+})
+
 context("Running example simulation scripts")
 test_that("Running Scripts",{
   # Saving the current working directory
@@ -16,3 +30,4 @@ test_that("Running Scripts",{
   }
   #--------------------
 })
+

@@ -65,6 +65,12 @@ cfg = system_set_option(cfg, group  = "estimation",
                              option = "method",
                              value  = "psoptim")
 
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "control", 
+                             value  = list(trace  = TRUE,
+                                           maxit  = 200,
+                                           REPORT = 10))
+
 # genetic algorithm 
 #
 # library(GA)

@@ -4,6 +4,8 @@
 - Removed internal files that were no longer being used
 - Added documentation for creating user defined observation functions when running parameter estimation
 - Updated the reporting template to work with the development version of `onbrand`
+- Changed terminal messaging to use `cli`
+- Added termination criteria in estimation output
 
 # ubiquity 2.0.0
 
