@@ -4200,11 +4200,13 @@ sub fortranify_line
   #
   my ($string)  = @_;
 
+
   my $tmpstring = '';
   my $fortran_string  = '';
   my $keep_wrapping   = 'no';
   my $position        = 0;
   my $wrap_position   = 0;
+  my $string_good     = "yes";
 
   my $test_char       = '';
 
@@ -4233,6 +4235,9 @@ sub fortranify_line
   else{
     # we need to wrap the lines
     $keep_wrapping = 'yes';
+
+    # This is used to make sure the string is shrinking to 
+    # detect unbreakable strings
     while($keep_wrapping eq 'yes'){
       $position = 71;
       $wrap_position = -1;
@@ -4253,7 +4258,7 @@ sub fortranify_line
       }
 
       # now we wrap WORD!
-      if($wrap_position > 6){
+      if($wrap_position > 7){
         # peeling off the first part and adding it to the output
         $fortran_string .= substr($tmpstring, 0, $wrap_position)."\n";
          
@@ -4269,24 +4274,27 @@ sub fortranify_line
           $fortran_string .= $tmpstring."\n";
           $keep_wrapping = 'no';
         }
-        # otherwise we continue
-        
-      
       }
       # we were unable to find a
       # position to wrap
       else{
         # we stop wrapping
         $keep_wrapping = 'no';
-        # now we through up an error
-        &mywarn("Failed to Fortran-ify the following line:"); 
-        &mywarn($string); 
-        &mywarn("You need to adjust the input file so that fewer");
-        &mywarn("unwrappable characters occur in succession"); 
+        $string_good   = "no";
+
         }
       }
       $keep_wrapping = 'no';
     }
+
+  # If we had an error with the 
+  if($string_good eq "no"){
+    # now we through up an error
+    &mywarn("Failed to Fortran-ify the following line:"); 
+    &mywarn($string); 
+    &mywarn("You need to adjust the input file so that fewer");
+    &mywarn("unwrappable characters occur in succession"); 
+  }
   
   return $fortran_string;
 }

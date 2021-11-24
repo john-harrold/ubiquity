@@ -4,7 +4,7 @@
 \alias{generate_report}
 \title{Generate Text Report with Estimation Results}
 \usage{
-generate_report(parameters, ss, cfg)
+generate_report(parameters, ss, cfg, conv_num, conv_text)
 }
 \arguments{
 \item{parameters}{list of parameter estimates}
@@ -12,6 +12,10 @@ generate_report(parameters, ss, cfg)
 \item{ss}{output from solution_statistics}
 
 \item{cfg}{ubiquity system object}
+
+\item{conv_num}{numerical convergence criteria}
+
+\item{conv_text}{textual convergence criteria}
 }
 \value{
 List with the following elements: 

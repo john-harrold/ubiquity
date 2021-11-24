@@ -6244,7 +6244,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       }
 
       # Default convergence critera
-      conv_crit    = "No termination criteria found"
+      conv_text    = "No termination criteria found"
       conv_num     = "-1"
       conv_lookup  = NULL
 
@@ -6352,17 +6352,17 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
     # Displaying the convergence critieria
     if(!is.null(conv_lookup)){
       if(conv_num %in% names(conv_lookup)){
-        conv_crit = conv_lookup[[conv_num]]
+        conv_text = conv_lookup[[conv_num]]
       }
     }
 
     vp(cfg, paste("Estimation Complete", sep=""), "h2")
     vp(cfg, paste("Duration: ", elapsed_time, " ", elapsed_units, sep=""))
-    vp(cfg, paste("Termination status: ", conv_num, " - ", conv_crit, sep=""))
+    vp(cfg, paste("Exit status: (", conv_num, ") ", conv_text, sep=""))
 
     # Keeping the convergence informaation 
     pest[["conv"]] = list(num  = conv_num,
-                          text = conv_crit)
+                          text = conv_text)
 
     # because each optimizer returns solutions in a different format
     # we collect them here in a common structure
@@ -6421,7 +6421,12 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
    tCcode = '
       # Generating the solution statistics and writing the results to a file
       pest$statistics_est = solution_statistics(pest$estimate, cfg)
-      files = generate_report(pest$estimate, pest$statistics_est, cfg)
+      files = generate_report(parameters = pest$estimate, 
+                              ss         = pest$statistics_est, 
+                              cfg        = cfg,
+                              conv_num   = conv_num,
+                              conv_text  = conv_text)
+      vp(cfg, "Contents of report.txt", fmt="h2")
       vp(cfg, files$report_file_contents, fmt="verbatim")
       
       vp(cfg, "system file update code", fmt="h2")
@@ -7013,6 +7018,8 @@ return(cfg)
 #'@param cfg ubiquity system object    
 #'@param parameters list of parameter estimates
 #'@param ss output from solution_statistics 
+#'@param conv_num numerical convergence criteria
+#'@param conv_text textual convergence criteria
 #'
 #'@return List with the following elements: 
 #'
@@ -7022,7 +7029,7 @@ return(cfg)
 #'   \item \code{parameters_all_file} name of CSV file with all parameters 
 #'   \item \code{parameters_est_file} name of CSV file with only the estimates 
 #'}
-generate_report  <- function( parameters, ss, cfg){
+generate_report  <- function( parameters, ss, cfg, conv_num, conv_text){
 
 
 parameters_full = fetch_full_parameters(cfg=cfg, pest=parameters)
@@ -7035,6 +7042,8 @@ parameters_all_file = file.path(output_directory,"parameters_all.csv")
 parameters_est_file = file.path(output_directory,"parameters_est.csv")
 
 notes_str = 'F=Fixed parameter, L=estimate at/near lower bound, U=estimate at/near upper bound'; 
+notes_str = paste0(notes_str, "; Exit status: (", conv_num, ") ", conv_text)
+
 cn =  c('pname', 'guess',  'estimate', 'cvpct', 'cilb', 'ciub', 'units', 'notes')
 
 p_all = matrix(data=0, nrow= length(cfg$parameters$values)+1, ncol=8)
@@ -7151,6 +7160,7 @@ rl = c(rl, '', '', '',
 rl = c(rl, sprintf('OBJ = %s', var2string(maxlength=1, vars=ss$objective)))
 rl = c(rl, sprintf('AIC = %s', var2string(maxlength=1, vars=ss$aic)))
 rl = c(rl, sprintf('BIC = %s', var2string(maxlength=1, vars=ss$bic)))
+rl = c(rl, paste0("Exit status: (", conv_num, ") ", conv_text))
 
 fileConn<-file(report_file)
 writeLines(rl, fileConn)
