@@ -6355,14 +6355,16 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
         conv_text = conv_lookup[[conv_num]]
       }
     }
+    conv_desc = paste0("Exit status: (", conv_num, ") ", conv_text)
 
     vp(cfg, paste("Estimation Complete", sep=""), "h2")
     vp(cfg, paste("Duration: ", elapsed_time, " ", elapsed_units, sep=""))
-    vp(cfg, paste("Exit status: (", conv_num, ") ", conv_text, sep=""))
+    vp(cfg, conv_desc)
 
     # Keeping the convergence informaation 
     pest[["conv"]] = list(num  = conv_num,
-                          text = conv_text)
+                          text = conv_text,
+                          desc = conv_desc)
 
     # because each optimizer returns solutions in a different format
     # we collect them here in a common structure
@@ -6424,8 +6426,8 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
       files = generate_report(parameters = pest$estimate, 
                               ss         = pest$statistics_est, 
                               cfg        = cfg,
-                              conv_num   = conv_num,
-                              conv_text  = conv_text)
+                              conv_desc  = conv_desc)
+
       vp(cfg, "Contents of report.txt", fmt="h2")
       vp(cfg, files$report_file_contents, fmt="verbatim")
       
@@ -7018,8 +7020,7 @@ return(cfg)
 #'@param cfg ubiquity system object    
 #'@param parameters list of parameter estimates
 #'@param ss output from solution_statistics 
-#'@param conv_num numerical convergence criteria
-#'@param conv_text textual convergence criteria
+#'@param conv_desc description of convergence criteria
 #'
 #'@return List with the following elements: 
 #'
@@ -7029,7 +7030,7 @@ return(cfg)
 #'   \item \code{parameters_all_file} name of CSV file with all parameters 
 #'   \item \code{parameters_est_file} name of CSV file with only the estimates 
 #'}
-generate_report  <- function( parameters, ss, cfg, conv_num, conv_text){
+generate_report  <- function( parameters, ss, cfg, conv_desc){
 
 
 parameters_full = fetch_full_parameters(cfg=cfg, pest=parameters)
@@ -7042,7 +7043,7 @@ parameters_all_file = file.path(output_directory,"parameters_all.csv")
 parameters_est_file = file.path(output_directory,"parameters_est.csv")
 
 notes_str = 'F=Fixed parameter, L=estimate at/near lower bound, U=estimate at/near upper bound'; 
-notes_str = paste0(notes_str, "; Exit status: (", conv_num, ") ", conv_text)
+notes_str = paste0(notes_str, "; ", conv_desc)
 
 cn =  c('pname', 'guess',  'estimate', 'cvpct', 'cilb', 'ciub', 'units', 'notes')
 
@@ -7160,7 +7161,7 @@ rl = c(rl, '', '', '',
 rl = c(rl, sprintf('OBJ = %s', var2string(maxlength=1, vars=ss$objective)))
 rl = c(rl, sprintf('AIC = %s', var2string(maxlength=1, vars=ss$aic)))
 rl = c(rl, sprintf('BIC = %s', var2string(maxlength=1, vars=ss$bic)))
-rl = c(rl, paste0("Exit status: (", conv_num, ") ", conv_text))
+rl = c(rl, conv_desc)
 
 fileConn<-file(report_file)
 writeLines(rl, fileConn)
@@ -9179,6 +9180,25 @@ if(isgood){
         }
       }
     }
+
+
+    # Summarizing estimation details
+    if(!is.null(pe$report$parameters_est)){
+
+      elist = c("1", paste0("Objective: ", pe[["obj"]]),
+                "1", paste0("Objective: ", pe[["conv"]][["desc"]]))
+
+      cfg = system_rpt_add_slide(cfg, 
+        rptname  = rptname,
+        template = "content_list",
+        elements = list(
+           title=
+             list(content = "Estimation Details",
+                  type    = "text"),
+           content_body=
+             list(content = elist,
+                  type    = "list")))
+    }
   }
   #---------------------------
   if("Word" == rpttype){
@@ -9193,6 +9213,8 @@ if(isgood){
           content       = list(style   = "Normal",
                                text    = "Parameter Estimates"))
 
+        # Adding notes to the parameters table:
+        ptab[["notes"]] = pe[["conv"]][["desc"]]
         cfg = system_rpt_add_doc_content(cfg=cfg,
           rptname       = rptname,
           type          = "flextable",

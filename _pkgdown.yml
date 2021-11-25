@@ -65,6 +65,7 @@ reference:
   - gg_axis  
   - gg_log10_xaxis  
   - gg_log10_yaxis  
+  - estimate_parameters
   - linspace
   - logspace
   - pad_string
