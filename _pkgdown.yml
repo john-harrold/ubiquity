@@ -17,6 +17,7 @@ reference:
   - system_view
   - system_check_requirements
   - system_set_option
+  - system_set_parameter
   - system_set_iiv
 - title: "Simulation"
   desc: "Individual and population simulations"
@@ -28,6 +29,7 @@ reference:
   - som_to_df
   - system_check_steady_state
   - system_zero_inputs
+  - system_set_parameter
   - system_set_bolus
   - system_set_rate
   - system_set_covariate
@@ -39,6 +41,7 @@ reference:
   desc: "Naive-pooled parameters estimation"
 - contents:
   - system_estimate_parameters
+  - system_fetch_guess
   - system_set_guess
   - system_plot_cohorts
   - system_clear_cohorts
@@ -102,12 +105,18 @@ navbar:
   - text: Screencasts  
     icon: fas fa-video
     menu:
+        - text: "--------------------------"
+        - text: "Modeling"
         - text: "Individual and Population Simulations"
           href: https://vimeo.com/382859445
         - text: "Model Deployment"
           href: https://vimeo.com/382860283
         - text: "Naive-Pooled Parameter Estimation"
           href: https://vimeo.com/manage/videos/382829588 
+        - text: "--------------------------"
+        - text: "Other Tools"
+        - text: "Tabula: Extracting Tabular Data from PDFs"
+          href: https://vimeo.com/650643574
   - text: "Functions"
     icon: fas fa-hat-wizard
     href: reference/index.html
