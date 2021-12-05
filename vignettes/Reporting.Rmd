@@ -47,7 +47,7 @@ load("Reporting.RData")
 ```
 
 
-## Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px" />
+## Introduction 
 
 Reporting is implemented using the `onbrand` package which is a templated interface to the `officer` package. Officer provides a lot of control over the generation of both Word and PowerPoint documents. If you feel comfortable programming in R, you may wan to use that package directly. However the templated workflow in `onbrand` facilitates switching between organizational templates. Currently `ubiquity` has support for generating both PowerPoint and Word reports, and this vignette will go over example scripts for both types of reports. 
 

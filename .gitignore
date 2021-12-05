@@ -14,3 +14,4 @@ vignettes/*.txt
 vignettes/*.csv
 tests/testthat/*.rds
 tests/testthat/*.txt
+pkgdown/

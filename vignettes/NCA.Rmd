@@ -32,7 +32,7 @@ if(file.exists("NCA_presim.RData")){
 }
 ```
 
-## Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px" />
+## Introduction
 
 Non-compartmental analysis (NCA) is a simple and quick method for evaluating the exposure of a drug. It allows you to evaluate things like linearity and in vivo exposure. To illustrate this consider an antibody given in a subcutaneous injection. The actual profile a patient might experience is given in the solid black line. But we don't yet have the ability to sample in a continuous fashion. What we might observer is given by the blue points.   
 

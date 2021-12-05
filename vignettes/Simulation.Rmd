@@ -17,7 +17,7 @@ require(doParallel)
 require(rhandsontable)
 ```
 
-## Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px" />
+## Introduction 
 
 The workshop ([workshop.ubiquity.tools](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip)) provides several examples of how to perform simulations in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
 

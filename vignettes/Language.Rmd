@@ -15,7 +15,7 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px" />
+## Introduction 
 
 At its core, ubiquity is a modeling language and a set of scripts meant to facilitate model development and deployment. The focus of this document is on the model description language. This is a plain text file, referred to as a **system file**. Each line contains a descriptor (e.g. ``<P>``) which defines an aspect of the model, and comments are made with the hash sign (``#``). What follows is an overview of the different components of the language that can be used to create a system file.
 

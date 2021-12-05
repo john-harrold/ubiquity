@@ -19,7 +19,7 @@ require(doParallel)
 require(rhandsontable)
 ```
 
-## Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px" />
+## Introduction 
 
 Once a model has been developed it may be useful to provide an easy way to run simulations or automate specific analyses. Do to that, a ubiquity provides a ShinyApp that allows the model to be run from an easy to use interface that is highly customizable. This App can be run locally (useful during meetings to answer quick questions) or deployed on a Shiny server to allow others access to the model.
 

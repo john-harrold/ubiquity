@@ -33,7 +33,7 @@ if(file.exists("Titration_presim.RData")){
 }
 ```
 
-## Introduction <img src="ubiquity_hex.png" align="right" height="138.5" border="0px" />
+## Introduction 
 
 In the Simulation vignette several examples are provided using fixed dosing regimens. This works well for compounds that are relatively safe, the PK is consistent over time, and for which the drug concentrations required to achieve efficacy are consistent. In fact these restrictions apply to many different compounds. However, there are many scenarios where it is necessary to adjust dosing based on periodic clinical visits: compounds with a narrow therapeutic index, disease progression which alters the drug PK or requires increases in the dose amount, etc. While it is possible to do this manually with the current simulation tools provided, this section outlines a generalized framework to make this easier for the users. The [workshop](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip) provides several examples of running titration or rule-based simulations. To make a copy of these scripts and other supporting files in the current working directory run the following:
 

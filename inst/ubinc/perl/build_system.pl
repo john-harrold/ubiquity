@@ -394,7 +394,6 @@ MAIN:
   foreach $name (keys(%{$cfg->{parameter_sets}})){
     &dump_adapt($cfg            , $name);
     &dump_berkeley_madonna($cfg , $name);
-    &dump_potterswheel3($cfg    , $name);
     &dump_monolix($cfg          , $name);
     &dump_nonmem($cfg           , $name);
     &dump_mrgsolve($cfg         , $name);
@@ -441,12 +440,6 @@ my $cfg;
   # used to run the ode in m format
   $cfg->{files}->{sim_m}                             = 'auto_sim.m';
   $cfg->{files}->{odes_m}                            = 'auto_odes.m';
-
-  # potterswheel output
-  $cfg->{files}->{potterswheel2}                     = 'target_pw_2.m';
-
-  # potterswheel output
-  $cfg->{files}->{potterswheel3}                     = 'target_pw_3';
 
   # rproject
   $cfg->{files}->{rproject}->{components}            = 'auto_rcomponents.R';
@@ -3969,220 +3962,6 @@ prepare_figure('present');
 
 }
 
-
-sub dump_potterswheel3
-{
-   my ($cfg, $parameter_set) = @_;
-
-   # getting the template from below
-   my $pwtemplate = &fetch_pw_template3;
-
-   my $data = {
-       odes                 =>'',
-       outputs              =>'',
-       parameters           =>'',
-       inputs               =>'',
-       secondary_parameters =>'',
-       states               =>''
-   };
- 
-   my $entry_template = {
-      ode                  =>'m = pwAddODE(m,  <STATE>,     \'<ODE> \'   );',    #done 
-      output               =>'m = pwAddY(m,   \'<OUTPUT>\',  \'<RHS>\');',
-      parameter            =>'m = pwAddK(m,     <NAME>,        <VALUE>,  \'fix\', <MINVALUE>,   <MAXVALUE>);', 
-      input                =>'m = pwAddU(m,     <NAME>,      \'<TYPE>\',  <TIMES>, <MAGNITUDES>, [], [], [], [], [], [], [], [], [], \'x+u * <SCALE>\');',
-      secondary_parameter  =>'m = pwAddA(m,     <NAME>,      \'<VALUE>\');',  # done
-      initial_condition    =>'m = pwAddTE(m,    <TE_STATE>,    <STATE>,    \'<VALUE>\');', 
-      state                =>'m = pwAddX(m,     <STATE>,     0, \'fix\',    [], [],   [], \'Central\');' #done
-   };
-
-   #secondary_parameter  =>'m = pwAddA(m,     <NAME>,      \'<VALUE>\',   [], [], [], [], \'parameter\');',  # done
-
-   my $name;
-   my $tmprhs;
-   my $tmpstr;
-   my $paddedstr;
-   my $tmpvalue;
-
-
-   #$data->{outputs}= $data->{outputs}."\n\n% default scaling parameter of 1\nm = pwAddS(m, 'scale_none', 1, 'fix');\n";
-
-   # processing outputs
-   if(keys %{$cfg->{outputs}}){
-     foreach $name (keys %{$cfg->{outputs}}){
-      $tmpstr = $entry_template->{output};
-
-      # formatting to language
-      $tmpvalue =  &apply_format($cfg, $cfg->{outputs}->{$name}, 'pw');
-
-      $tmpstr =~ s#<RHS>#$tmpvalue#; 
-      $tmpstr =~ s#<OUTPUT>#$name#; 
-      $data->{outputs}= $data->{outputs}.$tmpstr."\n";
-     }
-   }
-
-   # parameters
-   if(keys %{$cfg->{parameters}}){
-     foreach $name  (keys(%{$cfg->{parameters}})){
-       $tmpstr = $entry_template->{parameter};
-       $paddedstr = "'".$name."'".&fetch_padding($name, $cfg->{parameters_length});
-       $tmpstr =~ s#<NAME>#$paddedstr#;
-
-      if(exists($cfg->{parameter_sets}->{$parameter_set}->{values}->{$name})){
-         $paddedstr = $cfg->{parameter_sets}->{$parameter_set}->{values}->{$name}.&fetch_padding($cfg->{parameter_sets}->{$parameter_set}->{values}->{$name}, $cfg->{parameter_values_length}); }
-      else{
-         $paddedstr = $cfg->{parameters}->{$name}->{value}.&fetch_padding($cfg->{parameters}->{$name}->{value}, $cfg->{parameter_values_length}); }
-       $tmpstr =~ s#<VALUE>#$paddedstr#;
-       $tmpstr =~ s#<MAXVALUE>#$cfg->{parameters}->{$name}->{upper_bound}#;
-       $tmpstr =~ s#<MINVALUE>#$cfg->{parameters}->{$name}->{lower_bound}#;
-       $data->{parameters}= $data->{parameters}.$tmpstr."\n";
-     }
-      
-   }
-
-   # creating a link from the simulation time to SIMINT_TIME
-   # JMH find the potters wheel name for time, insert it into ?value? and uncomment the
-   # following lines:
-   # $tmpstr                       = $entry_template->{secondary_parameter};
-   # $tmpstr                                      =~ s#<NAME>#SIMINT_TIME#;
-   # $tmpstr                                      =~ s#<VALUE>#?value?#;
-   # $data->{secondary_parameters}                =  $data->{secondary_parameters}.$tmpstr."\n";
-
-   # secondary parameters
-   # static 
-   foreach $name  (@{$cfg->{static_secondary_parameters_index}}){
-     if(defined($cfg->{static_secondary_parameters}->{$name})){
-       $tmpstr                       = $entry_template->{secondary_parameter};
-       # formatting to language
-       $tmpvalue =  &apply_format($cfg, $cfg->{static_secondary_parameters}->{$name}, 'pw');
-       $paddedstr = "'".$name."'".&fetch_padding($name, $cfg->{parameters_length});
-       $tmpstr                                      =~ s#<NAME>#$paddedstr#;
-       $tmpstr                                      =~ s#<VALUE>#$tmpvalue#;
-       $data->{secondary_parameters}                =  $data->{secondary_parameters}.$tmpstr."\n";
-     }
-   }
-
-
-   # dynamic
-   foreach $name  (@{$cfg->{dynamic_secondary_parameters_index}}){
-     if(defined($cfg->{dynamic_secondary_parameters}->{$name})){
-       $tmpstr                                      = $entry_template->{secondary_parameter};
-       $paddedstr = "'".$name."'".&fetch_padding($name, $cfg->{parameters_length});
-       $tmpstr                                      =~ s#<NAME>#$paddedstr#;
-       # checking to see if a conditional statement has been made for this parameter
-       if(defined($cfg->{if_conditional}->{$name})){
-         $tmprhs =  &extract_conditional($cfg, $name, 'pw') ;
-         $tmpstr =~ s#<VALUE>#$tmprhs#;
-       }
-       else{
-         # formatting to language
-         $tmpvalue  =  &apply_format($cfg, $cfg->{dynamic_secondary_parameters}->{$name}, 'pw');
-         $tmpstr    =~ s#<VALUE>#$tmpvalue#;
-       }
-       $data->{secondary_parameters}                =  $data->{secondary_parameters}.$tmpstr."\n";
-
-     }
-   }
-
-   # processing states
-   foreach $name  (@{$cfg->{species_index}}){
-
-     # state declaration
-     $tmpstr    = $entry_template->{state};
-     $paddedstr = "'".$name."'".&fetch_padding($name, $cfg->{species_length});
-     $tmpstr    =~ s#<STATE>#$paddedstr#;
-     $data->{states} =  $data->{states}.$tmpstr."\n";
-
-
-     # creating odes
-     if(defined($cfg->{species}->{$name})){
-       $tmprhs = '';
-       $tmpstr    = '';
-       if((@{$cfg->{species}->{$name}->{production}})){
-         # formatting to language
-         $tmprhs = $tmprhs.&apply_format($cfg, join(' + ',@{$cfg->{species}->{$name}->{production}}), 'pw');}
-           
-       if((@{$cfg->{species}->{$name}->{consumption}})){
-          # formatting to language
-          $tmprhs = $tmprhs."-(".&apply_format($cfg, join(' + ',@{$cfg->{species}->{$name}->{consumption}}), 'pw').")";}
-       if((@{$cfg->{species}->{$name}->{odes}})){
-           $tmprhs = $tmprhs."+".&apply_format($cfg, join(' + ',@{$cfg->{species}->{$name}->{odes}}), 'pw'); }
-
-
-       # adding the line to the 'odes' hash
-       $tmpstr       = $entry_template->{ode};
-       $paddedstr = "'".$name."'".&fetch_padding($name, $cfg->{species_length});
-       $tmpstr       =~ s#<STATE>#$paddedstr#;
-       $tmpstr       =~ s#<ODE>#$tmprhs#;
-       $data->{odes} =  $data->{odes}.$tmpstr."\n";
-     }
-
-     # inital conditions
-     if(defined($cfg->{initial_conditions}->{$name})){
-       $tmpstr                             = $entry_template->{initial_condition};
-       # language specific formatting
-       $tmpvalue                           = &apply_format($cfg, $cfg->{initial_conditions}->{$name}, 'pw');
-       $paddedstr = "'TE_".$name."'".&fetch_padding("TE_$name", $cfg->{parameters_length});
-       $tmpstr                             =~ s#<TE_STATE>#$paddedstr#;
-       $paddedstr = "'".$name."'".&fetch_padding($name, $cfg->{parameters_length});
-       $tmpstr                             =~ s#<STATE>#$paddedstr#;
-       $tmpstr                             =~ s#<VALUE>#$cfg->{initial_conditions}->{$name}#;
-       $data->{secondary_parameters}       =  $data->{secondary_parameters}.$tmpstr."\n";
-     }
-   }
-
-   #inputs
-    
-   #First defining bolus inputs
-   if(defined($cfg->{bolus_inputs})){
-     if(defined($cfg->{bolus_inputs}->{entries}) and
-        defined($cfg->{bolus_inputs}->{times})){
-      foreach $name (keys %{$cfg->{bolus_inputs}->{entries}}){
-       $tmpstr                             = $entry_template->{input};
-       $paddedstr = "'$name'".&fetch_padding("injection_$name", $cfg->{inputs_length});
-       $tmpstr                             =~ s#<NAME>#$paddedstr#;
-       $tmpstr                             =~ s#<TYPE>#injection#;
-       $tmpstr                             =~ s#<TIMES>#$cfg->{bolus_inputs}->{times}->{values}.*$cfg->{bolus_inputs}->{times}->{scale}#;
-       $tmpstr                             =~ s#<MAGNITUDES>#$cfg->{bolus_inputs}->{entries}->{$name}->{values}#;
-       $tmpstr                             =~ s#<SCALE>#$cfg->{bolus_inputs}->{entries}->{$name}->{scale}#;
-       #JMH add magnitude scale (not sure where to stick it right now)
-       $data->{inputs}                     =  $data->{inputs}.$tmpstr."\n";
-      }
-    }
-   
-   }
-
-   if(%{$cfg->{input_rates}}){
-    foreach $name (keys %{$cfg->{input_rates}}){
-      $tmpstr                             = $entry_template->{input};
-      $tmpstr                             =~ s#<TYPE>#steps#;
-      $tmpstr                             =~ s#<COMPARTMENT>##;
-      $paddedstr = "'".$name."'".&fetch_padding($name, $cfg->{inputs_length});
-      $tmpstr                             =~ s#<NAME>#$paddedstr#;
-      $tmpstr                             =~ s#<TIMES>#$cfg->{input_rates}->{$name}->{times}->{values}.*$cfg->{input_rates}->{$name}->{times}->{scale}#;
-      $tmpstr                             =~ s#<MAGNITUDES>#$cfg->{input_rates}->{$name}->{levels}->{values}#;
-      $tmpstr                             =~ s#<SCALE>#$cfg->{input_rates}->{$name}->{levels}->{scale}#;
-      $data->{inputs}                     =  $data->{inputs}.$tmpstr."\n";
-    }
-  }
-
-
-    # substituting the components in the template for the actual values
-    $pwtemplate =~ s#<OUTPUTS>#$data->{outputs}#;
-    $pwtemplate =~ s#<ODES>#$data->{odes}#;
-    $pwtemplate =~ s#<STATES>#$data->{states}#;
-    $pwtemplate =~ s#<PARAMETERS>#$data->{parameters}#;
-    $pwtemplate =~ s#<SECONDARY_PARAMETERS>#$data->{secondary_parameters}#;
-    $pwtemplate =~ s#<INPUTS>#$data->{inputs}#;
-
- 
-
-   # dumping the potterswheel model file 
-   open(FHPW,    '>', &ftf($cfg, $cfg->{files}->{potterswheel3}."-$parameter_set.m"));
-   print FHPW $pwtemplate;
-   close(FHPW);
-}
-
 sub fortranify_line
 {
 
@@ -6198,9 +5977,6 @@ sub extract_conditional{
      # checking to see if the conditional follows the current parameter
      if(defined($cfg->{if_conditional}->{$parameter})){
 
-       if($output_type eq 'pw'){
-         $return_text = 'piecewise(';}
-   
        while($tmp_cond_idx < scalar(@{$cfg->{if_conditional}->{$parameter}->{condition}})){
    
          $tmp_cond        = $cfg->{if_conditional}->{$parameter}->{condition}->[$tmp_cond_idx];
@@ -6234,9 +6010,6 @@ sub extract_conditional{
            else{
              $return_text .= "  elseif($tmp_cond)\n    $parameter = $tmp_value; \n"; } 
          }
-         # potterswheel
-         elsif($output_type eq 'pw'){
-           $return_text .= "$tmp_value, $tmp_cond,"; }
          # perkeley madonna
          elsif($output_type eq 'bm'){
            $return_text .= " IF $tmp_cond THEN $tmp_value"; }
@@ -6283,8 +6056,6 @@ sub extract_conditional{
          $return_text .= "else $parameter = $tmp_value;  end"; }
        elsif($output_type eq 'monolix'){
          $return_text .= "  else \n    $parameter = $tmp_value;\nend\n"; }
-       elsif($output_type eq 'pw'){
-         $return_text .= "$tmp_value)"; }
        elsif($output_type eq 'bm'){
          $return_text .= " ELSE $tmp_value"; }
        elsif($output_type eq 'fortran'){
@@ -7004,102 +6775,6 @@ return $template;
 
 }
 
-sub fetch_pw_template3
-{
-
-my $pwtemplate = '
-% PottersWheel model definition file
-% This file is constructed as a Matlab function.
-% The returned variable "m" contains all required information of the model.
-% For more information visit www.potterswheel.de
-
-function m = target_pw()
-
-m             = pwGetEmptyModel();
-
-% General information:
-% ID fields require no blanks and only A-Za-z_0-9. 
-% Use [] in order to get default values for a field.
-% You can use an arbitrary number of strings in arrays like {\'string1\',\'string2\', ...}.
-
-%% Meta information
-
-m.name        = \'target_pw3\';
-m.description = \'Autogenerated PottersWheel Model Target\';
-m.authors     = {};
-m.dates       = {\'\'};
-m.modelFormat = 3.0;
-
-
-%% X: Dynamic variables
-% m = pwAddX(m, ID, startValue, type, minValue, maxValue, unit, compartment, name, description, typeOfStartValue)
-% ID: Unique name of the player, e.g. \'ProtA\'
-% startValue: the initial concentration (default 0)
-% type: \'global\', \'local\' (default), \'fix\' (startValue will be fitted globally or locally or is fixed)
-% minValue and maxValue specify the minimum and maximum of the startValue during fitting
-% unit: not yet used
-% compartment: compartment of the player. Default: first given compartment
-% typeOfStartValue: \'amount\' or \'concentration\' (default)
-% Not listed players which occur in the reactions get the default settings
-
-<STATES>
-
-%% ODE
-% m = pwAddODE(m, leftHandSide, rightHandSide)
-
-<ODES>
-
-%% C: Compartments
-% m = pwAddC(m, ID, size,  outside, spatialDimensions, name, unit, constant)
-
-m = pwAddC(m,     \'Central\');
-
-%% K: Dynamical parameters
-% m = pwAddK(m, ID, value, type, minValue, maxValue, unit, name, description)
-% type: \'global\', \'local\', \'fix\' (during fitting)
-% value: value of the parameter
-% minValue and maxValue specify the extreme values for fitting
-% E.g. m = pwAddK(m, \'Stat_act\', 1.2, \'global\', 0, 100);
-
-<PARAMETERS>
-
-%% A: 
-
-% m = pwAddA(m, lhs, rhs, [], [], type)
-
-<SECONDARY_PARAMETERS>
-
-%% U - Driving inputs
-% m = pwAddU(m, *ID, *uType, *uTimes, *uValues, compartment, name, description, u2Values, alternativeIDs, designerProps, classname, referenceXID, unit, uFormula)
-% Some entities like the ligand concentration can be controlled externally.
-% Here you can specify the default dependency on time of these players.
-% When loading an experiment, the default dependency is usually overwritten.
-% Example:
-% A step input starting at t=-100 at level 0, jumping at t=0 to 5 and decreasing
-% at t=10 to level 2:
-% m = pwAddU(m, \'L\', \'steps\', [-100 0 10], [0 5 2], \'cell\');
-
-
-<INPUTS>
-%% Y - Observables
-% m = pwAddY(m, *ID, *rhs, errorModelRhs, noiseType, unit, name, description, alternativeIDs, designerProps, classname)
-% ID:          ID of the observable
-% rhs:         right-hand side of the observation, i.e. a function of all dynamic variables X, dynamic parameters K, and observation parameters S
-% errorModel:  formula to calculate the standard deviation depending on measurements y
-% noiseType:   \'Gaussian\' (other noise types will be implemented later)
-% Example with Gaussian noise with a standard deviation of 10 % relative to y plus 5 % absolute (relative to max(y) over all y):
-% m = pwAddY(m, \'totalStat_obs\', \'scale_totalStat_obs * (Stat + pStat + 2 * pStatDimer)\', \'0.10 * y + 0.05 * max(y)\', \'Gaussian\');
-
-<OUTPUTS>
-
-';
-
- 
- 
-return $pwtemplate;
-
-}
-
 sub fetch_comments
 {
 
@@ -7128,93 +6803,6 @@ sub fetch_comments
 
 
   return $comments;
-
-}
-
-sub fetch_pw_template2
-{
-
-my $pwtemplate = '
-% PottersWheel model definition file
-% This file is constructed as a Matlab function.
-% The returned variable "m" contains all required information of the model.
-% For more information visit www.potterswheel.de
-
-function m = target_pw()
-
-m             = pwGetEmptyModel();
-
-% General information:
-% ID fields require no blanks and only A-Za-z_0-9. 
-% Use [] in order to get default values for a field.
-% You can use an arbitrary number of strings in arrays like {\'string1\',\'string2\', ...}.
-
-%% Meta information
-
-m.ID          = \'target_pw\';
-m.name        = \'Autogenerated PottersWheel Model Target\';
-m.description = \'\';
-m.authors     = {};
-m.dates       = {\'\'};
-
-
-%% X: Dynamic variables
-% m = pwAddX(m, ID, startValue, type, minValue, maxValue, unit, compartment, name, description, typeOfStartValue)
-% ID: Unique name of the player, e.g. \'ProtA\'
-% startValue: the initial concentration (default 0)
-% type: \'global\', \'local\' (default), \'fix\' (startValue will be fitted globally or locally or is fixed)
-% minValue and maxValue specify the minimum and maximum of the startValue during fitting
-% unit: not yet used
-% compartment: compartment of the player. Default: first given compartment
-% typeOfStartValue: \'amount\' or \'concentration\' (default)
-% Not listed players which occur in the reactions get the default settings
-
-<STATES>
-
-%% ODE
-% m = pwAddODE(m, leftHandSide, rightHandSide)
-
-<ODES>
-
-%% C: Compartments
-% m = pwAddC(m, ID, size,  outside, spatialDimensions, name, unit, constant)
-
-m = pwAddC(m,     \'Central\');
-
-%% K: Dynamical parameters
-% m = pwAddK(m, ID, value, type, minValue, maxValue, unit, name, description)
-% type: \'global\', \'local\', \'fix\' (during fitting)
-% value: value of the parameter
-% minValue and maxValue specify the extreme values for fitting
-% E.g. m = pwAddK(m, \'Stat_act\', 1.2, \'global\', 0, 100);
-
-<PARAMETERS>
-
-%% A: 
-
-% m = pwAddA(m, lhs, rhs, [], [], type)
-
-<SECONDARY_PARAMETERS>
-
-%% U: Driving input
-% m = pwAddU(m, ID, uType, uTimes, uValues, compartment, name, description, u2Values, alternativeIDs, designerProps)
-
-<INPUTS>
-
-%% Y: Observables
-% m = pwAddY(m, rhs, ID, scalingParameter, errorModel, noiseType, unit, name, description, alternativeIDs, designerProps)
-% rhs: right hand side of the observation, i.e. a function of all variables
-% ID:  ID of the observable
-% errorModel: formula to calculate the standard deviation depending on measurements y
-% m = pwAddY(m, \'Stat + pStat + 2 * pStatDimer\', \'totalStat_obs\', \'scale_totalStat_obs\', \'0.10 * y + 0.05 * max(y)\', \'Gaussian\');
-
-<OUTPUTS>
-
-';
-
- 
- 
-return $pwtemplate;
 
 }
 

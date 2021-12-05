@@ -1,4 +1,4 @@
-## ubiquity R Workflow 
+## ubiquity R Workflow <img src="man/figures/logo.png" align="right" width="120" />
 
 ![R-CMD-check](https://github.com/john-harrold/ubiquity/workflows/R-CMD-check/badge.svg)
 [![version](https://www.r-pkg.org/badges/version/ubiquity)](https://CRAN.R-project.org/package=ubiquity)
