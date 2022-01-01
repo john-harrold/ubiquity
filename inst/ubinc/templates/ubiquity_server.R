@@ -1264,13 +1264,13 @@ generate_covariates <-function(input, output, session){
         covariate_values =      paste(c(cfg$options$inputs$covariates[[covariate_name]]$values$values), collapse=', ' )
         time_units       = as.character(cfg$options$inputs$covariates[[covariate_name]]$times$units)
         covariate_units  = as.character(cfg$options$inputs$covariates[[covariate_name]]$values$units)
-        covariate_type   = as.character(cfg$options$inputs$covariates[[covariate_name]]$cv_type)
+        covariate_interp = as.character(cfg$options$inputs$covariates[[covariate_name]]$cv_interp)
 
 
         mycovariates=rbind(mycovariates, 
                 data.frame("Description"=c(covariate_name), 
                            "Value"=c(NA), 
-                           "Units"=c(paste('(', covariate_type, ')', sep=""))))
+                           "Units"=c(paste('(', covariate_interp, ')', sep=""))))
         mycovariates=rbind(mycovariates, 
                 data.frame("Description"=c('Time'), 
                            "Value"=c(time_values), 
@@ -1847,7 +1847,9 @@ update_simulation <- function(input, output, session) {
     else{
       # SS not required
       sysel$options = sprintf('%soutput_times = seq(%d, %d, %.4e)\n ', sysel$options, tstart, tstop, cfg$gui$minstep*(tstop - tstart_step))}
-    sysel$options = sprintf('%scfg = system_set_option(cfg, "simulation", "output_times", output_times)\n', sysel$options, tstart, tstop, cfg$gui$minstep*(tstop - tstart_step))
+
+    # Appending the output times definition:
+    sysel$options = sprintf('%scfg = system_set_option(cfg, "simulation", "output_times", output_times)\n', sysel$options)
 
     #--[ parameters ]---------------------------------
     # Pulling out the default parameters for the current parameter set
