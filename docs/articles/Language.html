@@ -142,7 +142,7 @@
 </h3>
 <p>Often a model will be developed to incorporate different situations or scenarios. For example, a model may be used to describe both healthy and diseased individuals. When these differences are simply parametric in nature, it can be cumbersome to code a model multiple times (once for each parameterization). This framework provides a mechanism for including multiple parameterizations withing the same system file. Consider the system below where we want to describe antibody disposition. For humans this is described by a two compartment model, but for mice a single compartment is needed.</p>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/system-paper-parameter_sets.png" style="width:60.0%" alt=""><p class="caption">Model parameterizations</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-paper-parameter_sets.png" style="width:60.0%" alt=""><p class="caption">Model parameterizations</p>
 </div>
 <p>First we create a set of parameters describing the human scenario. These are the mean parameters taken from the literature [DM]:</p>
 <pre><code>&lt;P&gt; Weight   70.0    eps inf kg   yes   System # Organism weight
@@ -150,7 +150,7 @@
 &lt;P&gt; Q         0.0329 eps inf L/hr yes   System # Inter-compartmental clearance
 &lt;P&gt; Vp        3.1    eps inf L    yes   System # Vol. central compartment
 &lt;P&gt; Vt        2.8    eps inf L    yes   System # Vol. peripheral compartment</code></pre>
-<p>When a parameter is created using the <code>&lt;P&gt;</code> descriptor it is part of the <code>default</code> parameter set. This is the short name<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;parameter set short names must start with a letter and containing only letters, numbers, and _&lt;/p&gt;"><sup>1</sup></a> for a parameter set. A longer more verbose name can be given as well, and this is what will be seen in the ShinyApp. The human parameter set can be labeled using the <code>PSET</code> descriptor in the following way:</p>
+<p>When a parameter is created using the <code>&lt;P&gt;</code> descriptor it is part of the <code>default</code> parameter set. This is the short name<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> for a parameter set. A longer more verbose name can be given as well, and this is what will be seen in the ShinyApp. The human parameter set can be labeled using the <code>PSET</code> descriptor in the following way:</p>
 <pre><code>&lt;PSET:default&gt; mAb in Human</code></pre>
 <p>Where <code>default</code> is the parameter set short name name, and “mAb in Human” is the value shown to the user in the ShinyApp.</p>
 <p>Next, to add the parameterization for mice we simply create a new set in the following way:</p>
@@ -308,7 +308,7 @@ C     =koffR=&gt;  A + B</code></pre>
 <h2 id="bringing-it-all-together">Bringing it all together<a class="anchor" aria-label="anchor" href="#bringing-it-all-together"></a>
 </h2>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/system-tmdd.png" style="width:60.0%" alt=""><p class="caption">ODEs vs. Model Descriptors</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-tmdd.png" style="width:60.0%" alt=""><p class="caption">ODEs vs. Model Descriptors</p>
 </div>
 <p>As a final example consider the target-mediated drug disposition system above. This system can be defined with a set of ODES:</p>
 <pre><code>&lt;ODE:Ct&gt;  Cp*kpt*Vp/Vt - Ct*ktp
@@ -352,7 +352,7 @@ Cp + Tp &lt;=kon:koff=&gt; CpTp
 <p>The events contain the magnitude of the bolus at a given time. If you have multiple compartments receiving a bolus, the times must include all times in which a bolus may be applied to the system. If a state does not receive a bolus on a particular time, its magnitude at that time is 0.</p>
 <p>To illustrate this consider the following dosing schedule:</p>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/dosing_bolus.png" style="width:50.0%" alt=""><p class="caption">Dosing into two different states/compartments</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/dosing_bolus.png" style="width:50.0%" alt=""><p class="caption">Dosing into two different states/compartments</p>
 </div>
 <p>In this example we want to dose two different drugs into two different states/compartments. Drug 1 (<span style="color:purple"><strong>D1</strong></span>) will be dosed into <code>Cp1</code> and drug 2 (<span style="color:orange"><strong>D2</strong></span>) into <code>Cp2</code>. Dosing will be in mg/kg but concentrations are in mg/ml. The dosing time is in days, but the simulation time units are hours. We will be dosing <span style="color:purple"><strong>D1</strong></span> at <span style="color:purple"><strong>8</strong></span> &amp; <span style="color:purple"><strong>2</strong></span> mpk on days <span style="color:purple"><strong>0</strong></span> &amp; <span style="color:purple"><strong>6</strong></span>. <span style="color:orange"><strong>D2</strong></span> will be dosed at <span style="color:orange"><strong>5</strong></span> mpk on day <span style="color:orange"><strong>9</strong></span>.</p>
 <pre><code>#  type       state     values     scale  units   
@@ -397,7 +397,7 @@ Cp + Tp &lt;=kon:koff=&gt; CpTp
 </h3>
 <p>Detailed time course profiles can be created as well. For example, to create a covariate profile that is zero from time 0-1 and at time 1 it jumps to 8 and decreases at a rate of 1 per unit time until time 5 where it stays at the value 4 until time 12. It might have a profile like the following:</p>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/covariates.png" style="width:50.0%" alt=""><p class="caption">Time-varying covariate input profile</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/covariates.png" style="width:50.0%" alt=""><p class="caption">Time-varying covariate input profile</p>
 </div>
 <pre><code># name        time/values  values                         units
 &lt;CV:mycov&gt;  ; times;       [0 .999 1 5 12];  hours
@@ -526,7 +526,7 @@ C_{free}=\frac{1}{2}
 </h3>
 <p>Consider the interactions occurring in an assay designed to detect drug (<code>D</code>) present in serum. In this assay a biotinylated target (<code>TB</code>) is used to pull down the drug and a labeled target (<code>TL</code>) is the signaling molecule used. The assay will provide a signal when a complex containing both <code>TB</code> and <code>TL</code> are present (<code>TB:D:TL</code> or <code>TL:D:TB</code>). Samples can contain soluble target as well (<code>TS</code>) which can interfere with the assay. To model this assay, the following interactions should be considered:</p>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/system-paper-mathematical_sets.png" style="width:80.0%" alt=""><p class="caption">Mathematical sets</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-paper-mathematical_sets.png" style="width:80.0%" alt=""><p class="caption">Mathematical sets</p>
 </div>
 <p>Several options are available to construct this system. The ODEs could simply be typed out for every possible combination. It’s also possible to use the equilibrium <code>&lt;=kon:koff=&gt;</code> for all the interactions as well. However, there is another option that will handle the enumeration more easily. First we define the two mathematical sets <code>TSi</code> and <code>TSk</code>:</p>
 <pre><code>&lt;SET:TSi&gt; TL; TB; TS
@@ -632,6 +632,13 @@ C_{free}=\frac{1}{2}
 &lt;INDEX:OUTPUT:name&gt; number</code></pre>
 </div>
 <div class="section level2">
+<h2 id="concentrations-vs-amounts">Concentrations vs amounts<a class="anchor" aria-label="anchor" href="#concentrations-vs-amounts"></a>
+</h2>
+<p>It’s more convenient to model systems in terms of concentrations. However some software does not allow scaling of inputs. And when inputs are provided in mass units, you need your differential equation to also be in mass units. You can use the <code>&lt;AMTIFY&gt;</code> descriptor in your <code>system.txt</code> to tell ubiquity to generate perform this conversion on the differential equations.</p>
+<p>For example, if you defined the state <code>Cc</code> but want it to be <code>Ac</code> within the NONMEM model target. These are related by <code>Cc = Ac/Vc</code> and <code>Vc</code> is a parameter the following would be used:</p>
+<pre><code>&lt;AMTIFY&gt; Cc; Ac; Vc</code></pre>
+</div>
+<div class="section level2">
 <h2 id="options">Options<a class="anchor" aria-label="anchor" href="#options"></a>
 </h2>
 <p>Several options can be specified using the <code>&lt;OPT:?</code> delimiter. If you’ve defined the <code>days</code> timescale using <code>&lt;TS:?&gt;?</code> this can be used as the timescale for plotting in the ShinyApp by using:</p>
@@ -673,6 +680,43 @@ C_{free}=\frac{1}{2}
 </ul>
 </div>
 <div class="section level2">
+<h2 id="templates">Templates<a class="anchor" aria-label="anchor" href="#templates"></a>
+</h2>
+<p>When the system is built, multiple files are generated in the temporary directory (<code>transient</code>) to support different software. In the R package you can access these and other templates programatically (see the help for <code><a href="../reference/system_fetch_template.html">?system_fetch_template</a></code>). This is a list of the supporting software and what is generated.</p>
+<div class="section level3">
+<h3 id="r-workflow">R workflow<a class="anchor" aria-label="anchor" href="#r-workflow"></a>
+</h3>
+<ul>
+<li>
+<code>auto_simulation_driver.R</code>: R-Script with named with placeholders used to run simulations.</li>
+<li>
+<code>auto_analysis_estimation.R</code>: R-Script with named with placeholders used to perform naive-pooled parameter estimation.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="matlab-workflow">Matlab workflow<a class="anchor" aria-label="anchor" href="#matlab-workflow"></a>
+</h3>
+<ul>
+<li>
+<code>auto_simulation_driver.m</code>: M-file with named with placeholders used to run simulations.</li>
+<li>
+<code>auto_analysis_estimation.m</code>: M-file with named with placeholders used to perform naive-pooled parameter estimation.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="other-software-targets">Other Software Targets<a class="anchor" aria-label="anchor" href="#other-software-targets"></a>
+</h3>
+<ul>
+<li><p><code>target_adapt_5.for</code> and <code>target_adapt_5-PSET.prm</code>: The system defined for Adapt Fortran and a parameter (<code>prm</code>) file for each parameter set <code>PSET</code>.</p></li>
+<li><p><code>target_berkely_madonna-PSET.txt</code>: This is a text file containing the system for the parameter set <code>PSET</code> to run in Berkeley Madonna.</p></li>
+<li><p><code>target_mrgsolve-PSET.cpp</code>: This is a C++ file containing the system for the parameter set <code>PSET</code> to run using the in <code>mrgsolve</code> package in R.</p></li>
+<li><p><code>target_monolix-PSET.txt</code>: This is a text file containing the system for the parameter set <code>PSET</code> to run in Monolix.</p></li>
+<li><p><code>target_nlmixr-PSET.R</code>: This R script defines the system for analysis in <code>nlmixr</code> for the parameter set <code>PSET</code>.</p></li>
+<li><p><code>target_nonmem-PSET.ctl</code>: This is a NONMEM control stream containing the system for the parameter set <code>PSET</code>.</p></li>
+</ul>
+</div>
+</div>
+<div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <ul>
@@ -690,7 +734,12 @@ C_{free}=\frac{1}{2}
 </li>
 </ul>
 </div>
-
+<div class="footnotes footnotes-end-of-document">
+<hr>
+<ol>
+<li id="fn1"><p>parameter set short names must start with a letter and containing only letters, numbers, and _<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
 </div>

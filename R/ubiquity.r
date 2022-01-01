@@ -598,7 +598,8 @@ sfs}
 #' and corresponding write success (\code{write_file}), also a list element
 #' indicating the overall success of the function call (\code{isgood})
 #'
-#'@details The template argument can have the following values
+#'@details The template argument can have the following values for the R
+#'workflow:
 #'
 #' \itemize{
 #'  \item{"Simulation"}       produces \code{analysis_simulate.R}: R-Script named with placeholders used to run simulations
@@ -608,9 +609,17 @@ sfs}
 #'  \item{"Model Diagram"}    produces \code{system.svg}: SVG template for producing a model diagram (Goto \url{https://inkscape.org} for a free SVG editor)
 #'  \item{"Shiny Rmd Report"} produces \code{system_report.Rmd} and \code{test_system_report.R}: R-Markdown file used to generate report tabs for the Shiny App and a script to test it
 #'  \item{"myOrg"}            produces \code{myOrg.R}: R-Script for defining functions used within your organization
-#'  \item{"mrgsolve"}         produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
-#'  \item{"Berkeley Madonna"} produces \code{system_berkeley_madonna.txt}: text file with the model and the currently selected parameter set in Berkeley Madonna format
+#'}
+#'
+#'And this will create files to use in other software:
+#'
+#' \itemize{
 #'  \item{"Adapt"}            produces \code{system_adapt.for} and \code{system_adapt.prm}: Fortran and parameter files for the currently selected parameter set in Adapt format.
+#'  \item{"Berkeley Madonna"} produces \code{system_berkeley_madonna.txt}: text file with the model and the currently selected parameter set in Berkeley Madonna format
+#'  \item{"nlmixr"}           produces \code{system_nlmixr.R} For the currently selected parameter set to define the system in the `nlmixr` format.
+#'  \item{"NONMEM"}           produces \code{system_nonmem.R} For the currently selected parameter set as a NONMEM conntrol stream.
+#'  \item{"Monolix"}          produces \code{system_monolix.txt} For the currently selected parameter set as a NONMEM conntrol stream.
+#'  \item{"mrgsolve"}         produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
 #'}
 #'
 #'
@@ -639,9 +648,13 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
  allowed = c("Simulation", "Estimation", 
              "ShinyApp",   "Shiny Rmd Report",
              "NCA", 
-             "mrgsolve",   "Berkeley Madonna", 
-             "Adapt",      "myOrg", 
-             "Model Diagram")
+             "mrgsolve",   
+             "myOrg", 
+             "Model Diagram",
+             "Berkeley Madonna", 
+             "Adapt", "nlmixr",
+             "NONMEM", "Monolix",
+             "mrgsolve")
 
 
  # default value for the return variable
@@ -656,10 +669,10 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
    else {
      template_dir = file.path('library', 'templates')
    }
-   temp_directory = cfg$options$misc$temp_directory
+   temp_directory = cfg[["options"]][["misc"]][["temp_directory"]]
 
    # pulling the current parameter set
-   current_set = cfg$parameters$current_set
+   current_set = cfg[["parameters"]][["current_set"]]
   
    # building up the lists of sources and destinations
    sources      = c()
@@ -720,6 +733,21 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
      sources      = c(file.path(template_dir, sprintf("system.svg")))
      destinations = c("system.svg")
      write_file   = c(TRUE)
+   }
+   if(template == "NONMEM"){
+     sources      = c(file.path(temp_directory, sprintf("target_nonmem-%s.ctl",current_set)))
+     destinations = c("system_nonmem.ctl")
+     write_file   = c(TRUE, TRUE)
+   }
+   if(template == "Monolix"){
+     sources      = c(file.path(temp_directory, sprintf("target_monolix-%s.txt",current_set)))
+     destinations = c("system_monolix.txt")
+     write_file   = c(TRUE, TRUE)
+   }
+   if(template == "nlmixr"){
+     sources      = c(file.path(temp_directory, sprintf("target_nlmixr-%s.R",current_set)))
+     destinations = c("system_nlmixr.R")
+     write_file   = c(TRUE, TRUE)
    }
 
    # if overwrite ifs FALSE we check each of the destination files to see if
@@ -2722,7 +2750,7 @@ system_view <- function(cfg,field="all", verbose=FALSE) {
                      pad_string(paste(cfg$options$inputs$covariates[[covariate]]$times$values, collapse=" "), 10),
                      pad_string(      cfg$options$inputs$covariates[[covariate]]$times$units, 10)))
           msgs = c(msgs, sprintf("%s | %s | %s | %s",
-                     pad_string(sprintf('(%s)', cfg$options$inputs$covariates[[covariate]]$cv_type), 10),
+                     pad_string(sprintf('(%s)', cfg$options$inputs$covariates[[covariate]]$cv_interp), 10),
                      pad_string('levels', 10),
                      pad_string(paste(cfg$options$inputs$covariates[[covariate]]$values$values, collapse=" "), 10),
                      pad_string(      cfg$options$inputs$covariates[[covariate]]$values$units,  10)))
@@ -5496,7 +5524,7 @@ for(SIMINT_cv_name in names(SIMINT_cfg$options$inputs$covariates)){
   # the full covariate (time varying component)
   SIMINT_my_ff = make_forcing_function(SIMINT_my_cv$times$values,
                                        SIMINT_my_cv$values$values,
-                                       SIMINT_my_cv$cv_type, 
+                                       SIMINT_my_cv$cv_interp, 
                                        SIMINT_simulation_options$output_times,
                                        SIMINT_simulation_options$sample_forcing_delta)
   eval(parse(text=sprintf("SIMINT_forces$%s = SIMINT_my_ff", SIMINT_cv_name)))
@@ -5506,7 +5534,7 @@ for(SIMINT_cv_name in names(SIMINT_cfg$options$inputs$covariates)){
   # covariate evaluated at the initial condition and carried forward
   SIMINT_my_ff = make_forcing_function(SIMINT_my_cv$times$values[1],
                                        SIMINT_my_cv$values$values[1],
-                                       SIMINT_my_cv$cv_type, 
+                                       SIMINT_my_cv$cv_interp, 
                                        SIMINT_simulation_options$output_times,
                                        SIMINT_simulation_options$sample_forcing_delta)
   eval(parse(text=sprintf("SIMINT_forces$SIMINT_CVIC_%s = SIMINT_my_ff", SIMINT_cv_name)))

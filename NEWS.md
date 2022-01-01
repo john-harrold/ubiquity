@@ -7,6 +7,9 @@
 - Changed terminal messaging to use `cli`
 - Added termination criteria in estimation output
 - Fixed wrapping issue in Fortran output where unwrappable strings resulted in infinite loop
+- Added system-testing.txt example 
+- Added nlmxir output target
+- Added template creation for NONMEM, Monolix, and nlmixr
 
 # ubiquity 2.0.0
 

@@ -55,7 +55,7 @@
 
 <CV:WT>      ; times;      [ 0 ];    day  
 <CV:WT>      ; values;     [ 60];    kg
-<CVINTERP:WT> step
+<CVINTERP:WT> linear
 
 # static secondary parameters
 <As> kel = CL/Vc
@@ -98,15 +98,23 @@
 #  X nM  ===> X*MW(KDA)/1000/dose
 #
 <O> C_ng_ml = Cc*MW
-<O> C_DOSE  = Cc*MW/DOSE/1000
+<O> CV_DOSE = DOSE
+<O> CV_WT   = WT
 
 
+# Variance parameters
 <VP> prop_err   0.1            eps    inf      --     yes      Variance
 <VP> add_err    0.1            eps    inf      ng/ml  yes      Variance
 
+# Variance equation
+<VE:C_ng_ml>  SIMINT_POWER[add_err + prop_err*PRED][2.0]
+
+# Output error 
+<OE:C_ng_ml> add=add_err; prop=prop_err
+
+
 <EST:LT> Vp; Vc; CL; Q
 <EST:P>  Vp; Vc; CL; Q; ka; add_err; prop_err
-<OE:C_ng_ml> add=add_err; prop=prop_err
 <AMTIFY> Cp; Ap; Vp
 
 # #---------#

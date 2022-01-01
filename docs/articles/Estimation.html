@@ -141,7 +141,7 @@
 </ul>
 <p>Each of these scripts build on the previous one to demonstrate different features of the ubiquity parameter estimation routines. All of these examples use a system (shown in the figure below) that contains three differential equations tracking the mass of the parent drug in the blood (<code>Mpb</code>) and in a tissue space (<code>Mpt</code>). In the blood the parent can form (<code>fmKp</code>) a metabolite (<code>Mmb</code>) with subsequent elimination (<code>Km</code>). The parent/metabolite model was adapted from the ADAPT5 Users Manual (<a href="https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf" class="external-link uri">https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf</a>).</p>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/system-estimation_example.png" width="450" alt=""><p class="caption">Model structure of parent/metabolite model</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-estimation_example.png" width="450" alt=""><p class="caption">Model structure of parent/metabolite model</p>
 </div>
 <p>Using <code>system_new</code> (use <code><a href="../reference/system_new.html">?system_new</a></code> to see a list of the available system file examples) you can copy this template file into the current directory and build the system:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -166,12 +166,12 @@
 <div class="section level2">
 <h2 id="least-squares-estimationsingle-output-analysis_parent-r">Least squares estimation/single output (<code>analysis_parent.r</code>)<a class="anchor" aria-label="anchor" href="#least-squares-estimationsingle-output-analysis_parent-r"></a>
 </h2>
-<p>The first example above (<code>analysis_parent.r</code>) begins by specifying that we want to perform a parameter estimation and archive the results using the name<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;analysis names must start with a letter and containing only letters, numbers, and _&lt;/p&gt;"><sup>1</sup></a> <code>parent_d1030</code> to indicate we are analyzing the parent PK for the 10 and 30 mg dosing cohorts:</p>
+<p>The first example above (<code>analysis_parent.r</code>) begins by specifying that we want to perform a parameter estimation and archive the results using the name<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> <code>parent_d1030</code> to indicate we are analyzing the parent PK for the 10 and 30 mg dosing cohorts:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">flowctl</span> <span class="op">=</span> <span class="st">'estimate'</span>
 <span class="va">archive_results</span> <span class="op">=</span> <span class="cn">TRUE</span>
 <span class="va">analysis_name</span> <span class="op">=</span> <span class="st">'parent_d1030'</span></code></pre></div>
-<p>Next we select the parameters to estimate. Because we’re only estimating parent data, only the names of the parameters relevant to the parent PK (<code>pnames</code>) are selected. To estimate all parameters simply exclude the third argument. Because only system parameters are being estimated a weighted least squares objective will be used<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The objective function is set based on the parameters being estimated. If there are no variance parameters being estimated a weighted least squares objective will be used. If there are variance parameters being estimated then a maximum likelihood objective will be used.&lt;/p&gt;"><sup>2</sup></a>.</p>
+<p>Next we select the parameters to estimate. Because we’re only estimating parent data, only the names of the parameters relevant to the parent PK (<code>pnames</code>) are selected. To estimate all parameters simply exclude the third argument. Because only system parameters are being estimated a weighted least squares objective will be used<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pnames</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Vp'</span>, <span class="st">'Vt'</span>, <span class="st">'CLp'</span>, <span class="st">'Q'</span><span class="op">)</span>
 <span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_select_set.html">system_select_set</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="st">"default"</span>, <span class="va">pnames</span><span class="op">)</span></code></pre></div>
@@ -180,7 +180,7 @@
 <code class="sourceCode R"><span class="va">cfg</span><span class="op">=</span><span class="fu"><a href="../reference/system_set_option.html">system_set_option</a></span><span class="op">(</span><span class="va">cfg</span>, group  <span class="op">=</span> <span class="st">"simulation"</span>, 
                            option <span class="op">=</span> <span class="st">"output_times"</span>, 
                            <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">100</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>The dataset (shown in the table below) is included with the <code>ubiquity</code> package and is accessed here using <code>system.file</code>. In the example script it is referenced explicitly. The format requirements of datasets is that they be flat files with a header row. The format is flexible and only requires time/observation information and columns required to filter the data and isolate cohorts that have received the same treatment. The inputs are defined when the cohorts themselves are defined. Data files are loaded using <code><a href="../reference/system_load_data.html">system_load_data()</a></code> and a name<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;dataset names must start with a letter and containing only letters, numbers, and _&lt;/p&gt;"><sup>3</sup></a> is assigned the dataset. Data can be read from files (csv, xls, xlsx, and tab) or from an existing data frame. This name (<code>pm_data</code> here) will be used to reference this dataset later in the script.</p>
+<p>The dataset (shown in the table below) is included with the <code>ubiquity</code> package and is accessed here using <code>system.file</code>. In the example script it is referenced explicitly. The format requirements of datasets is that they be flat files with a header row. The format is flexible and only requires time/observation information and columns required to filter the data and isolate cohorts that have received the same treatment. The inputs are defined when the cohorts themselves are defined. Data files are loaded using <code><a href="../reference/system_load_data.html">system_load_data()</a></code> and a name<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a> is assigned the dataset. Data can be read from files (csv, xls, xlsx, and tab) or from an existing data frame. This name (<code>pm_data</code> here) will be used to reference this dataset later in the script.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_load_data.html">system_load_data</a></span><span class="op">(</span><span class="va">cfg</span>, dsname     <span class="op">=</span> <span class="st">"pm_data"</span>, 
                             data_file  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"ubinc"</span>, <span class="st">"csv"</span>,
@@ -190,7 +190,7 @@
 <p>Next we need to identify the data and inputs associated with those data. This is done by defining <em>cohorts</em>, groups of data that receive the same treatment and the model inputs (bolus dosing, infusion rates, covariates) associated with those cohorts. In this example we will define a cohort for each dosing group. To make sure we are starting from a blank slate we can use <code><a href="../reference/system_clear_cohorts.html">system_clear_cohorts()</a></code> to remove any previously defined information.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_clear_cohorts.html">system_clear_cohorts</a></span><span class="op">(</span><span class="va">cfg</span><span class="op">)</span></code></pre></div>
-<p>For each cohort we define a list with information about that cohort. Each cohort should have a unique <code>name</code> field<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;cohort names must start with a letter and containing only letters, numbers, and _&lt;/p&gt;"><sup>4</sup></a> and a <code>dataset</code> field pointing to the dataset (<code>pm_data</code>) loaded above. The optional cohort filter (<code>cf</code>) field is used to reduce the entire dataset to the records associated with this cohort. See the help for <code><a href="../reference/system_define_cohort.html">system_define_cohort()</a></code> for more information on how to construct cohort filters.</p>
+<p>For each cohort we define a list with information about that cohort. Each cohort should have a unique <code>name</code> field<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> and a <code>dataset</code> field pointing to the dataset (<code>pm_data</code>) loaded above. The optional cohort filter (<code>cf</code>) field is used to reduce the entire dataset to the records associated with this cohort. See the help for <code><a href="../reference/system_define_cohort.html">system_define_cohort()</a></code> for more information on how to construct cohort filters.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cohort</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
   name         <span class="op">=</span> <span class="st">"dose_10"</span>,
@@ -349,10 +349,10 @@
 <li>output/parent_d1030_obs_pred_Parent.png</li>
 </ul>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/Estimation-parent-tc.png" style="width:80.0%" alt=""><p class="caption">Timecourse</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/Estimation-parent-tc.png" style="width:80.0%" alt=""><p class="caption">Timecourse</p>
 </div>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/Estimation-parent-op.png" style="width:80.0%" alt=""><p class="caption">Observed vs Predicted</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/Estimation-parent-op.png" style="width:80.0%" alt=""><p class="caption">Observed vs Predicted</p>
 </div>
 <div class="section level3">
 <h3 id="automated-reporting">Automated Reporting<a class="anchor" aria-label="anchor" href="#automated-reporting"></a>
@@ -587,7 +587,15 @@ output_file<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/
 &lt;OPT:output_times&gt; SIMINT_SEQ[0][100][1]
 &lt;DATA:HEADER:AUTOMATIC&gt;</code></pre>
 </div>
-
+<div class="footnotes footnotes-end-of-document">
+<hr>
+<ol>
+<li id="fn1"><p>analysis names must start with a letter and containing only letters, numbers, and _<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>The objective function is set based on the parameters being estimated. If there are no variance parameters being estimated a weighted least squares objective will be used. If there are variance parameters being estimated then a maximum likelihood objective will be used.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>dataset names must start with a letter and containing only letters, numbers, and _<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>cohort names must start with a letter and containing only letters, numbers, and _<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
 </div>

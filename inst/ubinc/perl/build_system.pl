@@ -273,6 +273,9 @@ MAIN:
     if($line =~ '<CVSET:\S+:\S+>'){
       $cfg  = &parse_input_covariate($cfg, $line); }
 
+    if($line =~ '<CVINTERP:\S+>'){
+      $cfg  = &parse_input_covariate($cfg, $line); }
+
     if($line =~ '<CVTYPE:\S+>'){
       $cfg  = &parse_input_covariate($cfg, $line); }
 
@@ -303,8 +306,8 @@ MAIN:
     if($line =~ '<VE:\S+>'){
       $cfg  = &parse_variance_equation($cfg, $line); }
 
-    if($line =~ '<DV:\S+>'){
-      $cfg  = &parse_error_equation($cfg, $line); }
+    if($line =~ '<OE:\S+>'){
+      $cfg  = &parse_error_model($cfg, $line); }
 
    #if($line =~ '<VCVHEADER>'){
    #  $cfg  = &parse_vcv_header($cfg, $line); }
@@ -333,13 +336,20 @@ MAIN:
     if($line =~ '<OPT:\S+>\s+\S+.*'){
       $cfg  = &parse_option($cfg, $line); }
 
- #  # index
+    # index
     if($line =~ '<INDEX:\S+>'){
       $cfg  = &parse_index($cfg, $line); }
 
- #  # amtify
-    if($line =~ '<AMTIFY>'){
+    # amtify
+    if($line =~ '^\s*<AMTIFY>'){
       $cfg  = &parse_amtify($cfg, $line); }
+
+
+    # Estimation options
+    if($line =~ '^\s*<EST:LT>'){
+      $cfg  = &parse_est_lt($cfg, $line); }
+    if($line =~ '^\s*<EST:P>'){
+     $cfg  = &parse_est_p($cfg, $line); }
 
     #
     # Guide   
@@ -389,7 +399,6 @@ MAIN:
   # dumping julia
   &dump_julia($cfg);
 
-
   # creating the targets for each set of parameters
   foreach $name (keys(%{$cfg->{parameter_sets}})){
     &dump_adapt($cfg            , $name);
@@ -397,6 +406,7 @@ MAIN:
     &dump_monolix($cfg          , $name);
     &dump_nonmem($cfg           , $name);
     &dump_mrgsolve($cfg         , $name);
+    &dump_nlmixr($cfg,            $name);
   }
 
   exit 0;
@@ -446,6 +456,8 @@ my $cfg;
   $cfg->{files}->{rproject}->{simulation_driver}     = 'auto_simulation_driver.R';
   $cfg->{files}->{rproject}->{compiled}              = 'r_ode_model.c';
   $cfg->{files}->{rproject}->{analysis_estimation}   = 'auto_analysis_estimation.R';
+
+  $cfg->{files}->{rproject}->{nlmixr}                = 'target_nlmixr';
 
   # Julia
   $cfg->{files}->{julia}->{je}                       = 'jl_de.jl';
@@ -500,7 +512,6 @@ my $cfg;
   @{$cfg->{species_index}}                           = ();
   $cfg->{outputs}                                    = {};
   @{$cfg->{outputs_index}}                           = ();
-  $cfg->{guides}                                     = {};
   $cfg->{options}                                    = {};
   $cfg->{options}->{output_times}                    = 'SIMINT_SEQ[0][10][.1]';
   $cfg->{options}->{nonmem}->{input}->{drop}         = {};
@@ -508,6 +519,9 @@ my $cfg;
   $cfg->{options}->{nonmem}->{data}                  = '';
   $cfg->{options}->{amtify}->{cmt_to_amt}            = {};
   $cfg->{options}->{amtify}->{cmt_to_rel}            = {};
+  $cfg->{options}->{amtify}->{vol}                   = {};
+  @{$cfg->{options}->{est}->{lt}}                    = ();
+  @{$cfg->{options}->{est}->{p}}                     = ();
   $cfg->{index}->{STATE}->{byname}                   = {};
   $cfg->{index}->{STATE}->{byvalue}                  = {};
   $cfg->{current_section}                            = '';
@@ -515,7 +529,7 @@ my $cfg;
   $cfg->{times_scales}                               = {};
 
   $cfg->{variance}->{equations}                      = {};
-  $cfg->{error}->{equations}                         = {};
+  $cfg->{error}                                      = {};
 
   $cfg->{sets}                                       = {};
   
@@ -700,6 +714,319 @@ sub dump_reserved_words
   print FH $output_file;
   close(FH);
 
+}
+
+sub dump_nlmixr
+{
+  my ($cfg, $parameter_set) = @_;
+  my $counter;
+  my $counter2;
+  my $parameter;
+  my $pname;
+  my $pname_trans;
+  my $tv_trans;   
+  my $name;
+  my $name2;
+  my $val_pre  = "";
+  my $val_post = "";
+  my $pvalue;
+  my $plb;    
+  my $pub;    
+  my $pvstr;  
+  my $ostr;
+  my $field;
+  my $state;
+  my $sname;
+  my $indent     = '   ';
+  my $iav_res;
+
+  my $m_ele;
+  my $template_nlmixr   = &fetch_template_file($cfg, 'r_nlmixr.R');
+  $m_ele->{SYSTEM_PARAMS_TV}      = '';
+  $m_ele->{SYSTEM_PARAMS}         = '';
+  $m_ele->{ERROR_PARAMS}          = '';
+  $m_ele->{IIV_DEF}               = '';
+  $m_ele->{IIV_BLOCK}             = '';
+  $m_ele->{SSP}                   = '';
+  $m_ele->{DSP}                   = '';
+  $m_ele->{ODES}                  = '';
+  $m_ele->{OUTPUTS}               = '';
+ 
+ 
+  my $iiv_set     = 'default';
+  my $iiv_ETA;
+  if($cfg->{iiv_index}->{$parameter_set}){
+     $iiv_set = $parameter_set; 
+  }
+ 
+ 
+ 
+  #
+  #  System parameters
+  #
+  #
+  if(scalar @{$cfg->{parameters_index}} > 0){
+    $m_ele->{SYSTEM_PARAMS}     .= "\n".$indent."# System Parameters \n";
+    $m_ele->{SYSTEM_PARAMS_TV}  .= "\n".$indent."# Typical Value of System Parameters \n";
+
+    foreach $parameter (@{$cfg->{parameters_index}}){
+      $pname = $parameter;
+      # Figuring out the parameter set specific values:
+      if(exists($cfg->{parameter_sets}->{$parameter_set}->{values}->{$parameter})){
+        $pvalue = $cfg->{parameter_sets}->{$parameter_set}->{values}->{$parameter}
+      } else {
+        $pvalue = $cfg->{parameters}->{$parameter}->{value}
+      }
+
+      # Pulling out the lower and upper bounds of the parameter:
+      $plb = $cfg->{parameters}->{$parameter}->{lower_bound} ;
+      $pub = $cfg->{parameters}->{$parameter}->{upper_bound} ;
+
+      # Converting the eps and inf terminology into values R can understand
+      if($plb eq  "eps"){ $plb = '.Machine$double.eps';}      #  epsilon   
+      if($plb eq "-inf"){ $plb = '.Machine$double.xmin';}     # -infinity 
+      if($pub eq "-eps"){ $pub = '.Machine$double.neg.eps';}  # -epsilon   
+      if($pub eq  "inf"){ $pub = '.Machine$double.xmax';}     #  infinity 
+
+
+      # Creating a string with lower bound, parameter value and the upper
+      # bound:
+      $pvstr = "c($plb, $pvalue, $pub)";
+
+      # By default all the parameters will be estimated. If the user
+      # has specified a list to be estimated then those will be marked as
+      # fixed:
+      if(scalar(@{$cfg->{options}->{est}->{p}}) > 0){
+        # If the parameter isn't in the list to estimate we mark it as fixed:
+        if(!grep( /^$pname$/, @{$cfg->{options}->{est}->{p}})){
+          $pvstr = "fixed($pvstr)";
+        }
+      }
+
+      # This defies the system parameters as typical values 
+      # with the TV_ prefix in the ini portion. If the parameter has been
+      # selected to be estimated in the log domain we add that transform
+      # of the value as well:
+      if(grep( /^$pname$/, @{$cfg->{parameters_variance_index}})){
+        if($m_ele->{ERROR_PARAMS} eq ""){
+          $m_ele->{ERROR_PARAMS}  .= "\n".$indent."# Error model parameters\n";
+        }
+        $m_ele->{ERROR_PARAMS}  .= $indent.$pname.&fetch_padding($pname, $cfg->{parameters_length})." =  $pvstr\n";
+      } else {
+        if(grep( /^$pname$/, @{$cfg->{options}->{est}->{lt}})){
+          $m_ele->{SYSTEM_PARAMS_TV}  .= $indent."TV_".$pname.&fetch_padding($pname, $cfg->{parameters_length}).' =   log('.$pvstr.")\n";
+          $pname_trans   = "exp(TV_$pname)";
+        } else {
+          $m_ele->{SYSTEM_PARAMS_TV}  .= $indent."TV_".$pname.&fetch_padding($pname, $cfg->{parameters_length}).' = '.$pvstr."\n";
+          $pname_trans   = "TV_$pname";
+        }
+      }
+
+
+       
+      # I the model portion we create the actual named parameters:
+      if(!grep( /^$pname$/, @{$cfg->{parameters_variance_index}})){
+        if(exists( $cfg->{iiv}->{$parameter_set}->{parameters}->{$pname})){
+          $m_ele->{SYSTEM_PARAMS}     .= $indent.$pname.&fetch_padding($pname, $cfg->{parameters_length}).'= ';
+          # This creates the algebraic relationnship between the IIV term and
+          # the typical value:
+          $tv_trans = &make_iiv($cfg, $pname, 'rproject', $parameter_set);
+          $tv_trans =~ s#SIMINT_PARAMETER_TV#$pname_trans#g;
+          $tv_trans =~ s#SIMINT_IIV_VALUE#$cfg->{iiv}->{$iiv_set}->{parameters}->{$pname}->{iiv_name}#g;
+          $m_ele->{SYSTEM_PARAMS} .= $tv_trans."\n";
+        } else {
+          $m_ele->{SYSTEM_PARAMS} .= $indent.$pname.&fetch_padding($pname, $cfg->{parameters_length}).'= ';
+          $m_ele->{SYSTEM_PARAMS} .= $pname_trans."\n";
+        }
+      }
+
+      # Checking the current parameter to see if it is used 
+      # as a volume with amtify. 
+      $iav_res = &is_amtify_volume($cfg, $pname);
+      if($iav_res){
+        $m_ele->{SYSTEM_PARAMS} .= $indent."# AMTIFY:$iav_res->{conc}\n";
+        $m_ele->{SYSTEM_PARAMS} .= $indent.$iav_res->{conc_def}."\n";
+      }
+    }
+  }
+
+
+  #
+  # defining iiv terms
+  #
+  if(keys(%{$cfg->{iiv}})){
+
+
+    $m_ele->{IIV_DEF} .= "\n".$indent."# Between-subject variability:\n"; 
+    $m_ele->{IIV_DEF} .= $indent;
+
+    # creating the  variance/covariance matrix
+    $counter = 1;
+
+    foreach $name (@{$cfg->{iiv_index}->{$iiv_set}}){
+      $counter2 = 1;
+
+      # Creatign the eta1+eta2+eta3~ portion:
+      if(scalar(@{$cfg->{iiv_index}->{$iiv_set}}) eq $counter){
+        $m_ele->{IIV_DEF} .= $name." ~\n";
+      } else{
+        if($counter == 1){
+         $m_ele->{IIV_DEF} .= "  ";
+        }
+        $m_ele->{IIV_DEF} .= $name." +".&fetch_padding($name." +", $cfg->{parameters_length});
+      }
+      foreach $name2 (@{$cfg->{iiv_index}->{$iiv_set}}){
+        if($counter eq 1){
+          if($counter2 eq 1){
+            $val_pre = $indent."c(";
+          } else {
+            $val_pre = $indent."  ";
+          }
+        }
+        
+        if(scalar(@{$cfg->{iiv_index}->{$iiv_set}}) eq $counter2){
+          $val_post = ")";
+        } else {
+          $val_post = ",";
+        }
+        
+        if($counter2 le $counter){
+          if(defined($cfg->{iiv}->{$iiv_set}->{vcv}->{$name}->{$name2})){
+            $m_ele->{IIV_BLOCK}       .= $val_pre.$cfg->{iiv}->{$iiv_set}->{vcv}->{$name}->{$name2}.$val_post.&fetch_padding($val_pre.$cfg->{iiv}->{$iiv_set}->{vcv}->{$name}->{$name2}.$val_post, $cfg->{parameters_length}); }
+          else{
+            $m_ele->{IIV_BLOCK}       .= $val_pre.'0'.$val_post.&fetch_padding($val_pre.'0'.$val_post, $cfg->{parameters_length}); }
+            if($counter2 == $counter){
+               $m_ele->{IIV_BLOCK}       .= &fetch_padding('',$cfg->{parameters_length})x(@{$cfg->{iiv_index}->{$iiv_set}} - $counter);
+               $m_ele->{IIV_BLOCK}       .= "# $name\n"; }
+            
+          $counter2 = $counter2 + 1; 
+          }
+        }
+        $counter = $counter + 1;
+    }
+  }
+  else{
+      $m_ele->{IIV_DEF} .= "# No IIV parameters defined\n"; 
+      $m_ele->{IIV_DEF} .= "# See: <IIV:?> and <IIVCOR:?> \n"; }
+ 
+ 
+  #
+  #  outputs
+  #
+  # We're only appending outputs that are being estimated
+  if(exists($cfg->{error})){
+    $m_ele->{OUTPUTS} = "\n".$indent."# Outputs and error models\n";
+    foreach $name (keys(%{$cfg->{error}})){
+      # defining the output
+      $m_ele->{OUTPUTS} .= $indent.$name.&fetch_padding($name, $cfg->{outputs_length})."= ";
+      $m_ele->{OUTPUTS} .= $cfg->{outputs}->{$name}."\n";
+
+      # Creating the string to definne the error model
+      # output = add(var) + prop(var) 
+      $ostr = "";
+      foreach $name2 (keys(%{$cfg->{error}->{$name}})){
+        if($ostr eq ""){
+          $ostr = $indent."$name ~ $name2($cfg->{error}->{$name}->{$name2})";
+        } else {
+          $ostr .= " + $name2($cfg->{error}->{$name}->{$name2})";
+        }
+      }
+
+      $ostr .= "\n";
+      $m_ele->{OUTPUTS} .= $ostr;
+    }
+  }
+ 
+  #
+  #  static secondary parameters
+  #
+  if ((@{$cfg->{static_secondary_parameters_index}})){
+    $m_ele->{SSP}      .= "\n".$indent."# Static Secondary Parameters \n";
+    foreach $parameter    (@{$cfg->{static_secondary_parameters_index}}){
+      $pname = $parameter;
+      $m_ele->{SSP} .= $indent.$pname.&fetch_padding($pname, $cfg->{parameters_length})."= ";
+      $m_ele->{SSP} .= &apply_format($cfg, $cfg->{static_secondary_parameters}->{$pname}, 'rproject')." \n"; 
+      if(defined($cfg->{if_conditional}->{$pname})){
+        $m_ele->{SSP} .= &extract_conditional($cfg, $pname, 'rproject');
+      }
+      # Checking the current parameter to see if it is used 
+      # as a volume with amtify. 
+      $iav_res = &is_amtify_volume($cfg, $pname);
+      if($iav_res){
+        $m_ele->{SSP} .= $indent."# AMTIFY:$iav_res->{conc}\n";
+        $m_ele->{SSP} .= $indent.$iav_res->{conc_def}."\n";
+      }
+    }
+  }
+ 
+  #
+  #  dynamic secondary parameters
+  #
+  if ((@{$cfg->{dynamic_secondary_parameters_index}})){
+    $m_ele->{DSP}      .= "\n".$indent."# Dynamic Secondary Parameters \n";
+    foreach $parameter    (@{$cfg->{dynamic_secondary_parameters_index}}){
+      $pname = $parameter;
+      $m_ele->{DSP} .= $indent.$pname.&fetch_padding($pname, $cfg->{parameters_length})."= ";
+      $m_ele->{DSP} .= &apply_format($cfg, $cfg->{dynamic_secondary_parameters}->{$pname}, 'rproject')." \n"; 
+      if(defined($cfg->{if_conditional}->{$pname})){
+        $m_ele->{DSP} .= &extract_conditional($cfg, $pname, 'rproject');
+      }
+
+      # Checking the current parameter to see if it is used 
+      # as a volume with amtify. 
+      $iav_res = &is_amtify_volume($cfg, $pname);
+      if($iav_res){
+        $m_ele->{DSP} .= $indent."# AMTIFY:$iav_res->{conc}\n";
+        $m_ele->{DSP} .= $indent.$iav_res->{conc_def}."\n";
+      }
+    }
+  }
+  #
+  #  states and odes
+  #
+  $m_ele->{ODES}         .= "\n".$indent."# Defining ODEs\n";
+  foreach $state     (@{$cfg->{species_index}}){
+    $sname = $state;
+    if(defined($cfg->{options}->{amtify}->{cmt_to_amt}->{$sname})){ 
+      $name2 = $cfg->{options}->{amtify}->{cmt_to_amt}->{$sname};
+      $m_ele->{ODES}  .= $indent."d/dt($name2)".&fetch_padding("d/dt($name2)", $cfg->{species_length})."= (".&make_ode($cfg, $sname, 'rproject').")*";
+      $m_ele->{ODES}  .= $cfg->{options}->{amtify}->{vol}->{$sname};
+      $m_ele->{ODES}  .= "\n";
+    } else {
+      $m_ele->{ODES}  .= $indent."d/dt($sname)".&fetch_padding("d/dt($sname)", $cfg->{species_length})."= ".&make_ode($cfg, $sname, 'rproject')."\n";
+    }
+  }
+ 
+# #
+# # Infusion rates
+# #
+# #  if((@{$cfg->{input_rates_index}})){
+# #    foreach $rate  (@{$cfg->{input_rates_index}}){
+# #      $rname = $rate;
+# #    }
+# #  }
+#
+# #
+# # Covariates 
+# #
+# #  if((@{$cfg->{covariates_index}})){
+# #    foreach $covariate  (@{$cfg->{covariates_index}}){
+# #      $cname = $covariate; 
+# #    }
+# #  }  
+#
+#
+  # Substituting the model elements above for their 
+  # placeholders in the template
+  foreach $field     (keys(%{$m_ele})){
+      $template_nlmixr  =~ s#<$field>#$m_ele->{$field}#g;
+  }
+
+
+  # Writing out the target model file
+  open(FH, '>', &ftf($cfg, $cfg->{files}->{rproject}->{nlmixr}."-$parameter_set.R"));
+  print FH $template_nlmixr;
+  close(FH);
 }
 
 sub dump_julia
@@ -1278,7 +1605,7 @@ if((@{$cfg->{covariates_index}})){
 
     # simulation driver
     $md->{COVARIATES} .= "# cfg = system_set_covariate(cfg, \"$cname\",";
-    $md->{COVARIATES} .=  &fetch_padding(" $cname ,", 30)."# $cfg->{covariates}->{$cname}->{cv_type}\n";
+    $md->{COVARIATES} .=  &fetch_padding(" $cname ,", 30)."# $cfg->{covariates}->{$cname}->{cv_interp}\n";
     $md->{COVARIATES} .= "#                                 times  = c(".join(', ', &extract_elements($cfg->{covariates}->{$cname}->{parameter_sets}->{default}->{times}))."),";
     $md->{COVARIATES} .=  &fetch_padding("times  = c(".join(', ', &extract_elements($cfg->{covariates}->{$cname}->{parameter_sets}->{default}->{times}))."),", 30)."# $cfg->{covariates}->{$cname}->{times}->{units} \n";
     $md->{COVARIATES} .= "#                                 values = c(".join(', ', &extract_elements($cfg->{covariates}->{$cname}->{parameter_sets}->{default}->{values}))."))";
@@ -1290,8 +1617,8 @@ if((@{$cfg->{covariates_index}})){
     $ma->{COVARIATES}     .= 'cohort[["inputs"]][["covariates"]][["'.$cname.'"]][["AMT"]]'.&fetch_padding($cname,15).'= c()'." # $cfg->{covariates}->{$cname}->{values}->{units} \n";
 
     # rcomponents
-    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]] = list(cv_type="", times=list(units="", values=-1), values=list(units="", values=-1))'."\n";
-    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["cv_type"]]             = '."'".$cfg->{covariates}->{$cname}->{cv_type}."'\n";
+    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]] = list(cv_interp="", times=list(units="", values=-1), values=list(units="", values=-1))'."\n";
+    $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["cv_interp"]]           = '."'".$cfg->{covariates}->{$cname}->{cv_interp}."'\n";
     $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["times"]][["units"]]    = '."'".$cfg->{covariates}->{$cname}->{times}->{units}."'\n";
     $mc->{FETCH_SYS_COVARIATES} .= 'cfg[["options"]][["inputs"]][["covariates"]][["'.$cname.'"]][["values"]][["units"]]   = '."'".$cfg->{covariates}->{$cname}->{values}->{units}."'\n";
 
@@ -2271,24 +2598,28 @@ sub dump_mrgsolve
     $mc->{OUTPUTSINIT} .= "double ".$name;
     $mc->{OUTPUTSINIT} .= &fetch_padding("double $name", 30)." = 0.0; \n";
 
-    if($cfg->{error}->{equations}->{$name}){
 
-      # Initializing the output with the error
-      $mc->{OUTPUTSINIT} .= "double SIDV_".$name;
-      $mc->{OUTPUTSINIT} .= &fetch_padding("double SIDV_$name", 30)." = 0.0; \n";
-
-      # Defining the output with error
-      # pulling out the equation, swappign the actual name for PRED
-      $text_string = $cfg->{error}->{equations}->{$name};
-      my $namespace_map;
-      $namespace_map->{PRED} = $name;
-      $text_string = &remap_namespace($text_string, $namespace_map);
-      $text_string = &apply_format($cfg, $text_string, 'C');
-      $mc->{OUTPUTS} .= "SIDV_$name".&fetch_padding("SIDV_$name", 30)." = ".$text_string.";\n";
-      
-      # Adding it to the capture list
-      $mc->{CAPLIST} .= " SIDV_$name";
-    }
+  #
+  # JMH update with OERR specification
+  #
+  # if($cfg->{error}->{equations}->{$name}){
+  #
+  #   # Initializing the output with the error
+  #   $mc->{OUTPUTSINIT} .= "double SIDV_".$name;
+  #   $mc->{OUTPUTSINIT} .= &fetch_padding("double SIDV_$name", 30)." = 0.0; \n";
+  #
+  #   # Defining the output with error
+  #   # pulling out the equation, swappign the actual name for PRED
+  #   $text_string = $cfg->{error}->{equations}->{$name};
+  #   my $namespace_map;
+  #   $namespace_map->{PRED} = $name;
+  #   $text_string = &remap_namespace($text_string, $namespace_map);
+  #   $text_string = &apply_format($cfg, $text_string, 'C');
+  #   $mc->{OUTPUTS} .= "SIDV_$name".&fetch_padding("SIDV_$name", 30)." = ".$text_string.";\n";
+  #   
+  #   # Adding it to the capture list
+  #   $mc->{CAPLIST} .= " SIDV_$name";
+  # }
   }
 
 
@@ -2310,13 +2641,15 @@ sub dump_mrgsolve
 sub dump_nonmem 
 {
   my ($cfg, $parameter_set) = @_;
-  my $species   = '';
-  my $parameter = '';
-  my $output    = '';
-  my $name      = '';
-  my $name2     = '';
-  my $tmp_ode   = "";
+  my $species         = '';
+  my $parameter       = '';
+  my $output          = '';
+  my $name            = '';
+  my $name2           = '';
+  my $tmp_ode         = "";
+  my $conc_def_static = "";
   my $mc;
+  my $iav_res;
   my $counter;
   my $counter2;
   my $text_string;
@@ -2344,7 +2677,7 @@ sub dump_nonmem
 
   $mc->{INPUT}                             = '';
   $mc->{DATA}                              = '';
-  $mc->{PARMAETER_VALUES}                  = '';
+  $mc->{PARAMETER_VALUES}                  = '';
   $mc->{PARAMETERS_MAP}                    = '';
   $mc->{IIV_MAP}                           = '';
   $mc->{IIV_ON_PARAMETERS}                 = '';
@@ -2411,7 +2744,13 @@ sub dump_nonmem
     foreach $name (@{$cfg->{parameters_system_index}}){
       # mapping THETAs to actual names 
       if(defined($cfg->{iiv}->{$iiv_set}->{parameters}->{$name})){
-        $mc->{PARAMETERS_MAP}       .= "SIMINT_TV_$name ".&fetch_padding("SIMINT_TV_$name", $cfg->{parameters_length})." = THETA($counter)\n";
+
+        # transforming the log transformed parameters back
+        if(grep( /^$name$/, @{$cfg->{options}->{est}->{lt}})){
+          $mc->{PARAMETERS_MAP}       .= "SIMINT_TV_$name ".&fetch_padding("SIMINT_TV_$name", $cfg->{parameters_length})." = exp(THETA($counter))\n";
+        } else {
+          $mc->{PARAMETERS_MAP}       .= "SIMINT_TV_$name ".&fetch_padding("SIMINT_TV_$name", $cfg->{parameters_length})." = THETA($counter)\n";
+        }
         # pulling out the string defining the left hand side of the IIV term
         $text_string = &make_iiv($cfg, $name, 'nonmem', $iiv_set) ;
         # substituting the placeholders
@@ -2429,13 +2768,32 @@ sub dump_nonmem
       # otherwise we use the original value
       else{
         $value       = $cfg->{parameters}->{$name}->{value}; }
+
+      # If the parameter is specified to be log transformed for estimatoin
+      # then we transform the value here. 
+      if(grep( /^$name$/, @{$cfg->{options}->{est}->{lt}})){
+        $value = sprintf("%.3g", log($value));
+      }
+
       $lower_bound =  $cfg->{parameters}->{$name}->{lower_bound};
       $upper_bound =  $cfg->{parameters}->{$name}->{upper_bound};
       # checking out the parameter bounds
       # if the bounds are equal then the parameter is Fixed
-      $text_string = '';
+
+      # Determining if the parameter should be fixed
+      my $fix_par = 0;
       if($lower_bound eq $upper_bound){
-        $text_string = "($value,".&fetch_padding($value,$cfg->{parameters_length})." FIX)  "; }
+        $fix_par = 1;
+      }
+      if(!grep( /^$name$/, @{$cfg->{options}->{est}->{p}})){
+        $fix_par = 1;
+      }
+
+
+
+      $text_string = '';
+      if($fix_par){
+        $text_string = "($value,".&fetch_padding($value,$cfg->{parameters_length})." FIX)                     "; }
       else{
         # now we have a parameter with bounds
         # converting matlab specific values eps, inf
@@ -2461,9 +2819,25 @@ sub dump_nonmem
       
       $mc->{PARAMETER_VALUES}    .= $text_string.&fetch_padding($text_string, 25);
       $mc->{PARAMETER_VALUES}    .= "; ".&fetch_padding($counter, 2)."$counter";  
-      $mc->{PARAMETER_VALUES}    .= " $name ".&fetch_padding($name, $cfg->{parameters_length});
+      # Applying log tranform information to the comments
+      if(grep( /^$name$/, @{$cfg->{options}->{est}->{lt}})){
+        $mc->{PARAMETER_VALUES}    .= " log($name) ".&fetch_padding("log($name)", $cfg->{parameters_length});
+      } else {
+        $mc->{PARAMETER_VALUES}    .= " $name ".&fetch_padding($name, $cfg->{parameters_length});
+      }
       $mc->{PARAMETER_VALUES}    .= " $cfg->{parameters}->{$name}->{units} \n";
       $counter = $counter + 1;
+
+
+      # Checking the current parameter to see if it is used 
+      # as a volume with amtify. 
+      $iav_res = &is_amtify_volume($cfg, $name);
+      if($iav_res){
+        $conc_def_static .= $iav_res->{conc_def}."\n";
+        # appending the cocentration naming information in to the namespace map
+        $namespace_map->{$iav_res->{conc}} = "SIEB_$iav_res->{conc}";
+
+      }
     }
   }
 
@@ -2479,6 +2853,7 @@ sub dump_nonmem
     }
   }
   
+
   #
   # Processing iiv information
   #
@@ -2554,6 +2929,15 @@ sub dump_nonmem
       $text_string = $cfg->{static_secondary_parameters}->{$name};
       $text_string = &apply_format($cfg, $text_string, 'nonmem');
       $mc->{STATIC_SECONDARY_PARAMETERS}     .= "$name ".&fetch_padding($name, $cfg->{parameters_length})." = $text_string\n";
+
+      # Checking the current parameter to see if it is used 
+      # as a volume with amtify. 
+      $iav_res = &is_amtify_volume($cfg, $name);
+      if($iav_res){
+        $conc_def_static .= $iav_res->{conc_def}."\n";
+        # appending the cocentration naming information in to the namespace map
+        $namespace_map->{$iav_res->{conc}} = "SIEB_$iav_res->{conc}";
+      }
     }
   }
 
@@ -2572,6 +2956,17 @@ sub dump_nonmem
 
       # appending the state naming information in to the namespace map
       $namespace_map->{$name} = "SIEB_$name";
+
+      # Checking the current parameter to see if it is used 
+      # as a volume with amtify. 
+      $iav_res = &is_amtify_volume($cfg, $name);
+      if($iav_res){
+        $mc->{DYNAMIC_SECONDARY_PARAMETERS} .= "\n";
+        $mc->{DYNAMIC_SECONDARY_PARAMETERS} .= "; AMTIFY:$iav_res->{conc}\n";
+        $mc->{DYNAMIC_SECONDARY_PARAMETERS} .= $iav_res->{conc_def}."\n";
+        # appending the cocentration naming information in to the namespace map
+        $namespace_map->{$iav_res->{conc}} = "SIEB_$iav_res->{conc}";
+      }
     }
   }
 
@@ -2608,8 +3003,22 @@ sub dump_nonmem
 
       # defining the ODES a human readable format
       $mc->{ODES_ASSIGNMENT}   .= "SIMINT_d$name2 ".&fetch_padding($name, $cfg->{species_length})." = ";
-      $mc->{ODES_ASSIGNMENT}   .= &make_ode($cfg, $name, 'nonmem');
+      $tmp_ode = &make_ode($cfg, $name, 'nonmem');
+
+
+      # If this state has been amtify'd we need to multiply 
+      # the ode by the volume
+      if(defined($cfg->{options}->{amtify}->{cmt_to_amt}->{$name})){ 
+        $mc->{ODES_ASSIGNMENT}   .= "($tmp_ode)*(".$cfg->{options}->{amtify}->{vol}->{$name}.")";
+      } else {
+        $mc->{ODES_ASSIGNMENT}   .= $tmp_ode;
+      }
+      #print &make_ode($cfg, $name, 'nonmem')."\n";
+
+
+
       $mc->{ODES_ASSIGNMENT}   .= "\n";
+
 
       # mapping those odes back to their DADT counterparts
       $mc->{ODES_MAP}          .= "DADT($counter) = SIMINT_d$name2 \n" ;
@@ -2620,6 +3029,14 @@ sub dump_nonmem
     $counter = $counter + 1;
     }
 
+    # Appending any AMTIFY assignemnts that use system or static secondary
+    # parameters as volumes:
+    if($conc_def_static ne ""){
+      $mc->{STATES_ASSIGNMENT} .= "\n";
+      $mc->{STATES_ASSIGNMENT} .= "; Creating concentrations dependent on system parameters \n";
+      $mc->{STATES_ASSIGNMENT} .= "; static secondary parameters.\n";
+      $mc->{STATES_ASSIGNMENT} .= $conc_def_static;
+    }
 
   }
 
@@ -2766,7 +3183,7 @@ sub dump_berkeley_madonna
       else{
         $cvpset = 'default'; }
       $bmfile_output .="; covariate: $name \n";
-      $bmfile_output .="; type:      ".$cfg->{covariates}->{$name}->{cv_type}."\n";
+      $bmfile_output .="; type:      ".$cfg->{covariates}->{$name}->{cv_interp}."\n";
       $bmfile_output .="; times:     ".$cfg->{covariates}->{$name}->{parameter_sets}->{$cvpset}->{times};
       $bmfile_output .=         "  (".$cfg->{covariates}->{$name}->{times}->{units}.")  \n";
       $bmfile_output .="; values:    ".$cfg->{covariates}->{$name}->{parameter_sets}->{$cvpset}->{values};
@@ -3382,7 +3799,7 @@ ssSetNumPWork(         S, 0);
       print FHFETCH_SYSINFO  "\n\n% Defining the covariates \n"; 
       print FHFETCH_SYSINFO   "inputs.covariate_names = [{'".join("'}, {'", @{$cfg->{covariates_index}})."'}];\n";
       foreach $name (@{$cfg->{covariates_index}}){
-        print FHFETCH_SYSINFO   "inputs.covariates.$name.cv_type       = '$cfg->{covariates}->{$name}->{cv_type}';\n";
+        print FHFETCH_SYSINFO   "inputs.covariates.$name.cv_interp     = '$cfg->{covariates}->{$name}->{cv_interp}';\n";
         print FHFETCH_SYSINFO   "inputs.covariates.$name.times.units   = '$cfg->{covariates}->{$name}->{times}->{units}';\n";
         print FHFETCH_SYSINFO   "inputs.covariates.$name.values.units  = '$cfg->{covariates}->{$name}->{values}->{units}';\n";
         foreach $set_id   (keys %{$cfg->{covariates}->{$name}->{parameter_sets}}){
@@ -3857,12 +4274,12 @@ prepare_figure('present');
     # Covaraites
     # 
     if(keys %{$cfg->{covariates}}){
-      $simulation_driver_ph->{COVARIATES} .= "% Covariates can change with parameter sets. What's shown here \n";
+      $simulation_driver_ph->{COVARIATES} .= "% Covariates can change with parameter sets. What is shown here \n";
       $simulation_driver_ph->{COVARIATES} .= "% are the default values. Uncomment these to overwrite the values \n";
       $simulation_driver_ph->{COVARIATES} .= "% specified by the system_select_set command above. \n";
       foreach $name (@{$cfg->{covariates_index}}){
         $simulation_driver_ph->{COVARIATES} .= "% Covariate $name \n";
-        $simulation_driver_ph->{COVARIATES} .= "% Type:       $cfg->{covariates}->{$name}->{cv_type}  \n";
+        $simulation_driver_ph->{COVARIATES} .= "% Interp:     $cfg->{covariates}->{$name}->{cv_interp}  \n";
         $simulation_driver_ph->{COVARIATES} .= "% Time units: $cfg->{covariates}->{$name}->{times}->{units}\n";
         $simulation_driver_ph->{COVARIATES} .= "% Cov units:  $cfg->{covariates}->{$name}->{values}->{units}\n";
         $simulation_driver_ph->{COVARIATES} .= "% cfg = system_set_covariate(cfg, '$name', ... \n";
@@ -4340,15 +4757,15 @@ sub apply_format
  $patterns->{NOT}->{julia}                    =  '!(SIMINT_ARG_0)';
 
 
- # if we're working with nonmem we need to first amtify 
- # any states that need amtifying 
- if($format eq 'nonmem'){
-   # so we check to see if any amtify states have been specified
-   if(scalar(keys(%{$cfg->{options}->{amtify}->{cmt_to_rel}}))>0){
-     $string = &remap_namespace($string , 
-                                $cfg->{options}->{amtify}->{cmt_to_rel});
-   }
- }
+## if we're working with nonmem we need to first amtify 
+## any states that need amtifying 
+#if($format eq 'nonmem'){
+#  # so we check to see if any amtify states have been specified
+#  if(scalar(keys(%{$cfg->{options}->{amtify}->{cmt_to_rel}}))>0){
+#    $string = &remap_namespace($string , 
+#                               $cfg->{options}->{amtify}->{cmt_to_rel});
+#  }
+#}
 
  foreach $pattern (keys(%{$patterns})){
    while(index($string, $patterns->{$pattern}->{pattern})>-1){
@@ -4391,6 +4808,48 @@ sub parse_nonmem_options
   return $cfg;
 }
 
+sub parse_est_p
+{
+  my ($cfg, $line) = @_;
+
+  # Sripping out spaces and the descriptor:
+  my $value =  $line;
+  $value =~ s#\s##g;
+  $value =~ s#<EST:P>##g;
+  my @elements = split(';', $value);
+ 
+  # Adding the parmaeters to the elt list:
+  push @{$cfg->{options}->{est}->{p}}, @elements;
+ 
+  # Stripping out any duplicated parameters:
+  @{$cfg->{options}->{est}->{p}} = &unique_array(@{$cfg->{options}->{est}->{p}});
+    
+  return $cfg;
+}
+
+
+
+sub parse_est_lt
+{
+  my ($cfg, $line) = @_;
+
+  my $value;
+
+  # Sripping out spaces and the descriptor:
+  $value =  $line;
+  $value =~ s#\s##g;
+  $value =~ s#<EST:LT>##g;
+  my @elements = split(';', $value);
+
+  # Adding the parmaeters to the elt list:
+  push @{$cfg->{options}->{est}->{lt}}, @elements;
+
+  # Stripping out any duplicated parameters:
+  @{$cfg->{options}->{est}->{lt}} = &unique_array(@{$cfg->{options}->{est}->{lt}});
+    
+  return $cfg;
+}
+
 sub parse_amtify
 {
   my ($cfg, $line) = @_;
@@ -4400,7 +4859,7 @@ sub parse_amtify
   $value = $line;
   $value =~ s#\s##g;
 
-  my ($conc, $amt, $rel);
+  my ($conc, $amt, $vol, $rel);
 
   if($line =~ m#<AMTIFY>#){
      # Stripping off the delimiter
@@ -4408,9 +4867,11 @@ sub parse_amtify
      # pulling out the different components
      my @elements = split(';', $value);
      if(scalar(@elements) == 3){
-       ($conc, $amt, $rel) = @elements;
-       $cfg->{options}->{amtify}->{cmt_to_amt}->{$conc} = $amt;
+       ($conc, $amt, $vol) = @elements;
+       $rel = "$amt/($vol)";
+       $cfg->{options}->{amtify}->{cmt_to_amt}->{$conc} =   $amt;
        $cfg->{options}->{amtify}->{cmt_to_rel}->{$conc} = "($rel)";
+       $cfg->{options}->{amtify}->{vol}->{$conc}        =   $vol;
      }
      else{
        &mywarn("AMTIFY: Unable to parse");
@@ -4419,7 +4880,6 @@ sub parse_amtify
   }
   return $cfg;
 }
-
 
 sub parse_data_file
 {
@@ -4443,33 +4903,15 @@ sub parse_data_file
     push @{$cfg->{data}->{headers}->{values}},  split(';', $line);
   }
 
-
-
   return $cfg;
 }
-
 
 sub parse_guide
 {
   my ($cfg, $line) = @_;
 
-
-  $line   =~ s#<GUIDE>\s*##;
-  my @chunks =  split('\s*;\s*', $line);
-
-  my $gtype   = $chunks[0]; 
-  my $gname   = $chunks[1]; 
-  my $glevel  = $chunks[2]; 
-  my $gmarker = $chunks[3]; 
-  my $gcolor  = $chunks[4]; 
-
-
-  $cfg->{guides}->{$gname} = {
-     type     => $gtype,
-     level    => $glevel,
-     marker   => $gmarker,
-     color    => $gcolor };
-
+  mywarn("The <GUIDE> delimiter has been depreciated and will be ignored");
+  mywarn($line);
 
   return $cfg;
 }
@@ -5121,7 +5563,7 @@ sub parse_input_covariate
     my $input_name = '';
     my $pset_name  = '';
     my $data_type  = '';
-    my $cv_type    = '';
+    my $cv_interp    = '';
 
 
     # covariate defined
@@ -5130,14 +5572,14 @@ sub parse_input_covariate
       # we've encountered a covariate definition
       $input_name = $chunks[0];
       $input_name =~ s/\s*<CV:(\S+)>.*/$1/;
-      $cv_type    = 'linear';
+      $cv_interp    = 'linear';
 
       # if we haven't encountered this covariate before, 
       # we add it to the list of covariates 
       if(not(defined($cfg->{covariates}->{$input_name}))){
         push @{$cfg->{covariates_index}}, $input_name;}
       $data_type = $chunks[1];
-      $cfg->{covariates}->{$input_name}->{cv_type}    = 'linear';
+      $cfg->{covariates}->{$input_name}->{cv_interp}   = 'linear';
       $cfg->{covariates}->{$input_name}->{$data_type}->{units}   = $chunks[3];
       $cfg->{covariates}->{$input_name}->{parameter_sets}->{default}->{$data_type} = $chunks[2];
 
@@ -5160,14 +5602,23 @@ sub parse_input_covariate
       # stripping out extra spaces
       $cfg->{covariates}->{$input_name}->{parameter_sets}->{$pset_name}->{$data_type} =~ s#\s+# #g;
     }
-    elsif(($line=~ m#\s*<CVTYPE:\S+>#) ){
+    elsif(($line=~ m#\s*<CVINTERP:\S+>#) ){
       $input_name = $chunks[0];
-      $input_name =~ s/\s*<CVTYPE:(\S+)>.*/$1/;
-      if(($line=~ m#\s*<CVTYPE:\S+>\s*linear#) ){
-        $cv_type    = 'linear';}
-      elsif(($line=~ m#\s*<CVTYPE:\S+>\s*step#) ){
-        $cv_type    = 'step'; }
-        $cfg->{covariates}->{$input_name}->{cv_type}     = $cv_type;
+      $input_name =~ s/\s*<CVINTERP:(\S+)>.*/$1/;
+      if(($line=~ m#\s*<CVINTERP:\S+>\s*linear#) ){
+        $cv_interp    = 'linear';}
+      elsif(($line=~ m#\s*<CVINTERP:\S+>\s*step#) ){
+        $cv_interp    = 'step'; }
+      else{
+        &mywarn("Unknown interpolation method in the following line.");
+        &mywarn(" Should be >linear< or >step<. Defaulting to linear.");
+        $cv_interp = "linear";
+        &mywarn($line); 
+      }
+        $cfg->{covariates}->{$input_name}->{cv_interp}     = $cv_interp;
+    } elsif(($line=~ m#\s*<CVTYPE:\S+>#) ){
+      &mywarn("CVTYPE has been changed to CVINTERP please change the following line:");
+      &mywarn($line); 
     }
     else{
     print scalar(@chunks);
@@ -5409,22 +5860,45 @@ sub parse_parameter_set
 }
 
 
-sub parse_error_equation
+sub parse_error_model
 {
   my ($cfg, $line) = @_;
 
-  # line contains odes
-  if($line =~ '<DV:\S+>\s*\S+'){
-    my $output   = $line;
-    my $equation = $line;
-    # pulling out the species and ode
-    $output   =~ s#\s*<DV:\s*(\S+)\s*>\s*\S+.+#$1#;
-    $equation =~ s#\s*<DV:\s*\S+\s*>\s*(\S+.+)#$1#;
 
-    $cfg->{error}->{equations}->{$output} = $equation;
+  my $value;
+  $value = $line;
+  $value =~ s#\s##g;
+
+  my $arg    = $value;
+  my $output = $value;
+
+
+  if($value =~ '<OE:\S+>\S+'){
+    $output   =~ s#<OE:(\S+)>\S+.+#$1#;
+    $arg      =~ s#<OE:\S+>(\S+.+)#$1#;
+
+    my @elements = split(';', $arg);
+    my $element;
+    my @eparts;
+
+    foreach $element (@elements) {
+      if($element =~ '\S+=\S+'){
+
+        # pulling out the error type and error parameter:
+        @eparts = split('=',$element);
+
+        # saving the error
+        $cfg->{error}->{$output}->{$eparts[0]} = $eparts[1];
+
+      } else {
+       &mywarn("error model entry not parsed:");
+       &mywarn("element not understood: -->$element<--"); 
+       &mywarn("entry: -->$line<--"); 
+      }
+    }
   }
   else{
-      &mywarn("error equation entry found but format is unexpected" ); 
+      &mywarn("error model entry found but format is unexpected" ); 
       &mywarn("entry: -->$line<--"); }
 
   return $cfg;
@@ -6148,17 +6622,33 @@ sub system_check{
       &mywarn("Error model specified for output: $name.");
       &mywarn("However, there is no output by that name.");
     }
-  
   }
 
-  foreach $name (keys %{$cfg->{error}->{equations}}){
+
+  # Checking the specified error models
+  foreach $name (keys %{$cfg->{error}}){
+    # First we check to see if the output exists
     if(not(defined($cfg->{outputs}->{$name}))){
       &mywarn("Error equation specified for output: $name.");
       &mywarn("However, there is no output by that name.");
+      &mywarn("Check the <OE:$name> statements. ");
     }
-  
-  }
 
+    # Next we make sure the error model types are valid
+    foreach $tmpstring (keys(%{$cfg->{error}->{$name}})){
+      if(!grep( /^$tmpstring$/, ("add", "prop"))){
+        &mywarn("Unknown error model type for output: $name.");
+        &mywarn("This type was specified >$tmpstring<.");
+        &mywarn("Allowed types are >add< and >prop<");
+      }
+      # Now we check if the parameters specified exists
+      if(!grep( /^$cfg->{error}->{$name}->{$tmpstring}$/, @{$cfg->{parameters_variance_index}})){
+        &mywarn("Unknown variance parameter >$cfg->{error}->{$name}->{$tmpstring}< for");
+        &mywarn("  output:     $name");
+        &mywarn("  error type: $tmpstring");
+      }
+    }
+  }
 
   # checking all of the components for name conflicts
   foreach $name (keys %{$cfg->{outputs}}){
@@ -6327,6 +6817,35 @@ sub system_check{
   }
 
 
+  # Checking estimation log transform specifications
+  # making sure the parmaeters specified exist
+  if(exists($cfg->{options}->{est}->{lt})){
+    foreach $name (@{$cfg->{options}->{est}->{lt}}) {
+      if(!$cfg->{parameters}->{$name}){
+        &mywarn("<EST:LT> Estimation log tranform of system parameter >".$name."< that has not been defiend with <P>."); 
+      }
+    }
+  }
+
+
+
+  if(exists($cfg->{options}->{est}->{p})){
+    foreach $name (@{$cfg->{options}->{est}->{p}}) {
+      if(!$cfg->{parameters}->{$name}){
+        &mywarn("<EST:P> Cannot select system parameter >".$name."< for estimation that has not been defiend with <P>."); 
+      }
+    }
+
+    if(scalar(@{$cfg->{options}->{est}->{p}}) > 0){
+      foreach $set_name (keys(%{$cfg->{iiv}})){
+        foreach $name (keys(%{$cfg->{iiv}->{$set_name}->{parameters}})){
+          if(!grep( /^$name$/, @{$cfg->{options}->{est}->{p}})){
+            &mywarn("IIV defined for parameter >".$name."< in parameter set >".$set_name." but not selected for estimation");
+          }
+        }
+      }
+    }
+  }
 }
 
 #----------------------------------------------------------------------------------
@@ -6419,7 +6938,7 @@ sub namespace_check{
 
 sub make_iiv{
    my ($cfg, $name, $format, $set_id) = @_;
-   # this function returns the equation used to calculate add variability to a
+   # this function returns the equation used to add variability to a
    # parameter $name based on the language 'format'
 
    my $distribution = $cfg->{iiv}->{$set_id}->{parameters}->{$name}->{distribution};
@@ -6508,6 +7027,40 @@ sub apply_function{
  return $test_string;
 
 }
+
+
+
+# Finding unique elements in an array:
+sub unique_array {
+    my %seen;
+    grep !$seen{$_}++, @_;
+}
+
+
+# Testing to see if a parameter ($volp) is used in amtify
+sub is_amtify_volume {
+  my ($cfg, $volp) = @_;
+
+  # By default it's false
+  my $res = 0;
+
+  my $sname;
+
+  if(defined($cfg->{options}->{amtify}->{vol})){ 
+    foreach $sname      (keys(%{$cfg->{options}->{amtify}->{vol}})){
+      if($cfg->{options}->{amtify}->{vol}->{$sname} eq $volp){
+        $res = {};
+        $res->{vol} = $cfg->{options}->{amtify}->{vol}->{$sname};
+        $res->{amt} = $cfg->{options}->{amtify}->{cmt_to_amt}->{$sname};
+        $res->{conc} = $sname;
+        $res->{conc_def} = $sname.&fetch_padding($sname, $cfg->{parameters_length});
+        $res->{conc_def} .= "= ".$res->{amt}."/(".$res->{vol}.")";
+      }
+    }
+  }
+  return $res;
+}
+
 
 
 #----------------------------#

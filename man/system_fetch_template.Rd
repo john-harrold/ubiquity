@@ -30,7 +30,8 @@ Building a system file will produce templates for R and other languages.
 This function provides a method to make local copies of these templates.
 }
 \details{
-The template argument can have the following values
+The template argument can have the following values for the R
+workflow:
 
 \itemize{
  \item{"Simulation"}       produces \code{analysis_simulate.R}: R-Script named with placeholders used to run simulations
@@ -40,9 +41,17 @@ The template argument can have the following values
  \item{"Model Diagram"}    produces \code{system.svg}: SVG template for producing a model diagram (Goto \url{https://inkscape.org} for a free SVG editor)
  \item{"Shiny Rmd Report"} produces \code{system_report.Rmd} and \code{test_system_report.R}: R-Markdown file used to generate report tabs for the Shiny App and a script to test it
  \item{"myOrg"}            produces \code{myOrg.R}: R-Script for defining functions used within your organization
- \item{"mrgsolve"}         produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
- \item{"Berkeley Madonna"} produces \code{system_berkeley_madonna.txt}: text file with the model and the currently selected parameter set in Berkeley Madonna format
+}
+
+And this will create files to use in other software:
+
+\itemize{
  \item{"Adapt"}            produces \code{system_adapt.for} and \code{system_adapt.prm}: Fortran and parameter files for the currently selected parameter set in Adapt format.
+ \item{"Berkeley Madonna"} produces \code{system_berkeley_madonna.txt}: text file with the model and the currently selected parameter set in Berkeley Madonna format
+ \item{"nlmixr"}           produces \code{system_nlmixr.R} For the currently selected parameter set to define the system in the `nlmixr` format.
+ \item{"NONMEM"}           produces \code{system_nonmem.R} For the currently selected parameter set as a NONMEM conntrol stream.
+ \item{"Monolix"}          produces \code{system_monolix.txt} For the currently selected parameter set as a NONMEM conntrol stream.
+ \item{"mrgsolve"}         produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
 }
 }
 \examples{

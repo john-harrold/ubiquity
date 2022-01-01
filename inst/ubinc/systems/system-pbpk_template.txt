@@ -718,8 +718,8 @@
 #
 # These can either be interpolated linearly or as step funcitons
 # #         name    
-#   <CVTYPE:cvname> linear
-#   <CVTYPE:cvname> step
+#   <CVINTERP:cvname> linear
+#   <CVINTERP:cvname> step
 #
 
 # Interindividual Variability

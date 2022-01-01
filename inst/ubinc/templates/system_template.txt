@@ -67,10 +67,11 @@
 #   <CV:cvname>  ; times;      [ 0 10];    weeks
 #   <CV:cvname>  ; values;     [70 55];    kg     
 #
-# These can either be interpolated linearly or as step funcitons
-# #         name    
-#   <CVTYPE:cvname> linear
-#   <CVTYPE:cvname> step
+# These can either be interpolated linearly or as last value carried foward
+# (LVCF)/step funcitons
+#
+#   <CVINTERP:cvname> linear
+#   <CVINTERP:cvname> step
 #
 
 # Interindividual Variability
@@ -153,7 +154,7 @@
 # Outputs that begin with QC will not be displayed in the GUI
 #
 # <O> outputname  = right hand side
-<O> TMP_OBS     = 0.0
+<O> TMP_OBS     = TMP
 
 # #------------#
 # | Estimation |
@@ -187,25 +188,36 @@
 # Specify the index of output 'name' to be 'number' in the different targets
 # <INDEX:OUTPUT:name> number
 
+# Convert states modeled in concentration into amounts
+# <AMTIFY> CONC; AMT; VOL
+
+# Estimate parameters in log transformed space (LT)
+# Applies to nlmixr, NONMEM
+# <EST:LT> P1; P2; P3
+
+# Define which parameters to estimate:
+# Applies to nlmixr, NONMEM
+# <EST:P> P1; P2; P3
+
+# NONMEM options:
+# <NONMEM:INPUT:DROP:dataset_column_name>
+# <NONMEM:INPUT:RENAME:dataset_column_name> new_column_name
+
+# Adapt/R Options
+# Variance Model      
+# --------------
+# <VE:OUTPUT> expression
+# <VE:OUTPUT>   Slope*SIMINT_POWER[PRED][2.0]
+
+# Population modelign error models
+# <OE:OUTPUT>   add=P1; prop=P2
+
 # Only relevant in Matlab and R
 # -----------------------------
 # Output Times  
 # <OPT:output_times> SIMINT_SEQ[0][100][1]
 # default time scale
 # <OPT:TS>  name                            
-
-# <AMTIFY> CONC; AMT; REL
-
-# NONMEM options:
-# <NONMEM:INPUT:DROP:dataset_column_name>
-# <NONMEM:INPUT:RENAME:dataset_column_name> new_column_name
-
-# Adapt Options
-# Variance Model      
-# --------------
-# <VE:OUTPUT> expression
-# <VE:OUTPUT>   Slope*SIMINT_POWER[PRED][2.0]
-
 
 
 

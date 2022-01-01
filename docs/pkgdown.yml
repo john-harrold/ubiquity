@@ -1,4 +1,4 @@
-pandoc: 2.14.0.3
+pandoc: 2.16.2
 pkgdown: 2.0.1
 pkgdown_sha: ~
 articles:
@@ -9,5 +9,5 @@ articles:
   Reporting: Reporting.html
   Simulation: Simulation.html
   Titration: Titration.html
-last_built: 2021-12-04T20:48Z
+last_built: 2022-01-01T05:55Z
 

@@ -729,6 +729,16 @@ The general notation for an output or state ``name`` assigned to a ``number`` is
 <INDEX:OUTPUT:name> number
 ~~~
 
+## Concentrations vs amounts
+It's more convenient to model systems in terms of concentrations. However some software does not allow scaling of inputs. And when inputs are provided in mass units, you need your differential equation to also be in mass units. You can use the `<AMTIFY>` descriptor in your 
+`system.txt` to tell ubiquity to generate perform this conversion on the differential equations.
+
+For example, if you defined the state `Cc` but want it to be `Ac` within the NONMEM model target. These are related by `Cc = Ac/Vc` and `Vc` is a parameter the following would be used:
+
+~~~
+<AMTIFY> Cc; Ac; Vc
+~~~
+
 ## Options
 
 Several options can be specified using the ``<OPT:?`` delimiter. If you've defined the ``days`` timescale using ``<TS:?>?`` this can be used as the timescale for plotting in the ShinyApp by using:
@@ -761,6 +771,34 @@ These example system files can be found in the examples directory of the stand-a
 * ``system-tumor.txt`` - Implementation of transit effect model in cancer cell inhibition from [LB]. This demonstrates how to use aligned mathematical sets. 
 * ``system-two_cmt_cl.txt`` - Two compartment model parameterized in terms of clearances and volumes
 * ``system-two_cmt_micro.txt`` - Two compartment model parameterized in terms of micro constants (rates)
+
+## Templates
+
+When the system is built, multiple files are generated in the temporary directory (`transient`) to support different software. In the R package you can access these and other templates programatically (see the help for `?system_fetch_template`). This is a list of the supporting software and what is generated. 
+
+### R workflow 
+
+* `auto_simulation_driver.R`: R-Script with named with placeholders used to run simulations.
+* `auto_analysis_estimation.R`: R-Script with named with placeholders used to perform naive-pooled parameter estimation.
+
+### Matlab workflow 
+
+* `auto_simulation_driver.m`: M-file with named with placeholders used to run simulations.
+* `auto_analysis_estimation.m`: M-file with named with placeholders used to perform naive-pooled parameter estimation.
+
+### Other Software Targets
+
+* `target_adapt_5.for` and `target_adapt_5-PSET.prm`: The system defined for Adapt Fortran and a parameter (`prm`) file for each parameter set `PSET`.
+
+* `target_berkely_madonna-PSET.txt`: This is a text file containing the system for the parameter set `PSET` to run in Berkeley Madonna.
+
+* `target_mrgsolve-PSET.cpp`: This is a C++ file containing the system for the parameter set `PSET` to run using the in `mrgsolve` package in R.
+
+* `target_monolix-PSET.txt`: This is a text file containing the system for the parameter set `PSET` to run in Monolix. 
+
+* `target_nlmixr-PSET.R`: This R script defines the system for analysis in `nlmixr` for the parameter set `PSET`.
+
+* `target_nonmem-PSET.ctl`: This is a NONMEM control stream containing the system for the parameter set `PSET`.
 
 ## References
 

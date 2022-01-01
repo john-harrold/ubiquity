@@ -115,7 +115,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Model Deployment</h1>
                         <h4 data-toc-skip class="author">John Harrold &amp; Anson K Abraham</h4>
             
-            <h4 data-toc-skip class="date">2021-12-04</h4>
+            <h4 data-toc-skip class="date">2021-12-31</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/HEAD/vignettes/Deployment.Rmd" class="external-link"><code>vignettes/Deployment.Rmd</code></a></small>
       <div class="d-none name"><code>Deployment.Rmd</code></div>
@@ -151,7 +151,7 @@
 <p>Next simply open <code>ubiquity_app.R</code> in RStudio and source it, and RStudio will open in a window associated with that application. The ShinyApp tends to work better when run within a browser.</p>
 <p>After starting the App will load the default dosing from the  file and run the model. The first model output will be plotted. And as you make changes to the App, those changes will be reflected in the user log at the bottom of the screen. You can change the outputs being plotted, the axis limits, and other aspects of the plot using the plot controls below the figure.</p>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/ShinyApp-ss-Initialization.png" width="600" alt=""><p class="caption">ShinyApp interface after initialization</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Initialization.png" width="600" alt=""><p class="caption">ShinyApp interface after initialization</p>
 </div>
 <p>The intent is to provide a quick method to get the model up and running with default behaviors that will provide for most of what users will need. The behavior of the ShinyApp can be further customized (described below). First we will discuss the default interface:</p>
 <div class="section level3">
@@ -159,11 +159,11 @@
 </h3>
 <p>A list of bolus times and values can be specified as comma-separated values. To dose in a repeated fashion check the ``Repeat the last dose’’ box, provide a dosing interval (in the same units as the dosing times), and give the number of doses to administer. The example here will repeat the 400 mg dose every two weeks for two doses.</p>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/ShinyApp-ss-Bolus.png" style="width:50.0%" alt=""><p class="caption">Bolus Dosing</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Bolus.png" style="width:50.0%" alt=""><p class="caption">Bolus Dosing</p>
 </div>
 <p>Rates of infusion are specified as a set of switching times and corresponding infusion rates (both separated by commas). The infusion rates are held constant until the next switching time. The example here would infuse the drug at 800mg/min starting at time 0, and the infusion will be turned off (set to 0) after 30 minutes.</p>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/ShinyApp-ss-Infusion.png" style="width:50.0%" alt=""><p class="caption">Continuous Infusion</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Infusion.png" style="width:50.0%" alt=""><p class="caption">Continuous Infusion</p>
 </div>
 </div>
 <div class="section level3">
@@ -171,11 +171,11 @@
 </h3>
 <p>If the variability for system parameters has been specified (<code>&lt;IIV:?&gt;?</code> and <code>&lt;IIVCOR:?&gt;?</code>) then a “Variability” tab will be visible. Simply check the “Simulate with variability” box, alter the number of subjects, prediction interval, and elements of the variance-covariance matrix to simulate the desired population response.</p>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/ShinyApp-ss-IIV.png" style="width:50.0%" alt=""><p class="caption">Population simulation options</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-IIV.png" style="width:50.0%" alt=""><p class="caption">Population simulation options</p>
 </div>
 <p>When you select “Update Plot”, each selected output will be plotted (mean – solid line, selected confidence interval – shaded region).</p>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/ShinyApp-ss-Pop_timecourse.png" style="width:80.0%" alt=""><p class="caption">Population timecourse</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Pop_timecourse.png" style="width:80.0%" alt=""><p class="caption">Population timecourse</p>
 </div>
 </div>
 </div>
@@ -183,7 +183,7 @@
 <h2 id="saving-model-results">Saving model results<a class="anchor" aria-label="anchor" href="#saving-model-results"></a>
 </h2>
 <div class="figure">
-<img src="../../../../../Google%20Drive/Ubiquity/github/ubiquity/articles/ShinyApp-ss-Save.png" style="width:60.0%" alt=""><p class="caption">Saving an analysis</p>
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Save.png" style="width:60.0%" alt=""><p class="caption">Saving an analysis</p>
 </div>
 <p>To save the model results you need to only provide a descriptive name for the analysis, push the save button, and click on the link that is generated. If you select the time stamp, this will be appended to the name of the zip file. By default the following files will be saved:</p>
 <ul>

@@ -989,7 +989,7 @@ for(SIMINT_cov_name in names(SIMINT_cfg[["options"]][["inputs"]][["covariates"]]
   system_evaluate_input_<MODEL_PREFIX>(SIMINT_my_cov[["times"]][["values"]],
                                        SIMINT_my_cov[["values"]][["values"]],
                                        SIMINT_TIME, 
-                                       SIMINT_my_cov[["cv_type"]])
+                                       SIMINT_my_cov[["cv_interp"]])
                                         
   # creating the named value for the covariate
   # at the current time
@@ -1110,7 +1110,7 @@ for (SIMINT_tidx in seq(1,length(SIMINT_tts))){
                                              SIMINT_my_cov[["times"]][["values"]],
                                              SIMINT_my_cov[["values"]][["values"]],
                                              SIMINT_TIME, 
-                                             SIMINT_my_cov[["cv_type"]])
+                                             SIMINT_my_cov[["cv_interp"]])
                                           
     # creating the named value for the covariate
     # at the current time

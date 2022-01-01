@@ -139,7 +139,7 @@ The <code>field</code></p><ul><li><p><code>"all"</code> will show all informatio
 <span class="r-in">      output_directory          <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"output"</span><span class="op">)</span>,</span>
 <span class="r-in">      temporary_directory       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Building the system: /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//RtmpzJ</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Building the system: /var/folders/xs/3gst8jln2q3c_01y4cg1rqp00000gn/T//Rtmpki</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → ubiquity:     <span style="color: #0000BB; font-weight: bold; text-decoration: underline;">https://r.ubiquity.tools</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → Distribution: <span style="color: #0000BB; text-decoration: underline;">package (2.0.1)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → Compiling C version of system</span>
@@ -171,14 +171,16 @@ The <code>field</code></p><ul><li><p><code>"all"</code> will show all informatio
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →                 Vp |        2.7500 |               L</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →                  Q |        0.7470 |           L/day</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →                 MW |      140.0000 |              kD</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> →           prop_err |        0.1000 |              --</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> →            add_err |        0.1000 |           ng/ml</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → ----------------------------------------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →  Bolus dosing details </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →      field |      values |    scaling |      units</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → --------------------------------------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →      times |      0 7 14 |          1 |       days</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> →         Cc |       0 0 0 |  1e3/MW/Vc |         mg</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →         At |     400 0 0 |     1e3/MW |         mg</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> →         Cc |       0 0 0 |  1e3/MW/Vc |         mg</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → --------------------------------------------------</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →  Infusion rate details </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →      Rate  |      field |     values |    scaling |      units</span>
@@ -209,10 +211,10 @@ The <code>field</code></p><ul><li><p><code>"all"</code> will show all informatio
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →               ETAQ                 0                 0                 0                 0            0.6990</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →  On parameters</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> →          CL,      ETACL(LN)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> →          Vc,      ETAVc(LN)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> →           Q,       ETAQ(LN)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →          ka,      ETAka(LN)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> →          CL,      ETACL(LN)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> →           Q,       ETAQ(LN)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> →          Vc,      ETAVc(LN)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →          Vp,      ETAVp(LN)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →  integrate_with          c-file</span>
@@ -221,8 +223,8 @@ The <code>field</code></p><ul><li><p><code>"all"</code> will show all informatio
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → Estimation details </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →  Parameter set:          default</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> →  Parameters estimated:   F1, ka, CL, Vc, Vp, Q, MW</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> →  objective_type          wls</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> →  Parameters estimated:   F1, ka, CL, Vc, Vp, Q, MW, prop_err, add_err</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> →  objective_type          ml</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →  observation_function    system_od_general</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> →  No cohort information found</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → No NCA has been performed</span>
