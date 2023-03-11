@@ -5636,7 +5636,7 @@ if("r-file" == SIMINT_simulation_options$integrate_with){
   SIMINT_MAP_tic = proc.time()
   SIMINT_simout  = eval(parse(text=paste0(
                               "system_map_output_", 
-                              cfg[["options"]][["misc"]][["c_libfile_base"]],
+                              SIMINT_cfg[["options"]][["misc"]][["c_libfile_base"]],
                               "(SIMINT_cfg, SIMINT_simout, SIMINT_parameters, SIMINT_eventdata)")))
   SIMINT_MAP_toc = proc.time()
   # Adding the timing for the mapping
