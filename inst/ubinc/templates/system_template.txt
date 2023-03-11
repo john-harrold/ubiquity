@@ -61,13 +61,13 @@
 # 
 # Covariates
 # ---------
-# For running simulations, we create covariates that are assocaited with the
+# For running simulations, we create covariates that are associated with the
 # default parameter set
 # #     name      times/values  values   units
 #   <CV:cvname>  ; times;      [ 0 10];    weeks
 #   <CV:cvname>  ; values;     [70 55];    kg     
 #
-# These can either be interpolated linearly or as last value carried foward
+# These can either be interpolated linearly or as last value carried forward
 # (LVCF)/step funcitons
 #
 #   <CVINTERP:cvname> linear

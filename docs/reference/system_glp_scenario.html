@@ -6,7 +6,7 @@ The system file requires the following components:
 - Output for the drug concentration
  - Output for the cumulative AUC
  - Bolus dosing defined in a specific compartment
- - Timescale specified for the system timescale  (e.g. if the timescale is hours then you need &amp;lt;TS&amp;gt; hours = 1.0)"><title>Design GLP Study For a Scenario — system_glp_scenario • ubiquity</title><!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png"><link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png"><link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png"><link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png"><link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png"><link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png"><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Design GLP Study For a Scenario — system_glp_scenario"><meta property="og:description" content="Identifies the top dose required in a GLP tox study in order to match human metrics (Cmax and AUCs) within a specified multiplier. 
+ - Timescale specified for the system timescale  (e.g. if the timescale is hours then you need &amp;lt;TS&amp;gt; hours = 1.0)"><title>Design GLP Study For a Scenario — system_glp_scenario • ubiquity</title><!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png"><link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png"><link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png"><link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png"><link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png"><link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png"><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Design GLP Study For a Scenario — system_glp_scenario"><meta property="og:description" content="Identifies the top dose required in a GLP tox study in order to match human metrics (Cmax and AUCs) within a specified multiplier. 
 For a given set of human parameters the human doses required to hit the target Cmin and AUC (both or one) will be identified. The Cmax and AUC associated with the largest of those doses will be determined and the corresponding doses for a tox species (and provided parameters) will be determined for specific tox multipliers. 
 Optionally, simulations can be be run by specifying doses for either/or the human or tox species. Sample times can also be specified to generate annotated figures and tables to be given to analysts to facilitate assay design.
 The system file requires the following components:
@@ -31,7 +31,7 @@ The system file requires the following components:
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navbar" class="collapse navbar-collapse ms-2">
+    <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown--tutorials">
     <span class="fas fa fas fa-chalkboard-teacher"></span>
@@ -115,107 +115,168 @@ The system file requires the following components:
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">system_glp_scenario</span><span class="op">(</span>
-  <span class="va">cfg</span>,
-  output_Conc <span class="op">=</span> <span class="cn">NULL</span>,
-  output_AUC <span class="op">=</span> <span class="cn">NULL</span>,
-  timescale <span class="op">=</span> <span class="cn">NULL</span>,
-  units_Conc <span class="op">=</span> <span class="st">""</span>,
-  units_AUC <span class="op">=</span> <span class="st">""</span>,
-  study_scenario <span class="op">=</span> <span class="st">"Tox Study"</span>,
-  human_sim_times <span class="op">=</span> <span class="cn">NULL</span>,
-  study_name <span class="op">=</span> <span class="st">"default"</span>,
-  human_parameters <span class="op">=</span> <span class="cn">NULL</span>,
-  human_bolus <span class="op">=</span> <span class="cn">NULL</span>,
-  human_ndose <span class="op">=</span> <span class="fl">1</span>,
-  human_dose_interval <span class="op">=</span> <span class="fl">1</span>,
-  human_Cmin <span class="op">=</span> <span class="cn">NULL</span>,
-  human_AUC <span class="op">=</span> <span class="cn">NULL</span>,
-  human_sample_interval <span class="op">=</span> <span class="cn">NULL</span>,
-  human_sim_doses <span class="op">=</span> <span class="cn">NULL</span>,
-  human_sim_samples <span class="op">=</span> <span class="cn">NULL</span>,
-  tox_species <span class="op">=</span> <span class="st">"Tox"</span>,
-  tox_sim_times <span class="op">=</span> <span class="cn">NULL</span>,
-  tox_parameters <span class="op">=</span> <span class="cn">NULL</span>,
-  tox_bolus <span class="op">=</span> <span class="cn">NULL</span>,
-  tox_ndose <span class="op">=</span> <span class="fl">1</span>,
-  tox_dose_interval <span class="op">=</span> <span class="fl">1</span>,
-  tox_Cmax_multiple <span class="op">=</span> <span class="fl">10</span>,
-  tox_AUC_multiple <span class="op">=</span> <span class="fl">10</span>,
-  tox_sample_interval <span class="op">=</span> <span class="cn">NULL</span>,
-  tox_sim_doses <span class="op">=</span> <span class="cn">NULL</span>,
-  tox_sim_samples <span class="op">=</span> <span class="cn">NULL</span>,
-  annotate_plots <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">system_glp_scenario</span><span class="op">(</span></span>
+<span>  <span class="va">cfg</span>,</span>
+<span>  output_Conc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  output_AUC <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  timescale <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  units_Conc <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  units_AUC <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  study_scenario <span class="op">=</span> <span class="st">"Tox Study"</span>,</span>
+<span>  human_sim_times <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  study_name <span class="op">=</span> <span class="st">"default"</span>,</span>
+<span>  human_parameters <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  human_bolus <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  human_ndose <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  human_dose_interval <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  human_Cmin <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  human_AUC <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  human_sample_interval <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  human_sim_doses <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  human_sim_samples <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tox_species <span class="op">=</span> <span class="st">"Tox"</span>,</span>
+<span>  tox_sim_times <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tox_parameters <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tox_bolus <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tox_ndose <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  tox_dose_interval <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  tox_Cmax_multiple <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  tox_AUC_multiple <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  tox_sample_interval <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tox_sim_doses <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tox_sim_samples <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  annotate_plots <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>cfg</dt>
 <dd><p>ubiquity system object</p></dd>
+
+
 <dt>output_Conc</dt>
 <dd><p>model output specified with <code>&lt;O&gt;</code> containing the concentration associated with drug exposure.</p></dd>
+
+
 <dt>output_AUC</dt>
 <dd><p>model output specified with <code>&lt;O&gt;</code> containing the cumulative exposure</p></dd>
+
+
 <dt>timescale</dt>
 <dd><p>system timescale specified with <code>&lt;TS&gt;</code> used for AUC comparisons and plotting</p></dd>
+
+
 <dt>units_Conc</dt>
 <dd><p>units of concentration (<code>''</code>)</p></dd>
+
+
 <dt>units_AUC</dt>
 <dd><p>units of AUC (<code>''</code>)</p></dd>
+
+
 <dt>study_scenario</dt>
 <dd><p>string containing a descriptive name for the tox study</p></dd>
+
+
 <dt>human_sim_times</dt>
 <dd><p>user-specified simulation output times for humans (same timescale as the system)</p></dd>
+
+
 <dt>study_name</dt>
 <dd><p>name of the study to append the scenario to set with <code>'system_glp_init()'</code> (<code>'default'</code>):
 When a report is initialized using <code><a href="system_rpt_read_template.html">system_rpt_read_template</a></code> the report name is 'default' unless otherwise specified. To disable reporting set this to  <code>NULL</code>, and to use a different report specify the name here.</p></dd>
+
+
 <dt>human_parameters</dt>
 <dd><p>list containing the human parameters</p></dd>
+
+
 <dt>human_bolus</dt>
 <dd><p>string containing the dosing state for human doses (specified with <code>&lt;B:?&gt;</code>)</p></dd>
+
+
 <dt>human_ndose</dt>
 <dd><p>number of human doses to simulate</p></dd>
+
+
 <dt>human_dose_interval</dt>
 <dd><p>dosing interval in humans (time units specified with <code>&lt;B:?&gt;</code>)</p></dd>
+
+
 <dt>human_Cmin</dt>
 <dd><p>target Cmin in humans (corresponding to output_Conc above)</p></dd>
+
+
 <dt>human_AUC</dt>
 <dd><p>target AUC  in humans (corresponding to output_AUC  above)</p></dd>
+
+
 <dt>human_sample_interval</dt>
 <dd><p>time interval in units specified by timescale above to evaluate the trough concentration and AUC (e.g c(1.99, 4.001) would consider the interval between 2 and 4)</p></dd>
+
+
 <dt>human_sim_doses</dt>
 <dd><p>optional list of doses into <code>human_bolus</code> to simulate (see Details below)</p></dd>
+
+
 <dt>human_sim_samples</dt>
 <dd><p>optional list of sample times in units specified by timescale above to label on plots of simulated doses (the default <code>NULL</code> will disable labels)</p></dd>
+
+
 <dt>tox_species</dt>
 <dd><p>optional name of the tox species (<code>"Tox"</code>)</p></dd>
+
+
 <dt>tox_sim_times</dt>
 <dd><p>user-specified simulation output times for the tox species (same timescale as the system)</p></dd>
+
+
 <dt>tox_parameters</dt>
 <dd><p>list containing the parameters for the tox species</p></dd>
+
+
 <dt>tox_bolus</dt>
 <dd><p>string containing the dosing state for tox species doses (specified with <code>&lt;B:?&gt;</code>)</p></dd>
+
+
 <dt>tox_ndose</dt>
 <dd><p>number of tox doses to simulate</p></dd>
+
+
 <dt>tox_dose_interval</dt>
 <dd><p>dosing interval in the tox species (time units specified with <code>&lt;B:?&gt;</code>)</p></dd>
+
+
 <dt>tox_Cmax_multiple</dt>
 <dd><p>for each target (Cmin and AUC) the dose in the tox species will be found to cover this multiple over the projected Cmax in humans (10)</p></dd>
+
+
 <dt>tox_AUC_multiple</dt>
 <dd><p>for each target (Cmin and AUC) the dose in the tox species will be found to cover this multiple over the projected AUC in humans (10)</p></dd>
+
+
 <dt>tox_sample_interval</dt>
 <dd><p>interval to consider the AUC and Cmax for comparing the human prediction to the tox multiple</p></dd>
+
+
 <dt>tox_sim_doses</dt>
 <dd><p>optional list of doses into <code>tox_bolus</code> to simulate (see Details below)</p></dd>
+
+
 <dt>tox_sim_samples</dt>
 <dd><p>optional list of sample times in units specified by timescale above to label on plots of simulated doses (the default <code>NULL</code> will disable labels)</p></dd>
+
+
 <dt>annotate_plots</dt>
 <dd><p>Boolean switch to indicate if <code>human_sim_samples</code> and <code>tox_sim_samples</code> should be labeled on  their respective plots (<code>TRUE</code>)</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>cfg ubiquity system object with the scenario added if successful</p>
+    
+
+<p>cfg ubiquity system object with the scenario added if successful</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -226,9 +287,10 @@ When a report is initialized using <code><a href="system_rpt_read_template.html"
 <p>For example if you wanted to simulate four weekly doses of 20 mg to a 70 kg 
  person and the units of bolus doses were days and mg/kg for the times and 
  amounts you would do the following:</p>
-<div class="sourceCode"><pre><code><span class="va">human_sim_doses</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
- <span class="va">human_sim_doses</span><span class="op">[[</span><span class="st">"20 mg QW"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">TIME</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>     <span class="fl">0</span>,      <span class="fl">7</span>,     <span class="fl">14</span>,     <span class="fl">21</span><span class="op">)</span>
- <span class="va">human_sim_doses</span><span class="op">[[</span><span class="st">"20 mg QW"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">AMT</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2857</span>, <span class="fl">0.2857</span>, <span class="fl">0.2857</span>, <span class="fl">0.2857</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode"><pre><code><span></span>
+<span> <span class="va">human_sim_doses</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span> <span class="va">human_sim_doses</span><span class="op">[[</span><span class="st">"20 mg QW"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">TIME</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>     <span class="fl">0</span>,      <span class="fl">7</span>,     <span class="fl">14</span>,     <span class="fl">21</span><span class="op">)</span></span>
+<span> <span class="va">human_sim_doses</span><span class="op">[[</span><span class="st">"20 mg QW"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">AMT</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2857</span>, <span class="fl">0.2857</span>, <span class="fl">0.2857</span>, <span class="fl">0.2857</span><span class="op">)</span></span></code></pre></div>
 
     </div>
 
@@ -241,7 +303,7 @@ When a report is initialized using <code><a href="system_rpt_read_template.html"
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
     </footer></div>

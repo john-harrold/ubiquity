@@ -5570,6 +5570,10 @@ if("yes" == SIMINT_simulation_options$include_important_output_times){
 } else {
   SIMINT_output_times_actual = SIMINT_simulation_options$output_times}
 
+# RN:: round to 10 decimals (failing to do this results in duplicate values)
+# fixes the LSODA error
+# Error in lsoda(y, times, func, parms, ...) : illegal input detected before taking any integration steps - see written message
+SIMINT_output_times_actual = sort(unique(round(SIMINT_output_times_actual,10)))
 
 if(!SIMINT_isgood){
   vp(SIMINT_cfg, "run_simulation_ubiquity()")
@@ -9433,7 +9437,8 @@ if("step" == type){
 
  # The delta here is the switching time between steps. Below calculates it as
  # .1% of the smallest time between steps. 
- delta         = 250000*.Machine$double.eps
+ # delta         = 250000*.Machine$double.eps
+  delta         = 250000000*.Machine$double.eps 
  if(length(times) > 1){
     offsets = ( times[2:length(times)] - times[1:length(times)-1])
     delta = sample_delta_mult*min(offsets)

@@ -26,7 +26,7 @@ Briefly, install the following:
 Then you can install `ubiquity` from CRAN
 
 ```r
-install.packages("ubiquity") 
+install.packages("ubiquity", dependencies=TRUE) 
 ```
 
 Or install the development version from GitHub:
@@ -34,8 +34,11 @@ Or install the development version from GitHub:
 **Note you may need to install the development version of `onbrand` from GitHub as well**
 
 ```r
-#install.packages("devtools") 
-devtools::install_github("john-harrold/ubiquity")
+# Installing devtools if it's not already installed
+if(system.file(package="devtools") == ""){
+  install.packages("devtools") 
+}
+devtools::install_github("john-harrold/ubiquity", dependencies=TRUE)
 ```
 
 ### Getting started

@@ -190,8 +190,3 @@ Cp + Tp <=kon:koff=> CpTp
 #
 # GUI Callback
 # <OPT:callback_gui> [SIMINT_simulation_options] = update_dosing(SIMINT_cfg, SIMINT_simulation_options, SIMINT_handles);
-
-# guides
-<GUIDE>  horizontal; cmin; 1200; '--'; 'm'
-
-

@@ -416,12 +416,6 @@
 <B:times>;                    [  0  ];      24.0;                        days
 <B:events>;       C_PLASMA;   [  8  ];      BW*6.67e-9/V_TOT_PLASMA;    mg/kg
 
-# Infusion Rate 
-# #  name     time/levels  values  scale    units
-# <R:name>;    times;     [0  1];     1;    ????
-# <R:name>;    levels;    [1  0];     1;    ????
-
-
 #------------------#
 # Rate Information #
 #------------------#
@@ -514,6 +508,8 @@
 # Observed plasma concentration
 <O> C_TOT_nM_PLASMA = C_PLASMA*1.0e9
 
+<O> C_TOT_ng_ml     = C_PLASMA*1.0e6*150000.0
+
 # organ concentrations
 <O> C_TOT_nM_{ORG} = 1.0e9*(C_V_{ORG}*V_V_{ORG}  + C_BC_{ORG}*V_BC_{ORG} + (C_E_UB_{ORG}+C_E_B_{ORG})*V_E_{ORG} + C_I_{ORG}*V_I_{ORG})/(V_V_{ORG} + V_BC_{ORG} + V_E_{ORG} + V_I_{ORG} + V_C_{ORG})
 
@@ -552,8 +548,3 @@
 #
 # GUI Callback
 # <OPT:callback_gui> [SIMINT_simulation_options] = update_dosing(SIMINT_cfg, SIMINT_simulation_options, SIMINT_handles);
-
-# guides
-# <GUIDE>  type; name; value, marker, color
-
-

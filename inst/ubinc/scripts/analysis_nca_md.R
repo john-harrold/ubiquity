@@ -80,8 +80,8 @@ NCA_sum = NCA_sum             %>%
     dplyr::filter(Dose == 30) %>%
     dplyr::mutate(cmax_dose= cmax/Dose) %>%       
     tidyr::pivot_wider(
-       id_cols     = c("ID", "Dose_Number"),
-       names_from  = Dose_Number,
+       id_cols     = c("ID"),
+       names_from  = c(Dose_Number),
        values_from = c(auclast, cmax, cmax_dose, half.life)) %>%
     dplyr::mutate(AR_6_1   = auclast_6/auclast_1) 
 
@@ -106,8 +106,8 @@ ds_wrangle_str = 'NCA_sum = NCA_sum             %>%
 dplyr::filter(Dose == 30) %>%
 dplyr::mutate(cmax_dose= cmax/Dose) %>%       
 tidyr::pivot_wider(
-   id_cols     = c("ID", "Dose_Number"),
-   names_from  = Dose_Number,
+   id_cols     = c("ID"),
+   names_from  = c("Dose_Number"),
    values_from = c(auclast, cmax, cmax_dose, half.life)) %>%
 dplyr::mutate(AR_6_1   = auclast_6/auclast_1)'
 
@@ -161,10 +161,10 @@ NCA_summary_wide = system_nca_summary(cfg,
     content       = list(caption = "Summary table of NCA outputs",
                          ft      = NCA_summary[["nca_summary_ft"]]))
     
-  cfg = system_rpt_add_doc_content(cfg=cfg,
-    type          = "flextable_object",
-    content       = list(caption = "Transformed NCA output",
-                         ft      = NCA_summary_wide[["nca_summary_ft"]]))
+cfg = system_rpt_add_doc_content(cfg=cfg,
+  type          = "flextable_object",
+  content       = list(caption = "Transformed NCA output",
+                       ft      = NCA_summary_wide[["nca_summary_ft"]]))
 
   cfg = system_rpt_nca(cfg=cfg, analysis_name="pk_multiple_dose")
   system_rpt_save_report(cfg=cfg, output_file=file.path("output","pk_multiple_dose-report.docx"))

@@ -80,6 +80,11 @@ reference:
   - system_log_init
   - tic
   - toc 
+- title: "In development"
+  desc: "The following are under development"
+- contents:
+  - system_glp_init
+  - system_glp_scenario
 navbar:
   left:
   - text: Tutorials
