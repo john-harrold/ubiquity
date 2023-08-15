@@ -165,8 +165,8 @@ including multiple parameterizations withing the same system file.
 Consider the system below where we want to describe antibody
 disposition. For humans this is described by a two compartment model,
 but for mice a single compartment is needed.</p>
-<div class="figure">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-paper-parameter_sets.png" style="width:60.0%" alt=""><p class="caption">Model parameterizations</p>
+<div class="float">
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-paper-parameter_sets.png" style="width:60.0%" alt="Model parameterizations"><div class="figcaption">Model parameterizations</div>
 </div>
 <p>First we create a set of parameters describing the human scenario.
 These are the mean parameters taken from the literature [DM]:</p>
@@ -444,8 +444,8 @@ respectively this is specified in the following manner:</p>
 <div class="section level2">
 <h2 id="bringing-it-all-together">Bringing it all together<a class="anchor" aria-label="anchor" href="#bringing-it-all-together"></a>
 </h2>
-<div class="figure">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-tmdd.png" style="width:60.0%" alt=""><p class="caption">ODEs vs. Model Descriptors</p>
+<div class="float">
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-tmdd.png" style="width:60.0%" alt="ODEs vs. Model Descriptors"><div class="figcaption">ODEs vs. Model Descriptors</div>
 </div>
 <p>As a final example consider the target-mediated drug disposition
 system above. This system can be defined with a set of ODES:</p>
@@ -515,8 +515,9 @@ times in which a bolus may be applied to the system. If a state does not
 receive a bolus on a particular time, its magnitude at that time is
 0.</p>
 <p>To illustrate this consider the following dosing schedule:</p>
-<div class="figure">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/dosing_bolus.png" style="width:50.0%" alt=""><p class="caption">Dosing into two different states/compartments</p>
+<div class="float">
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/dosing_bolus.png" style="width:50.0%" alt="Dosing into two different states/compartments"><div class="figcaption">Dosing into two different
+states/compartments</div>
 </div>
 <p>In this example we want to dose two different drugs into two
 different states/compartments. Drug 1 (<span style="color:purple"><strong>D1</strong></span>) will be dosed into
@@ -604,8 +605,8 @@ create a covariate profile that is zero from time 0-1 and at time 1 it
 jumps to 8 and decreases at a rate of 1 per unit time until time 5 where
 it stays at the value 4 until time 12. It might have a profile like the
 following:</p>
-<div class="figure">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/covariates.png" style="width:50.0%" alt=""><p class="caption">Time-varying covariate input profile</p>
+<div class="float">
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/covariates.png" style="width:50.0%" alt="Time-varying covariate input profile"><div class="figcaption">Time-varying covariate input profile</div>
 </div>
 <pre><code># name        time/values  values                         units
 &lt;CV:mycov&gt;  ; times;       [0 .999 1 5 12];  hours
@@ -783,8 +784,8 @@ provide a signal when a complex containing both <code>TB</code> and
 <code>TL:D:TB</code>). Samples can contain soluble target as well
 (<code>TS</code>) which can interfere with the assay. To model this
 assay, the following interactions should be considered:</p>
-<div class="figure">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-paper-mathematical_sets.png" style="width:80.0%" alt=""><p class="caption">Mathematical sets</p>
+<div class="float">
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-paper-mathematical_sets.png" style="width:80.0%" alt="Mathematical sets"><div class="figcaption">Mathematical sets</div>
 </div>
 <p>Several options are available to construct this system. The ODEs
 could simply be typed out for every possible combination. It’s also

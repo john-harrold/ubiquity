@@ -10,8 +10,8 @@ test_that("Running Scripts",{
   fr = workshop_fetch("Reporting", overwrite = TRUE)
   #--------------------
   if (Sys.getenv("USER") != "travis") {
-    expect_true(check_code('make_report_PowerPoint.R')[["isgood"]], "Make PowerPoint")
-    expect_true(check_code('make_report_Word.R')[["isgood"]],       "Make Word")
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "make_report_PowerPoint.R"))[["isgood"]], "PowerPoint")
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "make_report_Word.R"))[["isgood"]],       "Word")
   }
   #--------------------
   ttdir = getwd()

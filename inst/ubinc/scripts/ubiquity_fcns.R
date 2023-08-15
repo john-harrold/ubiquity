@@ -202,6 +202,9 @@ if(file.exists(system_file)){
   if(verbose == TRUE){
     cli::cli_alert("Compiling C version of system")
   }
+  # Command used to compile C version of the model:
+  compile_cmd =  paste(file.path(R.home("bin"), "R"), ' CMD SHLIB "', file.path(temp_directory, c_libfile_base_c), '"', sep="")
+
   if(file.exists(file.path(temp_directory, 'r_ode_model.c'))){
     # storing the working directory and 
     # changing the working directory to the
@@ -212,7 +215,7 @@ if(file.exists(system_file)){
               to   =file.path(temp_directory, c_libfile_base_c), 
               overwrite=TRUE)
     # Compling the C file
-    output =  system(paste('R CMD SHLIB "', file.path(temp_directory, c_libfile_base_c), '"', sep=""), intern=TRUE) 
+    output =  system(compile_cmd, intern=TRUE) 
     if("status" %in% names(attributes(output))){
       if(verbose == TRUE){
         if(debug == TRUE){
@@ -246,10 +249,12 @@ if(file.exists(system_file)){
     CFILE = FALSE
   }
   
+
   if(CFILE == FALSE){
     if(verbose == TRUE){
       cli::cli_alert_warning("C model not available. Compile manually using the") 
       cli::cli_alert_warning("following command to debug:          ") 
+     #cli::cli_alert_warning(paste("system('", compile_cmd,"')"))
       cli::cli_alert_warning(sprintf("system('R CMD SHLIB \"%s%sr_ode_model.c\"')", temp_directory, .Platform$file.sep))
     }
   }
@@ -9673,7 +9678,8 @@ void derivs (int *neq, double *t, double *y, double *ydot,
     
     # Compiling the C file
     if(verbose == TRUE){ message("#> Attempting to compile C file")}
-    compile_result = system(paste("R CMD SHLIB ", c_file), ignore.stderr=TRUE, ignore.stdout=TRUE)
+    compile_result = system(paste(file.path(R.home("bin"), "R")," CMD SHLIB ", c_file), ignore.stderr=TRUE, ignore.stdout=TRUE)
+    #compile_result = system(paste("R CMD SHLIB ", c_file), ignore.stderr=TRUE, ignore.stdout=TRUE)
 
     if(compile_result == 0){
       if(verbose == TRUE){ message("#>    > Success: C file compiled")}

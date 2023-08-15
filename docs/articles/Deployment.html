@@ -119,7 +119,7 @@
                         <h4 data-toc-skip class="author">John Harrold
 &amp; Anson K Abraham</h4>
             
-            <h4 data-toc-skip class="date">2023-03-11</h4>
+            <h4 data-toc-skip class="date">2023-08-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/john-harrold/ubiquity/blob/HEAD/vignettes/Deployment.Rmd" class="external-link"><code>vignettes/Deployment.Rmd</code></a></small>
       <div class="d-none name"><code>Deployment.Rmd</code></div>
@@ -171,8 +171,8 @@ changes to the App, those changes will be reflected in the user log at
 the bottom of the screen. You can change the outputs being plotted, the
 axis limits, and other aspects of the plot using the plot controls below
 the figure.</p>
-<div class="figure">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Initialization.png" width="600" alt=""><p class="caption">ShinyApp interface after initialization</p>
+<div class="float">
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Initialization.png" width="600" alt="ShinyApp interface after initialization"><div class="figcaption">ShinyApp interface after initialization</div>
 </div>
 <p>The intent is to provide a quick method to get the model up and
 running with default behaviors that will provide for most of what users
@@ -186,16 +186,16 @@ values. To dose in a repeated fashion check the ``Repeat the last dose’’
 box, provide a dosing interval (in the same units as the dosing times),
 and give the number of doses to administer. The example here will repeat
 the 400 mg dose every two weeks for two doses.</p>
-<div class="figure">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Bolus.png" style="width:50.0%" alt=""><p class="caption">Bolus Dosing</p>
+<div class="float">
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Bolus.png" style="width:50.0%" alt="Bolus Dosing"><div class="figcaption">Bolus Dosing</div>
 </div>
 <p>Rates of infusion are specified as a set of switching times and
 corresponding infusion rates (both separated by commas). The infusion
 rates are held constant until the next switching time. The example here
 would infuse the drug at 800mg/min starting at time 0, and the infusion
 will be turned off (set to 0) after 30 minutes.</p>
-<div class="figure">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Infusion.png" style="width:50.0%" alt=""><p class="caption">Continuous Infusion</p>
+<div class="float">
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Infusion.png" style="width:50.0%" alt="Continuous Infusion"><div class="figcaption">Continuous Infusion</div>
 </div>
 </div>
 <div class="section level3">
@@ -207,21 +207,21 @@ will be turned off (set to 0) after 30 minutes.</p>
 variability” box, alter the number of subjects, prediction interval, and
 elements of the variance-covariance matrix to simulate the desired
 population response.</p>
-<div class="figure">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-IIV.png" style="width:50.0%" alt=""><p class="caption">Population simulation options</p>
+<div class="float">
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-IIV.png" style="width:50.0%" alt="Population simulation options"><div class="figcaption">Population simulation options</div>
 </div>
 <p>When you select “Update Plot”, each selected output will be plotted
 (mean – solid line, selected confidence interval – shaded region).</p>
-<div class="figure">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Pop_timecourse.png" style="width:80.0%" alt=""><p class="caption">Population timecourse</p>
+<div class="float">
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Pop_timecourse.png" style="width:80.0%" alt="Population timecourse"><div class="figcaption">Population timecourse</div>
 </div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="saving-model-results">Saving model results<a class="anchor" aria-label="anchor" href="#saving-model-results"></a>
 </h2>
-<div class="figure">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Save.png" style="width:60.0%" alt=""><p class="caption">Saving an analysis</p>
+<div class="float">
+<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/ShinyApp-ss-Save.png" style="width:60.0%" alt="Saving an analysis"><div class="figcaption">Saving an analysis</div>
 </div>
 <p>To save the model results you need to only provide a descriptive name
 for the analysis, push the save button, and click on the link that is
@@ -444,7 +444,7 @@ files. You can do this with the <code>touch</code> command from the
 This works well if you are using <code>rsconnect</code> to deploy your
 app. Alternatively, you can manually sync the files and run the
 following <strong>as the shiny user</strong> on the server.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>R <span class="sc">-</span>e <span class="st">"source('ubiquity_app.R')"</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>R <span class="sc">-</span>e <span class="st">"source('ubiquity_app.R')"</span></span></code></pre></div>
 <p>If the App fails to run on the Shiny Server check the following:</p>
 <ul>
 <li>Make sure all of the correct packages have been installed and are

@@ -10,10 +10,10 @@ test_that("Running Scripts",{
   fr = workshop_fetch("Estimation", overwrite = TRUE)
   #--------------------
   if (Sys.getenv("USER") != "travis") {
-    expect_true(check_code("analysis_parent.r")[["isgood"]],                    "analysis_parent.r")
-    expect_true(check_code("analysis_parent_metabolite.r")[["isgood"]],         "analysis_parent_metabolite.r")       
-    expect_true(check_code("analysis_parent_metabolite_global.r")[["isgood"]],  "analysis_parent_metabolite_global.r")
-    expect_true(check_code("analysis_parent_metabolite_nm_data.r")[["isgood"]], "analysis_parent_metabolite_nm_data.r")
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_parent.r"))                   [["isgood"]], "analysis_parent.r")
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_parent_metabolite.r"))        [["isgood"]], "analysis_parent_metabolite.r")       
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_parent_metabolite_global.r")) [["isgood"]], "analysis_parent_metabolite_global.r")
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_parent_metabolite_nm_data.r"))[["isgood"]], "analysis_parent_metabolite_nm_data.r")
   }
   #--------------------
 })

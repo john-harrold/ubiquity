@@ -10,9 +10,9 @@ test_that("Running Scripts",{
   fr = workshop_fetch("NCA", overwrite = TRUE)
   #--------------------
   if (Sys.getenv("USER") != "travis") {
-    expect_true(check_code('analysis_nca_sd.R')[["isgood"]],     'analysis_nca_sd.R')
-    expect_true(check_code('analysis_nca_md.R')[["isgood"]],     'analysis_nca_md.R')
-    expect_true(check_code('analysis_nca_sparse.R')[["isgood"]], 'analysis_nca_sparse.R')
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_nca_sd.R"))[["isgood"]],     "NCA Single")
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_nca_md.R"))[["isgood"]],     "NCA Multiple")
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_nca_sparse.R"))[["isgood"]], "NCA Sparse")
   }
   #--------------------
 })

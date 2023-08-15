@@ -24,9 +24,9 @@ test_that("Running Scripts",{
   fr = workshop_fetch("Simulation", overwrite = TRUE)
   #--------------------
   if (Sys.getenv("USER") != "travis") {
-    expect_true(check_code("analysis_single.r")[["isgood"]],           "analysis_single.r")
-    expect_true(check_code("analysis_multiple.r")[["isgood"]],         "analysis_multiple.r")
-    expect_true(check_code("analysis_multiple_file.r")[["isgood"]],    "analysis_multiple_file.r")
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_single.r"))       [["isgood"]],    "analysis_single.r")
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_multiple.r"))     [["isgood"]],    "analysis_multiple.r")
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_multiple_file.r"))[["isgood"]],    "analysis_multiple_file.r")
   }
   #--------------------
 })

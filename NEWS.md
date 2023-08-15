@@ -10,6 +10,8 @@
 - Added system-testing.txt example 
 - Added nlmxir output target
 - Added template creation for NONMEM, Monolix, and nlmixr
+- Fixed R command in compilation to use `R.home()`
+- Fixed broken tests
 
 # ubiquity 2.0.0
 
