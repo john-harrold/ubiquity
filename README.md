@@ -19,7 +19,7 @@ For detailed software requirements and installation instructions see this page:
 Briefly, install the following:
 
 * [R](<https://cran.r-project.org>)
-* [RStudio](<https://www.rstudio.com/products/rstudio/>)
+* [RStudio](<https://posit.co/products/open-source/rstudio/>)
 * [Perl (Windows)](<https://strawberryperl.com/>)
 * [Rtools (Windows)](<https://cran.r-project.org/bin/windows/Rtools/>)
 

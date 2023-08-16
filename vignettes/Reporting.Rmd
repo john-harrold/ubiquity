@@ -506,7 +506,7 @@ system_rpt_save_report(cfg, output_file = "example.docx")
 
 ## Using custom organizational templates 
 
-Internally `ubiquity` uses the `onbrand` package for customizable templates. To create a template for your organization you should use the `onbrand` vignette for [Custom Templates]( http://onbrand.ubiquity.tools/articles/Custom_Office_Templates.html).  This will instruct you to create a yaml mapping file for your templates. You can use the built in organizational template as a starting point for that:
+Internally `ubiquity` uses the `onbrand` package for customizable templates. To create a template for your organization you should use the `onbrand` vignette for [Custom Templates]( https://onbrand.ubiquity.tools/articles/Custom_Office_Templates.html).  This will instruct you to create a yaml mapping file for your templates. You can use the built in organizational template as a starting point for that:
 
 ```{r message=FALSE, warning=FALSE, eval=FALSE, echo=TRUE}
 tr = system_fetch_template(cfg, template="myOrg")

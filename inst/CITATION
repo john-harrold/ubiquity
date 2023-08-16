@@ -1,7 +1,5 @@
-citHeader("To cite ubiquity in publications use:")
-
-citEntry(
-  entry    = "Article",
+bibentry(
+  bibtype    = "Article",
   title    = "Ubiquity: a framework for physiological/mechanism-based pharmacokinetic/pharmacodynamic model development and deployment",
   author   = "J.M. Harrold and A.K. Abraham",
   journal  = "Journal of Pharmacokinetics and Pharmacodynamics",
