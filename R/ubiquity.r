@@ -83,10 +83,10 @@ if(!file.exists(system_file)){
 
  
 # model base file used for the c library
+system_file_full = normalizePath(system_file, winslash = "/")
 if(ubiquity_app){
   system_checksum = "app_base"
 } else {
-  system_file_full = normalizePath(system_file)
   system_checksum = as.character(digest::digest(system_file_full, algo=c("md5")))
 }
 
@@ -94,6 +94,7 @@ c_libfile_base    =  paste("ubiquity_", system_checksum, sep="")
 c_libfile_base_c  =  paste("ubiquity_", system_checksum, ".c", sep="")
 c_libfile_base_o  =  paste("ubiquity_", system_checksum, ".o", sep="")
 
+temporary_directory = normalizePath(temporary_directory, winslash="/")
 temp_directory  = file.path(temporary_directory, system_checksum)
 
 # if the temporary directory does not exist we create it
@@ -160,7 +161,9 @@ if(file.exists(system_file)){
   }
 
   
-  build_command = sprintf('%s "%s" "%s" "%s" "%s" "%s" "%s"', perlcmd, build_script_pl, system_file, temp_directory, templates, distribution, c_libfile_base)
+  build_command = sprintf('%s "%s" "%s" "%s" "%s" "%s" "%s"', 
+                          perlcmd, build_script_pl, system_file_full, 
+                          temp_directory, templates, distribution, c_libfile_base)
   output = system(build_command, intern=TRUE)
   
   # CFILE is used to indicate if we have compiled and loaded the CFILE successfully 
@@ -9657,7 +9660,7 @@ void derivs (int *neq, double *t, double *y, double *ydot,
       dyn.unload(getLoadedDLLs()$mymod[["path"]])}
 
     # temporary working direcotry
-    twd = tempdir()
+    twd = normalizePath(tempdir(), winslash = "/")
     dyn_file = file.path(twd, paste("mymod", .Platform$dynlib.ext, sep = ""))
     c_file   = file.path(twd, "mymod.c")
     o_file   = file.path(twd, "mymod.o")

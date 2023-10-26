@@ -12,6 +12,8 @@
 - Added template creation for NONMEM, Monolix, and nlmixr
 - Fixed R command in compilation to use `R.home()`
 - Fixed broken tests
+- Updated CITATION to use bibentry
+- Fixing error when building systems in windows
 
 # ubiquity 2.0.0
 
