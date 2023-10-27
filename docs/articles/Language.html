@@ -166,7 +166,7 @@ Consider the system below where we want to describe antibody
 disposition. For humans this is described by a two compartment model,
 but for mice a single compartment is needed.</p>
 <div class="float">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-paper-parameter_sets.png" style="width:60.0%" alt="Model parameterizations"><div class="figcaption">Model parameterizations</div>
+<img src="system-paper-parameter_sets.png" style="width:60.0%" alt="Model parameterizations"><div class="figcaption">Model parameterizations</div>
 </div>
 <p>First we create a set of parameters describing the human scenario.
 These are the mean parameters taken from the literature [DM]:</p>
@@ -445,7 +445,7 @@ respectively this is specified in the following manner:</p>
 <h2 id="bringing-it-all-together">Bringing it all together<a class="anchor" aria-label="anchor" href="#bringing-it-all-together"></a>
 </h2>
 <div class="float">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-tmdd.png" style="width:60.0%" alt="ODEs vs. Model Descriptors"><div class="figcaption">ODEs vs. Model Descriptors</div>
+<img src="system-tmdd.png" style="width:60.0%" alt="ODEs vs. Model Descriptors"><div class="figcaption">ODEs vs. Model Descriptors</div>
 </div>
 <p>As a final example consider the target-mediated drug disposition
 system above. This system can be defined with a set of ODES:</p>
@@ -516,7 +516,7 @@ receive a bolus on a particular time, its magnitude at that time is
 0.</p>
 <p>To illustrate this consider the following dosing schedule:</p>
 <div class="float">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/dosing_bolus.png" style="width:50.0%" alt="Dosing into two different states/compartments"><div class="figcaption">Dosing into two different
+<img src="dosing_bolus.png" style="width:50.0%" alt="Dosing into two different states/compartments"><div class="figcaption">Dosing into two different
 states/compartments</div>
 </div>
 <p>In this example we want to dose two different drugs into two
@@ -606,7 +606,7 @@ jumps to 8 and decreases at a rate of 1 per unit time until time 5 where
 it stays at the value 4 until time 12. It might have a profile like the
 following:</p>
 <div class="float">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/covariates.png" style="width:50.0%" alt="Time-varying covariate input profile"><div class="figcaption">Time-varying covariate input profile</div>
+<img src="covariates.png" style="width:50.0%" alt="Time-varying covariate input profile"><div class="figcaption">Time-varying covariate input profile</div>
 </div>
 <pre><code># name        time/values  values                         units
 &lt;CV:mycov&gt;  ; times;       [0 .999 1 5 12];  hours
@@ -785,7 +785,7 @@ provide a signal when a complex containing both <code>TB</code> and
 (<code>TS</code>) which can interfere with the assay. To model this
 assay, the following interactions should be considered:</p>
 <div class="float">
-<img src="../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/system-paper-mathematical_sets.png" style="width:80.0%" alt="Mathematical sets"><div class="figcaption">Mathematical sets</div>
+<img src="system-paper-mathematical_sets.png" style="width:80.0%" alt="Mathematical sets"><div class="figcaption">Mathematical sets</div>
 </div>
 <p>Several options are available to construct this system. The ODEs
 could simply be typed out for every possible combination. It’s also

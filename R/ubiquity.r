@@ -4050,8 +4050,8 @@ return(subject)
 #'
 #'@param SIMINT_parameters parameters vector containing the typical values
 #'@param SIMINT_cfg ubiquity system object    
-#'@param SIMINT_PARAMETERS_TV  Typical value of the parameter in question
-#'@param SIMINT_PARAMETERS_IIV_VALUE sample from mvr distribution
+#'@param SIMINT_PARAMETER_TV  Typical value of the parameter in question
+#'@param SIMINT_IIV_VALUE sample from mvr distribution
 #'@param SIMINT_equation equation relating IIV and typical value to the parameter value with variability
 #'
 #'@return parameter value with the variability applied
@@ -8842,7 +8842,7 @@ TSsys}
 #'\item{"dsraw"} Dataframe with the filtered raw data that was used
 #'\item{"input_records"} Rows from \code{dsraw} containing the input information
 #'\item{"obs_records"} Rows from \code{dsraw} containing the observation information
-#'\item{"sids"} Subject ids found in code{dsraw}
+#'\item{"sids"} Subject ids found in \code{dsraw}
 #'\item{"TSsys"} system time scale used in the dataset
 #'}
 system_nm_check_ds = function(cfg, 
@@ -9922,9 +9922,9 @@ res}
 #'@param dsinc (NOT CURRENTLY IMPLEMENTED) optional character vector of columns from the dataset to include in the output summary (default \code{NULL})
 #'@return cfg ubiquity system object with the NCA results and if the analysis name is specified:
 #' \itemize{
-#'     \item{output/{analysis_name}-nca_summary-pknca.csv} NCA summary 
-#'     \item{output/{analysis_name}-pknca_summary.csv} Raw output from PKNCA with subject and dose number columns appended 
-#'     \item{output/{analysis_name}-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
+#'     \item{output/analysis_name-nca_summary-pknca.csv} NCA summary 
+#'     \item{output/analysis_name-pknca_summary.csv} Raw output from PKNCA with subject and dose number columns appended 
+#'     \item{output/analysis_name-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
 #' }
 #'@seealso Vignette on NCA (\code{vignette("NCA", package = "ubiquity")}) 
 system_nca_run = function(cfg, 

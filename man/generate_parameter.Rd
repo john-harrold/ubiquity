@@ -17,11 +17,11 @@ generate_parameter(
 
 \item{SIMINT_cfg}{ubiquity system object}
 
+\item{SIMINT_PARAMETER_TV}{Typical value of the parameter in question}
+
+\item{SIMINT_IIV_VALUE}{sample from mvr distribution}
+
 \item{SIMINT_equation}{equation relating IIV and typical value to the parameter value with variability}
-
-\item{SIMINT_PARAMETERS_TV}{Typical value of the parameter in question}
-
-\item{SIMINT_PARAMETERS_IIV_VALUE}{sample from mvr distribution}
 }
 \value{
 parameter value with the variability applied

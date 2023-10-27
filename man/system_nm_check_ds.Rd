@@ -55,7 +55,7 @@ list with the following elements
 \item{"dsraw"} Dataframe with the filtered raw data that was used
 \item{"input_records"} Rows from \code{dsraw} containing the input information
 \item{"obs_records"} Rows from \code{dsraw} containing the observation information
-\item{"sids"} Subject ids found in code{dsraw}
+\item{"sids"} Subject ids found in \code{dsraw}
 \item{"TSsys"} system time scale used in the dataset
 }
 }

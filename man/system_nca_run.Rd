@@ -70,9 +70,9 @@ half-life half-life of 0.8 you would use: \code{list(max.aucinf.pext=10, min.hl.
 \value{
 cfg ubiquity system object with the NCA results and if the analysis name is specified:
 \itemize{
-    \item{output/{analysis_name}-nca_summary-pknca.csv} NCA summary 
-    \item{output/{analysis_name}-pknca_summary.csv} Raw output from PKNCA with subject and dose number columns appended 
-    \item{output/{analysis_name}-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
+    \item{output/analysis_name-nca_summary-pknca.csv} NCA summary 
+    \item{output/analysis_name-pknca_summary.csv} Raw output from PKNCA with subject and dose number columns appended 
+    \item{output/analysis_name-nca_data.RData} objects containing the NCA summary and a list with the ggplot grobs
 }
 }
 \description{
