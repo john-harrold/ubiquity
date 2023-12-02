@@ -311,7 +311,7 @@ accomplished with the function ``system_rpt_estimation()``.
 
 To append the results of an analysis to a PowerPoint document simply
 initialize a new report (``template="PowerPoint"``), call
-``system_rpt_read_template()`` with the appropriate  ``analysis_name``, and the
+``system_rpt_estimation()`` with the appropriate  ``analysis_name``, and the
 results of the analysis will be attached as slides. 
 
 ```{r results="hide", echo=TRUE, eval=FALSE}
