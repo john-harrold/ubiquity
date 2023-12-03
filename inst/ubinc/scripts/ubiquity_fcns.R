@@ -11174,7 +11174,7 @@ res}
 #'@param cfg ubiquity system object
 #'@param analysis_name string containing the name of the NCA analysis (default \code{'analysis'})
 #'
-#'@return List with a data frame of the NCA results (\code{NCA_sum}), the raw
+#'@return List with a data frame of the NCA results (\code{NCA_summary}), the raw
 #' output from PKNCA (\code{PKNCA_results}), and also a list element indicating the
 #' overall success of the function call (\code{isgood})
 #'@seealso Vignette on NCA (\code{vignette("NCA", package = "ubiquity")}) 
