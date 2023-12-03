@@ -1,3 +1,4 @@
+rm(list=ls())
 # Regenerating the documentation:
 devtools::document(roclets = c('rd', 'collate', 'namespace', 'vignette'))
 
