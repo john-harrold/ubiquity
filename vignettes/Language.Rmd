@@ -113,7 +113,7 @@ Variance parameters are specified using the same format as system parameters (``
 The difference being that the ``<VP>`` descriptor is used and that the grouping is set to ``Variance``. These are used when performing parameter estimation and when simulating with residual variability.
  
 ### Parameter estimation information `<EST:?>?`
------------------------------------------
+
 This descriptor specifies information about parameters for estimation.
 Sometimes it is necessary to estimate parameters in the log space. Here you
 can specify the parmaeters to log transform (LT). If you wanted to log
@@ -124,23 +124,23 @@ transform parameters `P1`, `P2`, and `P3` you would do the following:
 ~~~
 
 By default all parameters will be specified for estimation. If you want to
-estimate a subset of parameters (P), say `P1` and `p2`, you can use the following:
+estimate a subset of parameters (P), say `P1` and `P2`, you can use the following:
 
 ~~~
 <EST:P> P1; P2
 ~~~
 
-Applies to the following targets: nlmixr, and NONMEM
+Applies to nlmixr2, and NONMEM. Essentially all the parameters not listed here will be fixed.
 
-### Output error model `<OE:OUTPUT> expression`
+### Output error model `<OE:?> ?`
 
-This defines the output error model. The OUTPUT can be the name of any
-output defined with `<O>`. The expression is a model type (add for additive,
-and prop for proportional) with an equal sign and the name of the variance
-paramter (`<VP>`) to use. To use more than one error model type you separate
-the statments with `;` For example if you define the variance parameters
-`add_err` and `prop_err` and want to use a proportional error model to the
-output Cp you would use:
+This defines the output error model of the format:
+
+~~~
+`<OE:OUTPUT> expression`
+~~~
+
+The `OUTPUT` can be the name of any output defined with `<O>`. The `expression` is a model type (add for additive, and prop for proportional) with an equal sign and the name of the variance paramter (`<VP>`) to use. To use more than one error model type you separate the statments with `;` For example if you define the variance parameters `add_err` and `prop_err` and want to use a proportional error model to the output Cp you would use:
 
 ~~~
 <OE:Cp> prop=prop_err

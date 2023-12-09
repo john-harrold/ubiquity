@@ -897,7 +897,10 @@ sub dump_nlmixr
             $m_ele->{IIV_BLOCK}       .= $val_pre.'0'.$val_post.&fetch_padding($val_pre.'0'.$val_post, $cfg->{parameters_length}); }
             if($counter2 == $counter){
                $m_ele->{IIV_BLOCK}       .= &fetch_padding('',$cfg->{parameters_length})x(@{$cfg->{iiv_index}->{$iiv_set}} - $counter);
-               $m_ele->{IIV_BLOCK}       .= "# $name\n"; }
+               # There is a parser bug in rxode2 that prevents comments
+               # from being used. Just commenting this out for now.
+               # $m_ele->{IIV_BLOCK}       .= "# $name\n"; }
+                $m_ele->{IIV_BLOCK}       .= "\n"; }
             
           $counter2 = $counter2 + 1; 
           }
@@ -6840,7 +6843,7 @@ sub system_check{
       foreach $set_name (keys(%{$cfg->{iiv}})){
         foreach $name (keys(%{$cfg->{iiv}->{$set_name}->{parameters}})){
           if(!grep( /^$name$/, @{$cfg->{options}->{est}->{p}})){
-            &mywarn("IIV defined for parameter >".$name."< in parameter set >".$set_name." but not selected for estimation");
+            &mywarn("IIV defined for parameter >".$name."< in parameter set >".$set_name."< but not selected for estimation");
           }
         }
       }
