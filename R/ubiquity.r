@@ -206,7 +206,8 @@ if(file.exists(system_file)){
     cli::cli_alert("Compiling C version of system")
   }
   # Command used to compile C version of the model:
-  compile_cmd =  paste(file.path(R.home("bin"), "R"), ' CMD SHLIB "', file.path(temp_directory, c_libfile_base_c), '"', sep="")
+  #compile_cmd =  paste(file.path(R.home("bin"), "R"), ' CMD SHLIB "', file.path(temp_directory, c_libfile_base_c), '"', sep="")
+  compile_cmd =  paste(file.path(R.home("bin"), "R"), ' CMD SHLIB "', c_libfile_base_c, '"', sep="")
 
   if(file.exists(file.path(temp_directory, 'r_ode_model.c'))){
     # storing the working directory and 
@@ -218,7 +219,12 @@ if(file.exists(system_file)){
               to   =file.path(temp_directory, c_libfile_base_c), 
               overwrite=TRUE)
     # Compling the C file
+    current_dir = getwd()
+    setwd(temp_directory)
+    on.exit( setwd(current_dir))
     output =  system(compile_cmd, intern=TRUE) 
+    setwd(current_dir)
+
     if("status" %in% names(attributes(output))){
       if(verbose == TRUE){
         if(debug == TRUE){
