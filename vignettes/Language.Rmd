@@ -111,6 +111,46 @@ Variance parameters are specified using the same format as system parameters (``
 ~~~
 
 The difference being that the ``<VP>`` descriptor is used and that the grouping is set to ``Variance``. These are used when performing parameter estimation and when simulating with residual variability.
+ 
+### Parameter estimation information `<EST:?>?`
+-----------------------------------------
+This descriptor specifies information about parameters for estimation.
+Sometimes it is necessary to estimate parameters in the log space. Here you
+can specify the parmaeters to log transform (LT). If you wanted to log
+transform parameters `P1`, `P2`, and `P3` you would do the following:
+
+~~~
+<EST:LT> P1; P2; P3
+~~~
+
+By default all parameters will be specified for estimation. If you want to
+estimate a subset of parameters (P), say `P1` and `p2`, you can use the following:
+
+~~~
+<EST:P> P1; P2
+~~~
+
+Applies to the following targets: nlmixr, and NONMEM
+
+### Output error model `<OE:OUTPUT> expression`
+
+This defines the output error model. The OUTPUT can be the name of any
+output defined with `<O>`. The expression is a model type (add for additive,
+and prop for proportional) with an equal sign and the name of the variance
+paramter (`<VP>`) to use. To use more than one error model type you separate
+the statments with `;` For example if you define the variance parameters
+`add_err` and `prop_err` and want to use a proportional error model to the
+output Cp you would use:
+
+~~~
+<OE:Cp> prop=prop_err
+~~~
+
+To use both additive and proportional error the following would work:
+
+~~~
+<OE:Cp> add=add_err; prop=prop_err
+~~~
 
 ### Variability: defining the variance/covariance Matrix ``<IIV:?>?`` \& ``<IIVCOR:?>?``
 
@@ -728,6 +768,19 @@ The general notation for an output or state ``name`` assigned to a ``number`` is
 <INDEX:STATE:name>  number
 <INDEX:OUTPUT:name> number
 ~~~
+
+
+### Output error  `<OE:?> ?`
+
+This links parameters defined using `<VP:?>` to specific outputs defined using `<O>`. You can define either `add` for additive and/or `prop` for proportional error.
+
+~~~
+<VP> prop_err   0.1            eps    inf      --     yes      Variance
+<VP> add_err    0.1            eps    inf      conc  yes      Variance
+<O> Cp = expression
+<OE:Cp> add=add_error; prop=prop_error
+~~~
+
 
 ## Concentrations vs amounts
 It's more convenient to model systems in terms of concentrations. However some software does not allow scaling of inputs. And when inputs are provided in mass units, you need your differential equation to also be in mass units. You can use the `<AMTIFY>` descriptor in your 

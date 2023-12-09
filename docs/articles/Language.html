@@ -245,6 +245,38 @@ used and that the grouping is set to <code>Variance</code>. These are
 used when performing parameter estimation and when simulating with
 residual variability.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="parameter-estimation-information-est">### Parameter estimation information
+<code>&lt;EST:?&gt;?</code><a class="anchor" aria-label="anchor" href="#parameter-estimation-information-est"></a>
+</h2>
+<p>This descriptor specifies information about parameters for
+estimation. Sometimes it is necessary to estimate parameters in the log
+space. Here you can specify the parmaeters to log transform (LT). If you
+wanted to log transform parameters <code>P1</code>, <code>P2</code>, and
+<code>P3</code> you would do the following:</p>
+<pre><code>&lt;EST:LT&gt; P1; P2; P3</code></pre>
+<p>By default all parameters will be specified for estimation. If you
+want to estimate a subset of parameters (P), say <code>P1</code> and
+<code>p2</code>, you can use the following:</p>
+<pre><code>&lt;EST:P&gt; P1; P2</code></pre>
+<p>Applies to the following targets: nlmixr, and NONMEM</p>
+<div class="section level3">
+<h3 id="output-error-model-oeoutput-expression">Output error model <code>&lt;OE:OUTPUT&gt; expression</code><a class="anchor" aria-label="anchor" href="#output-error-model-oeoutput-expression"></a>
+</h3>
+<p>This defines the output error model. The OUTPUT can be the name of
+any output defined with <code>&lt;O&gt;</code>. The expression is a
+model type (add for additive, and prop for proportional) with an equal
+sign and the name of the variance paramter (<code>&lt;VP&gt;</code>) to
+use. To use more than one error model type you separate the statments
+with <code>;</code> For example if you define the variance parameters
+<code>add_err</code> and <code>prop_err</code> and want to use a
+proportional error model to the output Cp you would use:</p>
+<pre><code>&lt;OE:Cp&gt; prop=prop_err</code></pre>
+<p>To use both additive and proportional error the following would
+work:</p>
+<pre><code>&lt;OE:Cp&gt; add=add_err; prop=prop_err</code></pre>
+</div>
 <div class="section level3">
 <h3 id="variability-defining-the-variancecovariance-matrix-iiv-iivcor">Variability: defining the variance/covariance Matrix
 <code>&lt;IIV:?&gt;?</code> &amp; <code>&lt;IIVCOR:?&gt;?</code><a class="anchor" aria-label="anchor" href="#variability-defining-the-variancecovariance-matrix-iiv-iivcor"></a>
@@ -963,6 +995,18 @@ following should be used:</p>
 assigned to a <code>number</code> is:</p>
 <pre><code>&lt;INDEX:STATE:name&gt;  number
 &lt;INDEX:OUTPUT:name&gt; number</code></pre>
+<div class="section level3">
+<h3 id="output-error-oe">Output error <code>&lt;OE:?&gt; ?</code><a class="anchor" aria-label="anchor" href="#output-error-oe"></a>
+</h3>
+<p>This links parameters defined using <code>&lt;VP:?&gt;</code> to
+specific outputs defined using <code>&lt;O&gt;</code>. You can define
+either <code>add</code> for additive and/or <code>prop</code> for
+proportional error.</p>
+<pre><code>&lt;VP&gt; prop_err   0.1            eps    inf      --     yes      Variance
+&lt;VP&gt; add_err    0.1            eps    inf      conc  yes      Variance
+&lt;O&gt; Cp = expression
+&lt;OE:Cp&gt; add=add_error; prop=prop_error</code></pre>
+</div>
 </div>
 <div class="section level2">
 <h2 id="concentrations-vs-amounts">Concentrations vs amounts<a class="anchor" aria-label="anchor" href="#concentrations-vs-amounts"></a>
