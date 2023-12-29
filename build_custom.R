@@ -20,7 +20,6 @@ for(htd in htds){
   close(cfn)
   
   # For some reason it's doing this weird relative path thing, so I'm stripping that out here:
-  #trim_txt = "../../../../../Google%20Drive/Ubiquity/github/ubiquity/vignettes/"
   trim_txt = '../../../../../../My%20Drive/projects/ubiquity/github/ubiquity/articles/'
   htd_lines = gsub(trim_txt, "", htd_lines)
   
