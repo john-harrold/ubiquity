@@ -152,7 +152,7 @@ cfg = list()
 if(file.exists(system_file)){
   if(verbose == TRUE){
     cli::cli_h1(paste("Building the system: ", system_file, sep=""))
-    cli::cli_alert(c("ubiquity:     ", cli::col_blue(style_underline(style_bold("https://r.ubiquity.tools"))), " 🐀"))
+    cli::cli_alert(c("ubiquity:     ", cli::col_blue(style_underline(style_bold("https://r.ubiquity.tools")))))
     if(distribution == "package"){
       cli::cli_alert(c("Distribution: ",  cli::col_blue(style_underline(paste0(distribution, " (", packageVersion("ubiquity"), ")", sep="")))))
     } else {
