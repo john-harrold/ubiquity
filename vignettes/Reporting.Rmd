@@ -8,7 +8,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=TRUE)
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=FALSE)
 require(ubiquity)
 require(ggplot2)
 require(ubiquity)
