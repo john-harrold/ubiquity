@@ -9,6 +9,7 @@ editor_options:
 
 -  Fixed IIV comments breaking `nlmixr2` output
 -  Fixed bug where spaces were breaking compilation of C output
+-  Fixed bug in CRAN where flextable/officer update broke saved values in vignettes
 
 # ubiquity 2.0.1
 

@@ -540,14 +540,24 @@ dosing. Dosing information is broken down into a list of
 receive.</p>
 <p>Each of these has a <code>scale</code> that is used to convert the
 bolus dosing information from proscribed units (mg daily) into the units
-in which the system is coded (nM and hours). So if dosing is done on
+in which the system is coded (mg/mL and hours). So if dosing is done on
 days 0, 1, 2… but the simulation time is hours, then the scale for the
-dosing times is 24.</p>
-<p>The events contain the magnitude of the bolus at a given time. If you
-have multiple compartments receiving a bolus, the times must include all
-times in which a bolus may be applied to the system. If a state does not
-receive a bolus on a particular time, its magnitude at that time is
-0.</p>
+dosing times is 24.The events contain the magnitude of the bolus at a
+given time. If you want to dose into a central compartment
+<code>Cp</code> in mg/kg and your central compartment is mg/mL then you
+need to scale by the body weight (e.g. 70 kg) and the volume of your
+central compartment (system or static secondary parameter
+<code>Vp</code>) then the scale is <code>70/Vp</code>.</p>
+<p>If you just want to create a palceholder you can do the
+following:</p>
+<pre><code>#  type       state   values    scale  units   
+&lt;B:times&gt;;            [0];        24;  days   
+&lt;B:events&gt;;     Cp;   [0];     70/Vc;  mpk   </code></pre>
+<p>If you want to setup default dosing for the shiny app or scripts, you
+can do somethign more complicated. If you have multiple compartments
+receiving a bolus, the times must include all times in which a bolus may
+be applied to the system. If a state does not receive a bolus on a
+particular time, its magnitude at that time is 0.</p>
 <p>To illustrate this consider the following dosing schedule:</p>
 <div class="float">
 <img src="dosing_bolus.png" style="width:50.0%" alt="Dosing into two different states/compartments"><div class="figcaption">Dosing into two different
@@ -567,8 +577,8 @@ is in days, but the simulation time units are hours. We will be dosing
 volumes for <span style="color:purple"><strong>D1</strong></span> and
 <span style="color:orange"><strong>D2</strong></span> in ml, and the
 subject body weight is 70 kg. This would convert those doses in mpk into
-mg/ml. Again these are the default doses that can be overwritten both in
-the ShinyApp and within scripts.</p>
+mg/ml. <strong>Again these are the default doses that can be overwritten
+both in the ShinyApp and within scripts.</strong></p>
 </div>
 <div class="section level3">
 <h3 id="continuous-infusions-r">Continuous infusions <code>&lt;R:?&gt;</code><a class="anchor" aria-label="anchor" href="#continuous-infusions-r"></a>
@@ -595,6 +605,8 @@ of <code>1</code> mg/min that is switched off at <code>30</code>
 minutes. This has to be converted to mg/hr using the scale of
 <code>60</code>. You can add as many paired rate entries as you need to
 describe as many infusion interventions as necessary.</p>
+<p><strong>Note:</strong> If you just want a placeholder you can just
+set both of the values to <code>[0]</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="covariates-cv-cvset">Covariates <code>&lt;CV:?&gt;</code>,
