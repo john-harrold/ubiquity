@@ -9661,6 +9661,12 @@ void derivs (int *neq, double *t, double *y, double *ydot,
 "
   if("C" %in% names(checklist)){
 
+    # temporary working direcotry
+    twd = normalizePath(tempdir(), winslash = "/")
+    current_dir = getwd()
+    setwd(twd)
+    on.exit( setwd(current_dir))
+
     # if the model exists from before we unload it
     if(('mymod' %in% names(getLoadedDLLs()))){
       dyn.unload(getLoadedDLLs()$mymod[["path"]])}
@@ -9728,6 +9734,7 @@ void derivs (int *neq, double *t, double *y, double *ydot,
       res$C = FALSE
     }
        
+  setwd(current_dir)
   }
 res}
 
