@@ -130,7 +130,7 @@ estimate a subset of parameters (P), say `P1` and `P2`, you can use the followin
 <EST:P> P1; P2
 ~~~
 
-Applies to nlmixr2, and NONMEM. Essentially all the parameters not listed here will be fixed.
+Applies to nlmixr2. Essentially all the parameters not listed here will be fixed.
 
 ### Output error model `<OE:?> ?`
 
@@ -795,7 +795,7 @@ This links parameters defined using `<VP:?>` to specific outputs defined using `
 It's more convenient to model systems in terms of concentrations. However some software does not allow scaling of inputs. And when inputs are provided in mass units, you need your differential equation to also be in mass units. You can use the `<AMTIFY>` descriptor in your 
 `system.txt` to tell ubiquity to generate perform this conversion on the differential equations.
 
-For example, if you defined the state `Cc` but want it to be `Ac` within the NONMEM model target. These are related by `Cc = Ac/Vc` and `Vc` is a parameter the following would be used:
+For example, if you defined the state `Cc` but want it to be `Ac` within the nlmixr2 model target. These are related by `Cc = Ac/Vc` and `Vc` is a parameter the following would be used:
 
 ~~~
 <AMTIFY> Cc; Ac; Vc
@@ -856,11 +856,8 @@ When the system is built, multiple files are generated in the temporary director
 
 * `target_mrgsolve-PSET.cpp`: This is a C++ file containing the system for the parameter set `PSET` to run using the in `mrgsolve` package in R.
 
-* `target_monolix-PSET.txt`: This is a text file containing the system for the parameter set `PSET` to run in Monolix. 
-
 * `target_nlmixr-PSET.R`: This R script defines the system for analysis in `nlmixr` for the parameter set `PSET`.
 
-* `target_nonmem-PSET.ctl`: This is a NONMEM control stream containing the system for the parameter set `PSET`.
 
 ## References
 
