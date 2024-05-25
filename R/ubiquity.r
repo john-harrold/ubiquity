@@ -662,10 +662,9 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
              "ShinyApp",   "Shiny Rmd Report",
              "NCA", 
              "mrgsolve",   
-             "myOrg", 
              "Model Diagram",
              "Berkeley Madonna", 
-             "Adapt", "nlmixr",
+             "Adapt", "nlmixr2",
              "NONMEM", "Monolix",
              "mrgsolve")
 
@@ -736,40 +735,95 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
      destinations = c("system_adapt.for", "system_adapt.prm")
      write_file   = c(TRUE, TRUE)
    }
-   if(template == "myOrg"){
-     sources      = c(file.path(template_dir, sprintf("report.yaml")))
-     destinations = c("myOrg.yaml")
-     write_file   = c(TRUE)
-   }
-
    if(template == "Model Diagram"){
      sources      = c(file.path(template_dir, sprintf("system.svg")))
      destinations = c("system.svg")
      write_file   = c(TRUE)
    }
-   if(template == "NONMEM"){
-     sources      = c(file.path(temp_directory, sprintf("target_nonmem-%s.ctl",current_set)))
-     destinations = c("system_nonmem.ctl")
-     write_file   = c(TRUE, TRUE)
+   if(template == "NONMEM" || template == "Monolix" ){
+     deps_found = TRUE
+     # Walking through the dependencies to make sure everything is needed
+     if(system.file(package="rxode2") == ""){
+       isgood     = FALSE
+       deps_found = FALSE
+       vp(cfg, paste0("The rxode2 package is needed to create ", template, " template."))
+     }
+     if(system.file(package="babelmixr2") == ""){
+       isgood     = FALSE
+       deps_found = FALSE
+       vp(cfg, paste0("The babelmixr2 package is needed to create ", template, " template."))
+     }
+
+     if(deps_found){
+       nlmixr_file = file.path(temp_directory, sprintf("target_nlmixr-%s.R",current_set))
+       cmd = c('require(rxode2)',
+               'require(babelmixr2)',
+               'source(nlmixr_file)',
+               'my_rx = my_model()',
+               'capture = list()')
+       if(template == "NONMEM"){
+         cmd = c(cmd,
+                 'ctl_file = tempfile(fileext=".ctl")',
+                 'tmpstr = as.character(my_rx$nonmemModel)',
+                 'fileConn = file(ctl_file)', 
+                 'writeLines(tmpstr, fileConn)',
+                 'close(fileConn)',
+                 'capture[["sources"]]      = c(ctl_file)',
+                 'capture[["destinations"]] = c("system_nonmem.ctl")',
+                 'capture[["write_file"]]   = c(TRUE)')
+       }
+       if(template == "Monolix"){
+         cmd = c(cmd,
+                 'mlxtran_file = tempfile(fileext=".mlxtran")',
+                 'tmpstr = as.character(my_rx$mlxtran)',
+                 'fileConn = file(mlxtran_file)', 
+                 'writeLines(tmpstr, fileConn)',
+                 'close(fileConn)',
+                 'mlxtxt_file = tempfile(fileext=".txt")',
+                 'tmpstr = as.character(my_rx$monolixModel)',
+                 'fileConn = file(mlxtxt_file)', 
+                 'writeLines(tmpstr, fileConn)',
+                 'close(fileConn)',
+                 'capture[["sources"]]      = c(mlxtran_file, mlxtxt_file)',
+                 'capture[["destinations"]] = c("system_monolix.mlxtran",  "system_monolix.txt")',
+                 'capture[["write_file"]]   = c(TRUE, TRUE)')
+       }
+
+
+        tcres = tryCatch(
+          { 
+           eval(parse(text=paste0(cmd, collapse="\n")))
+           list(capture=capture,isgood=TRUE)
+          },
+         error = function(e) {
+           list(error=e, isgood=FALSE)
+           })
+
+       if(tcres[["isgood"]]){
+         sources      = tcres[["capture"]][["sources"]]
+         destinations = tcres[["capture"]][["destinations"]] 
+         write_file   = tcres[["capture"]][["write_file"]] 
+       } else {
+         vp(cfg, as.character(tcres$error), fmt="danger")
+         isgood=FALSE
+       }
+     }
    }
-   if(template == "Monolix"){
-     sources      = c(file.path(temp_directory, sprintf("target_monolix-%s.txt",current_set)))
-     destinations = c("system_monolix.txt")
-     write_file   = c(TRUE, TRUE)
-   }
-   if(template == "nlmixr"){
+   if(template == "nlmixr2"){
      sources      = c(file.path(temp_directory, sprintf("target_nlmixr-%s.R",current_set)))
-     destinations = c("system_nlmixr.R")
-     write_file   = c(TRUE, TRUE)
+     destinations = c("system_nlmixr2.R")
+     write_file   = c(TRUE)
    }
 
    # if overwrite ifs FALSE we check each of the destination files to see if
    # they exist. Then we set write_file to FALSE if they do exist, and throw
    # up an error.
    if(!overwrite){
-     for(fidx in 1:length(destinations)){
-       if(file.exists(file.path(output_directory, destinations[fidx]))){
-         write_file[fidx] = FALSE 
+     if(!is.null(destinations)){
+       for(fidx in 1:length(destinations)){
+         if(file.exists(file.path(output_directory, destinations[fidx]))){
+           write_file[fidx] = FALSE 
+         }
        }
      }
    }
@@ -779,16 +833,17 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
    res$destinations = destinations
    res$write_file   = write_file
   
-
    # next we write the files that are TRUE
-   for(fidx in 1:length(destinations)){
-     if(write_file[fidx]){
-       file.copy(sources[fidx], file.path(output_directory, destinations[fidx]), overwrite=TRUE)
-       vp(cfg, sprintf("Creating file: %s", file.path(output_directory, destinations[fidx])))
-     } else {
-       isgood = FALSE
-       vp(cfg, sprintf("File: %s, exists, and was not copied.", file.path(output_directory, destinations[fidx])))
-       vp(cfg, sprintf("Set overwrite=TRUE to force this file to be copied."))
+   if(!is.null(destinations)){
+     for(fidx in 1:length(destinations)){
+       if(write_file[fidx]){
+         file.copy(sources[fidx], file.path(output_directory, destinations[fidx]), overwrite=TRUE)
+         vp(cfg, sprintf("Creating file: %s", file.path(output_directory, destinations[fidx])))
+       } else {
+         isgood = FALSE
+         vp(cfg, sprintf("File: %s, exists, and was not copied.", file.path(output_directory, destinations[fidx])))
+         vp(cfg, sprintf("Set overwrite=TRUE to force this file to be copied."))
+       }
      }
    }
  } else {

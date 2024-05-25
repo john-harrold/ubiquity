@@ -364,12 +364,6 @@ MAIN:
     if(($line =~ '<DATA:FILE:CSV>') or ($line =~ '<DATA:HEADER:.*>')){
       $cfg  = &parse_data_file($cfg, $line); }
 
-    #
-    # NONMEM specific options
-    #
-    if($line =~ '<NONMEM:'){
-      $cfg  = &parse_nonmem_options($cfg, $line); }
-
   }
 
   # creating the file:
@@ -473,8 +467,6 @@ my $cfg;
   $cfg->{files}->{adapt}                             = 'target_adapt_5';
 
   $cfg->{files}->{mrgsolve}                          = 'target_mrgsolve';
-  $cfg->{files}->{nonmem}                            = 'target_nonmem';
-  $cfg->{files}->{monolix}                           = 'target_monolix';
 
   # berkeley_madonna output
   $cfg->{files}->{reserved_words}                    = 'system_help_reserved_words.txt';
@@ -512,9 +504,6 @@ my $cfg;
   @{$cfg->{outputs_index}}                           = ();
   $cfg->{options}                                    = {};
   $cfg->{options}->{output_times}                    = 'SIMINT_SEQ[0][10][.1]';
-  $cfg->{options}->{nonmem}->{input}->{drop}         = {};
-  $cfg->{options}->{nonmem}->{input}->{rename}       = {};
-  $cfg->{options}->{nonmem}->{data}                  = '';
   $cfg->{options}->{amtify}->{cmt_to_amt}            = {};
   $cfg->{options}->{amtify}->{cmt_to_rel}            = {};
   $cfg->{options}->{amtify}->{vol}                   = {};
@@ -590,12 +579,6 @@ my $cfg;
                                 DTOUT      => 'insensitive' ,
                                 ROOTTOL    => 'insensitive' ,
                                 TIME       => 'insensitive' 
-                              },
-        'Monolix'          => {
-                                pop_       => 'start'       ,
-                              },
-        'Nonmem'           => {
-                                'S\d+'     => 'start'       ,
                               },
         'R-project'        => {
                                 'NA'            => 'exact',
@@ -813,14 +796,11 @@ sub dump_nlmixr
       } else {
         if(grep( /^$pname$/, @{$cfg->{options}->{est}->{lt}})){
           $m_ele->{SYSTEM_PARAMS_TV}  .= $indent."TV_".$pname.&fetch_padding($pname, $cfg->{parameters_length}).' =   log('.$pvstr.")\n";
-          $pname_trans   = "exp(TV_$pname)";
         } else {
           $m_ele->{SYSTEM_PARAMS_TV}  .= $indent."TV_".$pname.&fetch_padding($pname, $cfg->{parameters_length}).' = '.$pvstr."\n";
-          $pname_trans   = "TV_$pname";
         }
+        $pname_trans   = "TV_$pname";
       }
-
-
        
       # I the model portion we create the actual named parameters:
       if(!grep( /^$pname$/, @{$cfg->{parameters_variance_index}})){
@@ -829,6 +809,15 @@ sub dump_nlmixr
           # This creates the algebraic relationnship between the IIV term and
           # the typical value:
           $tv_trans = &make_iiv($cfg, $pname, 'rproject', $parameter_set);
+
+          # IF the parameter is log transformed and the distribution is log
+          # normal we move the parameter name into the exponential to make
+          # mu-referencing work correctly
+          my $distribution = $cfg->{iiv}->{$parameter_set}->{parameters}->{$pname}->{distribution};
+          if(grep( /^$pname$/, @{$cfg->{options}->{est}->{lt}}) and $distribution eq 'LN'){
+            $tv_trans =~ s#SIMINT_PARAMETER_TV\*##g;
+            $tv_trans =~ s#SIMINT_IIV_VALUE#SIMINT_PARAMETER_TV + SIMINT_IIV_VALUE#g;
+          }
           $tv_trans =~ s#SIMINT_PARAMETER_TV#$pname_trans#g;
           $tv_trans =~ s#SIMINT_IIV_VALUE#$cfg->{iiv}->{$iiv_set}->{parameters}->{$pname}->{iiv_name}#g;
           $m_ele->{SYSTEM_PARAMS} .= $tv_trans."\n";
@@ -4198,32 +4187,6 @@ sub apply_format
 
 }
 
-sub parse_nonmem_options
-{
-  my ($cfg, $line) = @_;
-
-  $line =~ s#\s##g;
-
-  my $col;
-  my $value;
-
-  if($line =~ m#<NONMEM:INPUT:DROP:#){
-     $line =~ s#<NONMEM:INPUT:DROP:(.*)>.*#$1#;
-     $cfg->{options}->{nonmem}->{input}->{drop}->{$line} = 'yes';
-  }
-  if($line =~ m#<NONMEM:INPUT:RENAME#){
-     $col   = $line;
-     $value = $line;
-     $col   =~ s#<NONMEM:INPUT:RENAME:(.*)>.*#$1#;
-     $value =~ s#<NONMEM:INPUT:RENAME:.*>(.*)#$1#;
-     $cfg->{options}->{nonmem}->{input}->{rename}->{$col} = $value;
-  }
-  if($line =~ m#<NONMEM:DATA>#){
-     $line =~ s#<NONMEM:DATA>\s*##;
-     $cfg->{options}->{nonmem}->{data} .= $line."\n";
-  }
-  return $cfg;
-}
 
 sub parse_est_p
 {
@@ -6156,31 +6119,32 @@ sub system_check{
   # If both a data set and covariates are specified we check to see if the
   # columns in the dataset have those covariates specified
 
-  if((@{$cfg->{covariates_index}})
-    and ($cfg->{data}->{file} ne "")){
-  
-    # first we get a list of all the columns that are being used in NONMEM. We
-    # iterate through all of the columns in the data file
-    foreach $name  (@{$cfg->{data}->{headers}->{values}}){
-    #Checking first to see if the column has been renamed
-    if(defined($cfg->{options}->{nonmem}->{input}->{rename}->{$name})){
-      # we put the renamed column on the list of data columns
-      push @nmdatacols, $cfg->{options}->{nonmem}->{input}->{rename}->{$name};
-    }
-    else{
-      #otherwise we just add the column name
-      push  @nmdatacols, $name; }
-    }
-
-    my $tmpstring = ":::".join(':::', @nmdatacols).":::";
-
-    # next we loop through each covariate and see if it's in the list of
-    # nonmem data columns
-    foreach $name  (@{$cfg->{covariates_index}}){
-      if(not($tmpstring =~ m#:::${name}:::#)){
-       &mywarn("The covariate: $name was specified but not defined in dataset"); }
-    }
-    }
+# JMH removed this because I'm pretty sure it was only used for nonmem 
+# if((@{$cfg->{covariates_index}})
+#   and ($cfg->{data}->{file} ne "")){
+#
+#   # first we get a list of all the columns that are being used in NONMEM. We
+#   # iterate through all of the columns in the data file
+#   foreach $name  (@{$cfg->{data}->{headers}->{values}}){
+#   #Checking first to see if the column has been renamed
+#   if(defined($cfg->{options}->{nonmem}->{input}->{rename}->{$name})){
+#     # we put the renamed column on the list of data columns
+#     push @nmdatacols, $cfg->{options}->{nonmem}->{input}->{rename}->{$name};
+#   }
+#   else{
+#     #otherwise we just add the column name
+#     push  @nmdatacols, $name; }
+#   }
+#
+#   my $tmpstring = ":::".join(':::', @nmdatacols).":::";
+#
+#   # next we loop through each covariate and see if it's in the list of
+#   # nonmem data columns
+#   foreach $name  (@{$cfg->{covariates_index}}){
+#     if(not($tmpstring =~ m#:::${name}:::#)){
+#      &mywarn("The covariate: $name was specified but not defined in dataset"); }
+#   }
+#   }
 
   # Checking time scales
   if(exists($cfg->{time_scales})){

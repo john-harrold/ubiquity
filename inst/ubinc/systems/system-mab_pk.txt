@@ -104,7 +104,7 @@
 <VP> prop_err   0.1            eps    inf      --     yes      Variance
 <VP> add_err    0.1            eps    inf      ng/ml  yes      Variance
 
-<EST:LT> Vp; Vc; CL; Q
+<EST:LT> Vp; Vc; CL; Q; ka
 <EST:P>  Vp; Vc; CL; Q; ka; add_err; prop_err
 <OE:C_ng_ml> add=add_err; prop=prop_err
 <AMTIFY> Cp; Ap; Vp
