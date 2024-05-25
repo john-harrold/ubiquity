@@ -123,6 +123,8 @@ transform parameters `P1`, `P2`, and `P3` you would do the following:
 <EST:LT> P1; P2; P3
 ~~~
 
+*NOTE  That for the Monolix outputs to work correctly you will need to logtransform any parameters that have log-normal IIV assigned.*
+
 By default all parameters will be specified for estimation. If you want to
 estimate a subset of parameters (P), say `P1` and `P2`, you can use the following:
 
@@ -856,7 +858,7 @@ When the system is built, multiple files are generated in the temporary director
 
 * `target_mrgsolve-PSET.cpp`: This is a C++ file containing the system for the parameter set `PSET` to run using the in `mrgsolve` package in R.
 
-* `target_nlmixr-PSET.R`: This R script defines the system for analysis in `nlmixr` for the parameter set `PSET`.
+* `target_nlmixr-PSET.R`: This R script defines the system for analysis in `nlmixr2` for the parameter set `PSET`. *Note: The nlmixr2 target can be used to create input model files for both NONMEM and Monolix*
 
 
 ## References

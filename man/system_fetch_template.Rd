@@ -40,7 +40,6 @@ workflow:
  \item{"ShinyApp"}         produces \code{ubiquity_app.R}, \code{server.R} and \code{ui.R}: files needed to run the model through a Shiny App either locally or on a Shiny Server
  \item{"Model Diagram"}    produces \code{system.svg}: SVG template for producing a model diagram (Goto \url{https://inkscape.org} for a free SVG editor)
  \item{"Shiny Rmd Report"} produces \code{system_report.Rmd} and \code{test_system_report.R}: R-Markdown file used to generate report tabs for the Shiny App and a script to test it
- \item{"myOrg"}            produces \code{myOrg.R}: R-Script for defining functions used within your organization
 }
 
 And this will create files to use in other software:

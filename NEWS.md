@@ -7,6 +7,9 @@ editor_options:
 
 ## Notes
 
+- Removed the NONMEM and Monolix outputs
+- Added translation of rxode2 output into NONMEM and Monolix outputs 
+
 # ubiquity 2.0.3 
 
 ## Notes
