@@ -8,6 +8,7 @@ $CMT @annotated
 $MAIN
 <IIV_SP>
 <SSP>
+<RINF>
 <STATE_IC>
 
 

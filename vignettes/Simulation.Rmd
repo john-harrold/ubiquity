@@ -1,6 +1,7 @@
 ---
 title: 'Individual and Population Simulations'
 output: rmarkdown::html_vignette
+#output: html_document
 vignette: >
   %\VignetteIndexEntry{Simulation}
   %\VignetteEngine{knitr::rmarkdown}

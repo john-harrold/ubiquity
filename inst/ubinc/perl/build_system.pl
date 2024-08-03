@@ -728,6 +728,7 @@ sub dump_nlmixr
   $m_ele->{ERROR_PARAMS}          = '';
   $m_ele->{IIV_DEF}               = '';
   $m_ele->{IIV_BLOCK}             = '';
+  $m_ele->{RINF}                  = '';
   $m_ele->{SSP}                   = '';
   $m_ele->{DSP}                   = '';
   $m_ele->{ODES}                  = '';
@@ -971,6 +972,21 @@ sub dump_nlmixr
       }
     }
   }
+
+  #
+  #  Infusion rates
+  #
+  if((@{$cfg->{input_rates_index}})){
+    $m_ele->{RINF}   .= "\n".$indent."# Placeholders for infusion rates.\n";
+    $m_ele->{RINF}   .= $indent."# These should be defined in the dataset.\n";
+    foreach $name (@{$cfg->{input_rates_index}}){
+      $m_ele->{RINF} .=$indent."# time scale: ".$cfg->{input_rates}->{$name}->{times}->{scale}. " units: (".$cfg->{input_rates}->{$name}->{times}->{units}.") \n";
+      $m_ele->{RINF} .=$indent."# mass scale: ".$cfg->{input_rates}->{$name}->{levels}->{scale}." units: (".$cfg->{input_rates}->{$name}->{levels}->{units}.") \n";
+      $m_ele->{RINF} .= $indent.$name.&fetch_padding($name, $cfg->{inputs_length})."= 0.0\n";
+    }
+  }
+
+
   #
   #  states and odes
   #
@@ -2234,6 +2250,7 @@ sub dump_mrgsolve
   $mc->{IIV_SP}        = '';
   $mc->{OMEGA}         = '';
   $mc->{SIGMA}         = '';
+  $mc->{RINF}          = '';
   $mc->{ODES}          = "\n//Defining the differential equations\n";
   $mc->{SSP}           = '';
   $mc->{DSP}           = '';
@@ -2313,6 +2330,18 @@ sub dump_mrgsolve
     }
   }
 
+  #
+  #  Infusion rates
+  #
+  if((@{$cfg->{input_rates_index}})){
+    $mc->{RINF}   .= "\n// Placeholders for infusion rates.\n";
+    $mc->{RINF}   .= "// These should be defined in the dataset.\n";
+    foreach $name (@{$cfg->{input_rates_index}}){
+      $mc->{RINF} .="// time scale: ".$cfg->{input_rates}->{$name}->{times}->{scale}. " units: (".$cfg->{input_rates}->{$name}->{times}->{units}.") \n";
+      $mc->{RINF} .="// mass scale: ".$cfg->{input_rates}->{$name}->{levels}->{scale}." units: (".$cfg->{input_rates}->{$name}->{levels}->{units}.") \n";
+      $mc->{RINF} .="double ".$name.&fetch_padding($name, 20)."= 0.0\n";
+    }
+  }
 
   # 
   # Parsing the states

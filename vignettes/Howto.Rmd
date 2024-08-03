@@ -1,0 +1,204 @@
+---
+title: 'Howtos'
+output: html_document
+#output: rmarkdown::html_vignette
+#vignette: >
+#  %\VignetteIndexEntry{Howtos}
+#  %\VignetteEngine{knitr::rmarkdown}
+#  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE, message=FALSE, eval=TRUE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, eval=FALSE)
+require(ubiquity)
+require(deSolve)
+require(ggplot2)
+require(foreach)
+require(doParallel)
+require(rhandsontable)
+```
+
+## Working with `rxode2`, `nlmixr2`, NONMEM, and Monolix
+
+Say you have a model in ubiquity and you want to use it with nlmixr2. Or perhaps you want to try out the simulation engine of `rxode2`, or you want to hand the model off to someone using `Monolix`. This should provide you with a way to easily convert your model into different formats in an automated fashion. 
+
+### Getting your model in `rxode2` format
+
+As an example consider the system file for the two compartment model  (`system_2cmt.txt` below). When you build the system an `rxode2` output target will be created. You can use the `system_fetch_template()` function to access this file. Below I'm placing the script into the temporary directory. This is a script that will generate an `rxode2` model function and store the function in the object `my_model`. This is the default input for `nlmixr2`. You can then use this function and the piping methodology to do things like add IIV terms to parameters. So you can use `ubiquity` to build your structural model and then piping, `rxode2`, and `nlmixr2` for analysis. 
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+sf_2cmt_txt = "
+# Two compartment model with absorption compartment (At). The central
+# compartment (Cc) had a volume (Vc), and the tissue compartment (Cp) has a
+# volume (Vt). The system is parameterized in terms of macro constants (Q and
+# CL)
+#
+# While the the default dosing is a 1 mg IV dose into the central compartment,
+# the model is written to accept dosing into an absorption compartment and
+# through continuous IV infusion.
+#       _________ 
+#      |         |
+#      |   At    |
+#      |         |
+#      |_________|
+#           |
+#           | ka, fb
+#           |
+#           V
+#       _________         _________  
+#      |         |   Q   |         | 
+#      |   Cc    |------>|   Cp    |
+#      |   Vc    |<------|   Vt    |
+#      |_________|       |_________|
+#           |
+#           | CL
+#           |
+#           V  
+#
+# System Units:
+#                
+#   mass          [=] mg 
+#   volume        [=] ml
+#   concentration [=] mg/ml
+#   time          [=] hr
+
+
+# #-------------#
+# | Parameters  |
+# #-------------#
+#
+# System parameters
+#    name              value     lower      upper   units editable    grouping
+#                                bound      bound
+
+<P>  Vc                  1.0       eps        Inf   ml         yes     System
+<P>  Vt                  1.0       eps        Inf   ml         yes     System
+<P>  CL                  1.0       eps        Inf   ml/hr      yes     System
+<P>  Q                   1.0       eps        Inf   ml/hr      yes     System
+<P>  ka                  1.0       eps        Inf    1/hr      yes     System
+<P>  fb                  1.0       eps        Inf   --         yes     System
+
+
+# Bolus Events
+# ------------
+# times/events state   values        scale      units
+<B:times>;             [  0  ];      1;          hours
+<B:events>;      Cc;   [1.0  ];      1/Vc;       mg     
+<B:events>;      At;   [0.0  ];      1;          mg     
+
+# Infusion Rates 
+# ------------
+#  name     time/levels  values  scale    units
+<R:Dinf>;     times;       [0];     1;    hours
+<R:Dinf>;     levels;      [0];     1;    mg/hour
+
+<ODE:At> -ka*At           
+<ODE:Cc>  ka*At*fb/Vc - CL/Vc*Cc -Q*(Cc-Cp)/Vc  + Dinf/Vc
+<ODE:Cp>                         +Q*(Cc-Cp)/Vt
+ 
+<O> Cc_mg_ml    = Cc
+<VP> prop_err   0.1            eps    inf      --     yes      Variance
+<VP> add_err    0.1            eps    inf      ng/ml  yes      Variance
+<OE:Cc_mg_ml> add=add_err; prop=prop_err
+
+<TS:hours> 1.0
+<TS:days>  1.0/24"
+sf_2cmt = file.path("system_2cmt.txt")
+sf_2cmt_full = file.path(tempdir(), sf_2cmt)
+
+fileConn = file(sf_2cmt_full)
+writeLines(sf_2cmt_txt, fileConn)
+close(fileConn)
+
+```
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+cfg = build_system(system_file         = sf_2cmt_full, 
+                   temporary_directory = file.path(tempdir(), "transient"))
+
+fr = system_fetch_template(cfg, 
+                           template         = "nlmixr2", 
+                           output_directory = tempdir(),
+                           overwrite       =  TRUE)
+
+library(rxode2)
+source(file.path(tempdir(), "system_nlmixr2.R"))
+```
+
+You can see the contents of `system_nlmixr2.R` and what the `my_model` object looks like below. Note that to include the output with `ubiquity` you will need to have some error model. So along with the `<O>` Descriptor you will need to define some variance parameters (`<VP>`) and also an output error model (`<OE:?>`).
+
+### Getting your model in NONMEM format
+
+Once you have your model in `rxode2` format you can convert it further into NONMEM format with the `babelmixr2` package. To do this you need at least one inter-individual variablitiy term. You can do this in the system file with the `<IIV:?>` delimiter. In this example we will do that by using model piping. Here we specify that the typical value of `Vc`, the parameter `TV_Vc`, should have an error that is lognormally distributed. This will add the IIV term `eta_Vc`.
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, results="hide"}
+my_model = my_model |> 
+  model({Vc = exp(TV_Vc + eta_Vc)})  |>
+  as.function()
+```
+
+
+Next we just need to load the `babelmixr2` package and then we can get the NONMEM model using the `nonmemModel` attribute: 
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, results='hide'}
+library(babelmixr2)
+my_model_nm = my_model()$nonmemModel
+```
+
+### Getting your model in Monolix format
+
+You can also get the model in Monolix format using the `monolixModel` attribute:
+
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, results='hide'}
+my_model_mlx = my_model()$monolixModel
+```
+
+### Further reading
+
+For more discussion on this topic see the following:
+
+* [https://github.com/nlmixr2/babelmixr2/issues/107](https://github.com/nlmixr2/babelmixr2/issues/107)
+
+
+## Models in different formats {.tabset}
+
+### `ubiquity`
+
+Contents of `system_2cmt.txt` file:
+
+```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
+cat(readLines(sf_2cmt_full), sep="\n")
+```
+
+### `rxode2` script
+
+Contents of `system_nlmixr2.R` file produced by `system_fetch_template()`:
+
+```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
+
+cat(readLines( file.path(tempdir(), "system_nlmixr2.R")) , sep="\n")
+```
+
+### `rxode2` object
+
+The `my_model` object:
+
+```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
+my_model
+```
+
+### NONMEM
+
+The `my_model_nm` object:
+
+```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
+cat(my_model_nm)
+```
+
+### Monolix
+
+The `my_model_mlx` object:
+
+```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
+cat(my_model_mlx)
+```
