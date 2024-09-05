@@ -129,20 +129,18 @@ You can see the contents of `system_nlmixr2.R` and what the `my_model` object lo
 
 ### Getting your model in NONMEM format
 
-Once you have your model in `rxode2` format you can convert it further into NONMEM format with the `babelmixr2` package. To do this you need at least one inter-individual variablitiy term. You can do this in the system file with the `<IIV:?>` delimiter. In this example we will do that by using model piping. Here we specify that the typical value of `Vc`, the parameter `TV_Vc`, should have an error that is lognormally distributed. This will add the IIV term `eta_Vc`.
+Once you have your model in `rxode2` format you can convert it further into NONMEM format with the `ruminate` package. To do this you need at least one inter-individual variability term. You can do this in the system file with the `<IIV:?>` delimiter. In this example we will do that by using model piping. Here we specify that the typical value of `Vc`, the parameter `TV_Vc`, should have an error that is lognormally distributed. This will add the IIV term `eta_Vc`.
 
 ```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, results="hide"}
 my_model = my_model |> 
-  model({Vc = exp(TV_Vc + eta_Vc)})  |>
-  as.function()
+  model({Vc = exp(TV_Vc + eta_Vc)}) 
 ```
 
-
-Next we just need to load the `babelmixr2` package and then we can get the NONMEM model using the `nonmemModel` attribute: 
+Next we just need to load the `ruminate` package (>=0.2.4) and use the `rx2other()` function to create a NONMEM control stream: 
 
 ```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, results='hide'}
-library(babelmixr2)
-my_model_nm = my_model()$nonmemModel
+library(ruminate)
+my_model_nm = rx2other(my_model, out_type="nonmem")
 ```
 
 ### Getting your model in Monolix format
@@ -150,7 +148,7 @@ my_model_nm = my_model()$nonmemModel
 You can also get the model in Monolix format using the `monolixModel` attribute:
 
 ```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, results='hide'}
-my_model_mlx = my_model()$monolixModel
+my_model_mlx = rx2other(my_model, out_type="monolix")
 ```
 
 ### Further reading
@@ -189,16 +187,20 @@ my_model
 
 ### NONMEM
 
-The `my_model_nm` object:
+The file containing the control stream is found here: 
+
+`my_model_nm$files$ctl$fn_full`.
 
 ```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
-cat(my_model_nm)
+cat(readLines(  my_model_nm$files$ctl$fn_full ) , sep="\n")
 ```
 
 ### Monolix
 
-The `my_model_mlx` object:
+The file containing the mlxtran file is found here: 
+
+`my_model_mlx$files$mlxtran$fn_full`
 
 ```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
-cat(my_model_mlx)
+cat(readLines(  my_model_mlx$files$mlxtran$fn_full ) , sep="\n")
 ```

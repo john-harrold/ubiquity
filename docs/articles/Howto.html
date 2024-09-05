@@ -172,8 +172,8 @@ output error model (<code>&lt;OE:?&gt;</code>).</p>
 <h3 id="getting-your-model-in-nonmem-format">Getting your model in NONMEM format<a class="anchor" aria-label="anchor" href="#getting-your-model-in-nonmem-format"></a>
 </h3>
 <p>Once you have your model in <code>rxode2</code> format you can
-convert it further into NONMEM format with the <code>babelmixr2</code>
-package. To do this you need at least one inter-individual variablitiy
+convert it further into NONMEM format with the <code>ruminate</code>
+package. To do this you need at least one inter-individual variability
 term. You can do this in the system file with the
 <code>&lt;IIV:?&gt;</code> delimiter. In this example we will do that by
 using model piping. Here we specify that the typical value of
@@ -182,14 +182,13 @@ that is lognormally distributed. This will add the IIV term
 <code>eta_Vc</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_model</span> <span class="op">=</span> <span class="va">my_model</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://nlmixr2.github.io/rxode2/reference/model.html" class="external-link">model</a></span><span class="op">(</span><span class="op">{</span><span class="va">Vc</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">TV_Vc</span> <span class="op">+</span> <span class="va">eta_Vc</span><span class="op">)</span><span class="op">}</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/as.function.html" class="external-link">as.function</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Next we just need to load the <code>babelmixr2</code> package and
-then we can get the NONMEM model using the <code>nonmemModel</code>
-attribute:</p>
+<span>  <span class="fu"><a href="https://nlmixr2.github.io/rxode2/reference/model.html" class="external-link">model</a></span><span class="op">(</span><span class="op">{</span><span class="va">Vc</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">TV_Vc</span> <span class="op">+</span> <span class="va">eta_Vc</span><span class="op">)</span><span class="op">}</span><span class="op">)</span> </span></code></pre></div>
+<p>Next we just need to load the <code>ruminate</code> package
+(&gt;=0.2.4) and use the <code><a href="https://ruminate.ubiquity.tools/reference/rx2other.html" class="external-link">rx2other()</a></code> function to create a
+NONMEM control stream:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nlmixr2.github.io/babelmixr2/" class="external-link">babelmixr2</a></span><span class="op">)</span></span>
-<span><span class="va">my_model_nm</span> <span class="op">=</span> <span class="fu">my_model</span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">nonmemModel</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ruminate.ubiquity.tools/" class="external-link">ruminate</a></span><span class="op">)</span></span>
+<span><span class="va">my_model_nm</span> <span class="op">=</span> <span class="fu"><a href="https://ruminate.ubiquity.tools/reference/rx2other.html" class="external-link">rx2other</a></span><span class="op">(</span><span class="va">my_model</span>, out_type<span class="op">=</span><span class="st">"nonmem"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="getting-your-model-in-monolix-format">Getting your model in Monolix format<a class="anchor" aria-label="anchor" href="#getting-your-model-in-monolix-format"></a>
@@ -197,7 +196,7 @@ attribute:</p>
 <p>You can also get the model in Monolix format using the
 <code>monolixModel</code> attribute:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">my_model_mlx</span> <span class="op">=</span> <span class="fu">my_model</span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">monolixModel</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">my_model_mlx</span> <span class="op">=</span> <span class="fu"><a href="https://ruminate.ubiquity.tools/reference/rx2other.html" class="external-link">rx2other</a></span><span class="op">(</span><span class="va">my_model</span>, out_type<span class="op">=</span><span class="st">"monolix"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="further-reading">Further reading<a class="anchor" aria-label="anchor" href="#further-reading"></a>
@@ -358,8 +357,27 @@ attribute:</p>
 <div class="tab-pane" id="rxode2-object" role="tabpanel" aria-labelledby="rxode2-object-tab">
 
 <p>The <code>my_model</code> object:</p>
-<pre><code>function () 
-{
+<pre><code>  [36m── [39m  [1mrxode2-based free-form 3-cmt ODE model [22m  [36m────────────────────────────────────── [39m 
+ ──  [1m [1mInitalization: [1m [22m ──  
+ [1mFixed Effects [22m ( [1m [34m$theta [39m [22m): 
+   TV_Vc    TV_Vt    TV_CL     TV_Q    TV_ka    TV_fb prop_err  add_err 
+     1.0      1.0      1.0      1.0      1.0      1.0      0.1      0.1 
+
+ [1mOmega [22m ( [1m [34m$omega [39m [22m): 
+       eta_Vc
+eta_Vc      1
+ [1m
+States [22m ( [1m [34m$state [39m [22m or  [1m [34m$stateDf [39m [22m): 
+  Compartment Number Compartment Name
+1                  1               At
+2                  2               Cc
+3                  3               Cp
+ ──  [1m [1m [1m [1mμ-referencing [1m [1m ( [1m [1m [34m$muRefTable [39m [1m [1m): [1m [22m ──  
+  theta    eta level
+1 TV_Vc eta_Vc    id
+
+ ──  [1m [1mModel (Normalized Syntax): [1m [22m ── 
+function() {
     ini({
         TV_Vc &lt;- c(2.22044604925031e-16, 1)
         TV_Vt &lt;- c(2.22044604925031e-16, 1)
@@ -386,13 +404,12 @@ attribute:</p>
         Cc_mg_ml = Cc
         Cc_mg_ml ~ add(add_err) + prop(prop_err)
     })
-}
-&lt;bytecode: 0x11ca4bdd0&gt;
-&lt;environment: 0x10b7abb60&gt;</code></pre>
+}</code></pre>
 </div>
 <div class="tab-pane" id="nonmem" role="tabpanel" aria-labelledby="nonmem-tab">
 
-<p>The <code>my_model_nm</code> object:</p>
+<p>The file containing the control stream is found here:</p>
+<p><code>my_model_nm$files$ctl$fn_full</code>.</p>
 <pre><code>$PROBLEM  translated from babelmixr2
 ; comments show mu referenced model in ui$getSplitMuModel
 
@@ -420,14 +437,7 @@ $DES
   DINF=0 ; Dinf = 0
   DADT(1) = (- KA*A(1)) ; d/dt(At) = (-ka * At)
   DADT(2) = (KA*A(1)*FB/VC-CL/VC*A(2)-RXR1*(A(2)-A(3))/VC+DINF/VC) ; d/dt(Cc) = (ka * At * fb/Vc - CL/Vc * Cc - Q * (Cc - Cp)/Vc + Dinf/Vc)
-  RXDZ001=VT
-  IF (RXDZ001 .GE. 0.0 .AND. RXDZ001 .LE. 0.000001) THEN
-    RXDZ001=0.000001
-  END IF
-  IF (RXDZ001 .GE. -0.000001 .AND. RXDZ001 .LT. 0.) THEN
-    RXDZ001= -0.000001
-  END IF
-  DADT(3) = (RXR1*(A(2)-A(3))/RXDZ001) ; d/dt(Cp) = (Q * (Cc - Cp)/Vt)
+  DADT(3) = (RXR1*(A(2)-A(3))/VT) ; d/dt(Cp) = (Q * (Cc - Cp)/Vt)
   CC_MG_ML=A(2) ; Cc_mg_ml = Cc
 
 $ERROR
@@ -457,7 +467,7 @@ $OMEGA 1 ; eta_Vc
 
 $SIGMA 1 FIX
 
-$ESTIMATION METHOD=1 INTER MAXEVALS=10000 SIGDIG=3 SIGL=12 PRINT=1 NOABORT
+$ESTIMATION METHOD=1 INTER MAXEVALS=100000 SIGDIG=3 SIGL=12 PRINT=1 NOABORT
 
 $COVARIANCE
 
@@ -469,29 +479,81 @@ $TABLE ID TIME IPRED PRED RXROW ONEHEADER NOPRINT
 </div>
 <div class="tab-pane" id="monolix" role="tabpanel" aria-labelledby="monolix-tab">
 
-<p>The <code>my_model_mlx</code> object:</p>
-<pre><code>DESCRIPTION:
-model translated from `babelmixr2` and `nlmixr2` function my_model to my_model-monolix.txt
+<p>The file containing the mlxtran file is found here:</p>
+<p><code>my_model_mlx$files$mlxtran$fn_full</code></p>
+<pre><code>&lt;DATAFILE&gt;
+
+[FILEINFO]
+file='my_model-monolix.csv'
+delimiter = comma
+header = {ID, TIME, EVID, AMT, DV, ADM, nlmixrRowNums}
+
+[CONTENT]
+ID = {use=identifier}
+TIME = {use=time}
+EVID = {use=eventidentifier}
+AMT = {use=amount}
+DV = {use=observation, name=rx_prd_Cc_mg_ml, type=continuous}
+ADM = {use=administration}
+
+&lt;MODEL&gt;
+
+[INDIVIDUAL]
+input={Vc_pop, omega_Vc, Vt_pop, CL_pop, Q_pop, ka_pop, fb_pop}
+
+DEFINITION:
+Vc = {distribution=logNormal, typical=Vc_pop, sd=omega_Vc}
+Vt = {distribution=normal, typical=Vt_pop, no-variability}
+CL = {distribution=normal, typical=CL_pop, no-variability}
+Q = {distribution=normal, typical=Q_pop, no-variability}
+ka = {distribution=normal, typical=ka_pop, no-variability}
+fb = {distribution=normal, typical=fb_pop, no-variability}
 
 [LONGITUDINAL]
-input={Vc,Vt,CL,Q,ka,fb}
+input={add_err, prop_err}
+file='my_model-monolix.txt'
 
-PK:
-; Define compartments with administrations
-compartment(cmt=1, amount=At)
-; Define PK macros
-depot(type=1, target=At, Tlag=0, p=1)
+DEFINITION:
+rx_prd_Cc_mg_ml={distribution = normal, prediction = rx_pred_Cc_mg_ml, errorModel=combined2(add_err,prop_err)}
 
-EQUATION:
-   Dinf = 0
-   ddt_At = (- ka*At)
-   ddt_Cc = (ka*At*fb/Vc-CL/Vc*Cc-Q*(Cc-Cp)/Vc+Dinf/Vc)
-   ddt_Cp = (Q*(Cc-Cp)/Vt)
-   Cc_mg_ml = Cc
-   rx_pred_Cc_mg_ml = Cc_mg_ml
+&lt;FIT&gt;
+data={rx_prd_Cc_mg_ml}
+model={rx_prd_Cc_mg_ml}
 
-OUTPUT:
-output={rx_pred_Cc_mg_ml}</code></pre>
+&lt;PARAMETER&gt;
+Vc_pop={value=2.71828182845905, method=MLE}
+Vt_pop={value=1, method=MLE}
+CL_pop={value=1, method=MLE}
+Q_pop={value=1, method=MLE}
+ka_pop={value=1, method=MLE}
+fb_pop={value=1, method=MLE}
+prop_err={value=0.1, method=MLE}
+add_err={value=0.1, method=MLE}
+omega_Vc={value=1, method=MLE}
+
+&lt;MONOLIX&gt;
+
+[TASKS]
+populationParameters()
+individualParameters(method = {conditionalMode})
+fim(method = StochasticApproximation)
+logLikelihood(method = ImportanceSampling)
+plotResult(method = {outputplot, indfits, obspred, residualsscatter, residualsdistribution, parameterdistribution, covariatemodeldiagnosis, randomeffects, covariancemodeldiagnosis, saemresults})
+
+[SETTINGS]
+GLOBAL:
+exportpath = 'my_model-monolix'
+POPULATION:
+exploratoryautostop = no
+smoothingautostop = no
+burniniterations = 5
+exploratoryiterations = 250
+simulatedannealingiterations = 250
+smoothingiterations = 200
+exploratoryalpha = 0
+exploratoryinterval = 200
+omegatau = 0.95
+errormodeltau = 0.95</code></pre>
 </div>
 </div>
 </div>
