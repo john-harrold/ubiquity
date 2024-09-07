@@ -172,14 +172,14 @@ output error model (<code>&lt;OE:?&gt;</code>).</p>
 <h3 id="getting-your-model-in-nonmem-format">Getting your model in NONMEM format<a class="anchor" aria-label="anchor" href="#getting-your-model-in-nonmem-format"></a>
 </h3>
 <p>Once you have your model in <code>rxode2</code> format you can
-convert it further into NONMEM format with the <code>ruminate</code>
-package. To do this you need at least one inter-individual variability
-term. You can do this in the system file with the
-<code>&lt;IIV:?&gt;</code> delimiter. In this example we will do that by
-using model piping. Here we specify that the typical value of
-<code>Vc</code>, the parameter <code>TV_Vc</code>, should have an error
-that is lognormally distributed. This will add the IIV term
-<code>eta_Vc</code>.</p>
+convert it further into NONMEM format with the <code>babelmixr2</code>
+package (via the <code>ruminate</code> package). To do this you need at
+least one inter-individual variability term. You can do this in the
+system file with the <code>&lt;IIV:?&gt;</code> delimiter. In this
+example we will do that by using model piping. Here we specify that the
+typical value of <code>Vc</code>, the parameter <code>TV_Vc</code>,
+should have an error that is lognormally distributed. This will add the
+IIV term <code>eta_Vc</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_model</span> <span class="op">=</span> <span class="va">my_model</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://nlmixr2.github.io/rxode2/reference/model.html" class="external-link">model</a></span><span class="op">(</span><span class="op">{</span><span class="va">Vc</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">TV_Vc</span> <span class="op">+</span> <span class="va">eta_Vc</span><span class="op">)</span><span class="op">}</span><span class="op">)</span> </span></code></pre></div>
@@ -193,8 +193,8 @@ NONMEM control stream:</p>
 <div class="section level3">
 <h3 id="getting-your-model-in-monolix-format">Getting your model in Monolix format<a class="anchor" aria-label="anchor" href="#getting-your-model-in-monolix-format"></a>
 </h3>
-<p>You can also get the model in Monolix format using the
-<code>monolixModel</code> attribute:</p>
+<p>You can also get the model in Monolix by specifying
+<code>monolix</code> as the output type:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_model_mlx</span> <span class="op">=</span> <span class="fu"><a href="https://ruminate.ubiquity.tools/reference/rx2other.html" class="external-link">rx2other</a></span><span class="op">(</span><span class="va">my_model</span>, out_type<span class="op">=</span><span class="st">"monolix"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -206,10 +206,9 @@ NONMEM control stream:</p>
 <li><a href="https://github.com/nlmixr2/babelmixr2/issues/107" class="external-link">https://github.com/nlmixr2/babelmixr2/issues/107</a></li>
 </ul>
 </div>
-</div>
-<div class="section level2 tabset">
-<h2 class="tabset" id="models-in-different-formats">Models in different formats<a class="anchor" aria-label="anchor" href="#models-in-different-formats"></a>
-</h2>
+<div class="section level3 tabset">
+<h3 class="tabset" id="models-in-different-formats">Models in different formats<a class="anchor" aria-label="anchor" href="#models-in-different-formats"></a>
+</h3>
 
 
 
@@ -479,7 +478,7 @@ $TABLE ID TIME IPRED PRED RXROW ONEHEADER NOPRINT
 </div>
 <div class="tab-pane" id="monolix" role="tabpanel" aria-labelledby="monolix-tab">
 
-<p>The file containing the mlxtran file is found here:</p>
+<p>The file containing the mlxtran output is found here:</p>
 <p><code>my_model_mlx$files$mlxtran$fn_full</code></p>
 <pre><code>&lt;DATAFILE&gt;
 
@@ -554,6 +553,7 @@ exploratoryalpha = 0
 exploratoryinterval = 200
 omegatau = 0.95
 errormodeltau = 0.95</code></pre>
+</div>
 </div>
 </div>
 </div>
