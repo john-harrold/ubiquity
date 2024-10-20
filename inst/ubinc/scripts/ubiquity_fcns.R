@@ -1526,6 +1526,7 @@ return(cfg)}
 #'
 #' \bold{\code{group="simulation"}}
 #'\itemize{
+#' \item \code{"dynamic"} - Set to \code{TRUE} (default) and simulations will behave normally. Set to \code{FALSE} and ODES will evaulate to zero. This is useful for steady-state anslysis.
 #' \item \code{"include_important_output_times"} - Automatically add bolus, infusion rate switching times, etc: \code{"yes"}(default), \code{"no"}.
 #' \item \code{"integrate_with"} - Specify if the ODE solver should use the Rscript (\code{"r-file"}) or compiled C (\code{"c-file"}), if the build process can compile and load the C version it will be the default otherwise it will switch over to the R script.
 #' \item \code{"output_times"} - Vector of times to evaulate the simulation (default \code{seq(0,100,1)}).
@@ -5495,6 +5496,7 @@ SIMINT_simulation_options$integrate_with                 = "r-file"
 SIMINT_simulation_options$solver_opts$rtol               = 1e-6
 SIMINT_simulation_options$initial_conditions             = NA  
 SIMINT_simulation_options$parallel                       = "no"
+SIMINT_simulation_options$dynamic                        = TRUE 
 SIMINT_simulation_options$compute_cores                  = 1
 SIMINT_simulation_options$sample_bolus_delta             = 1e-6
 SIMINT_simulation_options$sample_forcing_delta           = 1e-3
@@ -5524,6 +5526,15 @@ for(SIMINT_option in names(SIMINT_cfg$options$simulation_options)){
 # The times these events occur are stored in the 
 # important_times variable
 SIMINT_important_times = SIMINT_simulation_options$output_times
+
+
+# Setting the dynamic control parameter based on the user option 
+if(SIMINT_simulation_options$dynamic){
+  SIMINT_parameters[["SIMINT_dynamic"]] = 1
+} else {
+  SIMINT_parameters[["SIMINT_dynamic"]] = 0
+}
+
 
 # placing the parameters vector into cfg 
 # because cfg is passed into the odes

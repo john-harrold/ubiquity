@@ -1267,7 +1267,7 @@ sub dump_rproject
   $mo->{DS_PARAM}              = '';
   $mo->{OUTPUTS}               = '';
   $mo->{OUTPUTS_REMAP}         = '';
-  $mo->{NPARAMS}               = scalar(@{$cfg->{parameters_index}});
+  $mo->{NPARAMS}               = scalar(@{$cfg->{parameters_index}}) + 1;
   $mo->{FORCEFUNC}             = '';
   $mo->{FORCE_PARAM}           = '';
   $mo->{FORCEDECLARE}          = '';
@@ -1386,7 +1386,7 @@ foreach $state     (@{$cfg->{species_index}}){
   $mo->{STATES}     .= "$sname".&fetch_padding($sname, $cfg->{species_length})." = y[".($counter-1)."];\n";
   $mo->{ODES}       .= "SIMINT_d$sname".&fetch_padding($sname, $cfg->{species_length})." = ";
   $mo->{ODES}       .= &make_ode($cfg, $sname, 'C').";\n";
-  $mo->{ODES_REMAP} .= "ydot[".($counter-1)."] = SIMINT_d$sname;\n";
+  $mo->{ODES_REMAP} .= "ydot[".($counter-1)."] = (SIMINT_d$sname*SIMINT_dynamic);\n";
 
   
   $counter             = 1 + $counter;
@@ -1456,6 +1456,12 @@ foreach $parameter (@{$cfg->{parameters_index}}){
   $counter = 1+$counter;
 
 }
+
+# Adding the dynamic option
+$mc->{SYSTEM_PARAM}  .= "SIMINT_dynamic".&fetch_padding("SIMINT_dynamic", $cfg->{parameters_length}).' = SIMINT_p$SIMINT_dynamic'."\n";
+$mo->{SYSTEM_PARAM} .= "#define SIMINT_dynamic".&fetch_padding("SIMINT_dynamic", $cfg->{parameters_length})." parms[".($counter-1)."]\n";
+
+#print Dumper $mc->{SYSTEM_PARAM};
 
 my $set_id ;
 

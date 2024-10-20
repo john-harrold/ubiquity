@@ -1,405 +1,137 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Deployment.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Estimation.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Howto.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Language.html</loc>
-  </url>
-  <url>
-    <loc>/articles/NCA.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Reporting.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Simulation.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Titration.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/AUC_Bailers_method.html</loc>
-  </url>
-  <url>
-    <loc>/reference/GUI_log_entry.html</loc>
-  </url>
-  <url>
-    <loc>/reference/apply_sub_file_COV.html</loc>
-  </url>
-  <url>
-    <loc>/reference/archive_estimation.html</loc>
-  </url>
-  <url>
-    <loc>/reference/build_system.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_halflife.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_objective.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_objective_ga.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_objective_pso.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_variance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/check_steady_state.html</loc>
-  </url>
-  <url>
-    <loc>/reference/compare_estimate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/estimate_parameters.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fetch_full_parameters.html</loc>
-  </url>
-  <url>
-    <loc>/reference/find_bracketed_arguments.html</loc>
-  </url>
-  <url>
-    <loc>/reference/generate_parameter.html</loc>
-  </url>
-  <url>
-    <loc>/reference/generate_report.html</loc>
-  </url>
-  <url>
-    <loc>/reference/generate_subject.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gg_axis.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gg_log10_xaxis.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gg_log10_yaxis.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/linspace.html</loc>
-  </url>
-  <url>
-    <loc>/reference/logspace.html</loc>
-  </url>
-  <url>
-    <loc>/reference/make_forcing_function.html</loc>
-  </url>
-  <url>
-    <loc>/reference/md_to_officer.html</loc>
-  </url>
-  <url>
-    <loc>/reference/md_to_oo.html</loc>
-  </url>
-  <url>
-    <loc>/reference/nm_select_records.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pad_string.html</loc>
-  </url>
-  <url>
-    <loc>/reference/parse_patterns.html</loc>
-  </url>
-  <url>
-    <loc>/reference/prepare_figure.html</loc>
-  </url>
-  <url>
-    <loc>/reference/run_simulation_titrate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/run_simulation_ubiquity.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sample_around.html</loc>
-  </url>
-  <url>
-    <loc>/reference/simulate_subjects.html</loc>
-  </url>
-  <url>
-    <loc>/reference/solution_statistics.html</loc>
-  </url>
-  <url>
-    <loc>/reference/som_to_df.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_check_requirements.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_check_steady_state.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_clear_cohorts.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_define_cohort.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_define_cohorts_nm.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_estimate_parameters.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_TSsys.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_guess.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_iiv.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_nca.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_nca_columns.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_parameters.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_report.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_report_format.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_rpt_officer_object.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_rpt_onbrand_object.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_set.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_fetch_template.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_glp_init.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_glp_save.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_glp_scenario.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_load_data.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_log_debug_save.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_log_entry.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_log_init.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_nca_parameters_meta.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_nca_run.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_nca_summary.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_new.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_new_list.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_new_tt_rule.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_nm_check_ds.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_od_general.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_plot_cohorts.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_doc_add_content.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_doc_format_section.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_doc_set_ph.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_estimation.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_glp.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_init.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_nca.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_ph_content.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_save.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_set.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_slide_content.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_slide_section.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_slide_title.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_slide_two_col.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_report_view_layout.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_req.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_rpt_add_doc_content.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_rpt_add_slide.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_rpt_doc_content.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_rpt_estimation.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_rpt_nca.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_rpt_read_template.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_rpt_save_report.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_rpt_template_details.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_select_set.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_bolus.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_covariate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_guess.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_iiv.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_option.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_parameter.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_rate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_rpt_officer_object.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_rpt_onbrand_object.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_tt_bolus.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_tt_cond.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_set_tt_rate.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_simulate_estimation_results.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_ts_to_simtime.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_view.html</loc>
-  </url>
-  <url>
-    <loc>/reference/system_zero_inputs.html</loc>
-  </url>
-  <url>
-    <loc>/reference/tic.html</loc>
-  </url>
-  <url>
-    <loc>/reference/timecourse_stats.html</loc>
-  </url>
-  <url>
-    <loc>/reference/toc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ubiquity_name_check.html</loc>
-  </url>
-  <url>
-    <loc>/reference/var2string.html</loc>
-  </url>
-  <url>
-    <loc>/reference/var2string_gen.html</loc>
-  </url>
-  <url>
-    <loc>/reference/vp.html</loc>
-  </url>
-  <url>
-    <loc>/reference/workshop_fetch.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://r.ubiquity.tools/404.html</loc></url>
+<url><loc>https://r.ubiquity.tools/LICENSE-text.html</loc></url>
+<url><loc>https://r.ubiquity.tools/articles/Deployment.html</loc></url>
+<url><loc>https://r.ubiquity.tools/articles/Estimation.html</loc></url>
+<url><loc>https://r.ubiquity.tools/articles/Howto.html</loc></url>
+<url><loc>https://r.ubiquity.tools/articles/Language.html</loc></url>
+<url><loc>https://r.ubiquity.tools/articles/NCA.html</loc></url>
+<url><loc>https://r.ubiquity.tools/articles/Reporting.html</loc></url>
+<url><loc>https://r.ubiquity.tools/articles/Simulation.html</loc></url>
+<url><loc>https://r.ubiquity.tools/articles/Titration.html</loc></url>
+<url><loc>https://r.ubiquity.tools/articles/index.html</loc></url>
+<url><loc>https://r.ubiquity.tools/authors.html</loc></url>
+<url><loc>https://r.ubiquity.tools/index.html</loc></url>
+<url><loc>https://r.ubiquity.tools/news/index.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/AUC_Bailers_method.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/GUI_log_entry.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/apply_sub_file_COV.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/archive_estimation.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/build_system.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/calculate_halflife.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/calculate_objective.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/calculate_objective_ga.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/calculate_objective_pso.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/calculate_variance.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/check_steady_state.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/compare_estimate.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/estimate_parameters.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/fetch_full_parameters.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/find_bracketed_arguments.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/generate_parameter.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/generate_report.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/generate_subject.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/gg_axis.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/gg_log10_xaxis.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/gg_log10_yaxis.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/index.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/linspace.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/logspace.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/make_forcing_function.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/md_to_officer.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/md_to_oo.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/nm_select_records.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/pad_string.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/parse_patterns.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/prepare_figure.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/run_simulation_titrate.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/run_simulation_ubiquity.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/sample_around.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/simulate_subjects.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/solution_statistics.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/som_to_df.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_check_requirements.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_check_steady_state.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_clear_cohorts.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_define_cohort.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_define_cohorts_nm.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_estimate_parameters.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_TSsys.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_guess.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_iiv.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_nca.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_nca_columns.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_parameters.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_report.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_report_format.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_rpt_officer_object.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_rpt_onbrand_object.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_set.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_fetch_template.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_glp_init.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_glp_save.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_glp_scenario.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_load_data.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_log_debug_save.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_log_entry.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_log_init.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_nca_parameters_meta.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_nca_run.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_nca_summary.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_new.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_new_list.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_new_tt_rule.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_nm_check_ds.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_od_general.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_plot_cohorts.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_doc_add_content.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_doc_format_section.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_doc_set_ph.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_estimation.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_glp.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_init.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_nca.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_ph_content.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_save.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_set.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_slide_content.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_slide_section.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_slide_title.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_slide_two_col.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_report_view_layout.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_req.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_rpt_add_doc_content.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_rpt_add_slide.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_rpt_doc_content.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_rpt_estimation.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_rpt_nca.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_rpt_read_template.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_rpt_save_report.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_rpt_template_details.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_select_set.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_bolus.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_covariate.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_guess.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_iiv.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_option.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_parameter.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_rate.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_rpt_officer_object.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_rpt_onbrand_object.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_tt_bolus.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_tt_cond.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_set_tt_rate.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_simulate_estimation_results.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_ts_to_simtime.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_view.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/system_zero_inputs.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/tic.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/timecourse_stats.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/toc.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/ubiquity_name_check.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/var2string.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/var2string_gen.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/vp.html</loc></url>
+<url><loc>https://r.ubiquity.tools/reference/workshop_fetch.html</loc></url>
 </urlset>
+

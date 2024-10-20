@@ -1,5 +1,5 @@
-pandoc: 3.1.11
-pkgdown: 2.0.9
+pandoc: '3.4'
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   Deployment: Deployment.html
@@ -10,5 +10,7 @@ articles:
   Reporting: Reporting.html
   Simulation: Simulation.html
   Titration: Titration.html
-last_built: 2024-09-07T02:54Z
-
+last_built: 2024-10-20T00:02Z
+urls:
+  reference: https://r.ubiquity.tools/reference
+  article: https://r.ubiquity.tools/articles

@@ -98,7 +98,8 @@ cfg[["options"]][["simulation_options"]] =
                 compute_cores      = 1,
                 integrate_with     = "r-file",        # Integrating with R file
                 initial_conditions = NA,              # No specified initial conditions
-                solver_opts         = list())
+                dynamic            = TRUE,
+                solver_opts        = list())
 
 
 # If the library has been loaded we switch to C
@@ -1011,7 +1012,7 @@ for(SIMINT_cov_name in names(SIMINT_cfg[["options"]][["inputs"]][["covariates"]]
 
 # ODE
 SIMINT_DYDT = c(
-<ODES_REMAP>)
+<ODES_REMAP>)*SIMINT_dynamic
 
 #return(SIMINT_DYDT)
 
