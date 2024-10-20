@@ -220,6 +220,8 @@ residual variability.</p>
 <div class="section level3">
 <h3 id="parameter-estimation-information-est">Parameter estimation information <code>&lt;EST:?&gt;?</code><a class="anchor" aria-label="anchor" href="#parameter-estimation-information-est"></a>
 </h3>
+<p><em>Currently applies only to nlmixr2/rxode2. Essentially all the
+parameters not listed here will be fixed.</em></p>
 <p>This descriptor specifies information about parameters for
 estimation. Sometimes it is necessary to estimate parameters in the log
 space. Here you can specify the parmaeters to log transform (LT). If you
@@ -233,12 +235,11 @@ assigned.</em></p>
 want to estimate a subset of parameters (P), say <code>P1</code> and
 <code>P2</code>, you can use the following:</p>
 <pre><code>&lt;EST:P&gt; P1; P2</code></pre>
-<p>Applies to nlmixr2. Essentially all the parameters not listed here
-will be fixed.</p>
 </div>
 <div class="section level3">
 <h3 id="output-error-model-oe">Output error model <code>&lt;OE:?&gt; ?</code><a class="anchor" aria-label="anchor" href="#output-error-model-oe"></a>
 </h3>
+<p><em>Current applies only to nlmixr2/rxode2 output. </em></p>
 <p>This defines the output error model of the format:</p>
 <pre><code><span><span class="va">`&lt;OE:OUTPUT&gt; expression`</span></span></code></pre>
 <p>The <code>OUTPUT</code> can be the name of any output defined with

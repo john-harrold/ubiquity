@@ -114,6 +114,8 @@ The difference being that the ``<VP>`` descriptor is used and that the grouping 
  
 ### Parameter estimation information `<EST:?>?`
 
+*Currently applies only to nlmixr2/rxode2. Essentially all the parameters not listed here will be fixed.*
+
 This descriptor specifies information about parameters for estimation.
 Sometimes it is necessary to estimate parameters in the log space. Here you
 can specify the parmaeters to log transform (LT). If you wanted to log
@@ -132,15 +134,17 @@ estimate a subset of parameters (P), say `P1` and `P2`, you can use the followin
 <EST:P> P1; P2
 ~~~
 
-Applies to nlmixr2. Essentially all the parameters not listed here will be fixed.
 
 ### Output error model `<OE:?> ?`
+
+*Current applies only to nlmixr2/rxode2 output. *
 
 This defines the output error model of the format:
 
 ~~~
 `<OE:OUTPUT> expression`
 ~~~
+
 
 The `OUTPUT` can be the name of any output defined with `<O>`. The `expression` is a model type (add for additive, and prop for proportional) with an equal sign and the name of the variance paramter (`<VP>`) to use. To use more than one error model type you separate the statments with `;` For example if you define the variance parameters `add_err` and `prop_err` and want to use a proportional error model to the output Cp you would use:
 
@@ -153,6 +157,7 @@ To use both additive and proportional error the following would work:
 ~~~
 <OE:Cp> add=add_err; prop=prop_err
 ~~~
+
 
 ### Variability: defining the variance/covariance Matrix ``<IIV:?>?`` \& ``<IIVCOR:?>?``
 
