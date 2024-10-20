@@ -28,7 +28,7 @@ With the ubiquity package this function can be used to fetch
 example files for different sections of the workshop.
 }
 \details{
-Valid sections are "Simulation", "Estimation", "Titration" "Reporting", and "NCA"
+Valid sections are "Simulation", "Estimation", "In Vitro", "Titration" "Reporting", and "NCA"
 }
 \examples{
 \donttest{

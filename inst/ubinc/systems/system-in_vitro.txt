@@ -1,0 +1,80 @@
+# Author: John Harrold <john.m.harrold@gmail.com>
+#
+# Analysis of an in vitro system. The system below was taken from:
+#
+# Chakraborty A, Jusko WJ. Pharmacodynamic interaction of recombinant human
+# interleukin-10 and prednisolone using in vitro whole blood lymphocyte
+# proliferation. J Pharm Sci. 2002 May;91(5):1334-42. doi: 10.1002/jps.3000.
+# PMID: 11977109.
+#
+
+# #-------------#
+# | Parameters  |
+# #-------------#
+#
+# System parameters
+#    name              value     lower      upper   units editable    grouping
+#                                bound      bound
+<P>  IC50_A              1.0       eps        Inf   -----      yes     Efficacy
+<P>  IC50_B             50.0       eps        Inf   -----      yes     Efficacy
+<P>  Imax_A              1.0       eps        Inf   -----      yes     Efficacy
+<P>  Imax_B              1.0       eps        Inf   -----      yes     Efficacy
+<P>  PSI                10.0       eps        Inf   -----      yes     Efficacy
+<P>  G_A                 0.6       eps        Inf   -----      yes     Efficacy
+<P>  G_B                 1.4       eps        Inf   -----      yes     Efficacy
+
+<P>  Vp_A                1.0       eps        Inf   ml         yes     PK
+<P>  CL_A                1.0       eps        Inf   ml/hr      yes     PK
+<P>  Vp_B                1.0       eps        Inf   ml         yes     PK
+<P>  CL_B                1.0       eps        Inf   ml/hr      yes     PK
+
+<P>  C_A0                0.0       eps        Inf   -----      yes     IC
+<P>  C_B0                0.0       eps        Inf   -----      yes     IC
+
+# #-------------------#
+# |Input Information |
+# #-------------------#
+#
+# Bolus Events
+# ------------
+# times/events state   values    scale        units
+<B:times>;              [  0  ];  1.0;        hours
+<B:events>;      Cp_A;  [1.0  ];  1.0/Vp_A;   mg     
+<B:events>;      Cp_B;  [1.0  ];  1.0/Vp_B;   mg     
+
+
+# By default these values are zero but can be overwritten when 
+# doing analysis of in vitro data.
+<I> Cp_A = C_A0
+<I> Cp_B = C_B0
+
+<As> XI = IC50_A/IC50_B
+
+<Ad> COMP_A    = SIMINT_POWER[Cp_A][G_A]/(SIMINT_POWER[PSI*IC50_A][G_A])
+<Ad> COMP_B    = SIMINT_POWER[XI*Cp_B][G_B]/(SIMINT_POWER[PSI*IC50_A][G_B])
+<Ad> COMP_Imax = Imax_A + Imax_B - Imax_A*Imax_B
+
+<Ad> EFF_num    = Imax_A*COMP_A + Imax_B*COMP_B + COMP_Imax*COMP_A*COMP_B
+<Ad> EFF_den    = COMP_A + COMP_B + COMP_A*COMP_B + 1.0
+<Ad> EFF        = 100.0*(1.0-EFF_num/EFF_den)
+
+# #-----------------------------#
+# | ODEs, and State Information |
+# #-----------------------------#
+
+<ODE:Cp_A>  CL_A/Vp_A*Cp_A
+<ODE:Cp_B>  CL_B/Vp_B*Cp_B
+
+# #---------#
+# | Outputs |
+# #---------#
+ 
+<O> Cp_A_mg_ml    = Cp_A
+<O> Cp_B_mg_ml    = Cp_B
+<O> Effect        = EFF
+
+# #---------#
+# | Options #
+# #---------#
+# specify different time scales
+<TS:hours> 1.0

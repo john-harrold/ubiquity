@@ -12,11 +12,12 @@
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Modeling Language">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><link href="../deps/KaTex-0.16.10/katex.min.css" rel="stylesheet">
+<script src="../deps/KaTex-0.16.10/katex.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Modeling Language">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -47,6 +48,7 @@
     <li><h6 class="dropdown-header" data-toc-skip>Other Analysis Options</h6></li>
     <li><a class="dropdown-item" href="../articles/Deployment.html">Deploying Your Models in a Shiny App</a></li>
     <li><a class="dropdown-item" href="../articles/Titration.html">Trial/Rule-Based Simulations</a></li>
+    <li><a class="dropdown-item" href="../articles/In_Vitro.html">Estimation of In Vitro/Static Systems</a></li>
     <li><a class="dropdown-item" href="../articles/NCA.html">Non-Compartmental Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/Reporting.html">Integrated Word and PowerPoint Reporting</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -359,17 +361,18 @@ and <code>CP</code> above, in brackets only need to be specified if they
 are not one. The reaction order will be assumed to be equal to the
 stoichiometric coefficient of the reactant. For a more specific example
 Consider decomposition of hydrogen peroxide into water and oxygen:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>2</mn></msub><msub><mi>O</mi><mn>2</mn></msub><mover><mo>→</mo><msub><mi>k</mi><mrow><mi>d</mi><mi>e</mi><mi>g</mi></mrow></msub></mover><msub><mi>H</mi><mn>2</mn></msub><mi>O</mi><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>O</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex"> H_2O_2 \xrightarrow{k_{deg}} H_2O + \frac{1}{2}O_2 </annotation></semantics></math></p>
+<p><span class="math display"> H_2O_2 \xrightarrow{k_{deg}} H_2O +
+\frac{1}{2}O_2 </span></p>
 <p>In the system format this would be written in the following
 manner:</p>
 <pre><code>H2O2 =kdeg=&gt; H2O + [0.5]O2</code></pre>
 <p>And this will be translated in to the following differential
 equations:</p>
-<p><span class="math display">$$
+<p><span class="math display">
 \frac{dH_2O_2}{dt}=-k_{deg}H_2O_2 \\
 \frac{dH_2O}{dt}= k_{deg}H_2O_2 \\
 \frac{dO_2}{dt}= 0.5k_{deg}H_2O_2
-$$</span></p>
+</span></p>
 <p>Which could also be defined as differential equations using the
 <code>&lt;ODE:?&gt;?</code>. This is the equivalent:</p>
 <pre><code>&lt;ODE:H2O2&gt;   - kdeg*H2O2 
@@ -397,17 +400,18 @@ could have also been used:</p>
 &lt;ODE:C&gt; -koffR*C + konR*A*B</code></pre>
 <p>The stoichiometric coefficients also define the reaction order here.
 For example, to create the following equilibrium reaction:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>A</mi><mo>+</mo><mn>3</mn><mi>B</mi><msubsup><mo>⇄</mo><msub><mi mathvariant="normal">k</mi><mi mathvariant="normal">r</mi></msub><msub><mi mathvariant="normal">k</mi><mi mathvariant="normal">f</mi></msub></msubsup><mn>4</mn><mi>C</mi></mrow><annotation encoding="application/x-tex"> 2A + 3B \mathop{\rightleftarrows}^{\mathrm{k_f}}_{\mathrm{k_r}}  4C </annotation></semantics></math></p>
+<p><span class="math display"> 2A + 3B
+\mathop{\rightleftarrows}^{\mathrm{k_f}}_{\mathrm{k_r}}  4C </span></p>
 <p>This rate notation could be used in the system file:</p>
 <pre><code>[2]A + [3]B  &lt;=kf:kr=&gt;  [4]C       </code></pre>
 <p>Which will produce the following in terms of differential
 equations:</p>
-<p><span class="math display">$$
+<p><span class="math display">
 \frac{dA}{dt} = 2k_rC^4 - 2k_fA^2B^3 \\
 \frac{dB}{dt} = 3k_rC^4 - 3k_fA^2B^3 \\
 \frac{dC}{dt} =-4k_rC^4 + 4k_fA^2B^3
-$$</span> To write this equilibrium reaction as differential equations
-the following would be used:</p>
+</span> To write this equilibrium reaction as differential equations the
+following would be used:</p>
 <pre><code>&lt;ODE:A&gt;   =  2*kr*SIMINT_POWER[C][4] - 2*kf*SIMINT_POWER[A][2]*SIMINT_POWER[B][3]
 &lt;ODE:B&gt;   =  3*kr*SIMINT_POWER[C][4] - 3*kf*SIMINT_POWER[A][2]*SIMINT_POWER[B][3]
 &lt;ODE:C&gt;   = -4*kr*SIMINT_POWER[C][4] + 4*kf*SIMINT_POWER[A][2]*SIMINT_POWER[B][3]</code></pre>
@@ -656,14 +660,12 @@ purposes.</p>
 <code>-</code>, <code>*</code>, &amp; <code>/</code>) because most
 languages use these consistently. There are however certain operators
 and functions that differ between languages. For example, consider the
-power function
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>a</mi><mi>b</mi></msup><annotation encoding="application/x-tex">a^b</annotation></semantics></math>).
-In FORTRAN this would be <code>a**b</code>, in Matlab it is
-<code>a^b</code>, and in C it is <code>pow(a,b)</code>. Given the
-objectives here (write once and create multiple formats), this can be
-quite challenging. The solution used here is to convert language
-specific functions and operators into generic functions. So the power
-operator would be:</p>
+power function (<span class="math inline">a^b</span>). In FORTRAN this
+would be <code>a**b</code>, in Matlab it is <code>a^b</code>, and in C
+it is <code>pow(a,b)</code>. Given the objectives here (write once and
+create multiple formats), this can be quite challenging. The solution
+used here is to convert language specific functions and operators into
+generic functions. So the power operator would be:</p>
 <pre><code><span><span class="va">SIMINT_POWER</span><span class="op">[</span><span class="va">a</span><span class="op">]</span><span class="op">[</span><span class="va">b</span><span class="op">]</span></span></code></pre>
 <p>This would then be converted to the appropriate output format
 depending on the output target. The following generic functions can be
@@ -677,52 +679,52 @@ used:</p>
 <tbody>
 <tr class="odd">
 <td>power</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>a</mi><mi>b</mi></msup><annotation encoding="application/x-tex">a^b</annotation></semantics></math></td>
+<td><span class="math inline">a^b</span></td>
 <td><code>SIMINT_POWER[a][b]</code></td>
 </tr>
 <tr class="even">
 <td>exponential</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><mi>a</mi></msup><annotation encoding="application/x-tex">e^a</annotation></semantics></math></td>
+<td><span class="math inline">e^a</span></td>
 <td><code>SIMINT_EXP[a]</code></td>
 </tr>
 <tr class="odd">
 <td>log base 10</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\log(a)</annotation></semantics></math></td>
+<td><span class="math inline">\log(a)</span></td>
 <td><code>SIMINT_LOG10[a]</code></td>
 </tr>
 <tr class="even">
 <td>log base e</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\ln(a)</annotation></semantics></math></td>
+<td><span class="math inline">\ln(a)</span></td>
 <td><code>SIMINT_LOGN[a]</code></td>
 </tr>
 <tr class="odd">
 <td>less than</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&lt;</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a &lt; b</annotation></semantics></math></td>
+<td><span class="math inline">a &lt; b</span></td>
 <td><code>SIMINT_LT[a][b]</code></td>
 </tr>
 <tr class="even">
 <td>less than or equal</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>≤</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a \le b</annotation></semantics></math></td>
+<td><span class="math inline">a \le b</span></td>
 <td><code>SIMINT_LE[a][b]</code></td>
 </tr>
 <tr class="odd">
 <td>greater than</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&gt;</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a &gt; b</annotation></semantics></math></td>
+<td><span class="math inline">a &gt; b</span></td>
 <td><code>SIMINT_GT[a][b]</code></td>
 </tr>
 <tr class="even">
 <td>greater than or equal</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>≥</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a \ge b</annotation></semantics></math></td>
+<td><span class="math inline">a \ge b</span></td>
 <td><code>SIMINT_GE[a][b]</code></td>
 </tr>
 <tr class="odd">
 <td>equal</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mo>=</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a == b</annotation></semantics></math></td>
+<td><span class="math inline">a == b</span></td>
 <td><code>SIMINT_EQ[a][b]</code></td>
 </tr>
 <tr class="even">
 <td>and</td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>&amp;</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">a \&amp; b</annotation></semantics></math></td>
+<td><span class="math inline">a \&amp; b</span></td>
 <td><code>SIMINT_AND[a][b]</code></td>
 </tr>
 </tbody>
@@ -740,13 +742,13 @@ this you can use the internal variable <code>SIMINT_TIME</code>.</p>
 receptor with an affinity of <code>KD</code> given total values
 <code>Ctot</code> and <code>Rtot</code> the following can be calculated
 using the following equation:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mrow><mi>f</mi><mi>r</mi><mi>e</mi><mi>e</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>C</mi><mrow><mi>t</mi><mi>o</mi><mi>t</mi></mrow></msub><mo>−</mo><msub><mi>R</mi><mrow><mi>t</mi><mi>o</mi><mi>t</mi></mrow></msub><mo>−</mo><msub><mi>K</mi><mi>D</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msqrt><mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>C</mi><mrow><mi>t</mi><mi>o</mi><mi>t</mi></mrow></msub><mo>−</mo><msub><mi>R</mi><mrow><mi>t</mi><mi>o</mi><mi>t</mi></mrow></msub><mo>−</mo><msub><mi>K</mi><mi>D</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>+</mo><mn>4</mn><msub><mi>K</mi><mi>D</mi></msub><msub><mi>C</mi><mrow><mi>t</mi><mi>o</mi><mi>t</mi></mrow></msub></mrow></msqrt><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">
 C_{free}=\frac{1}{2}
 \left[
 (C_{tot}-R_{tot}-K_D)
 + \sqrt{(C_{tot}-R_{tot}-K_D)^2 + 4K_DC_{tot}}
 \right]
-</annotation></semantics></math></p>
+</span></p>
 <p>This can be tedious, especially using the generic functions above. To
 make this easier you can use the following generic function:</p>
 <pre><code>&lt;Ad&gt; Cfree = SIMINT_QEQ[Ctot][Rtot][KD]</code></pre>
@@ -849,12 +851,12 @@ align sets. Take for example the transit compartments implemented by
 Lobo and Balthasar to delay the onset of drug effect on cancer cells
 [LB]. The transit compartment are implemented using a series of
 differential equations:</p>
-<p><span class="math display">$$
+<p><span class="math display">
   \frac{dK1}{dt} = (K-K1)\frac{1}{\tau} \\
   \frac{dK2}{dt} = (K1-K2)\frac{1}{\tau} \\
   \frac{dK3}{dt} = (K2-K3)\frac{1}{\tau} \\
   \frac{dK4}{dt} = (K3-K4)\frac{1}{\tau}
-$$</span></p>
+</span></p>
 <p>It’s possible to code each of these individually, but it’s also
 possible to define these using mathematical set notation. We see that in
 the first equation K is paired or aligned with K1, and in the second
@@ -881,12 +883,11 @@ internally into:</p>
 use the following functions:</p>
 <ul>
 <li>
-<code>SIMINT_SET_SUM</code> is the mathematical equivalent of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mo>∑</mo><mrow><mi>S</mi><mi>E</mi><mi>T</mi></mrow></msub><annotation encoding="application/x-tex">\sum_{SET}</annotation></semantics></math>
+<code>SIMINT_SET_SUM</code> is the mathematical equivalent of <span class="math inline">\sum_{SET}</span>
 </li>
 <li>
 <code>SIMINT_SET_PRODUCT</code> is the mathematical equivalent of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mo>∏</mo><mrow><mi>S</mi><mi>E</mi><mi>T</mi></mrow></msub><annotation encoding="application/x-tex">\prod_{SET}</annotation></semantics></math>
+<span class="math inline">\prod_{SET}</span>
 </li>
 </ul>
 <p>These functions take two bracketed arguments. The first argument is

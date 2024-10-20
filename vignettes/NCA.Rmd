@@ -130,7 +130,9 @@ Generally NCA will determine the following directly from the data:
 These properties are all based on observational data. So the ``Cmax`` and ``Tmax`` will most certainly not be at the actual maximum concentration but as long as we sample judiciously it will give us a good approximation. Similarly, the calculated ``AUC`` and ``AUMC`` will be different than the actual values. To calculate the areas you need to dig back into your calculus text books to the trapezoid method. Basically each sampling interval is a trapezoid and the area of each is calculated and added up for all of the ``n`` samples:
 
 $$
-AUC = \int_0^{t_f} Cdt \approx  \sum_{i=1}^{n-1}{\frac{C_i+C_{i+1}}{2}\times (t_{i+1}-t_{i})},  \ \ \ \ \ 
+AUC = \int_0^{t_f} Cdt \approx  \sum_{i=1}^{n-1}{\frac{C_i+C_{i+1}}{2}\times (t_{i+1}-t_{i})}
+$$
+$$
 AUMC = \int_0^{t_f} t\times Cdt \approx  \sum_{i=1}^{n-1}{\frac{t_iC_i+t_{i+1}C_{i+1}}{2}\times (t_{i+1}-t_{i})}
 $$
 

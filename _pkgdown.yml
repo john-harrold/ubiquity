@@ -1,5 +1,7 @@
 url: https://r.ubiquity.tools
 template:
+  #math-rendering: mathjax
+  math-rendering: katex
   bootstrap: 5
   params:
     bootswatch: united 
@@ -105,6 +107,8 @@ navbar:
           href: articles/Deployment.html
         - text: "Trial/Rule-Based Simulations"
           href: articles/Titration.html
+        - text: "Estimation of In Vitro/Static Systems"
+          href: articles/In_Vitro.html
         - text: "Non-Compartmental Analysis"
           href: articles/NCA.html
         - text: "Integrated Word and PowerPoint Reporting"

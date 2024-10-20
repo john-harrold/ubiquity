@@ -5,12 +5,13 @@ articles:
   Deployment: Deployment.html
   Estimation: Estimation.html
   Howto: Howto.html
+  In_Vitro: In_Vitro.html
   Language: Language.html
   NCA: NCA.html
   Reporting: Reporting.html
   Simulation: Simulation.html
   Titration: Titration.html
-last_built: 2024-10-20T03:26Z
+last_built: 2024-10-20T23:28Z
 urls:
   reference: https://r.ubiquity.tools/reference
   article: https://r.ubiquity.tools/articles
