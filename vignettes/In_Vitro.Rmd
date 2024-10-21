@@ -1,5 +1,5 @@
 ---
-title: 'Analysis of Static In Vitro System'
+title: 'Analysis of Static In Vitro Systems'
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{In Vitro}
@@ -21,7 +21,7 @@ require(ggplot2)
 
 **This tutorial requires ubiquity 2.04 or greater. Currently this is only available using the development version off of github**
 
-Sometimes we need to analyze data where the independent variable is not time. You can do this with ubiquity and this tutorial will highlight how that is done. If you have not done so already, please review the naive-pooled parameter estimation tutorial because this will build on the concepts covered there. The workshop ([workshop.ubiquity.tools](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip)) provides an example of how to analyize static in vitro data. To make a copy of these scripts and other supporting files in the current working directory run the following:
+Sometimes we need to analyze data where the independent variable is not time. You can do this with ubiquity and this tutorial will highlight how that is done. If you have not done so already, please review the naive-pooled parameter estimation tutorial because this will build on the concepts covered there. The workshop ([workshop.ubiquity.tools](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip)) provides an example of how to analyize static *in vitro* data. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
 ```{r eval=FALSE}
 library(ubiquity)
@@ -31,9 +31,9 @@ fr = workshop_fetch(section="In Vitro", overwrite=TRUE)
 This should create the following files in your current working direcotry:
 
 * `system-in_vitro.txt` - System file that can be run both *in vivo* and *in vitro*
-* `in_vitro_er_data.csv`- In vitro data file
-* `mk_data_in_vitro.R`- Script to generate in vitro data
-* `analysis_in_vitro.R`- Script to perform parameter estimation using the in vitro data
+* `in_vitro_er_data.csv`- *In vitro* data file
+* `mk_data_in_vitro.R`- Script to generate *in vitro* data
+* `analysis_in_vitro.R`- Script to perform parameter estimation using the *in vitro* data
  
 This example uses a system from [Chakraborty and Jusko. J Pharm Sci 91(5), 1334-1342](https://jpharmsci.org/article/S0022-3549(16)31001-2/abstract). Specifically equation 5 from that article where the effect of two drugs, A and B, is driven by their concentrations ($C_A$, and $C_B$):
  
@@ -63,7 +63,7 @@ $$
 \xi = \frac{IC_{50,A}}{IC_{50,B}}
 $$
  
-This has been implemented in the PKPD system file (`system-in_vitro.txt`) shown at the bottom. This implementation is dynamic meaning the effect changes with the PK of the drug. However the effect is considered instantaneous and typically analyzed from in vitro data using algebraic relationships. For this system consider the following data:
+This has been implemented in the PKPD system file (`system-in_vitro.txt`) shown at the bottom. This implementation is dynamic meaning the effect changes with the PK of the drug. However the effect is considered instantaneous and typically analyzed from *in vitro* data using algebraic relationships. For this system consider the following data:
  
 ```{r echo=FALSE, comment='', message=FALSE, echo=FALSE, eval=TRUE, fig.width=7, fig.height=5}
 er_data = read.csv(system.file("ubinc", "csv","in_vitro_er_data.csv", package="ubiquity"))
@@ -78,6 +78,8 @@ p = gg_log10_xaxis(p)
 p = prepare_figure(p, purpose="shiny")
 print(p)
 ```
+
+
 Here both the concentrations of drug A and B are altered (independent variable) and the Effect is measured (dependent variable).
 
 
@@ -90,7 +92,7 @@ First lets discuss the way the system file is structured. There is bolus dosing 
 <I> Cp_B = C_B0
 ```
 
-These system parameters (`C_A0` and `C_B0`) have a default value of zero. So by default the system would run like any in vivo PKPD system. But these initial condition placeholders will be used when performing in vitro analyses. **This allows you to use the same system file for both in vitro and in vivo analyses. This is useful because you do not have to do your static in vitro analysis in one system file and then copy and paste to your in vivo dynamic system.**
+These system parameters (`C_A0` and `C_B0`) have a default value of zero. So by default the system would run like any *in vivo* PKPD system. But these initial condition placeholders will be used when performing *in vitro* analyses. **This allows you to use the same system file for both in vitro and *in vivo* analyses. This is useful because you do not have to do your static in vitro analysis in one system file and then copy and paste to your *in vivo* dynamic system.**
 
 ## The dataset: `in_vitro_er_data.csv`
 
@@ -103,11 +105,11 @@ tmpdata[["ave_eff"]] = NULL
 flextable::flextable(tmpdata) |> flextable::autofit()
 ```
 
-The `C_A0` and `C_B0` columns correspond to the concentrations that elicit the `Effect`. The `treat` column is a unique name for the combination of the two drug combinations. It has only letters numbers and underscores. This is intentional so I can use this as a cohort name when I'm constructing the estimation script below. The `samp_time` column is set to 1. This is arbitrary because the mapping in the cohort definitions requires a time column. You'll see why it is arbitrary below.  
+The `C_A0` and `C_B0` columns correspond to the concentrations that elicit the `Effect`. The `treat` column is a unique name for the combination of the two drug concentrations. It has only letters numbers and underscores. This is intentional so I can use this as a cohort name when I'm constructing the estimation script below. The `samp_time` column is set to 1. This is arbitrary because the mapping in the cohort definitions requires a time column. You'll see why it is arbitrary below.  
 
 ## The analysis script: `analysis_in_vitro.R`
 
-This analysis scripts has some aspects that are unique to the in vitro analysis being performed. 
+This analysis scripts has some aspects that are unique to the *in vitro* analysis being performed. 
 
 ### Output times
 
@@ -132,7 +134,7 @@ cfg=system_set_option(cfg, group  = "simulation",
                            value  = FALSE)
 ```
 
-What this does is fix the values of the differential equations to 0 for the purposes of the subsequent simulations.
+This will fix the values of the differential equations to 0 for the purposes of the subsequent simulations.
 
 ### Datasets
 
@@ -169,7 +171,7 @@ cohort = list(
     dataset      = "er_data")
 ```
 
-Because we set the simulation option `dynamic` to `FALSE`, the initial condition is set to the values for the current treatment, and there are no inputs, then the system is effectively behaving like an in vitro system.
+Because we set the simulation option `dynamic` to `FALSE`, the initial condition is set to the values for the current treatment, and there are no inputs, then the system is effectively behaving like an *in vitro* system.
 
 ### Postprocessing 
 
