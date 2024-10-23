@@ -1,5 +1,5 @@
-context("Testing enabling and disabling of ODES with the dynamic option.")
-test_that("System examples", {
+context("Testing the simulation dynamic option.")
+test_that("Enable/disable C and R Script", {
 
   #-----------------------------------
   is_at_ss = function(cfg, som){
@@ -66,4 +66,21 @@ test_that("System examples", {
   
 })
 
+context("Running example in vitro example scripts")
+test_that("Running Scripts",{
+  # Saving the current working directory
+  ttdir = getwd()
+  # Changing the working directory to the 
+  # tempdir
+  setwd(tempdir())
+  
+  # Copying the sources to the current folder
+  fr = workshop_fetch("In Vitro", overwrite = TRUE)
+  #--------------------
+  if (Sys.getenv("USER") != "travis") {
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "mk_data_in_vitro.R"))[["isgood"]],  "mk_data_in_vitro.R")
+    expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_in_vitro.R"))[["isgood"]], "analysis_in_vitro.R")
+  }
+  setwd(ttdir)
+})
 

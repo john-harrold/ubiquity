@@ -319,7 +319,7 @@ NONMEM control stream:</p>
 <span></span>
 <span>   <span class="co"># Outputs and error models</span></span>
 <span>   <span class="va">Cc_mg_ml</span>    <span class="op">=</span> <span class="va">Cc</span></span>
-<span>   <span class="va">Cc_mg_ml</span> <span class="op">~</span> <span class="fu">prop</span><span class="op">(</span><span class="va">prop_err</span><span class="op">)</span> <span class="op">+</span> <span class="fu">add</span><span class="op">(</span><span class="va">add_err</span><span class="op">)</span></span>
+<span>   <span class="va">Cc_mg_ml</span> <span class="op">~</span> <span class="fu">add</span><span class="op">(</span><span class="va">add_err</span><span class="op">)</span> <span class="op">+</span> <span class="fu">prop</span><span class="op">(</span><span class="va">prop_err</span><span class="op">)</span></span>
 <span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre>
@@ -372,7 +372,7 @@ function() {
             Cp)/Vc + Dinf/Vc)
         d/dt(Cp) = (+Q * (Cc - Cp)/Vt)
         Cc_mg_ml = Cc
-        Cc_mg_ml ~ prop(prop_err) + add(add_err)
+        Cc_mg_ml ~ add(add_err) + prop(prop_err)
     })
 }</code></pre>
 </div>

@@ -594,6 +594,11 @@ named <code>Metabolite</code>.</p>
 <span></span>
 <span><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_define_cohort.html">system_define_cohort</a></span><span class="op">(</span><span class="va">cfg</span>, <span class="va">cohort</span><span class="op">)</span></span></code></pre></div>
 <p>Similar modifications were made to the 30 mg dosing cohort.</p>
+<p><strong>Note: The variance model can be speified in the
+<code>system.txt</code> file using the <code>&lt;OE:?&gt;</code>
+descriptor. If you do not specify the variance in the cohort this value
+will be used. If it is not specified in either location then the default
+value (<code>PRED^2</code>) will be used.</strong>*</p>
 </div>
 <div class="section level2">
 <h2 id="global-estimation-routines-analysis_parent_metabolite_global-r">Global estimation routines

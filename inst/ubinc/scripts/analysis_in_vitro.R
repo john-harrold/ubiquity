@@ -13,7 +13,7 @@ if("ubiquity" %in% rownames(installed.packages())){require(ubiquity)} else
 # flowctl       = "previous estimate as guess"
   flowctl       = "estimate"
 # flowctl       = "plot guess"
-analysis_name   = "ANAME"
+analysis_name   = "in_vitro_example"
 archive_results = TRUE 
 
 # For documentation explaining how to modify the commands below see

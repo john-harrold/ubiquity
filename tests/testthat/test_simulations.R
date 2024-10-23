@@ -1,5 +1,7 @@
 context("Steady-state evaluation")
 test_that("Steady-state Check",{
+  library(ubiquity)
+  ttdir = getwd()
   setwd(tempdir())
   sys_cmpt = file.path("system_cmpt.txt")
   fr=system_new(
@@ -10,6 +12,7 @@ test_that("Steady-state Check",{
   cfg_cmpt = build_system(sys_cmpt)
   ssres = system_check_steady_state(cfg_cmpt)
   expect_true(ssres$steady_state)
+  setwd(ttdir)
 })
 
 context("Running example simulation scripts")
@@ -28,6 +31,7 @@ test_that("Running Scripts",{
     expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_multiple.r"))     [["isgood"]],    "analysis_multiple.r")
     expect_true(check_code(system.file(package="ubiquity","ubinc","scripts", "analysis_multiple_file.r"))[["isgood"]],    "analysis_multiple_file.r")
   }
+  setwd(ttdir)
   #--------------------
 })
 

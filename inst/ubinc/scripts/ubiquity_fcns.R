@@ -222,7 +222,14 @@ if(file.exists(system_file)){
     current_dir = getwd()
     setwd(temp_directory)
     on.exit( setwd(current_dir))
-    output =  system(compile_cmd, intern=TRUE) 
+    # We run this once to suppress any standard error from being printed
+    # This suppresses compiler messages that are not relevant
+    output =  system(compile_cmd, intern=TRUE, ignore.stderr=TRUE) 
+    # IF there is a status in the output then we rurun with stderr printed
+    # so the user can see any flagged errors
+    if("status" %in% names(attributes(output))){
+      output =  system(compile_cmd, intern=TRUE, ignore.stderr=FALSE)
+    }
     setwd(current_dir)
 
     if("status" %in% names(attributes(output))){
@@ -4903,16 +4910,29 @@ system_define_cohort <- function(cfg, cohort){
        }
 
        #
-       # Checking the variance
+       # Checking the variance if everything is good up to this point
        #
-       if(!('variance' %in% names(cohort$outputs[[oname]]$model))){
-       # JMH add logic' here
-        isgood = FALSE 
-        vp(cfg, sprintf('Error: For the output >%s< the model variance must be specified', oname))
-        vp(cfg, sprintf("       cohort$outputs$%s$model$variance = 'PRED^2'; ", oname))
+       if(isgood){
+         if(is.null(cohort[["outputs"]][[oname]][["model"]][["variance"]])){
+
+           # If the variance was defined in the system file we pick that up
+           # here:
+           if(!is.null(cfg[["ve"]][[ cohort[["outputs"]][[oname]][["model"]][["value"]] ]])){
+             cohort[["outputs"]][[oname]][["model"]][["variance"]] =
+               cfg[["ve"]][[ cohort[["outputs"]][[oname]][["model"]][["value"]] ]]
+           }else{
+             # otherwise we default to 1 and throw a message back to the user
+             vp(cfg, sprintf('Warning: For the output >%s< the model variance was not specified. You can ', oname));
+             vp(cfg, sprintf('         do this two ways. Either when defining the cohort:'))
+             vp(cfg, sprintf(' '))
+             vp(cfg, sprintf('           cohort$outputs$%s$model$variance = "PRED^2" ', oname))
+             vp(cfg, sprintf(' '))
+             vp(cfg, sprintf('         Or in the system file using the <OE:?> descriptor.'))
+             vp(cfg, sprintf('         Defaulting to PRED^2.'))
+             cohort[["outputs"]][[oname]][["model"]][["variance"]] = "PRED^2"
+           }
+         }
        }
-
-
      }
      else{
       isgood = FALSE 

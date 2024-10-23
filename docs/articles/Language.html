@@ -256,6 +256,18 @@ the output Cp you would use:</p>
 <p>To use both additive and proportional error the following would
 work:</p>
 <pre><code>&lt;OE:Cp&gt; add=add_err; prop=prop_err</code></pre>
+<p>There are certain target-specific considerations. For example if you
+are using Matlab or R and you just wanted to do a weighted least squares
+estimation proportional to the prediction squared you would use the
+following but fix <code>prop_err</code> as 1.</p>
+<pre><code>&lt;OE:Cp&gt; prop=prop_err</code></pre>
+<p>To do least squares estimation you could do the following and fix
+<code>add_err</code> as 1.</p>
+<pre><code>&lt;OE:Cp&gt; add=add_err</code></pre>
+<p>These represent the default values though it’s possible to overwrite
+them. In the Matlab and R workflows if you define the variance at the
+cohort level, the error models in the system file will be
+overwritten.</p>
 </div>
 <div class="section level3">
 <h3 id="variability-defining-the-variancecovariance-matrix-iiv-iivcor">Variability: defining the variance/covariance Matrix

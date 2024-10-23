@@ -1530,7 +1530,7 @@ if(keys(%{$cfg->{iiv}})){
   # adding variance equations
   if ((keys(%{$cfg->{variance}->{equations}}))){
      foreach $iname  (keys(%{$cfg->{variance}->{equations}})){
-        $mc->{FETCH_SYS_VE} .=  "cfg\$ve\$$iname = '".&apply_format($cfg, $cfg->{variance}->{equations}->{$iname}, 'rproject')."'\n";
+        $mc->{FETCH_SYS_VE} .=  'cfg[["ve"]][["'.$iname.'"]]'." = '".&apply_format($cfg, $cfg->{variance}->{equations}->{$iname}, 'rproject')."'\n";
      }
     }
   else{
@@ -5286,6 +5286,7 @@ sub parse_error_model
 
   my $arg    = $value;
   my $output = $value;
+  my $ve     = "";
 
 
   if($value =~ '<OE:\S+>\S+'){
@@ -5305,11 +5306,28 @@ sub parse_error_model
         # saving the error
         $cfg->{error}->{$output}->{$eparts[0]} = $eparts[1];
 
+        if($eparts[0] eq "add" | $eparts[0]  eq "prop" ){
+          if($ve ne ""){
+            $ve .= "+";
+          }
+          if($eparts[0] eq "add"){
+            $ve .= $eparts[1];
+          }
+          if($eparts[0] eq "prop"){
+            $ve .= $eparts[1]."*SIMINT_POWER[PRED][2.0]";
+          }
+        }
+
       } else {
        &mywarn("error model entry not parsed:");
        &mywarn("element not understood: -->$element<--"); 
        &mywarn("entry: -->$line<--"); 
       }
+    }
+
+    # Storing the variance equation 
+    if($ve ne ""){
+      $cfg->{variance}->{equations}->{$output} = $ve;
     }
   }
   else{
@@ -5325,19 +5343,21 @@ sub parse_variance_equation
 {
   my ($cfg, $line) = @_;
 
-  # line contains odes
-  if($line =~ '<VE:\S+>\s*\S+'){
-    my $output   = $line;
-    my $equation = $line;
-    # pulling out the species and ode
-    $output   =~ s#\s*<VE:\s*(\S+)\s*>\s*\S+.+#$1#;
-    $equation =~ s#\s*<VE:\s*\S+\s*>\s*(\S+.+)#$1#;
+  &mywarn("The <VE:?> delimiter has been depreciated. See <OE:?> instead."); 
 
-    $cfg->{variance}->{equations}->{$output} = $equation;
-  }
-  else{
-      &mywarn("variance equation entry found but format is unexpected" ); 
-      &mywarn("entry: -->$line<--"); }
+ ## line contains odes
+ #if($line =~ '<VE:\S+>\s*\S+'){
+ #  my $output   = $line;
+ #  my $equation = $line;
+ #  # pulling out the species and ode
+ #  $output   =~ s#\s*<VE:\s*(\S+)\s*>\s*\S+.+#$1#;
+ #  $equation =~ s#\s*<VE:\s*\S+\s*>\s*(\S+.+)#$1#;
+ #
+ #  $cfg->{variance}->{equations}->{$output} = $equation;
+ #}
+ #else{
+ #    &mywarn("variance equation entry found but format is unexpected" ); 
+ #    &mywarn("entry: -->$line<--"); }
 
   return $cfg;
 }

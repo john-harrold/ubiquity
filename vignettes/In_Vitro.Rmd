@@ -1,5 +1,5 @@
 ---
-title: 'Analysis of Static In Vitro Systems'
+title: 'Analysis of Static Systems, an In Vitro Example'
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{In Vitro}
@@ -134,7 +134,7 @@ cfg=system_set_option(cfg, group  = "simulation",
                            value  = FALSE)
 ```
 
-This will fix the values of the differential equations to 0 for the purposes of the subsequent simulations.
+This will fix the values of the differential equations to 0 for the purposes of the subsequent simulations. **Only available in ubiquity version $\ge$ 2.04.** 
 
 ### Datasets
 

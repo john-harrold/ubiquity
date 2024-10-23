@@ -419,6 +419,8 @@ cfg = system_define_cohort(cfg, cohort)
 
 Similar modifications were made to the 30 mg dosing cohort.
 
+**Note: The variance model can be speified in the `system.txt` file using the `<OE:?>` descriptor. If you do not specify the variance in the cohort this value will be used. If it is not specified in either location then the default value (`PRED^2`) will be used.***
+
 ## Global estimation routines (``analysis_parent_metabolite_global.r``)
 
 Now we build on the previous example to demonstrate how to select different optimization routines. By default, the parameter estimation is carried out using the ``Nelder-Mead`` optimization method from the ``optim`` library. You can specify different functions in the library. See the documentation for optim (?optim) for valid values for method and elements for the control.  For example, to use simulated annealing change the ``method`` to ``SANN``. 
