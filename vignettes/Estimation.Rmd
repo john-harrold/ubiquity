@@ -419,7 +419,7 @@ cfg = system_define_cohort(cfg, cohort)
 
 Similar modifications were made to the 30 mg dosing cohort.
 
-**Note: The variance model can be speified in the `system.txt` file using the `<OE:?>` descriptor. If you do not specify the variance in the cohort this value will be used. If it is not specified in either location then the default value (`PRED^2`) will be used.***
+**Note: The variance model can be speified in the `system.txt` file using the `<OE:?>` descriptor. If you do not specify the variance in the cohort definition the value from the system file will be used. If it is not specified in either location then the default value (`PRED^2`) will be used.**
 
 ## Global estimation routines (``analysis_parent_metabolite_global.r``)
 

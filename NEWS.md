@@ -10,6 +10,7 @@ editor_options:
 - Removed the NONMEM and Monolix outputs
 - Added translation of rxode2 output into NONMEM and Monolix outputs 
 - Added simulation option `dynamic` set to `TRUE` by default and when set to `FALSE` it will fix ODEs to 0 and allow for in vitro analysis. 
+- Applying `<OE:?>` to variance models in cohort definitions. 
 
 # ubiquity 2.0.3 
 
