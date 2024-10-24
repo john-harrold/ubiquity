@@ -135,42 +135,6 @@ estimate a subset of parameters (P), say `P1` and `P2`, you can use the followin
 ~~~
 
 
-### Output error model `<OE:?> ?`
-
-*Current applies only to nlmixr2/rxode2 output. *
-
-This defines the output error model of the format:
-
-~~~
-`<OE:OUTPUT> expression`
-~~~
-
-
-The `OUTPUT` can be the name of any output defined with `<O>`. The `expression` is a model type (add for additive, and prop for proportional) with an equal sign and the name of the variance paramter (`<VP>`) to use. To use more than one error model type you separate the statments with `;` For example if you define the variance parameters `add_err` and `prop_err` and want to use a proportional error model to the output Cp you would use:
-
-~~~
-<OE:Cp> prop=prop_err
-~~~
-
-To use both additive and proportional error the following would work:
-
-~~~
-<OE:Cp> add=add_err; prop=prop_err
-~~~
-
-There are certain target-specific considerations. For example if you are using Matlab or R and you just wanted to do a weighted least squares estimation proportional to the prediction squared you would use the following but fix `prop_err` as 1.
-
-~~~
-<OE:Cp> prop=prop_err
-~~~
-
-To do least squares estimation you could do the following and fix `add_err` as 1.
- 
-~~~
-<OE:Cp> add=add_err
-~~~
-
-These represent the default values though it's possible to overwrite them. In the Matlab and R workflows if you define the variance at the cohort level, the error models in the system file will be overwritten.
 
 ### Variability: defining the variance/covariance Matrix ``<IIV:?>?`` \& ``<IIVCOR:?>?``
 
@@ -554,6 +518,42 @@ For example:
 
 Outputs that begin with ``QC``, like ``QC_CLtot`` above, will not be displayed in the ShinyApp. This is intended to make them available at the scripting level for quality control (QC) purposes.
 
+### Output error model `<OE:?> ?`
+
+*Current applies only to nlmixr2/rxode2 output. *
+
+This links parameters defined using <VP:?> to specific outputs defined using <O>. You can define either add for additive and/or prop for proportional error:
+
+~~~
+`<OE:OUTPUT> expression`
+~~~
+
+
+The `OUTPUT` can be the name of any output defined with `<O>`. The `expression` is a model type (add for additive, and prop for proportional) with an equal sign and the name of the variance paramter (`<VP>`) to use. To use more than one error model type you separate the statments with `;` For example if you define the variance parameters `add_err` and `prop_err` and want to use a proportional error model to the output Cp you would use:
+
+~~~
+<OE:Cp> prop=prop_err
+~~~
+
+To use both additive and proportional error the following would work:
+
+~~~
+<OE:Cp> add=add_err; prop=prop_err
+~~~
+
+There are certain target-specific considerations. For example if you are using Matlab or R and you just wanted to do a weighted least squares estimation proportional to the prediction squared you would use the following but fix `prop_err` as 1.
+
+~~~
+<OE:Cp> prop=prop_err
+~~~
+
+To do least squares estimation you could do the following and fix `add_err` as 1.
+ 
+~~~
+<OE:Cp> add=add_err
+~~~
+
+These represent the default values though it's possible to overwrite them. In the Matlab and R workflows if you define the variance at the cohort level, the error models in the system file will be overwritten.
 ## Functions and operators
 
 Most of the standard operators behave as expected (``+``, ``-``, ``*``, & ``/``) because most languages use these consistently. There are however certain operators and functions that differ between languages. For example, consider the power function ($a^b$). In FORTRAN this would be ``a**b``, in Matlab it is ``a^b``, and in C it is ``pow(a,b)``. Given the objectives here (write once and create multiple formats), this can be quite challenging. The solution used here is to convert language specific functions and operators into generic functions. So the power operator would be:
@@ -797,19 +797,6 @@ The general notation for an output or state ``name`` assigned to a ``number`` is
 <INDEX:STATE:name>  number
 <INDEX:OUTPUT:name> number
 ~~~
-
-
-### Output error  `<OE:?> ?`
-
-This links parameters defined using `<VP:?>` to specific outputs defined using `<O>`. You can define either `add` for additive and/or `prop` for proportional error.
-
-~~~
-<VP> prop_err   0.1            eps    inf      --     yes      Variance
-<VP> add_err    0.1            eps    inf      conc  yes      Variance
-<O> Cp = expression
-<OE:Cp> add=add_error; prop=prop_error
-~~~
-
 
 ## Concentrations vs amounts
 It's more convenient to model systems in terms of concentrations. However some software does not allow scaling of inputs. And when inputs are provided in mass units, you need your differential equation to also be in mass units. You can use the `<AMTIFY>` descriptor in your 

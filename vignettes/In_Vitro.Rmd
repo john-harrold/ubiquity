@@ -175,7 +175,7 @@ Because we set the simulation option `dynamic` to `FALSE`, the initial condition
 
 ### Postprocessing 
 
-You cannot rely on the normal figure generation and reporting elements. In this example we can take the simulated output at the estimation `erp` and the original data dataset `er_data` to create meaningful VPCs. This is because we can link the two datasets using the `treat` column from the original dataset to the `COHORT` column in `erp$pred`: 
+You cannot rely on the normal figure generation and reporting elements. In this example we can take the simulated output at the estimation `erp` and the original data dataset `er_data` to create meaningful diagnostic plots. This is because we can link the two datasets using the `treat` column from the original dataset to the `COHORT` column in `erp$pred`: 
 
 ```{r echo=TRUE, comment='', message=TRUE, eval=FALSE}
 df_orig = er_data |>

@@ -239,37 +239,6 @@ want to estimate a subset of parameters (P), say <code>P1</code> and
 <pre><code>&lt;EST:P&gt; P1; P2</code></pre>
 </div>
 <div class="section level3">
-<h3 id="output-error-model-oe">Output error model <code>&lt;OE:?&gt; ?</code><a class="anchor" aria-label="anchor" href="#output-error-model-oe"></a>
-</h3>
-<p><em>Current applies only to nlmixr2/rxode2 output. </em></p>
-<p>This defines the output error model of the format:</p>
-<pre><code><span><span class="va">`&lt;OE:OUTPUT&gt; expression`</span></span></code></pre>
-<p>The <code>OUTPUT</code> can be the name of any output defined with
-<code>&lt;O&gt;</code>. The <code>expression</code> is a model type (add
-for additive, and prop for proportional) with an equal sign and the name
-of the variance paramter (<code>&lt;VP&gt;</code>) to use. To use more
-than one error model type you separate the statments with <code>;</code>
-For example if you define the variance parameters <code>add_err</code>
-and <code>prop_err</code> and want to use a proportional error model to
-the output Cp you would use:</p>
-<pre><code>&lt;OE:Cp&gt; prop=prop_err</code></pre>
-<p>To use both additive and proportional error the following would
-work:</p>
-<pre><code>&lt;OE:Cp&gt; add=add_err; prop=prop_err</code></pre>
-<p>There are certain target-specific considerations. For example if you
-are using Matlab or R and you just wanted to do a weighted least squares
-estimation proportional to the prediction squared you would use the
-following but fix <code>prop_err</code> as 1.</p>
-<pre><code>&lt;OE:Cp&gt; prop=prop_err</code></pre>
-<p>To do least squares estimation you could do the following and fix
-<code>add_err</code> as 1.</p>
-<pre><code>&lt;OE:Cp&gt; add=add_err</code></pre>
-<p>These represent the default values though it’s possible to overwrite
-them. In the Matlab and R workflows if you define the variance at the
-cohort level, the error models in the system file will be
-overwritten.</p>
-</div>
-<div class="section level3">
 <h3 id="variability-defining-the-variancecovariance-matrix-iiv-iivcor">Variability: defining the variance/covariance Matrix
 <code>&lt;IIV:?&gt;?</code> &amp; <code>&lt;IIVCOR:?&gt;?</code><a class="anchor" aria-label="anchor" href="#variability-defining-the-variancecovariance-matrix-iiv-iivcor"></a>
 </h3>
@@ -664,10 +633,38 @@ is:</p>
 above, will not be displayed in the ShinyApp. This is intended to make
 them available at the scripting level for quality control (QC)
 purposes.</p>
-</div>
-<div class="section level2">
-<h2 id="functions-and-operators">Functions and operators<a class="anchor" aria-label="anchor" href="#functions-and-operators"></a>
-</h2>
+<div class="section level3">
+<h3 id="output-error-model-oe">Output error model <code>&lt;OE:?&gt; ?</code><a class="anchor" aria-label="anchor" href="#output-error-model-oe"></a>
+</h3>
+<p><em>Current applies only to nlmixr2/rxode2 output. </em></p>
+<p>This links parameters defined using &lt;VP:?&gt; to specific outputs
+defined using <o>. You can define either add for additive and/or prop
+for proportional error:</o></p>
+<pre><code><span><span class="va">`&lt;OE:OUTPUT&gt; expression`</span></span></code></pre>
+<p>The <code>OUTPUT</code> can be the name of any output defined with
+<code>&lt;O&gt;</code>. The <code>expression</code> is a model type (add
+for additive, and prop for proportional) with an equal sign and the name
+of the variance paramter (<code>&lt;VP&gt;</code>) to use. To use more
+than one error model type you separate the statments with <code>;</code>
+For example if you define the variance parameters <code>add_err</code>
+and <code>prop_err</code> and want to use a proportional error model to
+the output Cp you would use:</p>
+<pre><code>&lt;OE:Cp&gt; prop=prop_err</code></pre>
+<p>To use both additive and proportional error the following would
+work:</p>
+<pre><code>&lt;OE:Cp&gt; add=add_err; prop=prop_err</code></pre>
+<p>There are certain target-specific considerations. For example if you
+are using Matlab or R and you just wanted to do a weighted least squares
+estimation proportional to the prediction squared you would use the
+following but fix <code>prop_err</code> as 1.</p>
+<pre><code>&lt;OE:Cp&gt; prop=prop_err</code></pre>
+<p>To do least squares estimation you could do the following and fix
+<code>add_err</code> as 1.</p>
+<pre><code>&lt;OE:Cp&gt; add=add_err</code></pre>
+<p>These represent the default values though it’s possible to overwrite
+them. In the Matlab and R workflows if you define the variance at the
+cohort level, the error models in the system file will be overwritten.
+## Functions and operators</p>
 <p>Most of the standard operators behave as expected (<code>+</code>,
 <code>-</code>, <code>*</code>, &amp; <code>/</code>) because most
 languages use these consistently. There are however certain operators
@@ -741,6 +738,7 @@ used:</p>
 </tr>
 </tbody>
 </table>
+</div>
 <div class="section level3">
 <h3 id="current-simulation-time">Current simulation time<a class="anchor" aria-label="anchor" href="#current-simulation-time"></a>
 </h3>
@@ -998,18 +996,6 @@ following should be used:</p>
 assigned to a <code>number</code> is:</p>
 <pre><code>&lt;INDEX:STATE:name&gt;  number
 &lt;INDEX:OUTPUT:name&gt; number</code></pre>
-<div class="section level3">
-<h3 id="output-error-oe">Output error <code>&lt;OE:?&gt; ?</code><a class="anchor" aria-label="anchor" href="#output-error-oe"></a>
-</h3>
-<p>This links parameters defined using <code>&lt;VP:?&gt;</code> to
-specific outputs defined using <code>&lt;O&gt;</code>. You can define
-either <code>add</code> for additive and/or <code>prop</code> for
-proportional error.</p>
-<pre><code>&lt;VP&gt; prop_err   0.1            eps    inf      --     yes      Variance
-&lt;VP&gt; add_err    0.1            eps    inf      conc  yes      Variance
-&lt;O&gt; Cp = expression
-&lt;OE:Cp&gt; add=add_error; prop=prop_error</code></pre>
-</div>
 </div>
 <div class="section level2">
 <h2 id="concentrations-vs-amounts">Concentrations vs amounts<a class="anchor" aria-label="anchor" href="#concentrations-vs-amounts"></a>
