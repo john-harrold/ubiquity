@@ -222,8 +222,9 @@ residual variability.</p>
 <div class="section level3">
 <h3 id="parameter-estimation-information-est">Parameter estimation information <code>&lt;EST:?&gt;?</code><a class="anchor" aria-label="anchor" href="#parameter-estimation-information-est"></a>
 </h3>
-<p><em>Currently applies only to nlmixr2/rxode2. Essentially all the
-parameters not listed here will be fixed.</em></p>
+<p><em>Currently applies only to</em> <strong>nlmixr2/rxode</strong>
+<em>. Essentially all the parameters not listed here will be
+fixed.</em></p>
 <p>This descriptor specifies information about parameters for
 estimation. Sometimes it is necessary to estimate parameters in the log
 space. Here you can specify the parmaeters to log transform (LT). If you
@@ -485,8 +486,9 @@ mathematical inputs. Typically covariates may be attributes of the
 system (such as gender, or a specific genotype), but are treated here as
 inputs. When defining inputs it is necessary to provide
 typical/placeholder values. These provide default values for both the
-ShinyApp interface as well as the scripting level (Matlab and R) where
-they can be overwritten by the user.</p>
+ShinyApp interface as well as the scripting level
+(<strong>Matlab</strong> and <strong>R</strong>) where they can be
+overwritten by the user.</p>
 <div class="section level3">
 <h3 id="bolus-dosing-btimes-bevents">Bolus dosing <code>&lt;B:times&gt;</code>,
 <code>&lt;B:events&gt;</code><a class="anchor" aria-label="anchor" href="#bolus-dosing-btimes-bevents"></a>
@@ -636,7 +638,6 @@ purposes.</p>
 <div class="section level3">
 <h3 id="output-error-model-oe">Output error model <code>&lt;OE:?&gt; ?</code><a class="anchor" aria-label="anchor" href="#output-error-model-oe"></a>
 </h3>
-<p><em>Current applies only to nlmixr2/rxode2 output. </em></p>
 <p>This links parameters defined using &lt;VP:?&gt; to specific outputs
 defined using <o>. You can define either add for additive and/or prop
 for proportional error:</o></p>
@@ -654,17 +655,18 @@ the output Cp you would use:</p>
 work:</p>
 <pre><code>&lt;OE:Cp&gt; add=add_err; prop=prop_err</code></pre>
 <p>There are certain target-specific considerations. For example if you
-are using Matlab or R and you just wanted to do a weighted least squares
-estimation proportional to the prediction squared you would use the
-following but fix <code>prop_err</code> as 1.</p>
+are using <strong>Matlab</strong> or <strong>R</strong> and you just
+wanted to do a weighted least squares estimation proportional to the
+prediction squared you would use the following but fix
+<code>prop_err</code> as 1.</p>
 <pre><code>&lt;OE:Cp&gt; prop=prop_err</code></pre>
 <p>To do least squares estimation you could do the following and fix
 <code>add_err</code> as 1.</p>
 <pre><code>&lt;OE:Cp&gt; add=add_err</code></pre>
 <p>These represent the default values though it’s possible to overwrite
-them. In the Matlab and R workflows if you define the variance at the
-cohort level, the error models in the system file will be overwritten.
-## Functions and operators</p>
+them. In the <strong>Matlab</strong> and <strong>R</strong> workflows if
+you define the variance at the cohort level, the error models in the
+system file will be overwritten. ## Functions and operators</p>
 <p>Most of the standard operators behave as expected (<code>+</code>,
 <code>-</code>, <code>*</code>, &amp; <code>/</code>) because most
 languages use these consistently. There are however certain operators
@@ -1007,9 +1009,9 @@ be in mass units. You can use the <code>&lt;AMTIFY&gt;</code> descriptor
 in your <code>system.txt</code> to tell ubiquity to generate perform
 this conversion on the differential equations.</p>
 <p>For example, if you defined the state <code>Cc</code> but want it to
-be <code>Ac</code> within the nlmixr2 model target. These are related by
-<code>Cc = Ac/Vc</code> and <code>Vc</code> is a parameter the following
-would be used:</p>
+be <code>Ac</code> within the <strong>nlmixr2</strong> model target.
+These are related by <code>Cc = Ac/Vc</code> and <code>Vc</code> is a
+parameter the following would be used:</p>
 <pre><code>&lt;AMTIFY&gt; Cc; Ac; Vc</code></pre>
 </div>
 <div class="section level2">

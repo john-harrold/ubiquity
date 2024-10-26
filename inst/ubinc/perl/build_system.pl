@@ -733,6 +733,7 @@ sub dump_nlmixr
   $m_ele->{DSP}                   = '';
   $m_ele->{ODES}                  = '';
   $m_ele->{OUTPUTS}               = '';
+  $m_ele->{SYS_IC}                = '';
  
  
   my $iiv_set     = 'default';
@@ -993,6 +994,15 @@ sub dump_nlmixr
   $m_ele->{ODES}         .= "\n".$indent."# Defining ODEs\n";
   foreach $state     (@{$cfg->{species_index}}){
     $sname = $state;
+
+    if(defined($cfg->{initial_conditions}->{$sname})){
+      if($m_ele->{SYS_IC} eq ''){
+        $m_ele->{SYS_IC} = "\n".$indent."# non-zero initial conditions\n";
+      }
+      $m_ele->{SYS_IC} .= $indent.$sname.'(0)'.&fetch_padding($sname, $cfg->{species_length})." = ";
+      $m_ele->{SYS_IC} .= &apply_format($cfg, $cfg->{initial_conditions}->{$sname}, 'rproject')."\n";
+    } 
+
     if(defined($cfg->{options}->{amtify}->{cmt_to_amt}->{$sname})){ 
       $name2 = $cfg->{options}->{amtify}->{cmt_to_amt}->{$sname};
       $m_ele->{ODES}  .= $indent."d/dt($name2)".&fetch_padding("d/dt($name2)", $cfg->{species_length})."= (".&make_ode($cfg, $sname, 'rproject').")*";

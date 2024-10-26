@@ -73,6 +73,9 @@
 <O> Cp_B_mg_ml    = Cp_B
 <O> Effect        = EFF
 
+#<VP>  prop_err            1.0       eps        Inf   -----      yes     IC
+#<OE:Effect> prop=prop_err
+
 # #---------#
 # | Options #
 # #---------#

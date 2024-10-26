@@ -114,7 +114,7 @@ The difference being that the ``<VP>`` descriptor is used and that the grouping 
  
 ### Parameter estimation information `<EST:?>?`
 
-*Currently applies only to nlmixr2/rxode2. Essentially all the parameters not listed here will be fixed.*
+*Currently applies only to* **nlmixr2/rxode** *. Essentially all the parameters not listed here will be fixed.*
 
 This descriptor specifies information about parameters for estimation.
 Sometimes it is necessary to estimate parameters in the log space. Here you
@@ -399,7 +399,7 @@ Then we can specify the initial value of the target as:
 
 ## Model inputs
 
-Inputs into the model include typical interventions such as bolus dosing or continuous infusions. However inputs here refers to mathematical inputs. Typically covariates may be attributes of the system (such as gender, or a specific genotype), but are treated here as inputs. When defining inputs it is necessary to provide typical/placeholder values. These provide default values for both the ShinyApp interface as well as the scripting level (Matlab and R) where they can be overwritten by the user. 
+Inputs into the model include typical interventions such as bolus dosing or continuous infusions. However inputs here refers to mathematical inputs. Typically covariates may be attributes of the system (such as gender, or a specific genotype), but are treated here as inputs. When defining inputs it is necessary to provide typical/placeholder values. These provide default values for both the ShinyApp interface as well as the scripting level (**Matlab** and **R**) where they can be overwritten by the user. 
 
 
 ### Bolus dosing ``<B:times>``, ``<B:events>``
@@ -520,8 +520,6 @@ Outputs that begin with ``QC``, like ``QC_CLtot`` above, will not be displayed i
 
 ### Output error model `<OE:?> ?`
 
-*Current applies only to nlmixr2/rxode2 output. *
-
 This links parameters defined using <VP:?> to specific outputs defined using <O>. You can define either add for additive and/or prop for proportional error:
 
 ~~~
@@ -541,7 +539,7 @@ To use both additive and proportional error the following would work:
 <OE:Cp> add=add_err; prop=prop_err
 ~~~
 
-There are certain target-specific considerations. For example if you are using Matlab or R and you just wanted to do a weighted least squares estimation proportional to the prediction squared you would use the following but fix `prop_err` as 1.
+There are certain target-specific considerations. For example if you are using **Matlab** or **R** and you just wanted to do a weighted least squares estimation proportional to the prediction squared you would use the following but fix `prop_err` as 1.
 
 ~~~
 <OE:Cp> prop=prop_err
@@ -553,7 +551,7 @@ To do least squares estimation you could do the following and fix `add_err` as 1
 <OE:Cp> add=add_err
 ~~~
 
-These represent the default values though it's possible to overwrite them. In the Matlab and R workflows if you define the variance at the cohort level, the error models in the system file will be overwritten.
+These represent the default values though it's possible to overwrite them. In the **Matlab** and **R** workflows if you define the variance at the cohort level, the error models in the system file will be overwritten.
 ## Functions and operators
 
 Most of the standard operators behave as expected (``+``, ``-``, ``*``, & ``/``) because most languages use these consistently. There are however certain operators and functions that differ between languages. For example, consider the power function ($a^b$). In FORTRAN this would be ``a**b``, in Matlab it is ``a^b``, and in C it is ``pow(a,b)``. Given the objectives here (write once and create multiple formats), this can be quite challenging. The solution used here is to convert language specific functions and operators into generic functions. So the power operator would be:
@@ -802,7 +800,7 @@ The general notation for an output or state ``name`` assigned to a ``number`` is
 It's more convenient to model systems in terms of concentrations. However some software does not allow scaling of inputs. And when inputs are provided in mass units, you need your differential equation to also be in mass units. You can use the `<AMTIFY>` descriptor in your 
 `system.txt` to tell ubiquity to generate perform this conversion on the differential equations.
 
-For example, if you defined the state `Cc` but want it to be `Ac` within the nlmixr2 model target. These are related by `Cc = Ac/Vc` and `Vc` is a parameter the following would be used:
+For example, if you defined the state `Cc` but want it to be `Ac` within the **nlmixr2** model target. These are related by `Cc = Ac/Vc` and `Vc` is a parameter the following would be used:
 
 ~~~
 <AMTIFY> Cc; Ac; Vc
