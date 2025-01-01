@@ -758,6 +758,8 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
      write_file   = c(TRUE)
    }
    if(template == "NONMEM" || template == "Monolix" ){
+     # Needed because capture is created in an eval
+     capture    = NULL
      deps_found = TRUE
      # Walking through the dependencies to make sure everything is needed
      if(system.file(package="rxode2") == ""){
