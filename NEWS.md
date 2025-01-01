@@ -3,14 +3,15 @@ editor_options:
   markdown: 
     wrap: 72
 ---
-# ubiquity 2.0.4 (development version)
+# ubiquity 2.1.0 (development version)
 
 ## Notes
 
 - Removed the NONMEM and Monolix outputs
-- Added translation of rxode2 output into NONMEM and Monolix outputs 
+- Added translation of nlmixr2 output into NONMEM and Monolix outputs 
 - Added simulation option `dynamic` set to `TRUE` by default and when set to `FALSE` it will fix ODEs to 0 and allow for in vitro analysis. 
 - Applying `<OE:?>` to variance models in cohort definitions. 
+- Fixed issue where initial conditions were not being passed to nlmixr2 output. 
 
 # ubiquity 2.0.3 
 
