@@ -111,21 +111,21 @@ example files for different sections of the workshop.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu">workshop_fetch</span><span class="op">(</span><span class="st">"Estimation"</span>, output_directory<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, overwrite<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//Rtmpms4SZn/analysis_parent.r</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//Rtmpms4SZn/analysis_parent_metabolite.r</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//Rtmpms4SZn/analysis_parent_metabolite_global.r</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//Rtmpms4SZn/analysis_parent_metabolite_nm_data.r</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//Rtmpms4SZn/system.txt</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//Rtmpms4SZn/pm_data.csv</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//Rtmpms4SZn/nm_data.csv</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//RtmpBs0Coz/analysis_parent.r</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//RtmpBs0Coz/analysis_parent_metabolite.r</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//RtmpBs0Coz/analysis_parent_metabolite_global.r</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//RtmpBs0Coz/analysis_parent_metabolite_nm_data.r</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//RtmpBs0Coz/system.txt</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//RtmpBs0Coz/pm_data.csv</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> → Creating file: /var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T//RtmpBs0Coz/nm_data.csv</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $sources</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf4131265fbf/ubiquity/ubinc/scripts/analysis_parent.r"                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf4131265fbf/ubiquity/ubinc/scripts/analysis_parent_metabolite.r"        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf4131265fbf/ubiquity/ubinc/scripts/analysis_parent_metabolite_global.r" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf4131265fbf/ubiquity/ubinc/scripts/analysis_parent_metabolite_nm_data.r"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf4131265fbf/ubiquity/ubinc/systems/system-adapt.txt"                    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf4131265fbf/ubiquity/ubinc/csv/pm_data.csv"                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [7] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf4131265fbf/ubiquity/ubinc/csv/nm_data.csv"                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf412455e1d9/ubiquity/ubinc/scripts/analysis_parent.r"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf412455e1d9/ubiquity/ubinc/scripts/analysis_parent_metabolite.r"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf412455e1d9/ubiquity/ubinc/scripts/analysis_parent_metabolite_global.r" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf412455e1d9/ubiquity/ubinc/scripts/analysis_parent_metabolite_nm_data.r"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf412455e1d9/ubiquity/ubinc/systems/system-adapt.txt"                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf412455e1d9/ubiquity/ubinc/csv/pm_data.csv"                             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [7] "/private/var/folders/pq/7srbf_fx3rd3k706hgxkg61r0000gp/T/Rtmp0OZXtm/temp_libpathf412455e1d9/ubiquity/ubinc/csv/nm_data.csv"                             </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $destinations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "analysis_parent.r"                   </span>
