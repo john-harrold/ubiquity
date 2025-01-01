@@ -10772,7 +10772,6 @@ system_nca_summary = function(cfg,
                           table_theme       = "theme_zebra"
                           ){
 
-invisible(system_req("magrittr"))
 invisible(system_req("dplyr"))
 invisible(system_req("flextable"))
 # Setting defaults for the function
