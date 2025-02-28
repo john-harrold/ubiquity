@@ -19,8 +19,6 @@ require(ggplot2)
 
 ## Introduction 
 
-**This tutorial requires ubiquity 2.04 or greater. Currently this is only available using the development version off of github**
-
 Sometimes we need to analyze data where the independent variable is not time. You can do this with ubiquity and this tutorial will highlight how that is done. If you have not done so already, please review the naive-pooled parameter estimation tutorial because this will build on the concepts covered there. The workshop ([workshop.ubiquity.tools](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip)) provides an example of how to analyize static *in vitro* data. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
 ```{r eval=FALSE}
