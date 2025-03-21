@@ -132,7 +132,7 @@ cfg=system_set_option(cfg, group  = "simulation",
                            value  = FALSE)
 ```
 
-This will fix the values of the differential equations to 0 for the purposes of the subsequent simulations. **Only available in ubiquity version $\ge$ 2.04.** 
+This will fix the values of the differential equations to 0 for the purposes of the subsequent simulations. **Only available in ubiquity version $\ge$ 2.10.** 
 
 ### Datasets
 
@@ -192,6 +192,29 @@ p = ggplot(data=df_plot) +
     geom_point(aes(x=C_A0, y=OBS,  group=C_B0, color=C_B0)) +
      geom_line(aes(x=C_A0, y=PRED, group=C_B0, color=C_B0)) + 
      scale_x_log10()
+```
+
+## Results 
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, comment=''}
+mytmpdir = file.path(tempdir(), "invitro")
+if(!dir.exists(mytmpdir)){
+  dir.create(mytmpdir)
+}
+library(ubiquity)
+old_wd <- getwd()
+on.exit(setwd(old_wd))
+setwd(mytmpdir)
+fr = workshop_fetch(section="In Vitro", overwrite=TRUE, output_directory = mytmpdir)
+suppressMessages(suppressWarnings(source("analysis_in_vitro.R")))
+#setwd(old_wd)
+```
+```{r echo=FALSE, comment='', message=FALSE, eval=TRUE, fig.width=7, fig.height=5}
+p = p+
+    xlab("CA (ng/ml)") +
+    scale_color_discrete(name="CB (ng/ml)") +
+    theme_minimal()
+p
 ```
 
 ## Contents of ``system-in_vitro.txt``
