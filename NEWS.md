@@ -3,7 +3,12 @@ editor_options:
   markdown: 
     wrap: 72
 ---
-# ubiquity 2.1.0 (development version)
+
+# ubiquity 2.1.2 (development version)
+
+## Notes
+
+# ubiquity 2.1.0 
 
 ## Notes
 

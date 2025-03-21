@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ubiquity</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -1030,54 +1030,67 @@ scripts use the following:</p>
 <h2 id="example-system-files">Example system files<a class="anchor" aria-label="anchor" href="#example-system-files"></a>
 </h2>
 <p>These example system files can be found in the examples directory of
-the stand-alone analysis template (<a href="https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_analysis_development.zip" class="external-link">ubiquity_template.zip</a>).
+the stand-alone analysis template (<a href="https://github.com/john-harrold/ubiquity-pkpd/raw/refs/heads/master/download/ubiquity_analysis_development.zip" class="external-link">ubiquity_template.zip</a>).
 Most can also be loaded form the R package (see the help for
 <code><a href="../reference/system_new.html">?system_new</a></code>).</p>
 <ul>
 <li>
-<code>system-adapt.txt</code> - Parent/metabolite structural model
-taken from the ADAPT5 Users Manual [ADAPT]. This system is used in the
-estimation examples of the ubiquity workshop.</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-adapt.txt" class="external-link"><code>system-adapt.txt</code></a>
+- Parent/metabolite structural model taken from the ADAPT5 Users Manual
+[ADAPT]. This system is used in the estimation examples of the ubiquity
+workshop.</li>
 <li>
-<code>system-glp_study.txt</code> - PK model parameterized for
-humans and NHPs, used as an example for GLP tox study design.</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-glp_study.txt" class="external-link"><code>system-glp_study.txt</code></a>
+- PK model parameterized for humans and NHPs, used as an example for GLP
+tox study design.</li>
 <li>
-<code>system-mab_pk.txt</code> - Linear model of mAb PK for humans
-taken from [DM]. This model is used in the simulation examples of the
-ubiquity workshop.</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-in_vitro.txt" class="external-link"><code>system-in_vitro.txt</code></a>
+- System to demonstrate in vitro/steady state modeling. See the
+estimation of static systems vignette for more details.</li>
 <li>
-<code>system-one_cmt_cl.txt</code> - One compartment model
-parameterized in terms of clearances and volumes.</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-mab_pk.txt" class="external-link"><code>system-mab_pk.txt</code></a>
+- Linear model of mAb PK for humans taken from [DM]. This model is used
+in the simulation examples of the ubiquity workshop.</li>
 <li>
-<code>system-one_cmt_micro.txt</code> - One compartment model
-parameterized for micro constants (rates).</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-one_cmt_cl.txt" class="external-link"><code>system-one_cmt_cl.txt</code></a>
+- One compartment model parameterized in terms of clearances and
+volumes.</li>
 <li>
-<code>system-pbpk.txt</code> - Implementation of large molecule PBPK
-model by Shah and Betts [SB]. This model provides good examples of how
-to use mathematical set notation.</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-one_cmt_micro.txt" class="external-link"><code>system-one_cmt_micro.txt</code></a>
+- One compartment model parameterized for micro constants (rates).</li>
 <li>
-<code>system-pbpk_template.txt</code> - Template containing the
-species parameter from [SB]. This can be used to construct systems
-parameterized for multiple species.</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-pbpk.txt" class="external-link"><code>system-pbpk.txt</code></a>
+- Implementation of large molecule PBPK model by Shah and Betts [SB].
+This model provides good examples of how to use mathematical set
+notation.</li>
 <li>
-<code>system-pwc.txt</code> - Example of how to construct piece-wise
-secondary parameters (i.e. using if/then/else statements).</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-pbpk_template.txt" class="external-link"><code>system-pbpk_template.txt</code></a>
+- Template containing the species parameter from [SB]. This can be used
+to construct systems parameterized for multiple species.</li>
 <li>
-<code>system-sets.txt</code> - Example of how to parameterized
-systems with multiple parameter sets.</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-pwc.txt" class="external-link"><code>system-pwc.txt</code></a>
+- Example of how to construct piece-wise secondary parameters
+(i.e. using if/then/else statements).</li>
 <li>
-<code>system-tmdd.txt</code> - Example of how to code a TMDD model
-using either ODEs or process descriptors.</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-sets.txt" class="external-link"><code>system-sets.txt</code></a>
+- Example of how to parameterized systems with multiple parameter
+sets.</li>
 <li>
-<code>system-tumor.txt</code> - Implementation of transit effect
-model in cancer cell inhibition from [LB]. This demonstrates how to use
-aligned mathematical sets.</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-tmdd.txt" class="external-link"><code>system-tmdd.txt</code></a>
+- Example of how to code a TMDD model using either ODEs or process
+descriptors.</li>
 <li>
-<code>system-two_cmt_cl.txt</code> - Two compartment model
-parameterized in terms of clearances and volumes</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-tumor.txt" class="external-link"><code>system-tumor.txt</code></a>
+- Implementation of transit effect model in cancer cell inhibition from
+[LB]. This demonstrates how to use aligned mathematical sets.</li>
 <li>
-<code>system-two_cmt_micro.txt</code> - Two compartment model
-parameterized in terms of micro constants (rates)</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-two_cmt_cl.txt" class="external-link"><code>system-two_cmt_cl.txt</code></a>
+- Two compartment model parameterized in terms of clearances and
+volumes</li>
+<li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-two_cmt_micro.txt" class="external-link"><code>system-two_cmt_micro.txt</code></a>
+- Two compartment model parameterized in terms of micro constants
+(rates)</li>
 </ul>
 </div>
 <div class="section level2">
