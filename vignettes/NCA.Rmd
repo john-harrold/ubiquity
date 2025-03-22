@@ -156,15 +156,15 @@ fr = workshop_fetch(section="NCA", overwrite=TRUE)
 
 This creates several files in the working directory. First are data sets:
 
-* ``pk_all_sd.csv`` - PK data for multiple subjects dosed either IV or SC at different levels
-* ``pk_all_md.csv`` - Multiple dose data with intensive sampling on the first and last dose
-* ``pk_sparse_sd.csv`` - Single dose data with sparse sampling
+* [``pk_all_sd.csv``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/csv/pk_all_sd.csv) - PK data for multiple subjects dosed either IV or SC at different levels
+* [``pk_all_md.csv``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/csv/pk_all_md.csv) - Multiple dose data with intensive sampling on the first and last dose
+* [``pk_sparse_sd.csv``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/csv/pk_sparse_sd.csv) - Single dose data with sparse sampling
 
 Next the following scripts demonstrate how to perform NCA:
 
-* ``analysis_nca_sd.R``    -  Single dose data for individuals
-* ``analysis_nca_md.R``    -  Multiple dose data for individuals
-* ``analysis_nca_sparse.R``-  Average NCA when analyzing sparsely sampled data
+* [``analysis_nca_sd.R``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_nca_sd.R)    -  Single dose data for individuals
+* [``analysis_nca_md.R``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_nca_md.R)    -  Multiple dose data for individuals
+* [``analysis_nca_sparse.R``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_nca_sparse.R) -  Average NCA when analyzing sparsely sampled data
 
 ## Quick Template for Running NCA
 

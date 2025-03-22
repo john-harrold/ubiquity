@@ -20,7 +20,7 @@ require(rhandsontable)
 
 ## Introduction 
 
-The workshop ([workshop.ubiquity.tools](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip)) provides several examples of how to perform simulations in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
+The workshop ([workshop.ubiquity.tools](https://github.com/john-harrold/ubiquity-pkpd/raw/refs/heads/master/download/ubiquity_workshop.zip) provides several examples of how to perform simulations in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
 ```{r, message=FALSE}
 library(ubiquity)
@@ -29,9 +29,9 @@ fr = workshop_fetch(section="Simulation", overwrite=TRUE)
 
 This should create the following scripts:
 
-* ``analysis_single.r`` Simulating the response for a single indiviudal
-* ``analysis_multiple.r`` Mote Carlo simulations using IIV
-* ``analysis_multiple_file.r`` Monte Carlo simulations reading subject information from a file
+* [``analysis_single.r``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_single.r) Simulating the response for a single indiviudal
+* [``analysis_multiple.r``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_multiple.r) Mote Carlo simulations using IIV
+* [``analysis_multiple_file.r``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_multiple_file.r) Monte Carlo simulations reading subject information from a file
 
 These rely on a PK model of mAbs in humans ([Davda etal. mAbs, 6(4), 1094-1102](https://doi.org/10.4161/mabs.29095)).  The contents of the system file for this model can be seen at the bottom (use ``?system_new`` to see a list of the available system file examples). The first step in any analysis (simulation, estimation, etc) is building the system file creating the ubiquity model object (``cfg``). 
 

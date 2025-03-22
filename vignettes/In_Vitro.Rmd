@@ -19,7 +19,8 @@ require(ggplot2)
 
 ## Introduction 
 
-Sometimes we need to analyze data where the independent variable is not time. You can do this with ubiquity and this tutorial will highlight how that is done. If you have not done so already, please review the naive-pooled parameter estimation tutorial because this will build on the concepts covered there. The workshop ([workshop.ubiquity.tools](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip)) provides an example of how to analyize static *in vitro* data. To make a copy of these scripts and other supporting files in the current working directory run the following:
+Sometimes we need to analyze data where the independent variable is not time. You can do this with ubiquity and this tutorial will highlight how that is done. If you have not done so already, please review the naive-pooled parameter estimation tutorial because this will build on the concepts covered there. The workshop ([workshop.ubiquity.tools](https://github.com/john-harrold/ubiquity-pkpd/raw/refs/heads/master/download/ubiquity_workshop.zip))
+provides an example of how to analyize static *in vitro* data. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
 ```{r eval=FALSE}
 library(ubiquity)
@@ -28,10 +29,10 @@ fr = workshop_fetch(section="In Vitro", overwrite=TRUE)
 
 This should create the following files in your current working direcotry:
 
-* `system-in_vitro.txt` - System file that can be run both *in vivo* and *in vitro*
-* `in_vitro_er_data.csv`- *In vitro* data file
-* `mk_data_in_vitro.R`- Script to generate *in vitro* data
-* `analysis_in_vitro.R`- Script to perform parameter estimation using the *in vitro* data
+* [`system-in_vitro.txt`](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/systems/system-in_vitro.txt) - System file that can be run both *in vivo* and *in vitro*
+* [`in_vitro_er_data.csv`](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/csv/in_vitro_er_data.csv) - *In vitro* data file
+* [`mk_data_in_vitro.R`](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/mk_data_in_vitro.R) - Script to generate *in vitro* data
+* [`analysis_in_vitro.R`](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_in_vitro.R) - Script to perform parameter estimation using the *in vitro* data
  
 This example uses a system from [Chakraborty and Jusko. J Pharm Sci 91(5), 1334-1342](https://jpharmsci.org/article/S0022-3549(16)31001-2/abstract). Specifically equation 5 from that article where the effect of two drugs, A and B, is driven by their concentrations ($C_A$, and $C_B$):
  

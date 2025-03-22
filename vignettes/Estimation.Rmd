@@ -19,17 +19,17 @@ require(rhandsontable)
 
 ## Introduction 
 
-The workshop ([workshop.ubiquity.tools](https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip)) provides several examples of performing parameter estimation in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
+The workshop ([workshop.ubiquity.tools](https://github.com/john-harrold/ubiquity-pkpd/raw/refs/heads/master/download/ubiquity_workshop.zip)) provides several examples of performing parameter estimation in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
 
 ```{r eval=FALSE}
 library(ubiquity)
 fr = workshop_fetch(section="Estimation", overwrite=TRUE)
 ```
 
-* ``analysis_parent.r`` - Least squares estimation of a single output
-* ``analysis_parent_metabolite.r`` - Maximum likelihood estimation of two outputs
-* ``analysis_parent_metabolite_global.r`` - Using global optimization packages   
-* ``analysis_parent_metabolite_nm_data.r`` - Reading cohorts in from a NONMEM file
+* [``analysis_parent.r``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_parent.r) - Least squares estimation of a single output
+* [``analysis_parent_metabolite.r``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_parent_metabolite.r) - Maximum likelihood estimation of two outputs
+* [``analysis_parent_metabolite_global.r``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_parent_metabolite_global.r) - Using global optimization packages   
+* [``analysis_parent_metabolite_nm_data.r``](https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_parent_metabolite_nm_data.r) - Reading cohorts in from a NONMEM file
  
 Each of these scripts build on the previous one to demonstrate different features of the ubiquity parameter estimation routines. All of these examples use a system (shown in the figure below) that contains three differential equations tracking the mass of the parent drug in the blood (``Mpb``) and in a tissue space (``Mpt``). In the blood the parent can form (``fmKp``) a metabolite (``Mmb``) with subsequent elimination (``Km``). The parent/metabolite model was adapted from the ADAPT5 Users Manual (https://bmsr.usc.edu/files/2013/02/ADAPT5-User-Guide.pdf). 
 
