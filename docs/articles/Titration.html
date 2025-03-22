@@ -112,7 +112,7 @@ visits: compounds with a narrow therapeutic index, disease progression
 which alters the drug PK or requires increases in the dose amount, etc.
 While it is possible to do this manually with the current simulation
 tools provided, this section outlines a generalized framework to make
-this easier for the users. The <a href="https://ubiquity-pkpd.s3-us-west-1.amazonaws.com/files/ubiquity_workshop.zip" class="external-link">workshop</a>
+this easier for the users. The <a href="https://github.com/john-harrold/ubiquity-pkpd/raw/refs/heads/master/download/ubiquity_workshop.zip" class="external-link">workshop</a>
 provides several examples of running titration or rule-based
 simulations. To make a copy of these scripts and other supporting files
 in the current working directory run the following:</p>
@@ -122,20 +122,22 @@ in the current working directory run the following:</p>
 <p>This should provide you with the following scripts:</p>
 <ul>
 <li>
-<code>analysis_repeat_dosing.r</code> - Implement fixed bolus dosing
-using the titration framework</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_repeat_dosing.r" class="external-link"><code>analysis_repeat_dosing.r</code></a>
+- Implement fixed bolus dosing using the titration framework</li>
 <li>
-<code>analysis_repeat_infusion.r</code> - Implement fixed infusion
-rates using the titration framework</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_repeat_infusion.r" class="external-link"><code>analysis_repeat_infusion.r</code></a>
+- Implement fixed infusion rates using the titration framework</li>
 <li>
-<code>analysis_visit_dosing_titration.r</code> - Alter dosing based
-on predictions at specified time points (individual)</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_visit_dosing_titration.r" class="external-link"><code>analysis_visit_dosing_titration.r</code></a>
+- Alter dosing based on predictions at specified time points
+(individual)</li>
 <li>
-<code>analysis_visit_dosing_titration_stochastic.r</code> - Alter
-dosing based on predictions at specified time points (population)</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_visit_dosing_titration_stochastic.r" class="external-link"><code>analysis_visit_dosing_titration_stochastic.r</code></a>
+- Alter dosing based on predictions at specified time points
+(population)</li>
 <li>
-<code>analysis_state_reset.r</code> - Combine multiple rules to dose
-the drug and perform a state reset</li>
+<a href="https://github.com/john-harrold/ubiquity/blob/master/inst/ubinc/scripts/analysis_state_reset.r" class="external-link"><code>analysis_state_reset.r</code></a>
+- Combine multiple rules to dose the drug and perform a state reset</li>
 </ul>
 <p>Titration or rule-based simulations are run using the following
 functions:</p>
