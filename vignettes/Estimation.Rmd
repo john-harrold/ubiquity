@@ -431,10 +431,10 @@ cfg = system_set_option(cfg, group  = "estimation",
                              value  = "SANN")
 ```
 
-There are also global optimization libraries in R, and two of these can be readily used with ubiquity: Particle Swarm Optimizer (``pso`` package) and Genetic Algorithms (``GA`` package).
+There are also global optimization libraries in R, and several of these readily used with ubiquity. The settings for those are outlined below. 
 
 
-To use the ``pso`` package set the following options:
+To use the particle swarm optimizer (``pso`` package) set the following options:
 ```{r eval=FALSE}
 library(pso)
 cfg = system_set_option(cfg, group  = "estimation",
@@ -446,7 +446,7 @@ cfg = system_set_option(cfg, group  = "estimation",
                              value  = "psoptim")
 ```
 
-To use the ``GA`` package set the following options:
+To use genetic algorithms (`GA` package) set the following options:
 ```{r eval=FALSE}
 library(GA)
 
@@ -460,12 +460,109 @@ cfg = system_set_option(cfg, group  = "estimation",
 
 cfg = system_set_option(cfg, group  = "estimation",
                              option = "control", 
-                             value  = list(maxiter   = 10000, 
-                                           optimArgs = list(method  = "Nelder-Mead",
-                                                            maxiter = 1000)))
+                             value  = list(
+                              maxiter   = 10000, 
+                              optimArgs = list(method  = "Nelder-Mead",
+                                               maxiter = 1000)))
 ```
 
-**Note:** Optimizers like ``SANN`` and the global optimizers (``pso`` and ``GA``) are good for identifying parameter sets outside of the region of the initial guess. However, one consequence of these algorithms is they can quickly approach the bounds. Consequently it is important to provide realistic upper and lower bounds on the parameters (the ``<P>`` descriptor in the system file or using `system_set_guess()` at the scripting level). If you use the default value of machine precision (``eps``) for the lower bound and infinity (``Inf``) for the upper bound these optimization routines can choose parameter values that can cause the internal simulations to fail.
+
+To use the constrained Markov Chain Monte Carlo (MCMC) from the ``FME`` package set the following options:
+```r
+library(FME)
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "optimizer", 
+                             value  = "fme")
+
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "method",
+                             value  = "modMCMC")
+
+# The control option here represents the arguments passed to the method above
+# see the help for the method for valid options. Note that the following options 
+# are set internally and shouldn't be specified here:
+#  - f                  
+#  - p                     
+#  - lower           
+#  - upper             
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "control", 
+                             value  = list(
+                               burninlength              = 10, 
+                               niter                     = 500))
+```
+
+The parallel partical swarm is implemented using the `ppso` package. This is only available on github, so you'll have to install it from the repository there: 
+[https://github.com/TillF/ppso]( https://github.com/TillF/ppso). This package requiers the Rmpi package for parallelization.
+```{r eval=FALSE}
+  library(ppso)
+  cfg = system_set_option(cfg, group  = "estimation",
+                               option = "optimizer", 
+                               value  = "ppso")
+  
+  # These are the methods in the pppso package: 
+  # optim_pso, optim_pso_robust, optim_dds, optim_pdds_robust
+  cfg = system_set_option(cfg, group  = "estimation",
+                               option = "method",
+                               value  = "optim_pso")
+  
+  # The control option here represents the arguments passed to the method above
+  # see the help for the method for valid options. Note that the following options 
+  # are set internally and shouldn't be specified here:
+  #  - objective_function
+  #  - number_of_parameters
+  #  - parameter_bounds
+  #  - initial_estimates 
+  # Need to install Rmpi
+  # https://fisher.stats.uwo.ca/faculty/yu/Rmpi/
+  cfg = system_set_option(cfg, group  = "estimation",
+                               option = "control", 
+                               value  = list(
+                                 max_number_function_calls = 500,
+                                 max_number_of_iterations  = 500,
+                                 number_of_particles       = 5))
+```
+
+The an alternative parallel partical swarm is implemented using the
+`parallelPSO` package. This is only available on github, so you'll have to
+install it from the repository there. This is a patched version:
+[https://github.com/john-harrold/parallelPSO](https://github.com/john-harrold/parallelPSO).
+The original source is here: [https://github.com/TillF/ppso]( https://github.com/TillF/ppso). 
+This package requiers the doParallel package.
+
+```{r eval=FALSE}
+library(parallelPSO)
+library(doParallel)
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "optimizer", 
+                             value  = "parallelpso")
+
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "method",
+                             value  = "pso")
+
+# The control option here represents the arguments passed to the method above
+# see the help for the method for valid options. Note that the following options 
+# are set internally and shouldn't be specified here:
+#  - fitness_function
+#  - number_parameters
+#  - parameters_bounds
+
+
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "control", 
+                             value  = list(
+                               max_number_iterations  = 100,
+                               number_of_partiples    = 40,
+                               parallel = TRUE))
+
+cfg=system_set_option(cfg, group  = "simulation",
+                           option = "compute_cores", 
+                           value  = detectCores() - 1)
+``` 
+
+
+**Note:** Optimizers like ``SANN`` and the global optimizers (``pso``, ``GA``, etc.) are good for identifying parameter sets outside of the region of the initial guess. However, one consequence of these algorithms is they can quickly approach the bounds. Consequently it is important to provide realistic upper and lower bounds on the parameters (the ``<P>`` descriptor in the system file or using `system_set_guess()` at the scripting level). If you use the default value of machine precision (``eps``) for the lower bound and infinity (``Inf``) for the upper bound these optimization routines can choose parameter values that can cause the internal simulations to fail.
 
 ## Cohorts from NONMEM dataset (``analysis_parent_metabolite_nm_data.r``)
 
@@ -507,6 +604,8 @@ OBSMAP$MT = list(variance     = 'slope_metabolite*PRED^2',
                  output       = 'Cmblood', 
                  missing      =  -1 )
 ```
+
+
 
 Lastly we define a map for the model inputs. In this case we only have a bolus in the ``Mpb`` compartment:
 ```{r eval=FALSE}

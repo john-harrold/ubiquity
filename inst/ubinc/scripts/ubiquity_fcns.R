@@ -1441,11 +1441,15 @@ return(cfg)}
 #' For the different methods and control options, see the documentation for the \code{optim}
 #' and \code{optimx} libraries.
 #'
-#' To perform a global optimization you can install either the particle swarm (\code{pso})
-#' genetic algorithm (\code{GA}) libraries.
+#' To perform a global optimization you can install either the particle swarm (\code{pso}),
+#' genetic algorithm (\code{GA}), flexible modeling environment (\code{FME}), 
+#' parallel particle swarm (\code{ppso}), or  doPrallel particle swarm
+#' optimization (\code{parallelPSO}) libraries.
+#'  
 #' To use the particle swarm set the \code{optimizer} and \code{method}:
 #'  
 #' \preformatted{
+#'library(pso)
 #'cfg = system_set_option(cfg, 
 #'                        group  = "estimation",
 #'                        option = "optimizer",
@@ -1455,6 +1459,12 @@ return(cfg)}
 #'                        group  = "estimation",
 #'                        option = "method",
 #'                        value  = "psoptim")
+#'
+#' cfg = system_set_option(cfg, group  = "estimation",
+#'                           option = "control", 
+#'                           value  = list(trace  = TRUE,
+#'                                         maxit  = 200,
+#'                                         REPORT = 10))
 #' }
 #' 
 #' The control option is a list described \code{pso} documentation.
@@ -1462,6 +1472,7 @@ return(cfg)}
 #' To use the genetic algorithm set the optimizer and method:
 #' 
 #' \preformatted{
+#' library(GA)
 #'cfg = system_set_option(cfg, 
 #'                        group  = "estimation",
 #'                        option = "optimizer",
@@ -1471,6 +1482,13 @@ return(cfg)}
 #'                        group  = "estimation",
 #'                        option = "method",
 #'                        value  = "ga")
+#' 
+#' cfg = system_set_option(cfg, group  = "estimation",
+#'                           option = "control", 
+#'                           value  = 
+#'    list(maxiter   = 10000, 
+#'         optimArgs = list(method  = "Nelder-Mead",
+#'                          maxiter = 1000)))
 #' }
 #' 
 #' The control option is a list and the list elements are the named options in the GA
@@ -1485,6 +1503,112 @@ return(cfg)}
 #'                                       method  = "Nelder-Mead",
 #'                                       maxiter = 1000)))
 #' }
+#' 
+#' To use the Markov Chain Monte Carlo method in \code{FME} start with the following settings:
+#' 
+#' \preformatted{
+#' library(FME)
+#' cfg = system_set_option(cfg, group  = "estimation",
+#'                              option = "optimizer", 
+#'                              value  = "fme")
+#' 
+#' cfg = system_set_option(cfg, group  = "estimation",
+#'                              option = "method",
+#'                              value  = "modMCMC")
+#' 
+#' }
+#' 
+#' The control option here represents the arguments passed to the method above
+#' see the help for the method for valid options. Note that the following options 
+#' are set internally and shouldn't be specified here: f, p, lower and upper
+#' 
+#' \preformatted{
+#' cfg = system_set_option(cfg, group  = "estimation",
+#'                              option = "control", 
+#'                              value  = list(
+#'                                burninlength              = 10, 
+#'                                niter                     = 500))#' 
+#' 
+#' }
+#' 
+#'  To use the parallel particle swarm \code{ppso} set the optimizer and method:
+#' 
+#' \preformatted{
+#' library(ppso)
+#' cfg = system_set_option(cfg, group  = "estimation",
+#'                              option = "optimizer", 
+#'                              value  = "ppso")
+#' 
+#' cfg = system_set_option(cfg, group  = "estimation",
+#'                              option = "method",
+#'                              value  = "optim_pso")
+#' }
+#' 
+#' These are the other methods in the pppso package: 
+#' optim_pso_robust, optim_dds, optim_pdds_robust
+#' 
+#' The control option here represents the arguments passed to the method above
+#' see the help for the method for valid options. Note that the following options 
+#' are set internally and shouldn't be specified here:  objective_function,
+#'  number_of_parameters, parameter_bounds, initial_estimates 
+#' 
+#' To utlize the parallelization you need to install and configure the Rmpi package.
+#' 
+#' \preformatted{
+#' cfg = system_set_option(cfg, group  = "estimation",
+#'                              option = "control", 
+#'                              value  = list(
+#'                                max_number_function_calls = 50000,
+#'                                max_number_of_iterations  = 50000,
+#'                                number_of_particles       = 5))
+#' }
+#' 
+#' Note that \code{ppso} is not available on CRAN and must be installed off of
+#' the \href{https://github.com/TillF/ppso}{ppso github page}.
+#' 
+#'
+#' To use the doParallel particle swarm \code{parallelPSO} set the optimizer and method:
+#'
+#' \preformatted{
+#'library(parallelPSO)
+#'library(doParallel)
+#'cfg = system_set_option(cfg, group  = "estimation",
+#'                             option = "optimizer", 
+#'                             value  = "parallelpso")
+#'
+#'cfg = system_set_option(cfg, group  = "estimation",
+#'                             option = "method",
+#'                             value  = "pso")
+#'
+#'}
+#'
+#' The control option here represents the arguments passed to the method above
+#' see the help for the method for valid options. Note that the following options 
+#' are set internally and shouldn't be specified here: fitness_function, 
+#' number_parameters, parameters_bounds
+#'
+#' \preformatted{
+#'cfg = system_set_option(cfg, group  = "estimation",
+#'                             option = "control", 
+#'                             value  = list(
+#'                               max_number_iterations  = 100,
+#'                               number_of_partiples    = 40,
+#'                               parallel = TRUE))
+#'
+#'}
+#'
+#' The number of cores are set using the comput_cores simulation option:
+#'
+#' \preformatted{
+#'cfg=system_set_option(cfg, group  = "simulation",
+#'                           option = "compute_cores", 
+#'                           value  = detectCores() - 1)
+#'
+#'}
+#'
+#' Note that \code{parallelPSO} is not available on CRAN and must be installed off of
+#' the \href{https://github.com/john-harrold/parallelPSO}{this forked github page}.
+#'
 #' 
 #' To alter initial guesses see: \code{\link{system_set_guess}}
 #'
@@ -1528,7 +1652,6 @@ return(cfg)}
 #' \item \code{"debug"}     = Boolean switch to control debugging (see below): \code{FALSE}
 #' \item \code{"verbose"}   = Boolean switch to control printing to the console \code{FALSE}
 #' }
-#'
 #'
 #'
 #' To enable debugging of different functions (like when performing esitmation), 
@@ -1689,12 +1812,12 @@ system_set_option <- function(cfg, group, option, value){
 
     if(group == "simulation" & option == "parallel"){
       if(value == "multicore"){
-        if(!system_req("doParallel")){
+        if(!system_req("doParallel") | !check_deps(deps="doParallel")$isgood){
           isgood = FALSE
           errormsgs = c(errormsgs, "Unable to load the doParallel package")
           errormsgs = c(errormsgs, 'install.packages("doParallel")')
         }
-        if(!system_req("foreach")){
+        if(!system_req("foreach") | !check_deps(deps="foreach")$isgood){
           isgood = FALSE
           errormsgs = c(errormsgs, "Unable to load the foreach package")
           errormsgs = c(errormsgs, 'install.packages("foreach")')
@@ -1706,21 +1829,62 @@ system_set_option <- function(cfg, group, option, value){
 
     if(group == "estimation" & option == "optimizer"){
       if(value == "pso"){
-        if(!system_req("pso")){
+        if(!system_req("pso") | !check_deps(deps="pso")$isgood){
           isgood = FALSE
-          errormsgs =  c(errormsgs, errormsgs, "Unable to load the particle swarm optimizer (pso) package")
-          errormsgs =  c(errormsgs, errormsgs, 'install.packages("pso")')
+          errormsgs =  c(errormsgs, "Unable to load the particle swarm optimizer (pso) package")
+          errormsgs =  c(errormsgs, 'install.packages("pso")')
         }
       }
-    }
-    if(group == "estimation" & option == "optimizer"){
+
+      if(value == "fme"){
+        if(!system_req("FME") | !check_deps(deps="FME")$isgood){
+          isgood = FALSE
+          errormsgs =  c(errormsgs, "Unable to load the flexible modeling environment (FME) package")
+          errormsgs =  c(errormsgs, 'install.packages("FME")')
+        }
+      }
+
+      if(value == "parallelpso"){
+        if(!system_req("parallelPSO") | !system_req("doParallel") | !check_deps(deps="parallelPSO")$isgood){
+          isgood = FALSE
+          errormsgs =  c(errormsgs, 
+            "Unable to load the parallel particle swarm optimizer (parallelPSO) package")
+          errormsgs =  c(errormsgs, 
+            "The parallelPSO package can be installed from github using the following.",
+            'devtools::install_github("https://github.com/john-harrold/parallelPSO")',
+            "adapted from: https://github.com/ChatalovErick/parallelPSO")
+        }
+      }
+
+      if(value == "ppso"){
+        if(!system_req("ppso") | !check_deps(deps="ppso")$isgood){
+          isgood = FALSE
+          errormsgs =  c(errormsgs, 
+            "Unable to load the parallel particle swarm optimizer (ppso) package")
+          errormsgs =  c(errormsgs, 
+            "The ppso package can be installed from github using the following.",
+            'devtools::install_github("TillF/ppso")',
+            "see also: https://github.com/TillF/ppso"
+          )
+        }
+      }
+
+      if(value == "fme"){
+        if(!system_req("FME") | !check_deps(deps="FME")$isgood){
+          isgood = FALSE
+          errormsgs =  c(errormsgs, 
+            "Unable to load the flexible modeling environment (FME) package")
+        }
+      }
+
       if(value == "ga"){
-        if(!system_req("GA")){
+        if(!system_req("GA") | !check_deps(deps="GA")$isgood){
           isgood = FALSE
           errormsgs = c(errormsgs, "Unable to load the Genetic Algoriths (GA) package")
           errormsgs = c(errormsgs, 'install.packages("GA")')
         }
       }
+
     }
 
     if(group == "estimation" & option == "observation_function"){
@@ -1830,8 +1994,7 @@ system_set_option <- function(cfg, group, option, value){
   # If the error flag has been switched above, then we print some inforamtion for the user
   if(!isgood){
     vp(cfg, "ubiquity::system_set_option()                 ", "h1") 
-    vp(cfg, "Something went wrong and the option ") 
-    vp(cfg, "was not set:")
+    vp(cfg, "Something went wrong and the option was not set:")
     vp(cfg, errormsgs)
     }
   
@@ -6048,8 +6211,6 @@ calculate_objective_ga  <- function(pvect, cfg){
 #'\code{value} containing the objective function value and an element named
 #'\code{isgood} that is \cite{TRUE} if the objective function was successful.
 calculate_objective <- function(parameters, cfg, estimation=TRUE){
-
-
   errorflag = FALSE
   # We default value to NA and we catch it at the bottom in case something
   # fails between here and there
@@ -6206,8 +6367,6 @@ calculate_objective <- function(parameters, cfg, estimation=TRUE){
     }
     return(of)
   }
-
-
 }
 
 
@@ -6353,7 +6512,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
 
       # For global optimizers we want to check to see if the bounds make
       # sense. 
-      if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c("pso", "ga")){
+      if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c("pso", "ga", "ppso", "fme", "parallelpso")){
         warn_bounds = FALSE
         for(pidx in 1:length(cfg[["estimation"]][["parameters"]][["guess"]])){
 
@@ -6447,6 +6606,261 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
                            "3" = "Maximal number of restarts reached",
                            "4" = "Maximal number of iterations without improvement reached")
       }
+      else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c('ppso')){
+        # Setting the random seed
+        vp(cfg, paste('Random seed:         ', cfg[["options"]][["stochastic"]][["seed"]], sep=""))
+        set.seed(cfg[["options"]][["stochastic"]][["seed"]])
+
+        # Creating the parameter bounds matrix
+        tmp_guess     = cfg[["estimation"]][["parameters"]][["guess"]]
+        tmp_guess_mat = matrix(tmp_guess, ncol=1, dimnames=list(names(tmp_guess), "value"))
+        tmp_pb = cbind( 
+              cfg[["estimation"]][["parameters"]][["matrix"]][["lower_bound"]],
+              cfg[["estimation"]][["parameters"]][["matrix"]][["upper_bound"]])
+        colnames(tmp_pb) = c("lb", "ub")
+        rownames(tmp_pb) = names(tmp_guess)
+
+        # This list will contain the function arguments:
+        fargs = c(
+        paste0('objective_function     = co_ppso,'),
+        paste0('number_of_parameters   = ', deparse1(    length(tmp_guess)), ","),
+        paste0('parameter_bounds       = tmp_pb ,'),
+        paste0('initial_estimates      = tmp_guess_mat,')
+        )
+
+        arg_skip = c("objective_function", 
+                     "number_of_parameters", 
+                     "parameter_bounds", 
+                     "initial_estimates", "cfg")
+
+        for(aname in names(cfg[["estimation"]][["options"]][["control"]])){
+          if(!aname %in% arg_skip){
+            fargs = c(fargs, 
+            paste0(aname, " = ", deparse1( cfg[["estimation"]][["options"]][["control"]][[aname]]), ",")
+            )
+          } else{
+            vp(cfg, paste0("Ignoring ppso argument: ", aname, " because it is set by system defaults"))
+          }
+        }
+
+        # Adding the system configuration object to be passed along
+        fargs = c(fargs, "cfg = cfg")
+
+
+        #-------------------------------------------------------
+        co_ppso = function(param_vect, cfg=cfg){
+          # calculate_objective takes the parameters as a list, so we take the vector
+          # provided by ppso when it calls the objective function and repackage it as
+          # a named list.
+          plist = list()
+          pidx  = 1
+         
+          # coverting the vector into a list
+          for(pname in names(cfg$estimation$parameters$guess)){
+            plist[[pname]] = param_vect[pidx]
+            pidx = pidx +1
+          }
+          obj = calculate_objective(plist, cfg, estimation=TRUE)
+
+          return(obj)
+        }
+        #-------------------------------------------------------
+
+        tmp_method = paste0("ppso::",cfg[["estimation"]][["options"]][["method"]])
+        est_cmd = paste0(c(paste0("p = ",  tmp_method,"("), fargs, ")"), collapse="\n")
+        eval(parse(text=est_cmd))
+
+        conv_num    = "-1"
+        conv_lookup = list("-1" = p[["break_flag"]])
+      }
+      else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c('fme')){
+        vp(cfg, paste('Random seed:         ', cfg[["options"]][["stochastic"]][["seed"]], sep=""))
+        set.seed(cfg[["options"]][["stochastic"]][["seed"]])
+        #-------------------------------------------------------
+        co_fme  = function(param_vect, cfg=cfg){
+          obj = calculate_objective(param_vect, cfg=cfg, estimation=TRUE)
+
+          return(obj)
+        }
+        #-------------------------------------------------------
+
+        tmp_guess = cfg[["estimation"]][["parameters"]][["guess"]]
+        tmp_lb    = cfg[["estimation"]][["parameters"]][["matrix"]][["lower_bound"]]
+        tmp_ub    = cfg[["estimation"]][["parameters"]][["matrix"]][["upper_bound"]]
+
+        co_fme(tmp_guess, cfg)
+
+        # This list will contain the function arguments:
+        fargs = c(
+          paste0('f      = co_fme,'),
+          paste0('p      = tmp_guess,'),
+          paste0('lower  = tmp_lb,'),
+          paste0('upper  = tmp_ub,')
+        )
+
+        arg_skip = c("f", "p",
+                     "lower", 
+                     "upper", 
+                     "cfg")
+
+        for(aname in names(cfg[["estimation"]][["options"]][["control"]])){
+          if(!aname %in% arg_skip){
+            fargs = c(fargs, 
+            paste0(aname, " = ", deparse1( cfg[["estimation"]][["options"]][["control"]][[aname]]), ",")
+            )
+          } else{
+            vp(cfg, paste0("Ignoring fme  argument: ", aname, " because it is set by system defaults"))
+          }
+        }
+
+        # Adding the system configuration object to be passed along
+        fargs = c(fargs, "cfg = cfg")
+
+        tmp_method = paste0("FME::",cfg[["estimation"]][["options"]][["method"]])
+        est_cmd = paste0(c(paste0("p = ",  tmp_method,"("), fargs, ")"), collapse="\n")
+
+        eval(parse(text=est_cmd))
+
+        conv_text    = "No termination criteria found"
+        conv_num     = "-1"
+        conv_lookup = list("-1" = conv_text )
+
+      }
+      else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c('parallelpso')){
+        # Setting the random seed
+        vp(cfg, paste('Random seed:         ', cfg[["options"]][["stochastic"]][["seed"]], sep=""))
+        set.seed(cfg[["options"]][["stochastic"]][["seed"]])
+
+        # Creating the parameter bounds matrix
+        tmp_guess     = cfg[["estimation"]][["parameters"]][["guess"]]
+        tmp_guess_mat = matrix(tmp_guess, ncol=1, dimnames=list(names(tmp_guess), "value"))
+        tmp_pb = cbind( 
+              cfg[["estimation"]][["parameters"]][["matrix"]][["lower_bound"]],
+              cfg[["estimation"]][["parameters"]][["matrix"]][["upper_bound"]])
+        colnames(tmp_pb) = c("lb", "ub")
+        rownames(tmp_pb) = names(tmp_guess)
+
+        # This list will contain the function arguments:
+        fargs = c(
+        paste0('fitness_function       = co_ppso,'),
+        paste0('number_parameters      = ', deparse1(    length(tmp_guess)), ","),
+        paste0('parameters_bounds      = tmp_pb ,')
+        #paste0('initial_estimates      = tmp_guess_mat,')
+        )
+
+        arg_skip = c("fitness_function", 
+                     "number_parameters", 
+                     "parameters_bounds", 
+                     "cfg")
+
+        for(aname in names(cfg[["estimation"]][["options"]][["control"]])){
+          if(!aname %in% arg_skip){
+            fargs = c(fargs, 
+            paste0(aname, " = ", deparse1( cfg[["estimation"]][["options"]][["control"]][[aname]]), ",")
+            )
+          } else{
+            vp(cfg, paste0("Ignoring ppso argument: ", aname, " because it is set by system defaults"))
+          }
+        }
+
+        # Adding the system configuration object to be passed along
+        fargs = c(fargs, "cfg = cfg")
+
+
+        #-------------------------------------------------------
+        co_ppso = function(param_vect, cfg=cfg){
+          # calculate_objective takes the parameters as a list, so we take the vector
+          # provided by ppso when it calls the objective function and repackage it as
+          # a named list.
+          plist = list()
+          pidx  = 1
+         
+          # coverting the vector into a list
+          for(pname in names(cfg$estimation$parameters$guess)){
+            plist[[pname]] = param_vect[pidx]
+            pidx = pidx +1
+          }
+          obj = calculate_objective(plist, cfg, estimation=TRUE)
+
+          return(obj)
+        }
+        #-------------------------------------------------------
+
+        tmp_method = paste0("parallelPSO::",cfg[["estimation"]][["options"]][["method"]])
+        est_cmd = paste0(c(paste0("p = ",  tmp_method,"("), fargs, ")"), collapse="\n")
+
+        use_parallel = FALSE
+        if("parallel" %in% names(cfg[["estimation"]][["options"]][["control"]])){
+          use_parallel = cfg[["estimation"]][["options"]][["control"]][["parallel"]]
+        }
+
+        if(use_parallel){
+          cl <- makeCluster(cfg$options$simulation_options$compute_cores)
+          doParallel::registerDoParallel(cl)
+        }
+
+        eval(parse(text=est_cmd))
+
+        if(use_parallel){
+          stopCluster(cl)
+        }
+
+        conv_num    = "-1"
+        conv_lookup = list("-1" = p[["break_flag"]])
+      }
+      else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c('fme')){
+        vp(cfg, paste('Random seed:         ', cfg[["options"]][["stochastic"]][["seed"]], sep=""))
+        set.seed(cfg[["options"]][["stochastic"]][["seed"]])
+        #-------------------------------------------------------
+        co_fme  = function(param_vect, cfg=cfg){
+          obj = calculate_objective(param_vect, cfg=cfg, estimation=TRUE)
+
+          return(obj)
+        }
+        #-------------------------------------------------------
+
+        tmp_guess = cfg[["estimation"]][["parameters"]][["guess"]]
+        tmp_lb    = cfg[["estimation"]][["parameters"]][["matrix"]][["lower_bound"]]
+        tmp_ub    = cfg[["estimation"]][["parameters"]][["matrix"]][["upper_bound"]]
+
+        co_fme(tmp_guess, cfg)
+
+        # This list will contain the function arguments:
+        fargs = c(
+          paste0('f      = co_fme,'),
+          paste0('p      = tmp_guess,'),
+          paste0('lower  = tmp_lb,'),
+          paste0('upper  = tmp_ub,')
+        )
+
+        arg_skip = c("f", "p",
+                     "lower", 
+                     "upper", 
+                     "cfg")
+
+        for(aname in names(cfg[["estimation"]][["options"]][["control"]])){
+          if(!aname %in% arg_skip){
+            fargs = c(fargs, 
+            paste0(aname, " = ", deparse1( cfg[["estimation"]][["options"]][["control"]][[aname]]), ",")
+            )
+          } else{
+            vp(cfg, paste0("Ignoring fme  argument: ", aname, " because it is set by system defaults"))
+          }
+        }
+
+        # Adding the system configuration object to be passed along
+        fargs = c(fargs, "cfg = cfg")
+
+        tmp_method = paste0("FME::",cfg[["estimation"]][["options"]][["method"]])
+        est_cmd = paste0(c(paste0("p = ",  tmp_method,"("), fargs, ")"), collapse="\n")
+
+        eval(parse(text=est_cmd))
+
+        conv_text    = "No termination criteria found"
+        conv_num     = "-1"
+        conv_lookup = list("-1" = conv_text )
+
+      }
       else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c('ga')){
         # Setting the random seed
         vp(cfg, paste('Random seed:         ', cfg[["options"]][["stochastic"]][["seed"]], sep=""))
@@ -6470,8 +6884,8 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
           eval(parse(text=sprintf('p = ga(type    = "real-valued",
                                           fitness = calculate_objective_ga , 
                                           cfg     = cfg, 
-                                          min     = cfg[["estimation"]][["parameters"]][["matrix"]][["lower_bound"]],
-                                          max     = cfg[["estimation"]][["parameters"]][["matrix"]][["upper_bound"]]%s)', ctl_str)))
+                                          lower   = cfg[["estimation"]][["parameters"]][["matrix"]][["lower_bound"]],
+                                          upper   = cfg[["estimation"]][["parameters"]][["matrix"]][["upper_bound"]]%s)', ctl_str)))
 
         conv_num    = "-1"
         conv_lookup = list("-1" = "GA has no termination criteria")
@@ -6536,10 +6950,25 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
         pidx = pidx+1
       }
     } 
+    # Parallel Particle swarm (ppso) 
+    else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c("ppso")){
+      pest$obj        = p[["value"]]
+      pest$estimate   = p[["par"]]
+    } 
+    else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c("parallelpso")){
+      pest$obj        = p[["value"]]
+      pest$estimate   = p[["par"]]
+    } 
+    # Parallel Particle swarm (ppso) 
+    else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c("fme")){
+      pest$obj        = p[["bestfunp"]]
+      pest$estimate   = p[["bestpar"]]
+
+    } 
     # Genetic algorithm (ga) output
     else if(cfg[["estimation"]][["options"]][["optimizer"]] %in% c("ga")){
        pest$obj = p@fitnessValue
-       pest$estimation = structure(rep(-1, length(cfg[["estimation"]][["parameters"]][["guess"]])), 
+       pest$estimate   = structure(rep(-1, length(cfg[["estimation"]][["parameters"]][["guess"]])), 
                                       names=names(cfg[["estimation"]][["parameters"]][["guess"]]))
        pidx = 1
        for(pname in names(cfg[["estimation"]][["parameters"]][["guess"]])){
@@ -13528,6 +13957,58 @@ toc <- function()
 
 tic_toc}
 
+
+#-------------------------------------------------------------------------
+#'@export
+#'@title Implementation of Matlab \code{toc()} command
+#'@description Used in conjunction with \code{tic()} to find the elapsed time
+#' when code is executed. 
+#'@param deps list of package dependencies to check (e.g., c("dplyr"))
+#'@param verbose boolean indiciating if messages should be sent back to the user (default \code{FALSE}) 
+#'@param stop_on_error boolean indiciating if messages should be sent back to the user (default \code{FALSE}) 
+#'@return List with the following elements
+#' \itemize{
+#' \item{isgood} TRUE if all the packages were foudn
+#' \item{msgs} Verbose messages
+#' \item{pkgs_missing} Vector of packages that were not found.  
+#'}
+#'
+#'@examples
+#' check_deps(deps=c("dplyr", "ggplot2","bob"), verbose=TRUE)
+check_deps <- function(deps=c(), verbose=FALSE, stop_on_error = FALSE)
+{
+
+  isgood = TRUE
+  pkgs_missing = c()
+  msgs = c()
+
+  for(pkg in deps){
+    if( system.file(package=pkg) ==""){
+      isgood = FALSE
+      pkgs_missing = c(pkgs_missing, pkg)
+    }
+  }
+
+  if(!is.null(pkgs_missing)){
+    msgs = paste0("The following packages are missing: ", paste0(pkgs_missing, collapse=", "), sep="")
+  }
+
+  if(verbose & !is.null(msgs)){
+    for(msg in msgs){
+      cli::cli_alert_info(msg)
+    }
+  }
+
+  if(stop_on_error & !isgood){
+    stop(paste("Missing packages: ", paste0(pkgs_missing, collapse=", "), sep=""))
+  }
+
+  res=list(
+    isgood       = isgood ,
+    pkgs_missing = pkgs_missing
+  )
+
+res}
 
 
 

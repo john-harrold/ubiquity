@@ -8,6 +8,9 @@ editor_options:
 
 ## Notes
 
+- Fixed depreciated `min` and `max` options in `GA::ga()` to use `lower` and `upper`
+- Added support for optimization packages: `ppso`, `parallelPSO`, and `FME`
+
 # ubiquity 2.1.0 
 
 ## Notes

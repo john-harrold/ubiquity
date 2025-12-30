@@ -60,11 +60,15 @@ cfg = system_set_option(cfg,
 For the different methods and control options, see the documentation for the \code{optim}
 and \code{optimx} libraries.
 
-To perform a global optimization you can install either the particle swarm (\code{pso})
-genetic algorithm (\code{GA}) libraries.
+To perform a global optimization you can install either the particle swarm (\code{pso}),
+genetic algorithm (\code{GA}), flexible modeling environment (\code{FME}), 
+parallel particle swarm (\code{ppso}), or  doPrallel particle swarm
+optimization (\code{parallelPSO}) libraries.
+ 
 To use the particle swarm set the \code{optimizer} and \code{method}:
  
 \preformatted{
+library(pso)
 cfg = system_set_option(cfg, 
                        group  = "estimation",
                        option = "optimizer",
@@ -74,6 +78,12 @@ cfg = system_set_option(cfg,
                        group  = "estimation",
                        option = "method",
                        value  = "psoptim")
+
+cfg = system_set_option(cfg, group  = "estimation",
+                          option = "control", 
+                          value  = list(trace  = TRUE,
+                                        maxit  = 200,
+                                        REPORT = 10))
 }
 
 The control option is a list described \code{pso} documentation.
@@ -81,6 +91,7 @@ The control option is a list described \code{pso} documentation.
 To use the genetic algorithm set the optimizer and method:
 
 \preformatted{
+library(GA)
 cfg = system_set_option(cfg, 
                        group  = "estimation",
                        option = "optimizer",
@@ -90,6 +101,13 @@ cfg = system_set_option(cfg,
                        group  = "estimation",
                        option = "method",
                        value  = "ga")
+
+cfg = system_set_option(cfg, group  = "estimation",
+                          option = "control", 
+                          value  = 
+   list(maxiter   = 10000, 
+        optimArgs = list(method  = "Nelder-Mead",
+                         maxiter = 1000)))
 }
 
 The control option is a list and the list elements are the named options in the GA
@@ -104,6 +122,112 @@ cfg = system_set_option(cfg,
                                       method  = "Nelder-Mead",
                                       maxiter = 1000)))
 }
+
+To use the Markov Chain Monte Carlo method in \code{FME} start with the following settings:
+
+\preformatted{
+library(FME)
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "optimizer", 
+                             value  = "fme")
+
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "method",
+                             value  = "modMCMC")
+
+}
+
+The control option here represents the arguments passed to the method above
+see the help for the method for valid options. Note that the following options 
+are set internally and shouldn't be specified here: f, p, lower and upper
+
+\preformatted{
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "control", 
+                             value  = list(
+                               burninlength              = 10, 
+                               niter                     = 500))#' 
+
+}
+
+ To use the parallel particle swarm \code{ppso} set the optimizer and method:
+
+\preformatted{
+library(ppso)
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "optimizer", 
+                             value  = "ppso")
+
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "method",
+                             value  = "optim_pso")
+}
+
+These are the other methods in the pppso package: 
+optim_pso_robust, optim_dds, optim_pdds_robust
+
+The control option here represents the arguments passed to the method above
+see the help for the method for valid options. Note that the following options 
+are set internally and shouldn't be specified here:  objective_function,
+ number_of_parameters, parameter_bounds, initial_estimates 
+
+To utlize the parallelization you need to install and configure the Rmpi package.
+
+\preformatted{
+cfg = system_set_option(cfg, group  = "estimation",
+                             option = "control", 
+                             value  = list(
+                               max_number_function_calls = 50000,
+                               max_number_of_iterations  = 50000,
+                               number_of_particles       = 5))
+}
+
+Note that \code{ppso} is not available on CRAN and must be installed off of
+the \href{https://github.com/TillF/ppso}{ppso github page}.
+
+
+To use the doParallel particle swarm \code{parallelPSO} set the optimizer and method:
+
+\preformatted{
+library(parallelPSO)
+library(doParallel)
+cfg = system_set_option(cfg, group  = "estimation",
+                            option = "optimizer", 
+                            value  = "parallelpso")
+
+cfg = system_set_option(cfg, group  = "estimation",
+                            option = "method",
+                            value  = "pso")
+
+}
+
+The control option here represents the arguments passed to the method above
+see the help for the method for valid options. Note that the following options 
+are set internally and shouldn't be specified here: fitness_function, 
+number_parameters, parameters_bounds
+
+\preformatted{
+cfg = system_set_option(cfg, group  = "estimation",
+                            option = "control", 
+                            value  = list(
+                              max_number_iterations  = 100,
+                              number_of_partiples    = 40,
+                              parallel = TRUE))
+
+}
+
+The number of cores are set using the comput_cores simulation option:
+
+\preformatted{
+cfg=system_set_option(cfg, group  = "simulation",
+                          option = "compute_cores", 
+                          value  = detectCores() - 1)
+
+}
+
+Note that \code{parallelPSO} is not available on CRAN and must be installed off of
+the \href{https://github.com/john-harrold/parallelPSO}{this forked github page}.
+
 
 To alter initial guesses see: \code{\link{system_set_guess}}
 
@@ -147,7 +271,6 @@ this behavior:
 \item \code{"debug"}     = Boolean switch to control debugging (see below): \code{FALSE}
 \item \code{"verbose"}   = Boolean switch to control printing to the console \code{FALSE}
 }
-
 
 
 To enable debugging of different functions (like when performing esitmation), 

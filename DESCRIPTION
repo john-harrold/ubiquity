@@ -40,16 +40,19 @@ Imports:
    shiny,
 Suggests:
    babelmixr2,
+   FME,
    GA,
    GGally,
    gridGraphics,
    gridExtra,
    grid, 
    officer,
+   parallelPSO,
+   ppso,
    rxode2,
    webshot,
    ggrepel,
    rstudioapi,
    testthat
 VignetteBuilder: knitr
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

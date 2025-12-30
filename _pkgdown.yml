@@ -69,6 +69,7 @@ reference:
   desc: ""
 - contents:
   - calculate_halflife
+  - check_deps
   - gg_axis  
   - gg_log10_xaxis  
   - gg_log10_yaxis  

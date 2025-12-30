@@ -145,7 +145,7 @@ This can be done in Excel pretty easily. Depending on the data and the analysis 
 
 Properties like AUC and AUMC can also be be calculated using extrapolation from the last time point to infinity to account for data beyond the observations at hand. The subsequent values of clearance, volumes of distribution, etc can also change with extrapolation. 
 
-There is a lot of nuance associated with these calculations, and it is good to rely on software that focuses on this type of analysis. The [``PKNCA``](https://github.com/billdenney/pknca) package has been developed with this in mind. Ubiquity provides a set of functions to automate NCA and reporting for preclinical data. These functions act as a wrapper for the ``PKNCA`` package which does most of the heavy lifting. Only a small subset of the ``PKNCA`` functionality is used here. If more extensive analysis is necessary then ``PKNCA`` can be used directly. 
+There is a lot of nuance associated with these calculations, and it is good to rely on software that focuses on this type of analysis. The [``PKNCA``](https://github.com/humanpred/pknca) package has been developed with this in mind. Ubiquity provides a set of functions to automate NCA and reporting for preclinical data. These functions act as a wrapper for the ``PKNCA`` package which does most of the heavy lifting. Only a small subset of the ``PKNCA`` functionality is used here. If more extensive analysis is necessary then ``PKNCA`` can be used directly. 
 
 This vignette contains a series of examples on how to perform NCA in ubiquity. To make a copy of these scripts and other supporting files in the current working directory run the following:
 

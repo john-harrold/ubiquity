@@ -6,18 +6,17 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Analysis of Static Systems, an In Vitro Example • ubiquity</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><link href="../deps/KaTex-0.16.10/katex.min.css" rel="stylesheet">
-<script src="../deps/KaTex-0.16.10/katex.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Analysis of Static Systems, an In Vitro Example">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Analysis of Static Systems, an In Vitro Example">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -166,6 +165,13 @@ implementation is dynamic meaning the effect changes with the PK of the
 drug. However the effect is considered instantaneous and typically
 analyzed from <em>in vitro</em> data using algebraic relationships. For
 this system consider the following data:</p>
+<pre><code>Warning:  [1m [22mThe `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
+ [36mℹ [39m Please use the `linewidth` argument instead.
+ [36mℹ [39m The deprecated feature was likely used in the  [34mubiquity [39m package.
+  Please report the issue at  [3m [34m&lt;https://github.com/john-harrold/ubiquity/issues&gt; [39m [23m.
+ [90mThis warning is displayed once every 8 hours. [39m
+ [90mCall `lifecycle::last_lifecycle_warnings()` to see where this warning was [39m
+ [90mgenerated. [39m</code></pre>
 <p><img src="In_Vitro_files/figure-html/unnamed-chunk-2-1.png" width="672"></p>
 <p>Here both the concentrations of drug A and B are altered (independent
 variable) and the Effect is measured (dependent variable).</p>
@@ -193,85 +199,85 @@ paste to your <em>in vivo</em> dynamic system.</strong></p>
 <p>This table contains a snapshot of the relevant columns of the
 dataset:</p>
 <div class="tabwid">
-<style>.cl-1fcbd410{}.cl-1fbebab4{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-1fc9e9ac{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-1fc9e9b6{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-1fc9f74e{width:0.668in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f758{width:0.667in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f759{width:1.007in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f75a{width:1.509in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f762{width:1.032in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f763{width:0.668in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f764{width:0.667in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f76c{width:1.007in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f76d{width:1.509in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f76e{width:1.032in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f76f{width:0.668in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f776{width:0.667in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f777{width:1.007in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f780{width:1.509in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-1fc9f781{width:1.032in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
-<table data-quarto-disable-processing="true" class="table cl-1fcbd410">
+<style>.cl-8d17139c{}.cl-8d1127ac{font-family:'Helvetica';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-8d1283ea{margin:0;text-align:right;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-8d1283f4{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-8d129984{width:0.668in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d12998e{width:0.667in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d12998f{width:1.007in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d129990{width:1.509in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d129998{width:1.032in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 1.5pt solid rgba(102, 102, 102, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d129999{width:0.668in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d1299a2{width:0.667in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d1299a3{width:1.007in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d1299a4{width:1.509in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d1299ac{width:1.032in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d1299ad{width:0.668in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d1299ae{width:0.667in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d1299b6{width:1.007in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d1299b7{width:1.509in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-8d1299b8{width:1.032in;background-color:transparent;vertical-align: middle;border-bottom: 1.5pt solid rgba(102, 102, 102, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style>
+<table data-quarto-disable-processing="true" class="table cl-8d17139c">
 <thead><tr style="overflow-wrap:break-word;">
-<th class="cl-1fc9f74e"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">C_A0</span></p></th>
-<th class="cl-1fc9f758"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">C_B0</span></p></th>
-<th class="cl-1fc9f759"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">Effect</span></p></th>
-<th class="cl-1fc9f75a"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">treat</span></p></th>
-<th class="cl-1fc9f762"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">samp_time</span></p></th>
+<th class="cl-8d129984"><p class="cl-8d1283ea"><span class="cl-8d1127ac">C_A0</span></p></th>
+<th class="cl-8d12998e"><p class="cl-8d1283f4"><span class="cl-8d1127ac">C_B0</span></p></th>
+<th class="cl-8d12998f"><p class="cl-8d1283ea"><span class="cl-8d1127ac">Effect</span></p></th>
+<th class="cl-8d129990"><p class="cl-8d1283f4"><span class="cl-8d1127ac">treat</span></p></th>
+<th class="cl-8d129998"><p class="cl-8d1283ea"><span class="cl-8d1127ac">samp_time</span></p></th>
 </tr></thead>
 <tbody>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-1fc9f763"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">0.001</span></p></td>
-<td class="cl-1fc9f764"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">0.1</span></p></td>
-<td class="cl-1fc9f76c"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">102.15401</span></p></td>
-<td class="cl-1fc9f76d"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">A_0_001_B_0_1</span></p></td>
-<td class="cl-1fc9f76e"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">1</span></p></td>
+<td class="cl-8d129999"><p class="cl-8d1283ea"><span class="cl-8d1127ac">0.001</span></p></td>
+<td class="cl-8d1299a2"><p class="cl-8d1283f4"><span class="cl-8d1127ac">0.1</span></p></td>
+<td class="cl-8d1299a3"><p class="cl-8d1283ea"><span class="cl-8d1127ac">102.15401</span></p></td>
+<td class="cl-8d1299a4"><p class="cl-8d1283f4"><span class="cl-8d1127ac">A_0_001_B_0_1</span></p></td>
+<td class="cl-8d1299ac"><p class="cl-8d1283ea"><span class="cl-8d1127ac">1</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-1fc9f763"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">0.001</span></p></td>
-<td class="cl-1fc9f764"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">0.1</span></p></td>
-<td class="cl-1fc9f76c"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">100.78589</span></p></td>
-<td class="cl-1fc9f76d"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">A_0_001_B_0_1</span></p></td>
-<td class="cl-1fc9f76e"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">1</span></p></td>
+<td class="cl-8d129999"><p class="cl-8d1283ea"><span class="cl-8d1127ac">0.001</span></p></td>
+<td class="cl-8d1299a2"><p class="cl-8d1283f4"><span class="cl-8d1127ac">0.1</span></p></td>
+<td class="cl-8d1299a3"><p class="cl-8d1283ea"><span class="cl-8d1127ac">100.78589</span></p></td>
+<td class="cl-8d1299a4"><p class="cl-8d1283f4"><span class="cl-8d1127ac">A_0_001_B_0_1</span></p></td>
+<td class="cl-8d1299ac"><p class="cl-8d1283ea"><span class="cl-8d1127ac">1</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-1fc9f763"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">0.001</span></p></td>
-<td class="cl-1fc9f764"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">0.1</span></p></td>
-<td class="cl-1fc9f76c"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">91.14621</span></p></td>
-<td class="cl-1fc9f76d"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">A_0_001_B_0_1</span></p></td>
-<td class="cl-1fc9f76e"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">1</span></p></td>
+<td class="cl-8d129999"><p class="cl-8d1283ea"><span class="cl-8d1127ac">0.001</span></p></td>
+<td class="cl-8d1299a2"><p class="cl-8d1283f4"><span class="cl-8d1127ac">0.1</span></p></td>
+<td class="cl-8d1299a3"><p class="cl-8d1283ea"><span class="cl-8d1127ac">91.14621</span></p></td>
+<td class="cl-8d1299a4"><p class="cl-8d1283f4"><span class="cl-8d1127ac">A_0_001_B_0_1</span></p></td>
+<td class="cl-8d1299ac"><p class="cl-8d1283ea"><span class="cl-8d1127ac">1</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-1fc9f763"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">0.001</span></p></td>
-<td class="cl-1fc9f764"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">100</span></p></td>
-<td class="cl-1fc9f76c"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">93.38012</span></p></td>
-<td class="cl-1fc9f76d"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">A_0_001_B_100</span></p></td>
-<td class="cl-1fc9f76e"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">1</span></p></td>
+<td class="cl-8d129999"><p class="cl-8d1283ea"><span class="cl-8d1127ac">0.001</span></p></td>
+<td class="cl-8d1299a2"><p class="cl-8d1283f4"><span class="cl-8d1127ac">100</span></p></td>
+<td class="cl-8d1299a3"><p class="cl-8d1283ea"><span class="cl-8d1127ac">93.38012</span></p></td>
+<td class="cl-8d1299a4"><p class="cl-8d1283f4"><span class="cl-8d1127ac">A_0_001_B_100</span></p></td>
+<td class="cl-8d1299ac"><p class="cl-8d1283ea"><span class="cl-8d1127ac">1</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-1fc9f763"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">0.001</span></p></td>
-<td class="cl-1fc9f764"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">100</span></p></td>
-<td class="cl-1fc9f76c"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">91.03467</span></p></td>
-<td class="cl-1fc9f76d"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">A_0_001_B_100</span></p></td>
-<td class="cl-1fc9f76e"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">1</span></p></td>
+<td class="cl-8d129999"><p class="cl-8d1283ea"><span class="cl-8d1127ac">0.001</span></p></td>
+<td class="cl-8d1299a2"><p class="cl-8d1283f4"><span class="cl-8d1127ac">100</span></p></td>
+<td class="cl-8d1299a3"><p class="cl-8d1283ea"><span class="cl-8d1127ac">91.03467</span></p></td>
+<td class="cl-8d1299a4"><p class="cl-8d1283f4"><span class="cl-8d1127ac">A_0_001_B_100</span></p></td>
+<td class="cl-8d1299ac"><p class="cl-8d1283ea"><span class="cl-8d1127ac">1</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-1fc9f763"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">0.001</span></p></td>
-<td class="cl-1fc9f764"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">100</span></p></td>
-<td class="cl-1fc9f76c"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">86.20118</span></p></td>
-<td class="cl-1fc9f76d"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">A_0_001_B_100</span></p></td>
-<td class="cl-1fc9f76e"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">1</span></p></td>
+<td class="cl-8d129999"><p class="cl-8d1283ea"><span class="cl-8d1127ac">0.001</span></p></td>
+<td class="cl-8d1299a2"><p class="cl-8d1283f4"><span class="cl-8d1127ac">100</span></p></td>
+<td class="cl-8d1299a3"><p class="cl-8d1283ea"><span class="cl-8d1127ac">86.20118</span></p></td>
+<td class="cl-8d1299a4"><p class="cl-8d1283f4"><span class="cl-8d1127ac">A_0_001_B_100</span></p></td>
+<td class="cl-8d1299ac"><p class="cl-8d1283ea"><span class="cl-8d1127ac">1</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-1fc9f763"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">0.001</span></p></td>
-<td class="cl-1fc9f764"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">500</span></p></td>
-<td class="cl-1fc9f76c"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">51.76744</span></p></td>
-<td class="cl-1fc9f76d"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">A_0_001_B_500</span></p></td>
-<td class="cl-1fc9f76e"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">1</span></p></td>
+<td class="cl-8d129999"><p class="cl-8d1283ea"><span class="cl-8d1127ac">0.001</span></p></td>
+<td class="cl-8d1299a2"><p class="cl-8d1283f4"><span class="cl-8d1127ac">500</span></p></td>
+<td class="cl-8d1299a3"><p class="cl-8d1283ea"><span class="cl-8d1127ac">51.76744</span></p></td>
+<td class="cl-8d1299a4"><p class="cl-8d1283f4"><span class="cl-8d1127ac">A_0_001_B_500</span></p></td>
+<td class="cl-8d1299ac"><p class="cl-8d1283ea"><span class="cl-8d1127ac">1</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-1fc9f763"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">0.001</span></p></td>
-<td class="cl-1fc9f764"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">500</span></p></td>
-<td class="cl-1fc9f76c"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">48.95016</span></p></td>
-<td class="cl-1fc9f76d"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">A_0_001_B_500</span></p></td>
-<td class="cl-1fc9f76e"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">1</span></p></td>
+<td class="cl-8d129999"><p class="cl-8d1283ea"><span class="cl-8d1127ac">0.001</span></p></td>
+<td class="cl-8d1299a2"><p class="cl-8d1283f4"><span class="cl-8d1127ac">500</span></p></td>
+<td class="cl-8d1299a3"><p class="cl-8d1283ea"><span class="cl-8d1127ac">48.95016</span></p></td>
+<td class="cl-8d1299a4"><p class="cl-8d1283f4"><span class="cl-8d1127ac">A_0_001_B_500</span></p></td>
+<td class="cl-8d1299ac"><p class="cl-8d1283ea"><span class="cl-8d1127ac">1</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-1fc9f763"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">0.001</span></p></td>
-<td class="cl-1fc9f764"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">500</span></p></td>
-<td class="cl-1fc9f76c"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">52.68611</span></p></td>
-<td class="cl-1fc9f76d"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">A_0_001_B_500</span></p></td>
-<td class="cl-1fc9f76e"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">1</span></p></td>
+<td class="cl-8d129999"><p class="cl-8d1283ea"><span class="cl-8d1127ac">0.001</span></p></td>
+<td class="cl-8d1299a2"><p class="cl-8d1283f4"><span class="cl-8d1127ac">500</span></p></td>
+<td class="cl-8d1299a3"><p class="cl-8d1283ea"><span class="cl-8d1127ac">52.68611</span></p></td>
+<td class="cl-8d1299a4"><p class="cl-8d1283f4"><span class="cl-8d1127ac">A_0_001_B_500</span></p></td>
+<td class="cl-8d1299ac"><p class="cl-8d1283ea"><span class="cl-8d1127ac">1</span></p></td>
 </tr>
 <tr style="overflow-wrap:break-word;">
-<td class="cl-1fc9f76f"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">0.001</span></p></td>
-<td class="cl-1fc9f776"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">1000</span></p></td>
-<td class="cl-1fc9f777"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">28.46122</span></p></td>
-<td class="cl-1fc9f780"><p class="cl-1fc9e9b6"><span class="cl-1fbebab4">A_0_001_B_1000</span></p></td>
-<td class="cl-1fc9f781"><p class="cl-1fc9e9ac"><span class="cl-1fbebab4">1</span></p></td>
+<td class="cl-8d1299ad"><p class="cl-8d1283ea"><span class="cl-8d1127ac">0.001</span></p></td>
+<td class="cl-8d1299ae"><p class="cl-8d1283f4"><span class="cl-8d1127ac">1000</span></p></td>
+<td class="cl-8d1299b6"><p class="cl-8d1283ea"><span class="cl-8d1127ac">28.46122</span></p></td>
+<td class="cl-8d1299b7"><p class="cl-8d1283f4"><span class="cl-8d1127ac">A_0_001_B_1000</span></p></td>
+<td class="cl-8d1299b8"><p class="cl-8d1283ea"><span class="cl-8d1127ac">1</span></p></td>
 </tr>
 </tbody>
 </table>
@@ -299,7 +305,7 @@ happens when performing a parameter estimation) more output times
 results in slower simulations. So it is important to only include the
 ncesssary output times. In this case we only have two output times (0
 and 1):</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cfg</span><span class="op">=</span><span class="fu"><a href="../reference/system_set_option.html">system_set_option</a></span><span class="op">(</span><span class="va">cfg</span>, group  <span class="op">=</span> <span class="st">"simulation"</span>, </span>
 <span>                           option <span class="op">=</span> <span class="st">"output_times"</span>, </span>
 <span>                           <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -311,7 +317,7 @@ column (<code>samp_time</code>) in the analysis dataset.</p>
 </h3>
 <p>Next we set the <code>simulation</code> option <code>dynamic</code>
 to <code>FALSE</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cfg</span><span class="op">=</span><span class="fu"><a href="../reference/system_set_option.html">system_set_option</a></span><span class="op">(</span><span class="va">cfg</span>, group  <span class="op">=</span> <span class="st">"simulation"</span>, </span>
 <span>                           option <span class="op">=</span> <span class="st">"dynamic"</span>, </span>
 <span>                           value  <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -325,7 +331,7 @@ ubiquity version <span class="math inline">\ge</span> 2.10.</strong></p>
 <p>For the dataset we are reading it into a dataframe and loading it
 that way. This was done so the dataset could be used internally with
 ubiqiuty and also to construct the analysis below:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">er_data</span> <span class="op">=</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="st">"in_vitro_er_data.csv"</span><span class="op">)</span></span>
 <span><span class="va">cfg</span> <span class="op">=</span> <span class="fu"><a href="../reference/system_load_data.html">system_load_data</a></span><span class="op">(</span><span class="va">cfg</span>, dsname     <span class="op">=</span> <span class="st">"er_data"</span>,</span>
 <span>                            data_file  <span class="op">=</span> <span class="va">er_data</span><span class="op">)</span></span></code></pre></div>
@@ -340,7 +346,7 @@ in the dataset. To do this we are going to loop through each unique
 value in the <code>treat</code> column and create a cohort. The variable
 <code>tmp_treat</code> contains the value of the current treatment so
 the first thing we do is get the records for the current treatment:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">treat_recs</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">er_data</span>, <span class="va">treat</span> <span class="op">==</span> <span class="va">tmp_treat</span><span class="op">)</span></span></code></pre></div>
 <p>This subset of the data is used to define the initial condition
 parameters for the current cohort using the <code>cp</code> field (see
@@ -350,7 +356,7 @@ constructed we can use this as the cohort name. This will allow us to
 link the simulated output below to the original dataset in the post
 processing section below. The inputs are set to <code>NULL</code> here
 and we do not have to change them because there is no dosing.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cohort</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    name         <span class="op">=</span> <span class="va">tmp_treat</span>,</span>
 <span>    cf           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -376,7 +382,7 @@ estimation <code>erp</code> and the original data dataset
 because we can link the two datasets using the <code>treat</code> column
 from the original dataset to the <code>COHORT</code> column in
 <code>erp$pred</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_orig</span> <span class="op">=</span> <span class="va">er_data</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">C_A0</span>, <span class="va">C_B0</span>, <span class="va">ave_eff</span>, <span class="va">treat</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -516,7 +522,7 @@ Exiting from Nelder Mead minimizer
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
