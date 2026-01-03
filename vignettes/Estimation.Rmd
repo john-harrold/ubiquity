@@ -525,7 +525,7 @@ The parallel partical swarm is implemented using the `ppso` package. This is onl
 
 The an alternative parallel partical swarm is implemented using the
 `parallelPSO` package. This is only available on github, so you'll have to
-install it from the repository there. This is a patched version:
+install it from the repository there. Use This patched version:
 [https://github.com/john-harrold/parallelPSO](https://github.com/john-harrold/parallelPSO).
 The original source is here: [https://github.com/TillF/ppso]( https://github.com/TillF/ppso). 
 This package requiers the doParallel package.

@@ -1607,7 +1607,7 @@ return(cfg)}
 #'}
 #'
 #' Note that \code{parallelPSO} is not available on CRAN and must be installed off of
-#' the \href{https://github.com/john-harrold/parallelPSO}{this forked github page}.
+#' \href{https://github.com/john-harrold/parallelPSO}{this fork on github}.
 #'
 #' 
 #' To alter initial guesses see: \code{\link{system_set_guess}}
@@ -6881,7 +6881,7 @@ odtest = calculate_objective(cfg$estimation$parameters$guess, cfg, estimation=FA
         else{
           ctl_str  = "" }
         
-          eval(parse(text=sprintf('p = ga(type    = "real-valued",
+          eval(parse(text=sprintf('p = GA::ga(type    = "real-valued",
                                           fitness = calculate_objective_ga , 
                                           cfg     = cfg, 
                                           lower   = cfg[["estimation"]][["parameters"]][["matrix"]][["lower_bound"]],
