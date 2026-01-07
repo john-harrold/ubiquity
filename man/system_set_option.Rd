@@ -226,7 +226,7 @@ cfg=system_set_option(cfg, group  = "simulation",
 }
 
 Note that \code{parallelPSO} is not available on CRAN and must be installed off of
-the \href{https://github.com/john-harrold/parallelPSO}{this forked github page}.
+\href{https://github.com/john-harrold/parallelPSO}{this fork on github}.
 
 
 To alter initial guesses see: \code{\link{system_set_guess}}

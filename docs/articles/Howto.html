@@ -184,15 +184,38 @@ NONMEM control stream:</p>
 
 
 
+
 <ul class="nav nav-tabs" id="models-in-different-formats" role="tablist">
-<li role="presentation" class="nav-item"><button data-bs-toggle="tab" data-bs-target="#ubiquity" id="ubiquity-tab" type="button" role="tab" aria-controls="ubiquity" aria-selected="true" class="active nav-link"><code>ubiquity</code></button></li>
+<li role="presentation" class="nav-item"><button data-bs-toggle="tab" data-bs-target="#model-equations" id="model-equations-tab" type="button" role="tab" aria-controls="model-equations" aria-selected="true" class="active nav-link">Model equations</button></li>
+<li role="presentation" class="nav-item"><button data-bs-toggle="tab" data-bs-target="#ubiquity" id="ubiquity-tab" type="button" role="tab" aria-controls="ubiquity" aria-selected="false" class="nav-link"><code>ubiquity</code></button></li>
 <li role="presentation" class="nav-item"><button data-bs-toggle="tab" data-bs-target="#rxode2-script" id="rxode2-script-tab" type="button" role="tab" aria-controls="rxode2-script" aria-selected="false" class="nav-link"><code>rxode2</code> script</button></li>
 <li role="presentation" class="nav-item"><button data-bs-toggle="tab" data-bs-target="#rxode2-object" id="rxode2-object-tab" type="button" role="tab" aria-controls="rxode2-object" aria-selected="false" class="nav-link"><code>rxode2</code> object</button></li>
 <li role="presentation" class="nav-item"><button data-bs-toggle="tab" data-bs-target="#nonmem" id="nonmem-tab" type="button" role="tab" aria-controls="nonmem" aria-selected="false" class="nav-link">NONMEM</button></li>
 <li role="presentation" class="nav-item"><button data-bs-toggle="tab" data-bs-target="#monolix" id="monolix-tab" type="button" role="tab" aria-controls="monolix" aria-selected="false" class="nav-link">Monolix</button></li>
 </ul>
 <div class="tab-content">
-<div class="active  tab-pane" id="ubiquity" role="tabpanel" aria-labelledby="ubiquity-tab">
+<div class="active  tab-pane" id="model-equations" role="tabpanel" aria-labelledby="model-equations-tab">
+
+<p>The ODEs that define the system:</p>
+<p><span class="math display">\begin{align*}
+{Vc} &amp; = \exp\left({TV\_Vc}+{eta\_Vc}\right) \\
+{Vt} &amp; = {TV\_Vt} \\
+{CL} &amp; = {TV\_CL} \\
+{Q} &amp; = {TV\_Q} \\
+{ka} &amp; = {TV\_ka} \\
+{fb} &amp; = {TV\_fb} \\
+{Dinf} &amp; = {0} \\
+\frac{d \: At}{dt} &amp; = \left(-{ka} {\times} {At}\right) \\
+\frac{d \: Cc}{dt} &amp; = \left(\frac{{ka} {\times} {At} {\times}
+{fb}}{{Vc}}-\frac{{CL}}{{Vc}} {\times} {Cc}-\frac{{Q} {\times}
+\left({Cc}-{Cp}\right)}{{Vc}}+\frac{{Dinf}}{{Vc}}\right) \\
+\frac{d \: Cp}{dt} &amp; = \left(\frac{+{Q} {\times}
+\left({Cc}-{Cp}\right)}{{Vt}}\right) \\
+{Cc\_mg\_ml} &amp; = {Cc} \\
+{Cc\_mg\_ml} &amp; \sim prop({prop\_err})+add({add\_err})
+\end{align*}</span></p>
+</div>
+<div class="tab-pane" id="ubiquity" role="tabpanel" aria-labelledby="ubiquity-tab">
 
 <p>Contents of <code>system_2cmt.txt</code> file:</p>
 <pre><code>
@@ -318,7 +341,7 @@ NONMEM control stream:</p>
 <span></span>
 <span>   <span class="co"># Outputs and error models</span></span>
 <span>   <span class="va">Cc_mg_ml</span>    <span class="op">=</span> <span class="va">Cc</span></span>
-<span>   <span class="va">Cc_mg_ml</span> <span class="op">~</span> <span class="fu">add</span><span class="op">(</span><span class="va">add_err</span><span class="op">)</span> <span class="op">+</span> <span class="fu">prop</span><span class="op">(</span><span class="va">prop_err</span><span class="op">)</span></span>
+<span>   <span class="va">Cc_mg_ml</span> <span class="op">~</span> <span class="fu">prop</span><span class="op">(</span><span class="va">prop_err</span><span class="op">)</span> <span class="op">+</span> <span class="fu">add</span><span class="op">(</span><span class="va">add_err</span><span class="op">)</span></span>
 <span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre>
@@ -326,23 +349,36 @@ NONMEM control stream:</p>
 <div class="tab-pane" id="rxode2-object" role="tabpanel" aria-labelledby="rxode2-object-tab">
 
 <p>The <code>my_model</code> object:</p>
-<p><span class="math display">\begin{align*}
-{Vc} &amp; = \exp\left({TV\_Vc}+{eta\_Vc}\right) \\
-{Vt} &amp; = {TV\_Vt} \\
-{CL} &amp; = {TV\_CL} \\
-{Q} &amp; = {TV\_Q} \\
-{ka} &amp; = {TV\_ka} \\
-{fb} &amp; = {TV\_fb} \\
-{Dinf} &amp; = {0} \\
-\frac{d \: At}{dt} &amp; = \left(-{ka} {\times} {At}\right) \\
-\frac{d \: Cc}{dt} &amp; = \left(\frac{{ka} {\times} {At} {\times}
-{fb}}{{Vc}}-\frac{{CL}}{{Vc}} {\times} {Cc}-\frac{{Q} {\times}
-\left({Cc}-{Cp}\right)}{{Vc}}+\frac{{Dinf}}{{Vc}}\right) \\
-\frac{d \: Cp}{dt} &amp; = \left(\frac{+{Q} {\times}
-\left({Cc}-{Cp}\right)}{{Vt}}\right) \\
-{Cc\_mg\_ml} &amp; = {Cc} \\
-{Cc\_mg\_ml} &amp; \sim add({add\_err})+prop({prop\_err})
-\end{align*}</span></p>
+<pre><code>function () 
+{
+    ini({
+        TV_Vc &lt;- c(2.22044604925031e-16, 1)
+        TV_Vt &lt;- c(2.22044604925031e-16, 1)
+        TV_CL &lt;- c(2.22044604925031e-16, 1)
+        TV_Q &lt;- c(2.22044604925031e-16, 1)
+        TV_ka &lt;- c(2.22044604925031e-16, 1)
+        TV_fb &lt;- c(2.22044604925031e-16, 1)
+        prop_err &lt;- c(2.22044604925031e-16, 0.1)
+        add_err &lt;- c(2.22044604925031e-16, 0.1)
+        eta_Vc ~ 1
+    })
+    model({
+        Vc &lt;- exp(TV_Vc + eta_Vc)
+        Vt = TV_Vt
+        CL = TV_CL
+        Q = TV_Q
+        ka = TV_ka
+        fb = TV_fb
+        Dinf = 0
+        d/dt(At) = (-ka * At)
+        d/dt(Cc) = (ka * At * fb/Vc - CL/Vc * Cc - Q * (Cc - 
+            Cp)/Vc + Dinf/Vc)
+        d/dt(Cp) = (+Q * (Cc - Cp)/Vt)
+        Cc_mg_ml = Cc
+        Cc_mg_ml ~ prop(prop_err) + add(add_err)
+    })
+}
+&lt;environment: 0x117d52550&gt;</code></pre>
 </div>
 <div class="tab-pane" id="nonmem" role="tabpanel" aria-labelledby="nonmem-tab">
 

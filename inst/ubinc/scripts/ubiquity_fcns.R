@@ -646,8 +646,6 @@ sfs}
 #'  \item{"Adapt"}            produces \code{system_adapt.for} and \code{system_adapt.prm}: Fortran and parameter files for the currently selected parameter set in Adapt format.
 #'  \item{"Berkeley Madonna"} produces \code{system_berkeley_madonna.txt}: text file with the model and the currently selected parameter set in Berkeley Madonna format
 #'  \item{"nlmixr"}           produces \code{system_nlmixr.R} For the currently selected parameter set to define the system in the `nlmixr` format.
-#'  \item{"NONMEM"}           produces \code{system_nonmem.ctl} For the currently selected parameter set as a NONMEM conntrol stream.
-#'  \item{"Monolix"}          produces \code{system_monolix.txt} and \code{system_monolix.mlxtran} For the currently selected parameter set.
 #'  \item{"mrgsolve"}         produces \code{system_mrgsolve.cpp}: text file with the model and the currently selected parameter set in mrgsolve format  
 #'}
 #'
@@ -681,7 +679,6 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
              "Model Diagram",
              "Berkeley Madonna", 
              "Adapt", "nlmixr2",
-             "NONMEM", "Monolix",
              "mrgsolve")
 
 
@@ -755,77 +752,6 @@ system_fetch_template  <- function(cfg, template="Simulation", overwrite=FALSE, 
      sources      = c(file.path(template_dir, sprintf("system.svg")))
      destinations = c("system.svg")
      write_file   = c(TRUE)
-   }
-   if(template == "NONMEM" || template == "Monolix" ){
-     # Needed because capture is created in an eval
-     capture    = NULL
-     deps_found = TRUE
-     # Walking through the dependencies to make sure everything is needed
-     if(system.file(package="rxode2") == ""){
-       isgood     = FALSE
-       deps_found = FALSE
-       vp(cfg, paste0("The rxode2 package is needed to create ", template, " template."))
-     }
-     if(system.file(package="babelmixr2") == ""){
-       isgood     = FALSE
-       deps_found = FALSE
-       vp(cfg, paste0("The babelmixr2 package is needed to create ", template, " template."))
-     }
-
-     if(deps_found){
-       nlmixr_file = file.path(temp_directory, sprintf("target_nlmixr-%s.R",current_set))
-       cmd = c('require(rxode2)',
-               'require(babelmixr2)',
-               'source(nlmixr_file)',
-               'my_rx = my_model()',
-               'capture = list()')
-       if(template == "NONMEM"){
-         cmd = c(cmd,
-                 'ctl_file = tempfile(fileext=".ctl")',
-                 'tmpstr = as.character(my_rx$nonmemModel)',
-                 'fileConn = file(ctl_file)', 
-                 'writeLines(tmpstr, fileConn)',
-                 'close(fileConn)',
-                 'capture[["sources"]]      = c(ctl_file)',
-                 'capture[["destinations"]] = c("system_nonmem.ctl")',
-                 'capture[["write_file"]]   = c(TRUE)')
-       }
-       if(template == "Monolix"){
-         cmd = c(cmd,
-                 'mlxtran_file = tempfile(fileext=".mlxtran")',
-                 'tmpstr = as.character(my_rx$mlxtran)',
-                 'fileConn = file(mlxtran_file)', 
-                 'writeLines(tmpstr, fileConn)',
-                 'close(fileConn)',
-                 'mlxtxt_file = tempfile(fileext=".txt")',
-                 'tmpstr = as.character(my_rx$monolixModel)',
-                 'fileConn = file(mlxtxt_file)', 
-                 'writeLines(tmpstr, fileConn)',
-                 'close(fileConn)',
-                 'capture[["sources"]]      = c(mlxtran_file, mlxtxt_file)',
-                 'capture[["destinations"]] = c("system_monolix.mlxtran",  "system_monolix.txt")',
-                 'capture[["write_file"]]   = c(TRUE, TRUE)')
-       }
-
-
-        tcres = tryCatch(
-          { 
-           eval(parse(text=paste0(cmd, collapse="\n")))
-           list(capture=capture,isgood=TRUE)
-          },
-         error = function(e) {
-           list(error=e, isgood=FALSE)
-           })
-
-       if(tcres[["isgood"]]){
-         sources      = tcres[["capture"]][["sources"]]
-         destinations = tcres[["capture"]][["destinations"]] 
-         write_file   = tcres[["capture"]][["write_file"]] 
-       } else {
-         vp(cfg, as.character(tcres$error), fmt="danger")
-         isgood=FALSE
-       }
-     }
    }
    if(template == "nlmixr2"){
      sources      = c(file.path(temp_directory, sprintf("target_nlmixr-%s.R",current_set)))
@@ -14009,7 +13935,3 @@ check_deps <- function(deps=c(), verbose=FALSE, stop_on_error = FALSE)
   )
 
 res}
-
-
-
-

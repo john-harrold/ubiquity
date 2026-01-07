@@ -160,6 +160,14 @@ For more discussion on this topic see the following:
 
 ### Models in different formats {.tabset}
 
+#### Model equations
+
+The ODEs that define the system:
+
+```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
+my_model
+```
+
 #### `ubiquity`
 
 Contents of `system_2cmt.txt` file:
@@ -182,7 +190,8 @@ cat(readLines( file.path(tempdir(), "system_nlmixr2.R")) , sep="\n")
 The `my_model` object:
 
 ```{r echo=FALSE, comment='', message=TRUE, eval=TRUE}
-my_model
+#cat(as.character(paste0(deparse(my_model), collapse="\n")))
+as.function(my_model)
 ```
 
 #### NONMEM
